@@ -1,0 +1,37 @@
+.text-field {
+	-fx-background-color:  #FFF;
+}
+
+.header {
+	-fx-background-color: #ffe000;
+}
+
+.button {
+	-fx-border-radius: 2px;
+}
+
+.text-area {
+	-fx-border-radius: 2px;
+}
+
+.darkblue {
+	-fx-background-color: #33e9ff;
+}
+
+.slider {
+	-fx-opacity: 1;
+}
+
+.mainPane {
+	-fx-background-color: #D1D1D1;
+}
+
+.jfx-button {
+	-fx-text-fill: #F0F0F0;	
+}
+
+.list-cell {
+	-fx-padding:0;
+	-fx-margin:0;
+	-fx-background-insets: 0px;
+}

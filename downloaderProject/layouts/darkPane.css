@@ -1,0 +1,54 @@
+.text-field, .lighter, .list-view{
+	-fx-background-color:  #D0D0D0;
+}
+
+.background {
+	-fx-background-color: #919191;
+}
+
+.header {
+	-fx-background-color: #BAA618;
+}
+
+.separator {
+    -fx-border-width: 0 0 0 0;
+    -fx-background-color: #515151;
+}
+
+.label, .button{
+	-fx-text-fill: #F0F0F0;	
+}
+
+.button {
+	-fx-background-color: #818181;
+	-fx-border-color:#717171;
+	-fx-border-radius: 2px;
+}
+
+.text-area, .lighter {
+	-fx-border-color:#717171;
+	-fx-border-radius: 2px;
+}
+
+.darkblue {
+	-fx-background-color: #3C7E86;
+}
+
+.mainPane {
+	-fx-background-color: #575757;
+}
+
+.jfx-button {
+	-fx-background-color: #575757;
+	-fx-text-fill: #F0F0F0;	
+	-fx-border-color:#575757;
+}
+
+.list-cell {
+	-fx-padding:0;
+	-fx-background-insets: 0px;
+}
+
+.scroll-pane > .viewport {
+	-fx-background-color: #D0D0D0;
+}

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.text.Font?>
+
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="457.0" prefWidth="688.0" stylesheets="@darkPane.css" xmlns:fx="http://javafx.com/fxml/1" fx:controller="downloaderProject.mainLayoutController">
+   <children> 
+      <Pane prefHeight="45.0" prefWidth="688.0" styleClass="header">
+         <children>
+            <Label layoutX="25.0" layoutY="10.0" prefHeight="24.0" prefWidth="500.0" text="Download History" textFill="#FFFFFF">
+               <font>
+                  <Font name="System Bold" size="14.0" />
+               </font>
+            </Label>
+         </children>
+      </Pane>
+      <ListView id="downloaded" fx:id="downloaded" layoutY="45.0" prefHeight="411.0" prefWidth="688.0" styleClass="background" />
+   </children>
+</Pane>
