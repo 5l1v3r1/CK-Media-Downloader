@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.Pane?>
+
+<?import com.jfoenix.controls.JFXButton?>
+
+<Pane id="AnchorPane" prefHeight="77.0" prefWidth="665.0" styleClass="lighter" stylesheets="@../downloaderProject/layouts/darkPane.css" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <ImageView fx:id="thumb" fitHeight="77.0" fitWidth="90.0" pickOnBounds="true" preserveRatio="true" />
+      <Label id="downloadName" fx:id="downloadName" layoutX="98.0" layoutY="1.0" prefHeight="39.0" prefWidth="519.0" text="Searching media" wrapText="true" />
+      <JFXButton fx:id="cancel" layoutX="575.0" layoutY="1.0" prefHeight="32.0" prefWidth="163.0" text="" textFill="#33e9ff">
+         <graphic>
+            <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../icons/icons8-cancel-40.png" />
+               </image>
+            </ImageView>
+         </graphic>
+         <tooltip><Tooltip text="remove from list" /></tooltip>
+      </JFXButton>
+      <Button id="downloadBtn" fx:id="downloadBtn" layoutX="98.0" layoutY="40.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="115.0" text="Download">
+         <graphic>
+            <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../icons/icons8-download-80.png" />
+               </image>
+            </ImageView>
+         </graphic>
+         <tooltip><Tooltip text="download media" /></tooltip>
+      </Button>
+      <ProgressBar id="pBar" fx:id="pBar" layoutX="256.0" layoutY="50.0" prefHeight="20.0" prefWidth="403.0" progress="0.0" />
+      <Button id="save" fx:id="save" layoutX="215.0" layoutY="40.0" mnemonicParsing="false" prefHeight="30.0">
+         <graphic>
+            <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../icons/icons8-download-from-cloud-40.png" />
+               </image>
+            </ImageView>
+         </graphic>
+         <tooltip><Tooltip text="save media for later" /></tooltip>
+      </Button>
+   </children>
+</Pane>
