@@ -133,9 +133,9 @@ public class DataCollection implements Externalizable{
 	private void addStar(String name) {
 		//if (frequentStars.containsKey(name))
                 if (frequentStars.containsKey(new Star(name,true)))
-			frequentStars.put(new Star(name), frequentStars.get(new Star(name,true)) + 1);
+			frequentStars.put(new Star(name, MainApp.settings.preferences.getProfileFolder()), frequentStars.get(new Star(name,true)) + 1);
 		else
-			frequentStars.put(new Star(name), 1);
+			frequentStars.put(new Star(name, MainApp.settings.preferences.getProfileFolder()), 1);
 	}
 	
 	private void addKeyword(String word) {

@@ -94,39 +94,39 @@ public class mainLayoutController implements Initializable {
     public void setVideoLocation() {
         DirectoryChooser choose = new DirectoryChooser();
         choose.setTitle("Choose a download location");
-        if((MainApp.preferences.getVideoFolder() != null) && (MainApp.preferences.videoFolderValid()))
-            choose.setInitialDirectory(MainApp.preferences.getVideoFolder());
+        if((MainApp.settings.preferences.getVideoFolder() != null) && (MainApp.settings.preferences.videoFolderValid()))
+            choose.setInitialDirectory(MainApp.settings.preferences.getVideoFolder());
         File selected = choose.showDialog(null);
         if (selected != null) {
-            MainApp.videoFolderText.setText(selected.getAbsolutePath());
-            MainApp.preferences.setVideoFolder(selected);
-            MainApp.saveSettings();
+            MainApp.settings.setVideoText(selected.getAbsolutePath());
+            MainApp.settings.preferences.setVideoFolder(selected);
+            MainApp.settings.saveSettings();
         }
     }
     
     public void setPictureLocation() {
        DirectoryChooser choose = new DirectoryChooser();
         choose.setTitle("Choose a download location");
-        if((MainApp.preferences.getPictureFolder() != null) && (MainApp.preferences.pictureFolderValid()))
-            choose.setInitialDirectory(MainApp.preferences.getPictureFolder());
+        if((MainApp.settings.preferences.getPictureFolder() != null) && (MainApp.settings.preferences.pictureFolderValid()))
+            choose.setInitialDirectory(MainApp.settings.preferences.getPictureFolder());
         File selected = choose.showDialog(null);
         if (selected != null) {
-            MainApp.pictureFolderText.setText(selected.getAbsolutePath());
-            MainApp.preferences.setPictureFolder(selected);
-            MainApp.saveSettings();
+            MainApp.settings.setPictureText(selected.getAbsolutePath());
+            MainApp.settings.preferences.setPictureFolder(selected);
+            MainApp.settings.saveSettings();
         } 
     }
     
     public void setSharedLocation() {
        DirectoryChooser choose = new DirectoryChooser();
         choose.setTitle("Choose a download location");
-        if((MainApp.preferences.getSharedFolder() != null) && (MainApp.preferences.sharedFolderValid()))
-            choose.setInitialDirectory(MainApp.preferences.getSharedFolder());
+        if((MainApp.settings.preferences.getSharedFolder() != null) && (MainApp.settings.preferences.sharedFolderValid()))
+            choose.setInitialDirectory(MainApp.settings.preferences.getSharedFolder());
         File selected = choose.showDialog(null);
         if (selected != null) {
-            MainApp.sharedFolderText.setText(selected.getAbsolutePath());
-            MainApp.preferences.setSharedFolder(selected);
-            MainApp.saveSettings();
+            MainApp.settings.setSharedText(selected.getAbsolutePath());
+            MainApp.settings.preferences.setSharedFolder(selected);
+            MainApp.settings.saveSettings();
         } 
     }
     
@@ -136,8 +136,8 @@ public class mainLayoutController implements Initializable {
         FileChooser choose = new FileChooser(); 
         Vector<String> lines = new Vector<String>();
         choose.setTitle("Select a file import links from");
-        if((MainApp.preferences.getImportFolder() != null) && (MainApp.preferences.getImportFolder().exists() && (MainApp.preferences.getImportFolder().isDirectory())))
-            choose.setInitialDirectory(MainApp.preferences.getImportFolder());
+        if((MainApp.settings.preferences.getImportFolder() != null) && (MainApp.settings.preferences.getImportFolder().exists() && (MainApp.settings.preferences.getImportFolder().isDirectory())))
+            choose.setInitialDirectory(MainApp.settings.preferences.getImportFolder());
         File selected = choose.showOpenDialog(null);
         if (selected != null) {
             try (Scanner reader = new Scanner(selected)){
@@ -153,8 +153,8 @@ public class mainLayoutController implements Initializable {
                     continue;
                 else determineSite(lines.get(i).trim());
             }
-            MainApp.preferences.setImportFolder(selected.getParentFile());
-            MainApp.saveSettings();
+            MainApp.settings.preferences.setImportFolder(selected.getParentFile());
+            MainApp.settings.saveSettings();
         }
         choose = null;
         } catch (Exception e) {
@@ -256,7 +256,7 @@ public class mainLayoutController implements Initializable {
                 try {
                     pane = FXMLLoader.load(new MainApp().getClass().getResource("layouts/inputDialog.fxml"));
                     pane.getStylesheets().clear();
-                    if(MainApp.preferences.dark())
+                    if(MainApp.settings.preferences.dark())
                         pane.getStylesheets().add(MainApp.class.getResource("layouts/darkPane.css").toExternalForm());
                     else pane.getStylesheets().add(MainApp.class.getResource("layouts/normal.css").toExternalForm());
                     AnchorPane a = (AnchorPane)MainApp.root.getChildren().get(0);
@@ -302,7 +302,7 @@ public class mainLayoutController implements Initializable {
                 try {
                     pane = FXMLLoader.load(new MainApp().getClass().getResource("layouts/confirmDialog.fxml"));
                     pane.getStylesheets().clear();
-                    if(MainApp.preferences.dark())
+                    if(MainApp.settings.preferences.dark())
                         pane.getStylesheets().add(MainApp.class.getResource("layouts/darkPane.css").toExternalForm());
                     else pane.getStylesheets().add(MainApp.class.getResource("layouts/normal.css").toExternalForm());
                     AnchorPane a = (AnchorPane)MainApp.root.getChildren().get(0);
@@ -335,17 +335,17 @@ public class mainLayoutController implements Initializable {
                                     break;
                                 case 3:
                                     DataIO.clearHistory();
-                                    MainApp.clearHistory();
-                                    MainApp.historyUpdate();
+                                    MainApp.settings.clearHistory();
+                                    MainApp.settings.historyUpdate();
                                     break;
                                 case 4:
                                     DataIO.clearCache();
-                                    MainApp.cacheUpdate();
-                                    MainApp.historyUpdate();
+                                    MainApp.settings.cacheUpdate();
+                                    MainApp.settings.historyUpdate();
                                     break;
                                 case 5:
                                     DataIO.clearVideos();
-                                    MainApp.videoUpdate();
+                                    MainApp.settings.videoUpdate();
                                     break;
                             }
                         }

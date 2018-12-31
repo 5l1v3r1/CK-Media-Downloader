@@ -16,8 +16,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 import javafx.application.Platform;
-//import javafx.collections.FXCollections;
-//import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -33,11 +31,16 @@ import javafx.scene.layout.Pane;
 public class DownloadHistory {
     ListView downloadHistoryList;
     List items;
+    private ManageSettings settingsRef;
     
-    DownloadHistory(ListView d) {
+    public DownloadHistory(ListView d) {
         downloadHistoryList = d;
         items = new ArrayList();
         refresh();
+    }
+    
+    public void setSettings(ManageSettings s) {
+        this.settingsRef = s;
     }
     
     private void refresh() {
@@ -78,13 +81,13 @@ public class DownloadHistory {
         } catch (IOException e) {
             System.out.println(e.getMessage()+" failed add to download history");
         }
-        MainApp.downloadHistoryUpdate();
+        settingsRef.updateDownloadHistory();
         display();
     }
 
     public void clear() {
         DataIO.clearDownloaded();
-        MainApp.downloadHistoryUpdate();
+        settingsRef.updateDownloadHistory();
         refresh();
         display();
     }

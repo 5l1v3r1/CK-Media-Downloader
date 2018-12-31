@@ -258,14 +258,14 @@ public class DataIO {
         else return history.size();
     }
     
-    public synchronized static Vector<String> loadDictionary() {
+    /*public synchronized static Vector<String> loadDictionary() {
         Vector<String> words = new Vector<>(); 
         
         Scanner reader = new Scanner(System.class.getResource("/data/dictionary.dat").getFile());
         while(reader.hasNextLine()) words.add(reader.nextLine());
         reader.close();
         return words;
-    }
+    }*/
     
     public synchronized static Vector<String> loadIgnoreWords() {
         Vector<String> words = new Vector<>();
