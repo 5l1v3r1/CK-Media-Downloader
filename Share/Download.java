@@ -82,8 +82,8 @@ public class Download {
             out.writeObject(freeMemory); out.flush();
             int transmissionMode = (int)in.readObject();
             if (transmissionMode == 1) 
-                receiveWhole(MainApp.preferences.getSharedFolder());
-            else receivePackets(MainApp.preferences.getSharedFolder());
+                receiveWhole(MainApp.settings.preferences.getSharedFolder());
+            else receivePackets(MainApp.settings.preferences.getSharedFolder());
         }
         
         private void receiveFile(String name) throws FileNotFoundException, IOException, ClassNotFoundException {
@@ -91,7 +91,7 @@ public class Download {
             
             fos.write((byte[])in.readObject());
             fos.flush(); fos.close();
-            MainApp.cacheUpdate();
+            MainApp.settings.cacheUpdate();
         }
         
         private void receiveSave() throws IOException, ClassNotFoundException {
@@ -125,7 +125,7 @@ public class Download {
                         receiveSave();
                         break;
                     case 2:
-                        if(!MainApp.preferences.sharedFolderValid()) MainApp.preferences.getSharedFolder().mkdirs();
+                        if(!MainApp.settings.preferences.sharedFolderValid()) MainApp.settings.preferences.getSharedFolder().mkdirs();
                         receiveMedia();
                         break;
                 }

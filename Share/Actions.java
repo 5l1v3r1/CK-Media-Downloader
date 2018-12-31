@@ -66,7 +66,7 @@ public class Actions {
         });
         t.setDaemon(true); //make sure thread stops as main thread stops
         t.start();
-        MainApp.videoUpdate();
+        MainApp.settings.videoUpdate();
     }
     
     public void sendSaved(Vector<video> videos) {
@@ -83,8 +83,8 @@ public class Actions {
     
     public void sendMedia() {
         FileChooser choose = new FileChooser();
-        if((MainApp.preferences.getVideoFolder() != null) && (MainApp.preferences.videoFolderValid()))
-            choose.setInitialDirectory(MainApp.preferences.getVideoFolder());
+        if((MainApp.settings.preferences.getVideoFolder() != null) && (MainApp.settings.preferences.videoFolderValid()))
+            choose.setInitialDirectory(MainApp.settings.preferences.getVideoFolder());
         choose.setTitle("Choose file to send");
         File selected = choose.showOpenDialog(null);
         if (selected != null) {
