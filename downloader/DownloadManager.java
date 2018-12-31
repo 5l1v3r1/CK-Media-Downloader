@@ -114,8 +114,8 @@ public class DownloadManager {
     public void exportAll() {
         DirectoryChooser save = new DirectoryChooser();
         save.setTitle("Select a folder export links to");
-        if((MainApp.preferences.getImportFolder() != null) && (MainApp.preferences.getImportFolder().exists() && (MainApp.preferences.getImportFolder().isDirectory())))
-            save.setInitialDirectory(MainApp.preferences.getImportFolder());
+        if((MainApp.settings.preferences.getImportFolder() != null) && (MainApp.settings.preferences.getImportFolder().exists() && (MainApp.settings.preferences.getImportFolder().isDirectory())))
+            save.setInitialDirectory(MainApp.settings.preferences.getImportFolder());
         File selected = save.showDialog(null);
         if(selected != null) {
             try {
@@ -127,8 +127,6 @@ public class DownloadManager {
                 MainApp.createMessageDialog("Links exported successfully");
             } catch (FileNotFoundException e) {
                 MainApp.createMessageDialog("File not found");
-            } catch (IOException e) {
-                MainApp.createMessageDialog("An IOException occurred: "+e.getMessage());;
             }
         }
     }
@@ -146,7 +144,10 @@ public class DownloadManager {
             if(!d.searchLink()) {
                 //MainApp.createMessageDialog("Error with: "+d.getLink());
                 removeDownload(d);
-            } else MainApp.log(d.getName(),d.getSite());
+            } else { 
+                //wasnt loaded
+                if (d.getSite() != null) MainApp.log(d.getName(),d.getSite());
+            }
         }
     }
     

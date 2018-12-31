@@ -72,7 +72,9 @@ public class DownloaderItem {
     }
     
     public String getSite() {
-        return extractor.name();
+        if (extractor != null)
+            return extractor.name();
+        else return null;
     }
     
     private GenericExtractor getExtractor() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
@@ -227,7 +229,7 @@ public class DownloaderItem {
             try {
                 DataIO.saveVideo(new video(url,videoName,thumbFile));
                 MainApp.createMessageDialog("Media saved");
-                MainApp.videoUpdate();
+                MainApp.settings.videoUpdate();
             } catch (IOException e) {
                 MainApp.createMessageDialog("Failed to save video for later");
             }

@@ -390,7 +390,7 @@ public class CommonUtils {
             f.format("%s", page);
             f.flush();
             f.close();
-            MainApp.cacheUpdate();
+            MainApp.settings.cacheUpdate();
         } catch (FileNotFoundException ex) {
             System.out.println("Failed to save page: file not found");
         }
@@ -479,7 +479,7 @@ public class CommonUtils {
             if (s != null) s.addProgress("An error occurred: "+e.getMessage());
             return how;
         }
-        MainApp.cacheUpdate();
+        MainApp.settings.cacheUpdate();
         if (s != null) s.addProgress("Finished downloading");
         File progressFile = new File(MainApp.progressCache.getAbsolutePath()+File.separator+getShortName(clean(link)));
         progressFile.delete();
