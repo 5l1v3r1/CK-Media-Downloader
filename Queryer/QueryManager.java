@@ -1,3 +1,8 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package Queryer;
 
 import downloader.DataStructures.GenericQuery;
@@ -138,7 +143,7 @@ public class QueryManager {
         //this determines which sites are enabled for querying
         private void populateExtractors(GenericQueryExtractor[] ex) { 
             for(int i = 0; i < QueryType.length; i++)
-               if (MainApp.preferences.isEnabled(QueryType[i]))
+               if (MainApp.settings.preferences.isEnabled(QueryType[i]))
                    ex[i] = getExtractor(QueryType[i]);
         }
         
@@ -155,7 +160,7 @@ public class QueryManager {
             } catch (IOException e) {
                 MainApp.createMessageDialog("Failed to save history:"+e.getMessage());
             }
-            MainApp.setHistory();
+            MainApp.settings.setHistory();
             MainApp.createNotification("Search Complete", "Finished Searching");
         }
         
@@ -284,7 +289,7 @@ public class QueryManager {
                     try {
                         DataIO.saveVideo(new video(results.getLink(which),results.getName(which),results.getThumbnail(which),results.getPreview(which)));
                         MainApp.createMessageDialog("Video saved");
-                        MainApp.videoUpdate();
+                        MainApp.settings.videoUpdate();
                     } catch (IOException e) {
                         MainApp.createMessageDialog("Failed to save video for later");
                     }
