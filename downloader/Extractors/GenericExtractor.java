@@ -66,7 +66,7 @@ public abstract class GenericExtractor implements Trackable {
         long stop = 0;
         do {
             if (s != null) s.addProgress("Trying "+CommonUtils.clean(title+".mp4"));
-            stop = CommonUtils.saveFile(video,CommonUtils.clean(title+".mp4"),MainApp.preferences.getVideoFolder(),s);
+            stop = CommonUtils.saveFile(video,CommonUtils.clean(title+".mp4"),MainApp.settings.preferences.getVideoFolder(),s);
             try {
                 sleep(4000);
             } catch (InterruptedException ex) {
@@ -76,7 +76,7 @@ public abstract class GenericExtractor implements Trackable {
         GameTime took = s.endOperation();
         if (s != null) s.addProgress("Took "+took.getTime()+" to download");
         MainApp.createNotification("Download Success","Finished Downloading "+title);
-        File saved = new File(MainApp.preferences.getVideoFolder() + File.separator + CommonUtils.clean(title+".mp4"));
+        File saved = new File(MainApp.settings.preferences.getVideoFolder() + File.separator + CommonUtils.clean(title+".mp4"));
         MainApp.downloadHistoryList.add(new downloadedMedia(videoName,videoThumb,saved,name()));
     }
     

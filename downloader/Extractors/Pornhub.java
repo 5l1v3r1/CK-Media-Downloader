@@ -57,7 +57,7 @@ public class Pornhub extends GenericQueryExtractor{
         long stop = 0; String name = CommonUtils.getPicName(link);
         do {
             if (s != null) s.addProgress("Trying "+CommonUtils.clean(name));
-            stop = CommonUtils.saveFile(link,CommonUtils.clean(name),MainApp.preferences.getPictureFolder(),s);
+            stop = CommonUtils.saveFile(link,CommonUtils.clean(name),MainApp.settings.preferences.getPictureFolder(),s);
             try {
                 sleep(4000);
             } catch (InterruptedException ex) {
@@ -99,7 +99,7 @@ public class Pornhub extends GenericQueryExtractor{
             GameTime took = s.endOperation();
             if (s != null) s.addProgress("Took "+took.getTime()+" to download");
             MainApp.createNotification("Download Success","Finished Downloading "+getVideoName());
-            File saved = new File(MainApp.preferences.getPictureFolder() + File.separator + CommonUtils.clean(getVideoName()));
+            File saved = new File(MainApp.settings.preferences.getPictureFolder() + File.separator + CommonUtils.clean(getVideoName()));
             MainApp.downloadHistoryList.add(new downloadedMedia(videoName,videoThumb,saved,name()));
         } else if (isAlbum(url)) {
             page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.pcClient).get().html());
@@ -111,7 +111,7 @@ public class Pornhub extends GenericQueryExtractor{
             GameTime took = s.endOperation();
             if (s != null) s.addProgress("Took "+took.getTime()+" to download");
             MainApp.createNotification("Download Success","Finished Downloading Album"+getVideoName());
-            File saved = new File(MainApp.preferences.getPictureFolder() + File.separator + CommonUtils.clean(getVideoName()));
+            File saved = new File(MainApp.settings.preferences.getPictureFolder() + File.separator + CommonUtils.clean(getVideoName()));
             MainApp.downloadHistoryList.add(new downloadedMedia(videoName,videoThumb,saved,name()));
         } else { //must be a video
             page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.pcClient).get().html());

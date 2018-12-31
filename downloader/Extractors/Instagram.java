@@ -42,8 +42,8 @@ public class Instagram extends GenericExtractor{
     private void download(String url, OperationStream s, String type) throws IOException {
        long stop = 0; String name = CommonUtils.parseName(url,type); File folder;
        if (type.equals(".jpg"))
-           folder = MainApp.preferences.getPictureFolder();
-       else folder = MainApp.preferences.getVideoFolder();
+           folder = MainApp.settings.preferences.getPictureFolder();
+       else folder = MainApp.settings.preferences.getVideoFolder();
         do {
             if (s != null) s.addProgress("Trying "+CommonUtils.clean(name));
             stop = CommonUtils.saveFile(url,CommonUtils.clean(name),folder,s);
