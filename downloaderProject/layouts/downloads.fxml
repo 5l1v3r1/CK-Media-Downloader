@@ -34,7 +34,7 @@
       <graphic>
          <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
             <image>
-               <Image url="@../../../icons/icons8-add-list-40.png" />
+               <Image url="@../../icons/icons8-add-list-40.png" />
             </image>
          </ImageView>
       </graphic>
@@ -44,7 +44,7 @@
       <graphic>
          <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
             <image>
-               <Image url="@../../../icons/icons8-refresh-80.png" />
+               <Image url="@../../icons/icons8-refresh-80.png" />
             </image>
          </ImageView>
       </graphic>

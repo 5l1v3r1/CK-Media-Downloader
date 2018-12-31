@@ -23,7 +23,7 @@
                      <graphic>
                         <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                            <image>
-                              <Image url="@../../../icons/icons8-folder-40.png" />
+                              <Image url="@../../icons/icons8-folder-40.png" />
                            </image>
                         </ImageView>
                      </graphic>
@@ -38,7 +38,7 @@
                      <graphic>
                         <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                            <image>
-                              <Image url="@../../../icons/icons8-cancel-40.png" />
+                              <Image url="@../../icons/icons8-cancel-40.png" />
                            </image>
                         </ImageView>
                      </graphic>
@@ -47,7 +47,7 @@
                      <graphic>
                         <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                            <image>
-                              <Image url="@../../../icons/icons8-trash-40.png" />
+                              <Image url="@../../icons/icons8-trash-40.png" />
                            </image>
                         </ImageView>
                      </graphic>
@@ -59,7 +59,7 @@
                      <graphic>
                         <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                            <image>
-                              <Image url="@../../../icons/icons8-folder-40.png" />
+                              <Image url="@../../icons/icons8-folder-40.png" />
                            </image>
                         </ImageView>
                      </graphic>
@@ -70,7 +70,7 @@
                       <graphic>
                         <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                            <image>
-                              <Image url="@../../../icons/icons8-close-window-40.png" />
+                              <Image url="@../../icons/icons8-close-window-40.png" />
                            </image>
                         </ImageView>
                      </graphic>
@@ -83,7 +83,7 @@
                      <graphic>
                         <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                            <image>
-                              <Image url="@../../../icons/icons8-folder-40.png" />
+                              <Image url="@../../icons/icons8-folder-40.png" />
                            </image>
                         </ImageView>
                      </graphic>
@@ -95,7 +95,7 @@
                      <graphic>
                         <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                            <image>
-                              <Image url="@../../../icons/icons8-clear-search-40.png" />
+                              <Image url="@../../icons/icons8-clear-search-40.png" />
                            </image>
                         </ImageView>
                      </graphic>
@@ -105,7 +105,7 @@
                      <graphic>
                         <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                            <image>
-                              <Image url="@../../../icons/icons8-time-machine-delete-40.png" />
+                              <Image url="@../../icons/icons8-time-machine-delete-40.png" />
                            </image>
                         </ImageView>
                      </graphic>
