@@ -6,6 +6,7 @@
 package downloader.Extractors;
 
 import downloader.CommonUtils;
+import downloader.DataStructures.video;
 import static downloader.Extractors.GenericExtractor.configureUrl;
 import downloaderProject.MainApp;
 import downloaderProject.OperationStream;
@@ -23,6 +24,10 @@ import org.jsoup.nodes.Document;
  * @author christopher
  */
 public class Xtube extends GenericExtractor{
+    
+    public Xtube() { //this contructor is used for when you jus want to search
+        
+    }
     
     public Xtube(String url)throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
         this(url,downloadThumb(configureUrl(url)),downloadVideoName(configureUrl(url)));
@@ -92,5 +97,15 @@ public class Xtube extends GenericExtractor{
     @Override
     protected void setExtractorName() {
         extractorName = "Xtube";
+    }
+
+    @Override
+    public video similar() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public video search(String str) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

@@ -7,6 +7,7 @@ package downloader.Extractors;
 
 import downloader.CommonUtils;
 import downloader.DataStructures.GenericQuery;
+import downloader.DataStructures.video;
 import downloaderProject.MainApp;
 import downloaderProject.OperationStream;
 import java.io.File;
@@ -147,5 +148,31 @@ public class Spankwire extends GenericQueryExtractor{
     @Override
     protected void setExtractorName() {
         extractorName = "Spankwire";
+    }
+
+    @Override
+    public video similar() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public video search(String str) throws IOException {
+        str = str.trim(); 
+        str = str.replaceAll(" ", "%2B");
+        String searchUrl = "https://spankwire.com/search/straight/keyword/"+str;
+        
+        Document page = getPage(searchUrl,false); video v = null;
+        
+	Elements searchResults = page.select("li.js-li-thumbs");
+	for(int i = 0; i < searchResults.size(); i++)  {
+            if (!CommonUtils.testPage("https://spankwire.com"+searchResults.get(i).select("a").get(0).attr("href"))) continue; //test to avoid error 404
+            String thumbLink = "https:"+searchResults.get(i).select("img").attr("data-original");
+            if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,5))) //if file not already in cache download it
+                if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,5),MainApp.imageCache) != -2)
+                    throw new IOException("Failed to completely download page");
+            v = new video("https://spankwire.com"+searchResults.get(i).select("a").get(0).attr("href"),Jsoup.parse(searchResults.get(i).select("div.video_thumb_wrapper__thumb-wrapper__title_video").select("a").toString()).body().text(),new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,5)));
+            break; //if u made it this far u already have a vaild video
+	}
+        return v;
     }
 }

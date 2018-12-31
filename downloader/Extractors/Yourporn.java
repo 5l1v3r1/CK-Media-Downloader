@@ -6,6 +6,7 @@
 package downloader.Extractors;
 
 import downloader.CommonUtils;
+import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
 import downloader.Exceptions.VideoDeletedException;
 import downloaderProject.MainApp;
@@ -23,6 +24,10 @@ import org.jsoup.nodes.Element;
  * @author christopher
  */
 public class Yourporn extends GenericExtractor{
+    
+    public Yourporn() { //this contructor is used for when you jus want to search
+        
+    }
 
     public Yourporn(String url) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
         this(url,downloadThumb(configureUrl(url)),downloadVideoName(configureUrl(url)));
@@ -76,5 +81,15 @@ public class Yourporn extends GenericExtractor{
     @Override
     protected void setExtractorName() {
         extractorName = "Yourporn";
+    }
+
+    @Override
+    public video similar() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public video search(String str) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

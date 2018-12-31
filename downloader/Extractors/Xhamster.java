@@ -7,6 +7,7 @@ package downloader.Extractors;
 
 import downloader.CommonUtils;
 import downloader.DataStructures.GenericQuery;
+import downloader.DataStructures.video;
 import downloaderProject.MainApp;
 import downloaderProject.OperationStream;
 import java.io.File;
@@ -129,5 +130,31 @@ public class Xhamster extends GenericQueryExtractor{
     @Override
     protected void setExtractorName() {
         extractorName = "Xhamster";
+    }
+
+    @Override
+    public video similar() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public video search(String str) throws IOException {
+        str = str.trim(); 
+        str = str.replaceAll(" ", "+");
+        String searchUrl = "https://xhamster.com/search?q="+str;
+        
+        Document page = getPage(searchUrl,false); video v = null;
+        
+	Elements searchResults = page.select("div.thumb-list__item.video-thumb");
+	for(int i = 0; i < searchResults.size(); i++)  {
+            if (!CommonUtils.testPage(searchResults.get(i).select("a").attr("href"))) continue; //test to avoid error 404
+            String thumbLink = searchResults.get(i).select("a").select("img").attr("src");
+            if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink))) //if file not already in cache download it
+                if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink),MainApp.imageCache) != -2)
+                    throw new IOException("Failed to completely download page");
+            v = new video(searchResults.get(i).select("a").attr("href"),Jsoup.parse(searchResults.get(i).select("div.video-thumb-info").select("a").toString()).body().text(),new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink)));
+            break; //if u made it this far u already have a vaild video
+	}
+        return v;
     }
 }

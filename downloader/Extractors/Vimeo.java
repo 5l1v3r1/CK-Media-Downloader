@@ -6,6 +6,7 @@
 package downloader.Extractors;
 
 import downloader.CommonUtils;
+import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
 import downloader.Exceptions.PageNotFoundException;
 import static downloader.Extractors.GenericExtractor.configureUrl;
@@ -30,6 +31,10 @@ import org.jsoup.nodes.Document;
  * @author christopher
  */
 public class Vimeo extends GenericExtractor{
+    
+    public Vimeo() { //this contructor is used for when you jus want to search
+        
+    }
     
     public Vimeo(String url)throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
         this(url,downloadThumb(convertUrl(configureUrl(url))),downloadVideoName(convertUrl(configureUrl(url))));
@@ -121,5 +126,15 @@ public class Vimeo extends GenericExtractor{
     @Override
     protected void setExtractorName() {
         extractorName = "Vimeo";
+    }
+
+    @Override
+    public video similar() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public video search(String str) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

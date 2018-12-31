@@ -7,6 +7,7 @@ package downloader.Extractors;
 
 import downloader.CommonUtils;
 import downloader.DataStructures.GenericQuery;
+import downloader.DataStructures.video;
 import static downloader.Extractors.GenericExtractor.configureUrl;
 import downloaderProject.MainApp;
 import downloaderProject.OperationStream;
@@ -111,5 +112,30 @@ public class Bigbootytube extends GenericQueryExtractor{
     @Override
     protected void setExtractorName() {
         extractorName = "Bigbootytube";
+    }
+
+    @Override
+    public video similar() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public video search(String str) throws IOException {
+        str = str.trim(); 
+        str = str.replaceAll(" ", "+");
+        String searchUrl = "http://www.bigbootytube.xxx/search/?q="+str;
+        
+        Document page = getPage(searchUrl,false); video v = null;
+        
+	Elements searchResults = page.select("div.list-thumbs").get(0).select("li").select("div.thumb").select("div.thumb-content").select("a.thumb-img");
+	for(int i = 0; i < searchResults.size(); i++)  {
+            if (!CommonUtils.testPage(searchResults.get(i).attr("href"))) continue; //test to avoid error 404
+            //try {verify(page);} catch (GenericDownloaderException e) {continue;}
+            try {
+                v = new video(searchResults.get(i).attr("href"),downloadVideoName(searchResults.get(i).attr("href")),downloadThumb(searchResults.get(i).attr("href")));
+            } catch(Exception e) { v = null; continue;}
+            break; //if u made it this far u already have a vaild video
+        }
+        return v;        
     }
 }

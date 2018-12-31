@@ -7,6 +7,7 @@ package downloader.Extractors;
 
 import downloader.CommonUtils;
 import downloader.DataStructures.downloadedMedia;
+import downloader.DataStructures.video;
 import downloaderProject.GameTime;
 import downloaderProject.MainApp;
 import downloaderProject.OperationStream;
@@ -19,7 +20,6 @@ import java.util.Vector;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
-import java.util.Formatter;
 
 /**
  *
@@ -186,5 +186,15 @@ public class Instagram extends GenericExtractor{
     @Override
     protected void setExtractorName() {
         extractorName = "Instagram";
+    }
+
+    @Override
+    public video similar() {
+        return null;
+    }
+
+    @Override
+    public video search(String str) {
+        return null;
     }
 }

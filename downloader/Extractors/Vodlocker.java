@@ -6,6 +6,7 @@
 package downloader.Extractors;
 
 import downloader.CommonUtils;
+import downloader.DataStructures.video;
 import static downloader.Extractors.GenericExtractor.configureUrl;
 import downloaderProject.MainApp;
 import downloaderProject.OperationStream;
@@ -81,6 +82,16 @@ public class Vodlocker extends GenericExtractor{
     @Override
     protected void setExtractorName() {
         extractorName = "Vodlocker";
+    }
+
+    @Override
+    public video similar() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public video search(String str) throws IOException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
 }

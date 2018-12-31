@@ -7,6 +7,7 @@ package downloader.Extractors;
 
 import downloader.CommonUtils;
 import downloader.DataStructures.GenericQuery;
+import downloader.DataStructures.video;
 import downloaderProject.MainApp;
 import downloaderProject.OperationStream;
 import java.io.File;
@@ -146,5 +147,34 @@ public class Tube8 extends GenericQueryExtractor{
     @Override
     protected void setExtractorName() {
         extractorName = "Tube8";
+    }
+
+    @Override
+    public video similar() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public video search(String str) throws IOException {
+        str = str.trim(); 
+        str = str.replaceAll(" ", "+");
+        String searchUrl = "https://www.tube8.com/searches.html?q=/"+str+"/";
+        
+        Document page = getPage(searchUrl,false); video v = null;
+		
+	Elements searchResults = page.select("div.video_box");
+	for(int i = 0; i < searchResults.size(); i++) {
+            if (!CommonUtils.testPage(searchResults.get(i).select("p.video_title").select("a").attr("href"))) continue; //test to avoid error 404
+            String link = searchResults.get(i).select("p.video_title").select("a").attr("href");
+            String title = searchResults.get(i).select("p.video_title").select("a").attr("title");
+            String thumb = searchResults.get(i).select("div.videoThumbsWrapper").select("img").attr("data-thumb");
+            System.out.println("thumb: "+thumb);
+            if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,4))) //if file not already in cache download it
+                if (CommonUtils.saveFile(thumb, CommonUtils.getThumbName(thumb,4),MainApp.imageCache) != -2)
+                    throw new IOException("Failed to completely download page");
+            v = new video(link,title,new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,4)));
+            break; //if u made it this far u already have a vaild video
+	}
+        return v;
     }
 }

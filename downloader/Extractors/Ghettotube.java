@@ -6,6 +6,7 @@
 package downloader.Extractors;
 
 import downloader.CommonUtils;
+import downloader.DataStructures.video;
 import downloaderProject.MainApp;
 import downloaderProject.OperationStream;
 import java.io.File;
@@ -21,6 +22,10 @@ import org.jsoup.select.Elements;
  * @author christopher
  */
 public class Ghettotube extends GenericExtractor{
+    
+    public Ghettotube() { //this contructor is used for when you jus want to search
+        
+    }
     
     public Ghettotube(String url) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
         this(url,downloadThumb(configureUrl(url)),downloadVideoName(configureUrl(url)));
@@ -67,5 +72,15 @@ public class Ghettotube extends GenericExtractor{
     @Override
     protected void setExtractorName() {
         extractorName = "Ghettotube";
+    }
+
+    @Override
+    public video similar() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public video search(String str) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

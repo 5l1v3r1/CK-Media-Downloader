@@ -6,6 +6,7 @@
 package downloader.Extractors;
 
 import downloader.CommonUtils;
+import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
 import downloader.Exceptions.PageNotFoundException;
 import downloader.Exceptions.PrivateVideoException;
@@ -32,6 +33,10 @@ import org.jsoup.select.Elements;
  * @author christopher
  */
 public class Dailymotion extends GenericExtractor{
+    
+    public Dailymotion() { //this contructor is used for when you jus want to search
+        
+    }
     
     public Dailymotion(String url)throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
         this(url,downloadThumb(configureUrl(url)),downloadVideoName(configureUrl(url)));
@@ -123,5 +128,15 @@ public class Dailymotion extends GenericExtractor{
     @Override
     protected void setExtractorName() {
         extractorName = "Dailymotion";
+    }
+
+    @Override
+    public video similar() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public video search(String str) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

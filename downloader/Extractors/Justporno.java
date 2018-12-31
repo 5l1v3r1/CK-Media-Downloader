@@ -6,6 +6,7 @@
 package downloader.Extractors;
 
 import downloader.CommonUtils;
+import downloader.DataStructures.video;
 import static downloader.Extractors.GenericExtractor.configureUrl;
 import downloaderProject.MainApp;
 import downloaderProject.OperationStream;
@@ -21,6 +22,10 @@ import org.jsoup.nodes.Document;
  * @author christopher
  */
 public class Justporno extends GenericExtractor{
+    
+    public Justporno() { //this contructor is used for when you jus want to search
+        
+    }
     
     public Justporno(String url)throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
         this(url,downloadThumb(configureUrl(url)),downloadVideoName(configureUrl(url)));
@@ -63,5 +68,15 @@ public class Justporno extends GenericExtractor{
     @Override
     protected void setExtractorName() {
         extractorName = "Justporno";
+    }
+
+    @Override
+    public video similar() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public video search(String str) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

@@ -24,7 +24,7 @@ import org.jsoup.nodes.Document;
  *
  * @author christopher
  */
-public abstract class GenericExtractor {
+public abstract class GenericExtractor implements Trackable {
     protected File videoThumb;
     protected String videoName, url;
     protected String extractorName;
@@ -36,7 +36,7 @@ public abstract class GenericExtractor {
        this.url = configureUrl(url);
     }
     
-    GenericExtractor() { //this contructor is used for when you jus want to query
+    GenericExtractor() { //this contructor is used for when you jus want to query / search
         setExtractorName();
     }
     

@@ -8,6 +8,7 @@ package downloader.Extractors;
 import downloader.CommonUtils;
 import downloader.DataStructures.GenericQuery;
 import downloader.DataStructures.downloadedMedia;
+import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
 import downloader.Exceptions.PageNotFoundException;
 import downloader.Exceptions.PrivateVideoException;
@@ -121,10 +122,10 @@ public class Pornhub extends GenericQueryExtractor{
             String rawQualities = CommonUtils.getLink(page.toString(), page.toString().indexOf(":",page.toString().indexOf("mediaDefinitions")) + 4, ']');
             Map<String,String> quality = getQualities(rawQualities);
             String video = null;
-            if(quality.containsKey("480"))
-                video = quality.get("480");
-            else if (quality.containsKey("720"))
+            if(quality.containsKey("720"))
                 video = quality.get("720");
+            else if (quality.containsKey("480"))
+                video = quality.get("480");
             else if (quality.containsKey("360"))
                 video = quality.get("360");
             else video = quality.get("240");
@@ -301,5 +302,32 @@ public class Pornhub extends GenericQueryExtractor{
     @Override
     protected void setExtractorName() {
         extractorName = "Pornhub";
+    }
+
+    @Override
+    public video similar() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override public video search(String str) throws IOException {
+        str = str.trim(); str = str.replaceAll(" ", "+");
+        String searchUrl = "https://pornhub.com/video/search?search="+str;
+        
+        Document page = getPage(searchUrl,false);
+        video v = null;
+        
+	Elements searchResults = page.select("ul.videos.search-video-thumbs").select("li");
+        //get first valid video
+	for(int i = 0; i < searchResults.size(); i++)  {
+            if (!CommonUtils.testPage("https://pornhub.com"+searchResults.get(i).select("a").attr("href"))) continue; //test to avoid error 404
+            try {verify(getPage("https://pornhub.com"+searchResults.get(i).select("a").attr("href"),false));} catch (GenericDownloaderException e) {continue;}
+            String thumbLink = searchResults.get(i).select("a").select("img").attr("data-mediumthumb");
+            if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,4))) //if file not already in cache download it
+                if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,4),MainApp.imageCache) != -2)
+                    throw new IOException("Failed to completely download page");
+            v = new video("https://pornhub.com"+searchResults.get(i).select("a").attr("href"),searchResults.get(i).select("a").attr("title"),new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,4)));
+            break; //if u made it this far u already have a vaild video
+	}
+        return v;
     }
 }

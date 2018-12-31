@@ -6,6 +6,7 @@
 package downloader.Extractors;
 
 import downloader.CommonUtils;
+import downloader.DataStructures.video;
 import downloaderProject.MainApp;
 import downloaderProject.OperationStream;
 import java.io.File;
@@ -20,6 +21,10 @@ import org.jsoup.nodes.Document;
  * @author christopher
  */
 public class Cumlouder extends GenericExtractor{
+    
+    public Cumlouder() { //this contructor is used for when you jus want to search
+        
+    }
     
     public Cumlouder(String url)throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
         this(url,downloadThumb(configureUrl(url)),downloadVideoName(configureUrl(url)));
@@ -66,5 +71,15 @@ public class Cumlouder extends GenericExtractor{
     @Override
     protected void setExtractorName() {
         extractorName = "Cumlouder";
+    }
+
+    @Override
+    public video similar() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public video search(String str) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

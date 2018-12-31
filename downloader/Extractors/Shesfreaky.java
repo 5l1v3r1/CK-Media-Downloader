@@ -7,6 +7,7 @@ package downloader.Extractors;
 
 import downloader.CommonUtils;
 import downloader.DataStructures.GenericQuery;
+import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
 import downloader.Exceptions.PageNotFoundException;
 import downloader.Exceptions.PrivateVideoException;
@@ -150,5 +151,36 @@ public class Shesfreaky extends GenericQueryExtractor{
     @Override
     protected void setExtractorName() {
         extractorName = "Shesfreaky";
+    }
+
+    @Override
+    public video similar() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public video search(String str) throws IOException {
+        str = str.trim(); 
+        str = str.replaceAll(" ", "-");
+        String searchUrl = "https://www.shesfreaky.com/search/videos/"+str+"/page1.html";
+        
+        Document page = getPage(searchUrl,false); video v = null;
+         
+         Elements searchResults = page.select("div.blockItem.blockItemBox");
+         for(int i = 0; i < searchResults.size(); i++) {
+            String link = searchResults.get(i).select("a").attr("href");
+            if (!CommonUtils.testPage(link)) continue; //test to avoid error 404
+            try {verify(getPage(link,false));} catch (GenericDownloaderException e) {continue;}
+            String title = searchResults.get(i).select("span.details").select("em").attr("title");
+            String thumb = searchResults.get(i).select("span.thumb").select("img").attr("data-src");
+            if (!thumb.startsWith("https:"))
+                thumb = "https:" + thumb;
+            if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,1))) //if file not already in cache download it
+                if (CommonUtils.saveFile(thumb, CommonUtils.getThumbName(thumb,1),MainApp.imageCache) != -2)
+                    throw new IOException("Failed to completely download page");
+            v = new video(link,title,new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,1)));
+            break; //if u made it this far u already have a vaild video
+         }
+         return v;
     }
 }

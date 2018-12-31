@@ -11,6 +11,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import downloader.CommonUtils;
 import downloader.DataStructures.GenericQuery;
+import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
 import downloader.Exceptions.VideoDeletedException;
 import java.io.File;
@@ -47,8 +48,7 @@ public class SpankBang extends GenericQueryExtractor{
         super(url,thumb,videoName);
     }
     
-    @Override
-    public void getVideo(OperationStream s) throws MalformedURLException, IOException,SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
+    @Override public void getVideo(OperationStream s) throws MalformedURLException, IOException,SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
         if (s != null) s.startTiming();
         
         Document page =  Jsoup.parse(Jsoup.connect(url).get().html());
@@ -65,8 +65,7 @@ public class SpankBang extends GenericQueryExtractor{
             throw new VideoDeletedException();
     }
     
-    @Override
-    public GenericQuery query(String search) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
+    @Override public GenericQuery query(String search) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
         search = search.trim(); 
         search = search.replaceAll(" ", "+");
         String searchUrl = "https://spankbang.com/s/"+search+"/";
@@ -91,8 +90,7 @@ public class SpankBang extends GenericQueryExtractor{
     }
     
     //get preview thumbnails
-    @Override
-    protected Vector<File> parse(String url) throws IOException, SocketTimeoutException, UncheckedIOException {
+    @Override protected Vector<File> parse(String url) throws IOException, SocketTimeoutException, UncheckedIOException {
         Vector<File> thumbs = new Vector<File>();
         try {
             
@@ -141,8 +139,39 @@ public class SpankBang extends GenericQueryExtractor{
         return url.replace("https://m.", "https://www.");
     }
     
-    @Override
-    protected void setExtractorName() {
+    @Override protected void setExtractorName() {
         extractorName = "Spankbang";
+    }
+
+    @Override
+    public video similar() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public video search(String str) throws IOException {
+        str = str.trim(); 
+        str = str.replaceAll(" ", "+");
+        String searchUrl = "https://spankbang.com/s/"+str+"/";
+        
+        Document page = getPage(searchUrl,true); video v = null;
+        
+	Elements searchResults = page.select("div.video-item");
+        //get first valid video
+	for(int i = 0; i < searchResults.size(); i++)  {
+            if (!CommonUtils.testPage("https://spankbang.com"+searchResults.get(i).select("a.thumb").attr("href"))) continue; //test to avoid error 404
+            try {verify(getPage("https://spankbang.com"+searchResults.get(i).select("a.thumb").attr("href"),false)); } catch (GenericDownloaderException e) {continue;}
+            String thumbLink = "https:"+searchResults.get(i).select("a.thumb").select("img").attr("data-src"); //src for pc
+            if (!CommonUtils.checkImageCache(CommonUtils.parseName(thumbLink,".jpg"))) //if file not already in cache download it
+                if (CommonUtils.saveFile(thumbLink, CommonUtils.parseName(thumbLink,".jpg"),MainApp.imageCache) != -2)
+                    throw new IOException("Failed to completely download page");
+            try {
+                v = new video("https://spankbang.com"+searchResults.get(i).select("a.thumb").attr("href"),downloadVideoName("https://spankbang.com"+searchResults.get(i).select("a.thumb").attr("href")),new File(MainApp.imageCache+File.separator+CommonUtils.parseName(thumbLink,".jpg")));
+            } catch (Exception e) {
+                v = null; continue;
+            }
+            break; //if u made it this far u already have a vaild video
+	}
+        return v;
     }
 }

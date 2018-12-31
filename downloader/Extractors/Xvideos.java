@@ -7,6 +7,7 @@ package downloader.Extractors;
 
 import downloader.CommonUtils;
 import downloader.DataStructures.GenericQuery;
+import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
 import downloader.Exceptions.PageNotFoundException;
 import downloader.Exceptions.VideoDeletedException;
@@ -191,5 +192,42 @@ public class Xvideos extends GenericQueryExtractor{
     @Override
     protected void setExtractorName() {
         extractorName = "Xvideos";
+    }
+
+    @Override
+    public video similar() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public video search(String str) throws IOException {
+        str = str.trim(); 
+        str = str.replaceAll(" ", "+");
+        String searchUrl = "https://www.xvideos.com/?k="+str;
+        
+        Document page = getPage(searchUrl,false); video v = null;
+        
+	Elements searchResults = page.select("div.mozaique").select("div.thumb-block");
+	for(int i = 0; i < searchResults.size(); i++)  {
+            //if has /models/ it is link to model page
+            if (searchResults.get(i).select("div.thumb").select("a").attr("href").contains("/models/")) continue;
+            //if  has /channels/ it is a link to channel page
+            if (searchResults.get(i).select("div.thumb").select("a").attr("href").contains("/channels/")) continue;
+            if (searchResults.get(i).select("div.thumb").select("a").attr("href").contains("/verified/videos")) continue;
+            if (searchResults.get(i).select("div.thumb").select("a").attr("href").contains("/pornstar-channels/")) continue;
+            if (!CommonUtils.testPage("https://xvideos.com"+searchResults.get(i).select("div.thumb").select("a").attr("href"))) continue; //test to avoid error 404
+            try {verify(page);} catch (GenericDownloaderException e) { continue;}
+            String thumbLink = searchResults.get(i).select("div.thumb").select("a").select("img").attr("data-src");
+            if (thumbLink.contains("THUMBNUM")) continue;
+            
+            if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,2))) //if file not already in cache download it
+                if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,2),MainApp.imageCache) != -2)
+                    throw new IOException("Error downloading file");
+            try {
+                v = new video("https://xvideos.com"+searchResults.get(i).select("div.thumb").select("a").attr("href"),downloadVideoName("https://xvideos.com"+searchResults.get(i).select("div.thumb").select("a").attr("href")),new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,2)));
+            } catch(Exception e) { v = null; continue;}
+            break; //if u made it this far u already have a vaild video
+	}
+        return v;
     }
 }
