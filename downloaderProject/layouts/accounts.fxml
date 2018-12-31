@@ -12,7 +12,7 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.text.Font?>
 
-<Pane id="AnchorPane" prefHeight="457.0" prefWidth="688.0" stylesheets="@darkPane.css" xmlns:fx="http://javafx.com/fxml/1" fx:controller="downloaderProject.layouts.AccountsController">
+<Pane id="AnchorPane" prefHeight="457.0" prefWidth="688.0" stylesheets="@darkPane.css" xmlns:fx="http://javafx.com/fxml/1">
    <ScrollPane layoutY="45.0" prefHeight="412.0" prefWidth="688.0" styleClass="background">
      <content>
        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="410.0" prefWidth="686.0" styleClass="background">
