@@ -67,6 +67,14 @@ public class DownloaderItem {
         v = null;
     }
     
+    public String getName() {
+        return videoName;
+    }
+    
+    public String getSite() {
+        return extractor.name();
+    }
+    
     private GenericExtractor getExtractor() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
         if (null == type)
             return null;

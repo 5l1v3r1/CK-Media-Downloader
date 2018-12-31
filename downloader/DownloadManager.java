@@ -146,7 +146,7 @@ public class DownloadManager {
             if(!d.searchLink()) {
                 //MainApp.createMessageDialog("Error with: "+d.getLink());
                 removeDownload(d);
-            }
+            } else MainApp.log(d.getName(),d.getSite());
         }
     }
     

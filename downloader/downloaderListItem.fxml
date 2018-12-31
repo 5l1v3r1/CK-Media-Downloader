@@ -10,7 +10,7 @@
 
 <?import com.jfoenix.controls.JFXButton?>
 
-<Pane id="AnchorPane" prefHeight="77.0" prefWidth="665.0" styleClass="lighter" stylesheets="@../downloaderProject/layouts/darkPane.css" xmlns:fx="http://javafx.com/fxml/1">
+<Pane id="AnchorPane" prefHeight="77.0" prefWidth="665.0" styleClass="lighter" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <ImageView fx:id="thumb" fitHeight="77.0" fitWidth="90.0" pickOnBounds="true" preserveRatio="true" />
       <Label id="downloadName" fx:id="downloadName" layoutX="98.0" layoutY="1.0" prefHeight="39.0" prefWidth="519.0" text="Searching media" wrapText="true" />
