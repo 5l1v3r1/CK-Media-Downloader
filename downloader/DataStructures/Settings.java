@@ -6,7 +6,6 @@
 package downloader.DataStructures;
 
 import downloaderProject.MainApp;
-import static downloaderProject.MainApp.preferences;
 import static downloaderProject.MainApp.username;
 import java.io.Externalizable;
 import java.io.File;
@@ -25,7 +24,8 @@ import java.util.Vector;
  */
 public class Settings implements Externalizable{
     private static final long serialVersionUID = 3L;
-    private File videoFolder, pictureFolder, importFolder, sharedFolder;
+    private static final long version = 4L;
+    private File videoFolder, pictureFolder, importFolder, sharedFolder, profileFolder;
     private Map<String,Boolean> supportedSite;
     private boolean darkTheme;
     
@@ -52,6 +52,15 @@ public class Settings implements Externalizable{
     //set where the open dialog will initial display when choosing import file
     public void setImportFolder(File folder) {
         importFolder = folder;
+    }
+    
+    //set where to save profile pics of stars
+    public void setProfileFolder(File folder) {
+        profileFolder = folder;
+    }
+    
+    public File getProfileFolder() {
+        return profileFolder;
     }
     
     //get folder for initial display for imports
@@ -159,41 +168,32 @@ public class Settings implements Externalizable{
     }
     
     public void initDownloadFolder(MainApp.OsType OS) {
-        switch(OS) { //try using home folder from java instead later
+        String home = System.getProperty("user.home");
+        switch(OS) {
             case Windows:
                 String homeFolder = System.getProperty("user.home");
-                preferences.setVideoFolder(new File(homeFolder+"\\Videos"));
-                preferences.setPictureFolder(new File(homeFolder+"\\Pictures"));
-                preferences.setImportFolder(new File(homeFolder));
-                preferences.setSharedFolder(new File(homeFolder+"\\DownloaderShared"));
+                MainApp.settings.preferences.setVideoFolder(new File(homeFolder+"\\Videos"));
+                MainApp.settings.preferences.setPictureFolder(new File(homeFolder+"\\Pictures"));
+                MainApp.settings.preferences.setImportFolder(new File(homeFolder));
+                MainApp.settings.preferences.setSharedFolder(new File(homeFolder+"\\DownloaderShared"));
                 break;
             case Linux:
-                preferences.setVideoFolder(new File("/home/"+username+"/Desktop/Videos"));
-                preferences.setPictureFolder(new File("/home/"+username+"/Desktop/Pictures"));
-                preferences.setImportFolder(new File("/home/"+username));
-                preferences.setSharedFolder(new File("/home/"+username+"/Desktop/Shared"));
-                break;
             case Apple:
-                preferences.setVideoFolder(new File("/Users/"+username+"/Desktop/Videos"));
-                preferences.setPictureFolder(new File("/Users/"+username+"/Desktop/Pictures"));
-                preferences.setImportFolder(new File("/Users/"+username+"/Desktop"));
-                preferences.setSharedFolder(new File("/Users/"+username+"/Desktop/Shared"));
-                break;
             default:
-                preferences.setVideoFolder(new File("/home/"+username+"/Desktop/Videos"));
-                preferences.setPictureFolder(new File("/home/"+username+"/Desktop/Pictures"));
-                preferences.setImportFolder(new File("/home/"+username));
-                preferences.setSharedFolder(new File("/home/"+username+"/Desktop/Shared"));
-                break;
+                MainApp.settings.preferences.setVideoFolder(new File(home+File.separator+"Videos"));
+                MainApp.settings.preferences.setPictureFolder(new File(home+File.separator+"Pictures"));
+                MainApp.settings.preferences.setImportFolder(new File(home+username));
+                MainApp.settings.preferences.setSharedFolder(new File(home+File.separator+"Shared"));
         }
     }
     
     @Override
     public void writeExternal(ObjectOutput out) throws IOException {
-        out.writeObject(serialVersionUID);
+        out.writeObject(version);
         out.writeObject(videoFolder); out.writeObject(pictureFolder);
         out.writeObject(importFolder); out.writeObject(sharedFolder);
         out.writeObject(supportedSite); out.writeObject(darkTheme);
+        out.writeObject(profileFolder);
     }
 
     @Override
@@ -203,6 +203,11 @@ public class Settings implements Externalizable{
             videoFolder = (File)in.readObject(); pictureFolder = (File)in.readObject();
             importFolder = (File)in.readObject(); sharedFolder = (File)in.readObject();
             supportedSite = (Map<String,Boolean>)in.readObject(); darkTheme = (boolean)in.readObject();
+        } else if (version == 4L) {
+            videoFolder = (File)in.readObject(); pictureFolder = (File)in.readObject();
+            importFolder = (File)in.readObject(); sharedFolder = (File)in.readObject();
+            supportedSite = (Map<String,Boolean>)in.readObject(); darkTheme = (boolean)in.readObject();
+            profileFolder = (File)in.readObject();
         } else {
             initDownloadFolder(MainApp.OS);
             darkTheme = false;
