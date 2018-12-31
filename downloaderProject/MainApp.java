@@ -14,6 +14,8 @@ import downloader.DataStructures.Settings;
 import downloader.DataStructures.historyItem;
 import downloader.DataStructures.video;
 import downloader.DownloadManager;
+import downloader.DownloaderItem;
+import downloader.Site;
 import static downloader.Site.QueryType;
 import java.awt.SplashScreen;
 import java.io.File;
@@ -86,10 +88,11 @@ public class MainApp extends Application {
     public static ProgressBar progress;
     public static TextArea log;
     public static Actions act;
-    private static final String TITLE = "Video Downloader Prototype build 21.2";
+    private static final String TITLE = "Video Downloader Prototype build 21.3";
     private static List HISTORYLIST = new ArrayList();
     public static DownloadHistory downloadHistoryList;
     public static StackPane root;
+    public static DataCollection habits;
 
     private void getUserName() {
         username = System.getProperty("user.name");
@@ -586,8 +589,7 @@ public class MainApp extends Application {
         });
     }
     
-    @Override
-    public void start(Stage primaryStage) {
+    @Override public void start(Stage primaryStage) {
         determineOS(); //determine what OS is running
         getUserName(); //get the username
         setCacheDir(); //set up cache (create it if it doesnt exist yet)
@@ -684,6 +686,35 @@ public class MainApp extends Application {
            System.out.println("Splash screen error");
        }
        primaryStage.show();
+       
+       loadSuggestions();
+    }
+    
+    public static void log(String mediaName, String site) {
+        if (habits != null) habits.add(mediaName, site);
+        try {DataIO.saveCollectedData(habits);} catch(IOException e) {System.out.println("Failed to save habits");}
+    }
+    
+    private void loadSuggestions() {
+        habits = DataIO.loadCollectedData();
+        if (habits != null) {
+            int pull = 1;
+            if (habits.suggestions() > 15) pull = 2;
+            else if (habits.suggestions() > 24) pull = 3;
+            for(int i = 0; i < pull; i++) {
+                video temp = habits.next(); 
+                if (temp != null)
+                    determineSite(temp.getLink(),temp);
+                else System.out.println("null?");
+            }
+        } else {habits = new DataCollection(true);}
+    }
+    
+    public void determineSite(String link, video v) {
+        DownloaderItem download = new DownloaderItem();
+        download.setLink(link); download.setType(Site.getUrlSite(link)); download.setVideo(v);
+        //add item to downloadManager for display
+        dm.addDownload(download);
     }
 
     /**

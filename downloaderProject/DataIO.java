@@ -18,6 +18,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.Scanner;
 import java.util.Vector;
 
 /**
@@ -255,6 +256,60 @@ public class DataIO {
         if(history == null)
             return 0;
         else return history.size();
+    }
+    
+    public synchronized static Vector<String> loadDictionary() {
+        Vector<String> words = new Vector<>(); 
+        
+        Scanner reader = new Scanner(System.class.getResource("/data/dictionary.dat").getFile());
+        while(reader.hasNextLine()) words.add(reader.nextLine());
+        reader.close();
+        return words;
+    }
+    
+    public synchronized static Vector<String> loadIgnoreWords() {
+        Vector<String> words = new Vector<>();
+        
+        Scanner reader = new Scanner(System.class.getResource("/data/conjunctions.txt").getFile());
+        while(reader.hasNextLine()) words.add(reader.nextLine()); reader.close();
+        reader = new Scanner(System.class.getResource("/data/prepositions.txt").getFile());
+        while(reader.hasNextLine()) words.add(reader.nextLine()); reader.close();
+        reader = new Scanner(System.class.getResource("/data/pronouns.txt").getFile());
+        while(reader.hasNextLine()) words.add(reader.nextLine()); reader.close();
+        return words;
+    }
+    
+    public synchronized static Vector<String> loadStarList() {
+        Vector<String> words = new Vector<>();
+        
+        Scanner reader = new Scanner(System.class.getResource("/data/starList.dat").getFile());
+        while(reader.hasNextLine()) words.add(reader.nextLine()); reader.close();
+        return words;
+    }
+    
+    public synchronized static DataCollection loadCollectedData() {
+        ObjectInputStream in;
+        
+        try {
+            in = new ObjectInputStream(new FileInputStream(new File(MainApp.saveDir+File.separator+"habits.dat")));
+            DataCollection dc = (DataCollection)in.readObject();
+            in.close();
+            return dc;
+        } catch (FileNotFoundException | ClassNotFoundException e) {
+            System.out.println(e.getMessage());
+            return new DataCollection(true);
+        } catch(IOException e) {
+            e.printStackTrace();
+            return new DataCollection(true);
+        }
+    }
+    
+    public synchronized static void saveCollectedData(DataCollection dc) throws FileNotFoundException, IOException{
+        ObjectOutputStream out;
+        
+        out = new ObjectOutputStream(new FileOutputStream(new File(MainApp.saveDir+File.separator+"habits.dat")));
+        out.writeObject(dc);
+        out.flush(); out.close();
     }
     
     public static boolean exempt(File f) {
