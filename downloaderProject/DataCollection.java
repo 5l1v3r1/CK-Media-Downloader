@@ -168,8 +168,7 @@ public class DataCollection implements Externalizable{
                             generateSearch(keywordChart);
                     }
 		} else if (i.hasNext()) {
-			String top = i.next(); System.out.println("top: "+keywords.get(top)+" it: "+top);
-			if (keywords.get(top) > 1) {
+			String top = i.next(); System.out.println("top: "+keywords.get(top)+" it: "+top);			if (keywords.get(top) > 1) {
 				generateSearch(keywordChart);
                         }
 		} else if(j.hasNext()) {
@@ -204,8 +203,7 @@ public class DataCollection implements Externalizable{
                     if (count >= max + 1) break;
                     words.append(i.next()+" ");
                     count++;
-                    System.out.println(count);
-            } System.out.println("trim "+words.toString().trim());
+            }
             search(words.toString().trim()); //search with random number of available keywords
         }
         
@@ -213,7 +211,7 @@ public class DataCollection implements Externalizable{
 		final Map<String, Integer> siteChart = frequentSites.entrySet().stream().sorted(Map.Entry.<String, Integer>comparingByValue().reversed()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
 		GenericExtractor x = getExtractor(siteChart.keySet().iterator().next());
                 System.out.println("search: "+searchStr);
-		try {if (x != null) addSuggestion(x.search(searchStr));}catch(IOException e) {}
+		try {if (x != null) addSuggestion(x.search(searchStr));}catch(IOException e) {} catch(UnsupportedOperationException e){}
 	}
         
         private GenericExtractor getExtractor(String type) {
@@ -226,21 +224,21 @@ public class DataCollection implements Externalizable{
             if (type.equals("Redtube")) return new Redtube();
             if (type.equals("Thumbzilla")) return new Thumbzilla();
             if (type.equals("Shesfreaky")) return new Shesfreaky();
-            if (type.equals("Yourporn")) return new Yourporn(); //not implemented
-            if (type.equals("Bigtits")) return new Bigtits(); //not implemented
-            if (type.equals("Pornhd")) return new Pornhd(); //not implemented
-            if (type.equals("Vporn")) return new Vporn(); //not implemented
-            if (type.equals("Ghettotube")) return new Ghettotube(); //not implemented
+            if (type.equals("Yourporn")) return new Yourporn(); //not implemented //complex
+            if (type.equals("Bigtits")) return new Bigtits();
+            if (type.equals("Pornhd")) return new Pornhd(); //not implemented //complex
+            if (type.equals("Vporn")) return new Vporn();
+            if (type.equals("Ghettotube")) return new Ghettotube();
             if (type.equals("Tube8")) return new Tube8();
-            if (type.equals("Youjizz")) return new Youjizz(); //not implemented
-            if (type.equals("Xtube")) return new Xtube(); //not implemented
+            if (type.equals("Youjizz")) return new Youjizz();
+            if (type.equals("Xtube")) return new Xtube(); 
             if (type.equals("Spankwire")) return new Spankwire();
-            if (type.equals("Justporno")) return new Justporno(); //not implemented
+            if (type.equals("Justporno")) return new Justporno();
             if (type.equals("Bigbootytube")) return new Bigbootytube();
-            if (type.equals("Befuck")) return new Befuck();  //not implemented
+            if (type.equals("Befuck")) return new Befuck();
             if (type.equals("Dailymotion")) return new Dailymotion(); //not implemented
             if (type.equals("Vimeo")) return new Vimeo(); //not implemented
-            if (type.equals("Cumlouder")) return new Cumlouder(); //not implemented
+            if (type.equals("Cumlouder")) return new Cumlouder();
             if (type.equals("Ruleporn")) return new Ruleporn();
             return null;
         }

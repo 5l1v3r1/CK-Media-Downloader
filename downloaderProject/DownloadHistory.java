@@ -29,8 +29,8 @@ import javafx.scene.layout.Pane;
  * @author christopher
  */
 public class DownloadHistory {
-    ListView downloadHistoryList;
-    List items;
+    private final ListView downloadHistoryList;
+    private final List items;
     private ManageSettings settingsRef;
     
     public DownloadHistory(ListView d) {
@@ -50,6 +50,7 @@ public class DownloadHistory {
         if (d != null) 
             for(int i = 0; i < d.size(); i++)
                 items.add(createItem(d.get(i)));
+        d = null;
     }
     
     public void display() {

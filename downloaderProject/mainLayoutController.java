@@ -18,6 +18,7 @@ import javafx.fxml.Initializable;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -48,7 +49,7 @@ public class mainLayoutController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         
-    }    
+    } 
     
     public void determineSite(String link) {
         determineSite(link,null);
@@ -77,7 +78,9 @@ public class mainLayoutController implements Initializable {
                         determineSite(s);
                 }
             }
-        } catch (Exception e) {
+        } catch(UnsupportedFlavorException e) {
+            System.out.println("Unsupported clipboard entry");
+        }catch (Exception e) {
             //MainApp.createMessageDialog(e.getMessage());
             e.printStackTrace();
         }
