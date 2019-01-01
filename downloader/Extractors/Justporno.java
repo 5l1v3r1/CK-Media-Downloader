@@ -7,15 +7,16 @@ package downloader.Extractors;
 
 import downloader.CommonUtils;
 import downloader.DataStructures.video;
-import static downloader.Extractors.GenericExtractor.configureUrl;
 import downloaderProject.MainApp;
 import downloaderProject.OperationStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import org.jsoup.Jsoup;
 import org.jsoup.UncheckedIOException;
 import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 
 /**
  *
@@ -76,7 +77,28 @@ public class Justporno extends GenericExtractor{
     }
 
     @Override
-    public video search(String str) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public video search(String str) throws IOException {
+    	str = str.trim(); str = str.replaceAll(" ", "+");
+    	String searchUrl = "http://justporno.tv/search?query="+str;
+    	
+    	Document page = getPage(searchUrl,false);
+        video v = null;
+        
+        Elements li = page.select("ul").select("li");
+        
+        for(int i = 0; i < li.size(); i++) {
+        	String thumbLink = li.get(i).select("img").attr("src"); 
+                thumbLink = thumbLink.startsWith("http") ? thumbLink : "https:" + thumbLink; 
+        	if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,4))) //if file not already in cache download it
+                    if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,4),MainApp.imageCache) != -2)
+                        throw new IOException("Failed to completely download page");
+        	String link = li.get(i).select("a").attr("href");
+        	String name = li.get(i).select("a").attr("title");
+        	if (link.isEmpty() || name.isEmpty()) continue;
+        	v = new video(link,name,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,4)));
+        	break;
+        }
+        
+        return v;
     }
 }

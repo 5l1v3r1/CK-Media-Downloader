@@ -95,7 +95,28 @@ public class Vporn extends GenericExtractor{
     }
 
     @Override
-    public video search(String str) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public video search(String str) throws IOException {
+    	str = str.trim(); str = str.replaceAll(" ", "+");
+    	String searchUrl = "https://www.vporn.com/search?q="+str;
+    	
+    	Document page = getPage(searchUrl,false);
+        video v = null;
+        
+        //is not a an actually li but...
+        Elements li = page.select("div.thumblist.videos").select("div.video");
+        
+        for(int i = 0; i < li.size(); i++) {
+        	String thumbLink = li.get(i).select("img.imgvideo").attr("src");
+        	String link= li.get(i).select("a").attr("href");
+        	if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,2))) //if file not already in cache download it
+                    if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,2),MainApp.imageCache) != -2)
+                        throw new IOException("Failed to completely download page");
+        	String name = li.get(i).select("div.thumb-info").select("span").get(0).text();
+        	if (link.isEmpty() || name.isEmpty()) continue;
+        	v = new video(link,name,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,2)));
+        	break;
+        }
+        
+        return v;
     }
 }

@@ -7,7 +7,6 @@ package downloader.Extractors;
 
 import downloader.CommonUtils;
 import downloader.DataStructures.video;
-import static downloader.Extractors.GenericExtractor.configureUrl;
 import downloaderProject.MainApp;
 import downloaderProject.OperationStream;
 import java.io.File;
@@ -18,6 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 
 /**
  *
@@ -105,7 +105,27 @@ public class Xtube extends GenericExtractor{
     }
 
     @Override
-    public video search(String str) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public video search(String str) throws IOException{
+    	str = str.trim(); str = str.replaceAll(" ", "-");
+    	String searchUrl = "https://www.xtube.com/search/video/"+str;
+    	
+    	Document page = getPage(searchUrl,false);
+        video v = null;
+        
+        Elements li = page.select("li.deleteListElement.col-xs-24.col-s-12.col-xl-6.col10-xxl-2");
+        
+        for(int i = 0; i < li.size(); i++) {
+        	String thumbLink = li.get(i).select("img").get(0).attr("src"); 
+        	if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,6))) //if file not already in cache download it
+                if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,6),MainApp.imageCache) != -2)
+                    throw new IOException("Failed to completely download page");
+        	String link = "http://www.xtube.com" + li.get(i).select("a").get(0).attr("href");
+        	String name = li.get(i).select("h3").text();
+        	if (link.isEmpty() || name.isEmpty()) continue;
+        	v = new video(link,name,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,6)));
+        	break;
+        }
+        
+        return v;
     }
 }

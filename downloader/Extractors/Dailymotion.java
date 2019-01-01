@@ -10,7 +10,6 @@ import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
 import downloader.Exceptions.PageNotFoundException;
 import downloader.Exceptions.PrivateVideoException;
-import static downloader.Extractors.GenericExtractor.configureUrl;
 import downloaderProject.MainApp;
 import downloaderProject.OperationStream;
 import java.io.File;
@@ -26,6 +25,7 @@ import org.json.simple.parser.ParseException;
 import org.jsoup.Jsoup;
 import org.jsoup.UncheckedIOException;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 /**
@@ -73,19 +73,28 @@ public class Dailymotion extends GenericExtractor{
         if (s != null) s.startTiming();
         
         Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.pcClient).get().html());
-        verify(page);
-        Map<String, String> qualities = getQualities(page.toString().substring(page.toString().indexOf("var __PLAYER_CONFIG__ = {")+24, page.toString().indexOf("};")+1));
-        int max = 144;
-        Iterator i = qualities.keySet().iterator();
-        while(i.hasNext()) {
-            int temp = Integer.parseInt((String)i.next());
-            if(temp > max)
-                max = temp;
+        verify(page); String link = null;
+        for(Element i:page.select("meta")) {
+            if (i.attr("property").equals("og:video:url")) {
+                link = i.attr("content"); break;
+            }
         }
+        if (link == null) throw new PageNotFoundException("Couldnt get video");
+        else {
+            page = Jsoup.parse(Jsoup.connect(link).userAgent(CommonUtils.pcClient).get().html());
+            Map<String, String> qualities = getQualities(page.toString().substring(page.toString().indexOf("var config = {")+13, page.toString().indexOf("};")+1));
         
-	String video = qualities.get(String.valueOf(max));
+            int max = 144;
+            Iterator i = qualities.keySet().iterator();
+            while(i.hasNext()) {
+                int temp = Integer.parseInt((String)i.next());
+                if(temp > max)
+                    max = temp;
+            }
+            String video = qualities.get(String.valueOf(max));
         
-        super.downloadVideo(video,downloadVideoName(url),s);
+            super.downloadVideo(video,downloadVideoName(url),s);
+        }
     }
     
     private static void verify(Document page) throws GenericDownloaderException {
@@ -106,7 +115,11 @@ public class Dailymotion extends GenericExtractor{
                  title = meta.get(i).attr("content"); break;
              }
          }
-	return title == null ? "DailyMotion Video" : title.substring(0,title.indexOf("- Video Dailymotion")-1);
+         if (title != null) {
+        	 if (title.toLowerCase().contains("- video dailymotion"))
+        		 return title.substring(0,title.length() - 20);
+        	 else return title;
+         } else return "DailyMotion Video";
     } 
 	
     //getVideo thumbnail
@@ -136,7 +149,29 @@ public class Dailymotion extends GenericExtractor{
     }
 
     @Override
-    public video search(String str) {
+    public video search(String str) throws IOException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    	/*str = str.trim(); str = str.replaceAll(" ", "%20");
+    	String searchUrl = "https://www.dailymotion.com/search/"+str;
+    	
+    	Document page = getPage(searchUrl,false);
+        video v = null;
+        
+        Elements li = page.select("section.Video__wrap___2atEf.Video__video___2Qq1K.Video__small-horizontal___203Dv");
+        
+        for(int i = 0; i < li.size(); i++) {
+        	String thumbLink = li.get(i).select("div.Thumbnail__thumbnail___3Aff6.Thumb__thumbnail___1CmQk.Video__thumbnail___2MHSe").select("img").attr("src"); 
+        	if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,2))) //if file not already in cache download it
+                    if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,2),MainApp.imageCache) != -2)
+                        throw new IOException("Failed to completely download page");
+        	String link = "https://www.dailymotion.com" + li.get(i).select("a.Video__details___1Knex").attr("href");
+        	String name = li.get(i).select("div.Details__title___1qhDj.Video__title___2PurE").text();
+                System.out.println("link = "+link+"\nname = "+name);
+        	if (link.isEmpty() || name.isEmpty()) continue;
+        	v = new video(link,name,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,22)));
+        	break;
+        }
+        
+        return v;*/
     }
 }

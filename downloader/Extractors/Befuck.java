@@ -16,6 +16,7 @@ import java.net.SocketTimeoutException;
 import org.jsoup.Jsoup;
 import org.jsoup.UncheckedIOException;
 import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 
 /**
  *
@@ -76,7 +77,27 @@ public class Befuck extends GenericExtractor{
     }
 
     @Override
-    public video search(String str) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public video search(String str) throws IOException {
+    	str = str.trim(); str = str.replaceAll(" ", "+");
+    	String searchUrl = "https://befuck.com/search/"+str;
+    	
+    	Document page = getPage(searchUrl,false);
+        video v = null;
+        
+        Elements li = page.select("figure");
+        
+        for(int i = 0; i < li.size(); i++) {
+        	String thumbLink = li.get(i).select("img").attr("data-src"); 
+        	if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,3))) //if file not already in cache download it
+                    if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,3),MainApp.imageCache) != -2)
+                        throw new IOException("Failed to completely download page");
+        	String link = li.get(i).select("a").attr("href");
+        	String name = li.get(i).select("figcaption").text();
+        	if (link.isEmpty() || name.isEmpty()) continue;
+        	v = new video(link,name,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,3)));
+        	break;
+        }
+        
+        return v;
     }
 }

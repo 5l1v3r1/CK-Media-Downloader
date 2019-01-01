@@ -10,6 +10,7 @@ import downloader.DataStructures.video;
 import downloaderProject.MainApp;
 import downloaderProject.OperationStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import org.jsoup.UncheckedIOException;
 import java.net.SocketTimeoutException;
@@ -80,7 +81,26 @@ public class Ghettotube extends GenericExtractor{
     }
 
     @Override
-    public video search(String str) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public video search(String str) throws IOException {
+    	str = str.trim(); str = str.replaceAll(" ", "+");
+    	String searchUrl = "https://www.ghettotube.com/search/video/"+str;
+    	
+    	Document page = getPage(searchUrl,false);
+        video v = null;
+        
+        Elements li = page.select("div.thumb-list").select("div.item");
+        
+        for(int i = 0; i < li.size(); i++) {
+        	String thumbLink = li.get(i).select("img").attr("src"); 
+        	if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,3))) //if file not already in cache download it
+                    if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,3),MainApp.imageCache) != -2)
+                        throw new IOException("Failed to completely download page");
+        	String link = li.get(i).select("a").attr("href");
+        	String name = li.get(i).select("h2").select("a").text();
+        	if (link.isEmpty() || name.isEmpty()) continue;
+        	v = new video(link,name,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,3)));
+        	break;
+        }
+        return v;
     }
 }

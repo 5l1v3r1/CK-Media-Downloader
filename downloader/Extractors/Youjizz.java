@@ -12,11 +12,13 @@ import downloaderProject.OperationStream;
 import java.io.File;
 import java.io.IOException;
 import org.jsoup.UncheckedIOException;
+
 import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 
 /**
  *
@@ -60,10 +62,11 @@ public class Youjizz extends GenericExtractor{
         Map<String, String> quality = getQualities(CommonUtils.getSBracket(page.toString(), page.toString().indexOf("var encodings")),"quality");
         String video;
         
-        if(quality.containsKey("480"))
-            video = quality.get("480");
-        else if(quality.containsKey("720"))
+        //ik this ordered retarded
+        if(quality.containsKey("720"))
             video = quality.get("720");
+        else if(quality.containsKey("480"))
+            video = quality.get("480");
         else if(quality.containsKey("1080"))
             video = quality.get("1080");
         else if(quality.containsKey("360"))
@@ -103,7 +106,26 @@ public class Youjizz extends GenericExtractor{
     }
 
     @Override
-    public video search(String str) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public video search(String str) throws IOException {
+    	str = str.trim(); str = str.replaceAll(" ", "-");
+    	String searchUrl = "https://www.youjizz.com/search/"+str+"-1.html?";
+    	
+    	Document page = getPage(searchUrl,false);
+        video v = null;
+        
+        Elements li = page.select("div.video-thumb");
+        
+        for(int i = 0; i < li.size(); i++) {
+        	String thumbLink = "https:"+li.get(i).select("img").get(0).attr("src"); 
+        	if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,2))) //if file not already in cache download it
+                    if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,2),MainApp.imageCache) != -2)
+                        throw new IOException("Failed to completely download page");
+        	String link = "https://youjizz.com"+li.get(i).select("a").get(0).attr("href");
+        	String name = li.get(i).select("div.video-title").select("a").text();
+        	if (link.isEmpty() || name.isEmpty()) continue;
+        	v = new video(link,name,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,2)));
+        	break;
+        }
+        return v;
     }
 }
