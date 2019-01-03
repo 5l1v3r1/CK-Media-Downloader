@@ -44,7 +44,7 @@ public class Ghettotube extends GenericExtractor{
     public void getVideo(OperationStream s) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
         if (s != null) s.startTiming();
         
-        Document page =  Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.pcClient).get().html());
+        Document page =  Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
         Elements scripts = page.select("div.play").select("script");
         String video = CommonUtils.getLink(scripts.get(scripts.size()-1).toString(), scripts.get(scripts.size()-1).toString().indexOf("file:")+7, '\"');
         String title = Jsoup.parse(page.select("h1").toString()).body().text();

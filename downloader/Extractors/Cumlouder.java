@@ -43,7 +43,7 @@ public class Cumlouder extends GenericExtractor{
     public void getVideo(OperationStream s) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
         if (s != null) s.startTiming();
         
-        Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.pcClient).get().html());
+        Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
         String video = "";
         if (page.select("video").select("source") != null)
             video = "https:"+page.select("video").select("source").attr("src");

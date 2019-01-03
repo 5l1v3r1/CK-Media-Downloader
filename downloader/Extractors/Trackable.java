@@ -13,6 +13,6 @@ import java.io.IOException;
  * @author christopher
  */
 public interface Trackable {
-    public video similar(); //get a video from the related items list
+    public video similar() throws IOException; //get a video from the related items list
     public video search(String str) throws IOException; //search (similar to query except no img preview and only 1 result) 
 }

@@ -72,7 +72,7 @@ public class Dailymotion extends GenericExtractor{
     public void getVideo(OperationStream s) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
         if (s != null) s.startTiming();
         
-        Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.pcClient).get().html());
+        Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
         verify(page); String link = null;
         for(Element i:page.select("meta")) {
             if (i.attr("property").equals("og:video:url")) {
@@ -81,7 +81,7 @@ public class Dailymotion extends GenericExtractor{
         }
         if (link == null) throw new PageNotFoundException("Couldnt get video");
         else {
-            page = Jsoup.parse(Jsoup.connect(link).userAgent(CommonUtils.pcClient).get().html());
+            page = Jsoup.parse(Jsoup.connect(link).userAgent(CommonUtils.PCCLIENT).get().html());
             Map<String, String> qualities = getQualities(page.toString().substring(page.toString().indexOf("var config = {")+13, page.toString().indexOf("};")+1));
         
             int max = 144;

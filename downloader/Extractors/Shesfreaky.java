@@ -48,7 +48,7 @@ public class Shesfreaky extends GenericQueryExtractor{
     public void getVideo(OperationStream s) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
         if (s != null) s.startTiming();
         
-        Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.pcClient).get().html());
+        Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
         verify(page);
 	String video = page.select("video").select("source").attr("src");
         String title = Jsoup.parse(page.getElementById("n-vid-details").select("h2").toString()).body().text(); //pull out text from span

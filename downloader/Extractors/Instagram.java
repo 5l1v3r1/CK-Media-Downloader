@@ -5,10 +5,10 @@
  */
 package downloader.Extractors;
 
+import ChrisPackage.GameTime;
 import downloader.CommonUtils;
 import downloader.DataStructures.downloadedMedia;
 import downloader.DataStructures.video;
-import downloaderProject.GameTime;
 import downloaderProject.MainApp;
 import downloaderProject.OperationStream;
 import java.io.File;
@@ -146,7 +146,7 @@ public class Instagram extends GenericExtractor{
          if (CommonUtils.checkPageCache(CommonUtils.getCacheName(url,false))) //check to see if page was downloaded previous
             page = Jsoup.parse(CommonUtils.loadPage(MainApp.pageCache.getAbsolutePath()+File.separator+CommonUtils.getCacheName(url,false)));
          else {
-             String html = Jsoup.connect(url).userAgent(CommonUtils.pcClient).get().html();
+             String html = Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html();
              page = Jsoup.parse(html);
             CommonUtils.savePage(html, url, false);
          }
@@ -167,7 +167,7 @@ public class Instagram extends GenericExtractor{
          if (CommonUtils.checkPageCache(CommonUtils.getCacheName(url,false))) //check to see if page was downloaded previous
             page = Jsoup.parse(CommonUtils.loadPage(MainApp.pageCache.getAbsolutePath()+File.separator+CommonUtils.getCacheName(url,false)));
          else {
-             String html = Jsoup.connect(url).userAgent(CommonUtils.pcClient).get().html();
+             String html = Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html();
              page = Jsoup.parse(html);
             CommonUtils.savePage(html, url, false);
          }

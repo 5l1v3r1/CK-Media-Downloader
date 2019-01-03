@@ -5,9 +5,9 @@
  */
 package downloader.Extractors;
 
+import ChrisPackage.GameTime;
 import downloader.CommonUtils;
 import downloader.DataStructures.downloadedMedia;
-import downloaderProject.GameTime;
 import downloaderProject.MainApp;
 import downloaderProject.OperationStream;
 import java.io.File;
@@ -52,12 +52,12 @@ public abstract class GenericExtractor implements Trackable {
             page = Jsoup.parse(CommonUtils.loadPage(MainApp.pageCache.getAbsolutePath()+File.separator+CommonUtils.getCacheName(url,mobile)));
         else { String html;
              if (mobile)
-                html = Jsoup.connect(url).userAgent(CommonUtils.mobileClient).get().html();
-             else html = Jsoup.connect(url).userAgent(CommonUtils.pcClient).get().html();
+                html = Jsoup.connect(url).userAgent(CommonUtils.MOBILECLIENT).get().html();
+             else html = Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html();
             page = Jsoup.parse(html);
             CommonUtils.savePage(html, url, mobile);
         } //if not found in cache download it
-         return page;
+        return page;
     }
     
     public abstract void getVideo(OperationStream s) throws IOException, SocketTimeoutException, UncheckedIOException, Exception;

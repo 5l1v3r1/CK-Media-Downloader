@@ -5,6 +5,7 @@
  */
 package downloader.Extractors;
 
+import ChrisPackage.GameTime;
 import downloader.CommonUtils;
 import downloader.DataStructures.GenericQuery;
 import downloader.DataStructures.downloadedMedia;
@@ -13,7 +14,6 @@ import downloader.Exceptions.GenericDownloaderException;
 import downloader.Exceptions.PageNotFoundException;
 import downloader.Exceptions.PrivateVideoException;
 import downloader.Exceptions.VideoDeletedException;
-import downloaderProject.GameTime;
 import downloaderProject.MainApp;
 import downloaderProject.OperationStream;
 import java.io.File;
@@ -25,7 +25,12 @@ import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Random;
 import java.util.Vector;
+import javax.script.Invocable;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -36,6 +41,7 @@ import org.jsoup.select.Elements;
  * @author christopher
  */
 public class Pornhub extends GenericQueryExtractor{
+    private static int get = 0;
     
     public Pornhub() { //this contructor is used for when you jus want to query
         
@@ -53,11 +59,13 @@ public class Pornhub extends GenericQueryExtractor{
         super(url,thumb,videoName);
     }
     
-    private void downloadPic(String link, OperationStream s) throws MalformedURLException {
+    private void downloadPic(String link, OperationStream s, String folder) throws MalformedURLException {
         long stop = 0; String name = CommonUtils.getPicName(link);
         do {
             if (s != null) s.addProgress("Trying "+CommonUtils.clean(name));
-            stop = CommonUtils.saveFile(link,CommonUtils.clean(name),MainApp.settings.preferences.getPictureFolder(),s);
+            if (folder == null)
+                stop = CommonUtils.saveFile(link,CommonUtils.clean(name),MainApp.settings.preferences.getPictureFolder().getAbsolutePath(),s);
+            else stop = CommonUtils.saveFile(link,CommonUtils.clean(name),MainApp.settings.preferences.getPictureFolder().getAbsolutePath()+File.separator+folder,s);
             try {
                 sleep(4000);
             } catch (InterruptedException ex) {
@@ -66,19 +74,19 @@ public class Pornhub extends GenericQueryExtractor{
         }while(stop != -2); //retry download if failed
     }
     
-    private void getPic(String link, OperationStream s) throws MalformedURLException, IOException {
-        Document page = Jsoup.parse(Jsoup.connect(link).userAgent(CommonUtils.pcClient).get().html());
+    private void getPic(String link, OperationStream s, String folder) throws MalformedURLException, IOException {
+        Document page = Jsoup.parse(Jsoup.connect(link).userAgent(CommonUtils.PCCLIENT).get().html());
         String img = "";
             Element div = page.getElementById("photoImageSection");
             if (div == null) { div = page.getElementById("gifImageSection"); img = div.select("div.centerImage").attr("data-gif"); }
             else img = div.select("div.centerImage").select("a").select("img").attr("src");
-        downloadPic(img,s);
+        downloadPic(img,s,folder);
     }
     
     private Map<String,String> getQualities(String src) {
         int from = 0, occur = 0;
         
-        Map<String,String> qualities = new HashMap<String, String>();
+        Map<String,String> qualities = new HashMap<>();
         while((occur = src.indexOf("quality",from)) != -1) {
             qualities.put(CommonUtils.getLink(src, occur+10, '\"'),CommonUtils.eraseChar(CommonUtils.getUrl(src,occur), '\\'));
             if (qualities.get(CommonUtils.getLink(src, occur+10, '\"')).length() == 0)
@@ -95,26 +103,28 @@ public class Pornhub extends GenericQueryExtractor{
         Document page;
         
         if (isPhoto(url)) {
-            getPic(url,s);
+            getPic(url,s,null);
             GameTime took = s.endOperation();
             if (s != null) s.addProgress("Took "+took.getTime()+" to download");
             MainApp.createNotification("Download Success","Finished Downloading "+getVideoName());
             File saved = new File(MainApp.settings.preferences.getPictureFolder() + File.separator + CommonUtils.clean(getVideoName()));
             MainApp.downloadHistoryList.add(new downloadedMedia(videoName,videoThumb,saved,name()));
         } else if (isAlbum(url)) {
-            page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.pcClient).get().html());
+            page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
+            while(page.toString().contains("RNKEY"))
+                page = Jsoup.parse(Jsoup.connect(url).cookie("RNKEY", getRNKEY(page.toString())).userAgent(CommonUtils.PCCLIENT).get().html());
             Elements items = page.select("li.photoAlbumListContainer");
             for(int i = 0; i < items.size(); i++) {
                 String subLink = "https://www.pornhub.com" + items.get(i).select("a").attr("href");
-                try {getPic(subLink,s);} catch(UncheckedIOException e) {i--; /*retry link*/}
+                try {getPic(subLink,s,this.videoName);} catch(UncheckedIOException | NullPointerException e) {i--; sleep(4000);/*retry link*/}
             }
             GameTime took = s.endOperation();
             if (s != null) s.addProgress("Took "+took.getTime()+" to download");
             MainApp.createNotification("Download Success","Finished Downloading Album"+getVideoName());
-            File saved = new File(MainApp.settings.preferences.getPictureFolder() + File.separator + CommonUtils.clean(getVideoName()));
+            File saved = new File(MainApp.settings.preferences.getPictureFolder() + File.separator + this.videoName);
             MainApp.downloadHistoryList.add(new downloadedMedia(videoName,videoThumb,saved,name()));
         } else { //must be a video
-            page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.pcClient).get().html());
+            page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
             verify(page);
             //Element video = page.getElementById("videoShow"); video.attr("data-default");
             Elements titleSpan = page.select("span.inlineFree");
@@ -153,6 +163,10 @@ public class Pornhub extends GenericQueryExtractor{
         
         GenericQuery thequery = new GenericQuery();
         Document page = getPage(searchUrl,false);
+        while(page.toString().contains("RNKEY")) {
+            try{Thread.sleep(4000);}catch(InterruptedException e){}
+            page = Jsoup.parse(Jsoup.connect(searchUrl).referrer(searchUrl).cookie("RNKEY",getRNKEY(page.toString())).userAgent(CommonUtils.PCCLIENT).get().html());
+        }
                 
 	Elements searchResults = page.select("ul.videos.search-video-thumbs").select("li");
 	for(int i = 0; i < searchResults.size(); i++)  {
@@ -180,11 +194,14 @@ public class Pornhub extends GenericQueryExtractor{
             if (CommonUtils.checkPageCache(CommonUtils.getCacheName(url,true))) //check to see if page was downloaded previous 
                 html = CommonUtils.loadPage(MainApp.pageCache.getAbsolutePath()+File.separator+CommonUtils.getCacheName(url,true));
             else {
-                html = Jsoup.connect(url).followRedirects(true).cookie("trial-step1-modal-shown", "null").userAgent(CommonUtils.mobileClient).get().html(); //not found so download it
+                html = Jsoup.connect(url).followRedirects(true).cookie("trial-step1-modal-shown", "null").userAgent(CommonUtils.MOBILECLIENT).get().html(); //not found so download it
+                while(html.contains("RNKEY")) { //.cookie("trial-step1-modal-shown", "null")
+                    try{Thread.sleep(4000);}catch(InterruptedException e){}
+                    html = Jsoup.connect(url).cookie("RNKEY",getRNKEY(html)).cookie("atatusScript","hide").cookie("ua","5b8fd1d60da9f748d773c2f3fc6ec89e").cookie("bs","bm8unqfp3axtovr7u7xpil9rlrabd02g").cookie("ss","472939886686767906").cookie("RNLBSERVERID","ded6856").userAgent(CommonUtils.MOBILECLIENT).referrer("https://www.google.com").get().html();
+                }
                 CommonUtils.savePage(html, url, true);
             }
             Document page = Jsoup.parse(html);
-            //System.out.println(page);
             Element preview = page.getElementById("thumbDisplay");
             Elements previewImg = preview.select("img");
 
@@ -196,9 +213,21 @@ public class Pornhub extends GenericQueryExtractor{
                 thumbs.add(new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,5)));
             }
         } catch (NullPointerException e) {
+            CommonUtils.erasePage(CommonUtils.getCacheName(url,true));
             return thumbs; //return parse(url); //possible it went to interstitial? instead
         }
         return thumbs;
+    }
+    
+    private static String getRNKEY(String page) {
+        page = page.replace("document.cookie=", "return");
+        page = page.substring(page.indexOf("<!--")+4,page.indexOf("//-->"));
+        ScriptEngine engine = new ScriptEngineManager().getEngineByName("JavaScript");
+        try {
+            engine.eval(page);
+            Invocable inv = (Invocable)engine;
+            return ((String)inv.invokeFunction("go")).split(("="))[1];
+        } catch (ScriptException | NoSuchMethodException e) {e.printStackTrace();System.out.println(e.getMessage());return " ";}
     }
     
     private static boolean isAlbum(String url) {
@@ -224,15 +253,29 @@ public class Pornhub extends GenericQueryExtractor{
     }
     
      private static String downloadVideoName(String url) throws IOException , SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
-         Document page;
+         Document page; get = 0;
         if (isAlbum(url)) {
-            page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.pcClient).get().html());
-            String subUrl = "https://www.pornhub.com" + page.select("li.photoAlbumListContainer").get(0).select("a").attr("href");
-            Document subpage = Jsoup.parse(Jsoup.connect(subUrl).userAgent(CommonUtils.pcClient).get().html());
-            String img = subpage.getElementById("photoImageSection").select("div.centerImage").select("a").select("img").attr("src");
-            return "Album " + CommonUtils.getPicName(img);
+            page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
+            while(page.toString().contains("RNKEY")) {
+                get++; if (get > 10) break;
+                System.out.println("Trying to get name");
+                try{Thread.sleep(4000);}catch(InterruptedException e){}
+                page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
+            }
+            //String subUrl = "https://www.pornhub.com" + page.select("li.photoAlbumListContainer").get(0).select("a").attr("href");
+            //Document subpage = Jsoup.parse(Jsoup.connect(subUrl).userAgent(CommonUtils.PCCLIENT).get().html());
+            //String img = subpage.getElementById("photoImageSection").select("div.centerImage").select("a").select("img").attr("src");
+            if (page.select("h1.photoAlbumTitleV2").text().contains("<"))
+                return page.select("h1.photoAlbumTitleV2").text().substring(0,page.select("h1.photoAlbumTitleV2").text().indexOf("<"));
+            else return page.select("h1.photoAlbumTitleV2").text();
         } else if (isPhoto(url)) {
-            page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.pcClient).get().html());
+            page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
+            while(page.toString().contains("RNKEY")) {
+                get++; if (get > 10) break;
+                System.out.println("Trying to get name");
+                try{Thread.sleep(4000);}catch(InterruptedException e){}
+                page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
+            }
             String img = "";
             Element div = page.getElementById("photoImageSection");
             if (div == null) { div = page.getElementById("gifImageSection"); img = div.select("div.centerImage").attr("data-gif"); }
@@ -242,7 +285,13 @@ public class Pornhub extends GenericQueryExtractor{
             if (CommonUtils.checkPageCache(CommonUtils.getCacheName(url,true))) //check to see if page was downloaded previous
                page = Jsoup.parse(CommonUtils.loadPage(MainApp.pageCache.getAbsolutePath()+File.separator+CommonUtils.getCacheName(url,true)));
             else {
-                String html = Jsoup.connect(url).userAgent(CommonUtils.mobileClient).get().html();
+                String html = Jsoup.connect(url).userAgent(CommonUtils.MOBILECLIENT).get().html();
+                while(html.contains("RNKEY")) {
+                    get++; if (get > 10) break;
+                    System.out.println("Trying to get name");
+                    try{Thread.sleep(4000);}catch(InterruptedException e){}
+                    html = Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html();
+                }
                 page = Jsoup.parse(html);
                CommonUtils.savePage(html, url, true);
             }
@@ -255,17 +304,29 @@ public class Pornhub extends GenericQueryExtractor{
 	
     //getVideo thumbnail
     private static File downloadThumb(String url) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception {
-        Document page;
+        Document page; get = 0;
         if (isAlbum(url)) {
-            page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.pcClient).get().html());
+            page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
+            while(page.toString().contains("RNKEY")) {
+                get++; if (get > 10) break;
+                System.out.println("Trying to get thumb");
+                try{Thread.sleep(4000);}catch(InterruptedException e){}
+                page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
+            }
             String subUrl = "https://www.pornhub.com" + page.select("li.photoAlbumListContainer").get(0).select("a").attr("href");
-            Document subpage = Jsoup.parse(Jsoup.connect(subUrl).userAgent(CommonUtils.pcClient).get().html());
+            Document subpage = Jsoup.parse(Jsoup.connect(subUrl).userAgent(CommonUtils.PCCLIENT).get().html());
             String img = subpage.getElementById("photoImageSection").select("div.centerImage").select("a").select("img").attr("src");
             if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(img))) //if file not already in cache download it
                 CommonUtils.saveFile(img,CommonUtils.getThumbName(img),MainApp.imageCache);
             return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(img));
         } else if (isPhoto(url)) {
-            page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.pcClient).get().html());
+            page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
+            while(page.toString().contains("RNKEY")) {
+                get++; if (get > 10) break;
+                System.out.println("Trying to get thumb");
+                try{Thread.sleep(4000);}catch(InterruptedException e){}
+                page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
+            }
             String img = "";
             Element div = page.getElementById("photoImageSection");
             if (div == null) { div = page.getElementById("gifImageSection"); img = div.select("div.centerImage").attr("data-gif"); }
@@ -277,7 +338,13 @@ public class Pornhub extends GenericQueryExtractor{
             if (CommonUtils.checkImageCache(CommonUtils.getCacheName(url,true))) //check to see if page was downloaded previous
                 page = Jsoup.parse(CommonUtils.loadPage(MainApp.pageCache.getAbsolutePath()+File.separator+CommonUtils.getCacheName(url,true)));
              else {
-                 String html = Jsoup.connect(url).userAgent(CommonUtils.mobileClient).get().html();
+                 String html = Jsoup.connect(url).userAgent(CommonUtils.MOBILECLIENT).get().html();
+                 while(html.contains("RNKEY")) {
+                     get++; if (get > 10) break;
+                     System.out.println("Trying to get thumb");
+                     try{Thread.sleep(4000);}catch(InterruptedException e){}
+                    html = Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html();
+                 }
                  page = Jsoup.parse(html);
                 CommonUtils.savePage(html, url, true);
              }
@@ -305,8 +372,79 @@ public class Pornhub extends GenericQueryExtractor{
     }
 
     @Override
-    public video similar() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public video similar() throws IOException{
+        if (url == null) return null;
+        if(isAlbum(url) || isPhoto(url)) {
+            return null;
+        } else {
+            Random rand = new Random();
+            if (rand.nextBoolean())
+                return getRelated();
+            else return getRecommended();
+        }
+    }
+    
+    private video getRelated() throws IOException {
+        return getRelated(0);
+    }
+    
+    private video getRelated(int tries) throws IOException {
+        System.out.println("chose related");
+        if (url == null) return null;
+        
+        video v = null;
+        try {
+            Document page = getPage(url,false);
+            Elements li = page.getElementById("relatedVideosCenter").select("li");
+            for(int i = 0; i < li.size(); i++) {
+                String link = li.select("div.phimage").select("a.img").attr("href");
+                if (!link.startsWith("http://pornhub.com") || !link.startsWith("https://pornhub.com")) link = "http://pornhub.com" + link;
+                String thumb = li.select("div.phimage").select("a.img").select("img").attr("src");
+                if (thumb.length() < 1) li.select("div.phimage").select("a.img").select("img").attr("data-thumb_url");
+                String title = li.select("div.phimage").select("a.img").attr("data-title");
+                if (title.length() < 1) title = li.select("div.phimage").select("a.img").attr("data-title");
+                try {if (title.length() < 1) title = new Pornhub(link).getVideoName();}catch(Exception e) {continue;}
+                if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,4))) //if file not already in cache download it
+                    if (CommonUtils.saveFile(thumb, CommonUtils.getThumbName(thumb,4),MainApp.imageCache) != -2)
+                        throw new IOException("Failed to completely download page");
+                v = new video(link,title,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumb,4)));
+                break;
+            }
+        } catch (NullPointerException e) {
+            if (tries < 1) return getRecommended(1);
+        }
+        return v;
+    }
+    
+    private video getRecommended() throws IOException {
+        return getRecommended(0);
+    }
+    
+    private video getRecommended(int tries) throws IOException {
+        System.out.println("chose recommeded");
+        if (url == null) return null;
+        
+        video v = null;
+        try {
+            Document page = getPage(url,false);
+            Elements li = page.getElementById("relateRecommendedItems").select("li");
+            for(int i = 0; i < li.size(); i++) {
+                String link = li.select("div.phimage").select("a.img").attr("href");
+                if (!link.startsWith("http://pornhub.com") || !link.startsWith("https://pornhub.com")) link = "http://pornhub.com" + link;
+                String thumb = li.select("div.phimage").select("a.img").select("img").attr("src");
+                if (thumb.length() < 1) li.select("div.phimage").select("a.img").select("img").attr("data-thumb_url");
+                String title = li.select("div.phimage").select("a.img").attr("data-title");
+                if (title.length() < 1) title = li.select("div.phimage").select("a.img").attr("data-title");
+                try {if (title.length() < 1) title = new Pornhub(link).getVideoName();}catch(Exception e) {continue;}
+                if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,4))) //if file not already in cache download it
+                    if (CommonUtils.saveFile(thumb, CommonUtils.getThumbName(thumb,4),MainApp.imageCache) != -2)
+                        throw new IOException("Failed to completely download page");
+                v = new video(link,title,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumb,4)));
+            }
+        } catch (NullPointerException e) {
+            if (tries < 1) return getRelated(1);
+        } //https://www.pornhub.com/view_video.php?viewkey=ph5c015bf162797
+        return v;
     }
 
     @Override public video search(String str) throws IOException {

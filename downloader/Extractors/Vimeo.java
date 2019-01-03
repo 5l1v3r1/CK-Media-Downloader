@@ -68,9 +68,9 @@ public class Vimeo extends GenericExtractor{
     public void getVideo(OperationStream s) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
         if (s != null) s.startTiming();
         
-        Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.pcClient).get().html());
+        Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
         verify(page); String newUrl = "https://player.vimeo.com/video/"+url.split("/")[url.split("/").length -1];
-        page = Jsoup.parse(Jsoup.connect(newUrl).userAgent(CommonUtils.pcClient).get().html());
+        page = Jsoup.parse(Jsoup.connect(newUrl).userAgent(CommonUtils.PCCLIENT).get().html());
         verify(page);
         Map<String, String> qualities = getQualities(CommonUtils.getSBracket(page.toString(), page.toString().indexOf("progressive")));
         int max = 144;

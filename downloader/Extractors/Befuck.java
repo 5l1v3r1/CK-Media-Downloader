@@ -44,7 +44,7 @@ public class Befuck extends GenericExtractor{
     public void getVideo(OperationStream s) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
         if (s != null) s.startTiming();
         
-        Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.pcClient).get().html());
+        Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
         String video = page.select("video").select("source").attr("src");
         String title = Jsoup.parse(page.select("div.desc").select("span").get(0).toString()).body().text();
         

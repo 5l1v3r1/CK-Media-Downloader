@@ -47,7 +47,7 @@ public class Redtube extends GenericQueryExtractor{
         if (CommonUtils.checkPageCache(CommonUtils.getCacheName(url,false))) //check to see if page was downloaded previous
             page = Jsoup.parse(CommonUtils.loadPage(MainApp.pageCache.getAbsolutePath()+File.separator+CommonUtils.getCacheName(url,false)));
         else {
-            String html = Jsoup.connect(url).userAgent(CommonUtils.pcClient).get().html();
+            String html = Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html();
             page = Jsoup.parse(html);
             CommonUtils.savePage(html, url, false);
         } //if not found in cache download it
@@ -94,7 +94,7 @@ public class Redtube extends GenericQueryExtractor{
         if (CommonUtils.checkPageCache(CommonUtils.getCacheName(url,false))) //check to see if page was downloaded previous
             page = Jsoup.parse(CommonUtils.loadPage(MainApp.pageCache.getAbsolutePath()+File.separator+CommonUtils.getCacheName(url,false)));
         else {
-            String html = Jsoup.connect(url).userAgent(CommonUtils.pcClient).get().html();
+            String html = Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html();
             page = Jsoup.parse(html);
             CommonUtils.savePage(html, url, false);
         } //if not found in cache download it

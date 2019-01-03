@@ -47,7 +47,7 @@ public class Ruleporn extends GenericQueryExtractor{
     public void getVideo(OperationStream s) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
         if (s != null) s.startTiming();
         
-        Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.pcClient).get().html());
+        Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
 	
         String video = page.select("video").select("source").attr("src");
         
@@ -73,7 +73,7 @@ public class Ruleporn extends GenericQueryExtractor{
         if (CommonUtils.checkPageCache(CommonUtils.getCacheName(searchUrl,false))) //check to see if page was downloaded previous
             page = Jsoup.parse(CommonUtils.loadPage(MainApp.pageCache.getAbsolutePath()+File.separator+CommonUtils.getCacheName(searchUrl,false)));
         else {
-            String html = Jsoup.connect(searchUrl).userAgent(CommonUtils.pcClient).get().html();
+            String html = Jsoup.connect(searchUrl).userAgent(CommonUtils.PCCLIENT).get().html();
             page = Jsoup.parse(html);
             CommonUtils.savePage(html, searchUrl, false);
         } //if not found in cache download it
@@ -104,7 +104,7 @@ public class Ruleporn extends GenericQueryExtractor{
             if (CommonUtils.checkPageCache(CommonUtils.getCacheName(url,true))) //check to see if page was downloaded previous 
                 html = CommonUtils.loadPage(MainApp.pageCache.getAbsolutePath()+File.separator+CommonUtils.getCacheName(url,true));
             else {
-                html = Jsoup.connect(url).followRedirects(true).userAgent(CommonUtils.mobileClient).get().html(); //not found so download it
+                html = Jsoup.connect(url).followRedirects(true).userAgent(CommonUtils.MOBILECLIENT).get().html(); //not found so download it
                 CommonUtils.savePage(html, url, true);
             }
             Document page = Jsoup.parse(html);

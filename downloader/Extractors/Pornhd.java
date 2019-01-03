@@ -45,7 +45,7 @@ public class Pornhd extends GenericExtractor{
     public void getVideo(OperationStream s) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
         if (s != null) s.startTiming();
         
-        Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.pcClient).get().html());
+        Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
         
 	String title = page.select("div.section-title").select("h1").toString();
 	title = title.substring(4, title.indexOf("<",4)-1);

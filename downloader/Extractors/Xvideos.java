@@ -81,6 +81,7 @@ public class Xvideos extends GenericQueryExtractor{
 	for(int i = 0; i < searchResults.size(); i++)  {
             //if has /models/ it is link to model page
             if (searchResults.get(i).select("div.thumb").select("a").attr("href").contains("/models/")) continue;
+            if (searchResults.get(i).select("div.thumb").select("a").attr("href").contains("/pornstars/")) continue;
             //if  has /channels/ it is a link to channel page
             if (searchResults.get(i).select("div.thumb").select("a").attr("href").contains("/channels/")) continue;
             if (searchResults.get(i).select("div.thumb").select("a").attr("href").contains("/verified/videos")) continue;

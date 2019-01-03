@@ -45,7 +45,7 @@ public class Bigtits extends GenericExtractor{
     public void getVideo(OperationStream s) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
         if (s != null) s.startTiming();
         
-        Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.pcClient).get().html());
+        Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
         Element div = page.getElementById("playerCont");
 	String video = CommonUtils.getLink(div.toString(), div.toString().indexOf("<source src=")+13, '\"');
         String temp = Jsoup.parse(page.select("div.vid_title").select("h1").toString()).body().text();

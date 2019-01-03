@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.IOException;
 import org.jsoup.UncheckedIOException;
 import java.net.SocketTimeoutException;
+import java.util.Formatter;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -45,14 +46,16 @@ public class Yourporn extends GenericExtractor{
     public void getVideo(OperationStream s) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException,Exception{
         if (s != null) s.startTiming();
 
-        Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.pcClient).get().html());
+        Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
         verify(page);
+        Formatter f = new Formatter(new File("/home/christopher/Desktop/file.txt"));
+        f.format("%s",page.toString()); f.flush(); f.close();
      
-	//String video = "https://www.yourporn.sexy"+CommonUtils.eraseChar(page.select("span.vidsnfo").attr("data-vnfo").split("\"")[3],'\\');
-        String video = "https://www.yourporn.sexy"+page.select("video.player_el").attr("src");
+	String video = "https://www.yourporn.sexy"+CommonUtils.eraseChar(page.select("span.vidsnfo").attr("data-vnfo").split("\"")[3],'\\');
+        //String video = "https://www.yourporn.sexy"+page.select("video.player_el").attr("src");
         String title = page.select("meta").get(6).attr("content").replace(" on YourPorn. Sexy","");
         
-        super.downloadVideo(video,title,s);
+        super.downloadVideo(video.replace("cdn", "cdn3").replace("s12-1", "s12"),title,s);
     }
     
     private static void verify(Document page) throws GenericDownloaderException {
