@@ -5,6 +5,7 @@
  */
 package downloaderProject;
 
+import ChrisPackage.ClipboardListener;
 import Queryer.QueryManager;
 import Share.Actions;
 import com.jfoenix.controls.JFXDialog;
@@ -23,6 +24,8 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Iterator;
 import java.util.Vector;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -74,12 +77,14 @@ public class MainApp extends Application {
     public static ProgressBar progress;
     public static TextArea log;
     public static Actions act;
-    private static final String TITLE = "Video Downloader Prototype build 21.4";
+    private static final String TITLE = "Video Downloader Prototype build 21.5";
     public static DownloadHistory downloadHistoryList;
     public static StackPane root;
     public static DataCollection habits;
     
     public static ManageSettings settings;
+    private ClipboardListener clippy;
+    public static mainLayoutController mainController;
 
     private void getUserName() {
         username = System.getProperty("user.name");
@@ -368,6 +373,7 @@ public class MainApp extends Application {
                 try {
                     pane = FXMLLoader.load(new MainApp().getClass().getResource("layouts/messageDialog.fxml"));
                     pane.getStylesheets().clear();
+                    if (settings == null) System.out.println(msg); else{
                     if(settings.preferences.dark())
                         pane.getStylesheets().add(MainApp.class.getResource("layouts/darkPane.css").toExternalForm());
                     else pane.getStylesheets().add(MainApp.class.getResource("layouts/normal.css").toExternalForm());
@@ -387,6 +393,7 @@ public class MainApp extends Application {
                         }
                     });
                     dialog.show(); a.setEffect(blur);
+                    }
                 } catch(IOException e) {
                     e.printStackTrace();
                 }
@@ -428,6 +435,7 @@ public class MainApp extends Application {
        ScrollPane pre = (ScrollPane)actionPanes[BROWSERPANE].lookup("#scroll");
        previewPane = (AnchorPane)pre.getContent();
        searchResultCount = (Label)actionPanes[BROWSERPANE].lookup("#searchResult");
+       clippy = new ClipboardListener(mainController);
        
        primaryStage.setTitle(TITLE);
        primaryStage.setOnCloseRequest(event -> {
@@ -435,6 +443,7 @@ public class MainApp extends Application {
                query.release();
             dm.release();
             active = false;
+            clippy.stop();
             System.out.println("Exiting");
             //System.exit(0);
         });
@@ -448,10 +457,18 @@ public class MainApp extends Application {
        primaryStage.show();
        
        loadSuggestions();
+       
+       ExecutorService x = Executors.newSingleThreadExecutor();
+       x.execute(clippy);
     }
     
     public static void log(String mediaName, String site) {
         if (habits != null) habits.add(mediaName, site);
+        try {DataIO.saveCollectedData(habits);} catch(IOException e) {System.out.println("Failed to save habits");}
+    }
+    
+    public static void log (video v) {
+        if (habits != null) habits.addSuggestion(v);
         try {DataIO.saveCollectedData(habits);} catch(IOException e) {System.out.println("Failed to save habits");}
     }
     

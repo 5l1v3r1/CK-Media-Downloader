@@ -5,6 +5,7 @@
  */
 package downloaderProject;
 
+import ChrisPackage.Reactable;
 import Queryer.QueryManager;
 import com.jfoenix.controls.JFXDialog;
 import com.jfoenix.controls.events.JFXDialogEvent;
@@ -24,6 +25,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Scanner;
 import java.util.Vector;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -42,14 +45,20 @@ import javafx.stage.FileChooser;
  *
  * @author christopher
  */
-public class mainLayoutController implements Initializable {
+public class mainLayoutController implements Initializable, Reactable{
     /**
      * Initializes the controller class.
      */
+    
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        
-    } 
+        MainApp.mainController = this;
+    }
+    
+    @Override public void react() {
+        getDownloadLink();
+    }
+    
     
     public void determineSite(String link) {
         determineSite(link,null);

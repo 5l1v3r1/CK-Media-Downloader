@@ -125,6 +125,7 @@ public class DataCollection implements Externalizable{
 		for(String s:words) {
 			if (Collections.binarySearch(ignoreWords, s, String.CASE_INSENSITIVE_ORDER) < 0)
                             //if (Collections.binarySearch(dictionary, s, String.CASE_INSENSITIVE_ORDER) < 0)
+                            if (isValid(s))
 				pure.add(s);
 		}
                 return pure;
@@ -241,6 +242,19 @@ public class DataCollection implements Externalizable{
             if (type.equals("Cumlouder")) return new Cumlouder();
             if (type.equals("Ruleporn")) return new Ruleporn();
             return null;
+        }
+        
+        private static boolean isValid(String str) {
+            if (str == null) return false;
+            else if(str.length() < 1) return false;
+            else {
+                int count = 0;
+                for(int i = 0; i < str.length(); i++)
+                    if (!Character.isLetterOrDigit(str.charAt(i)))
+                        count++;
+                if (count == str.length()) return false; //all characters were neither alphabetic nor digits
+                else return true;
+            }
         }
 
 	@Override public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {

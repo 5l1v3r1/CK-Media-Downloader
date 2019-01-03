@@ -5,6 +5,8 @@
  */
 package downloaderProject;
 
+import ChrisPackage.GameTime;
+import ChrisPackage.stopWatch;
 import java.util.concurrent.ArrayBlockingQueue;
 
 /**
@@ -12,12 +14,12 @@ import java.util.concurrent.ArrayBlockingQueue;
  * @author christopher
  */
 public class OperationStream {
-    private final executeStopWatch duration;
+    private final stopWatch duration;
     private final ArrayBlockingQueue<String> progress;
     private final int buffSize = 50;
             
     public OperationStream() {
-        duration = new executeStopWatch();
+        duration = new stopWatch();
         progress = new ArrayBlockingQueue<>(buffSize);
     }
     

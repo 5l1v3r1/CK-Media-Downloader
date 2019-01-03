@@ -7,6 +7,7 @@ package downloaderProject;
 
 import downloader.DataStructures.downloadedMedia;
 import java.awt.Desktop;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -16,6 +17,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 import javafx.application.Platform;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -23,6 +25,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
+import javax.imageio.ImageIO;
 
 /**
  *
@@ -104,10 +107,15 @@ public class DownloadHistory {
             name.setText(d.getName());
             ImageView thumb = (ImageView)item.lookup("#mediaThumb");
             try {
-                FileInputStream fis = new FileInputStream(d.getThumb());
-                Image image = new Image(fis);
-                if (fis != null) fis.close();
-                thumb.setImage(image);
+                if (d.getThumb().length() < 1024 * 1024 * 10) {
+                    FileInputStream fis = new FileInputStream(d.getThumb());
+                    Image image = new Image(fis);
+                    if (fis != null) fis.close();
+                    thumb.setImage(image);
+                } else {
+                    BufferedImage b = ImageIO.read(d.getThumb());
+                    thumb.setImage(SwingFXUtils.toFXImage(b, null));
+                }
             } catch (FileNotFoundException e) {
                 System.out.println("Couldnt find "+d.getThumb().getName());
             } catch (IOException e) {
