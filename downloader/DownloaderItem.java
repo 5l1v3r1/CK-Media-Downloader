@@ -28,6 +28,7 @@ import java.awt.Desktop;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
+import java.awt.image.BufferedImage;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.net.SocketException;
@@ -38,6 +39,7 @@ import java.net.URISyntaxException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import javafx.application.Platform;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.scene.control.ContextMenu;
@@ -45,6 +47,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javax.imageio.ImageIO;
 
 /**
  *
@@ -75,6 +78,13 @@ public class DownloaderItem {
         if (extractor != null)
             return extractor.name();
         else return null;
+    }
+    
+    public video getSide() {
+        try {
+            return extractor.similar();
+        } catch (UnsupportedOperationException e) {return null;}
+        catch(IOException e){return null;}
     }
     
     private GenericExtractor getExtractor() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
@@ -147,10 +157,15 @@ public class DownloaderItem {
                 if(extractor == null) return null;
                 thumbFile = extractor.getThumb();
                 videoName = extractor.getVideoName();
-                FileInputStream fis = new FileInputStream(thumbFile);
-                Image image = new Image(fis);
-                if (fis != null) fis.close();
-                view.setImage(image);
+                if (thumbFile.length() < 1024 * 1024 * 10) {
+                    FileInputStream fis = new FileInputStream(thumbFile);
+                    Image image = new Image(fis);
+                    if (fis != null) fis.close();
+                    view.setImage(image);
+                } else {
+                    BufferedImage b = ImageIO.read(thumbFile);
+                    view.setImage(SwingFXUtils.toFXImage(b, null));
+                }
             } catch (FileNotFoundException e) {
                 MainApp.createMessageDialog("Failed to load thumbnail code:2\n"+url);
                 System.out.println("Failed to load thumbnail code:2");
@@ -294,11 +309,8 @@ public class DownloaderItem {
         }
     }
     
-    private void enableButton() {      
-        ObservableList<Node> childs = item.getChildren();
-        for(Node n : childs)
-            if(n.getId().equals("downloadBtn"))
-                n.setDisable(false);
+    private void enableButton() {
+        ((Button)item.lookup("#downloadBtn")).setDisable(false);
     }
 
     private ImageView getIcon(String path) {
@@ -418,6 +430,7 @@ public class DownloaderItem {
     
     public void setDone() {
         done = true;
+        updateSpeed(0);
     }
     
     public void start() {
@@ -432,6 +445,8 @@ public class DownloaderItem {
             if (text != null) {
                 if (isPureDigit(text))
                     updateProgressBar((float)Integer.parseInt(text)/100);
+                else if (text.startsWith("^^"))
+                    updateSpeed(Double.parseDouble(text.substring(2)));
                 else displayStatus(text);
             }
         } app.shutdownNow();
@@ -466,6 +481,7 @@ public class DownloaderItem {
                 setDone();
             } catch(Exception e){
                 displayStatus(e.getMessage());
+                e.printStackTrace();
                 setDone();
             } finally { 
                 System.out.println("done");
@@ -476,14 +492,21 @@ public class DownloaderItem {
     
     private void displayStatus(String msg) {
         Platform.runLater(new Runnable() {
+           public void run() { 
+                ((Label)item.lookup("#downloadName")).setText(msg+" "+videoName);
+           }
+        });
+    }
+    
+    private void updateSpeed(double speed) {
+        Platform.runLater(new Runnable() {
            public void run() {
-               for(int i = 0; i < paneElems.size(); i++) {
-                   if (paneElems.get(i) instanceof Label) {
-                        Label stat = (Label)paneElems.get(i);
-                        stat.setText(msg+" "+videoName);
-                        paneElems.set(i,stat);
-                        break;
-                   }
+               if (item != null) {
+                    if (item.lookup("#speed") != null) {
+                         if (speed > 1000)
+                              ((Label)item.lookup("#speed")).setText(String.format("%.0f",speed/1000)+" mb/s");
+                         else ((Label)item.lookup("#speed")).setText(String.format("%.0f",speed)+" kb/s");
+                    }
                }
            }
         });

@@ -5,6 +5,7 @@
  */
 package downloader;
 
+import ChrisPackage.stopWatch;
 import downloaderProject.DataIO;
 import downloaderProject.MainApp;
 import downloaderProject.OperationStream;
@@ -45,9 +46,9 @@ import org.jsoup.Jsoup;
  * @author christopher
  */
 public class CommonUtils {
-    public static final String pcClient = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11", 
-    mobileClient = "Mozilla/5.0 (Linux; Android 4.4.4; Nexus 5 Build/KTU84P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.57 Mobile Safari/537.36";
-    static final int buffSize = 1024 * 500; //1 x 500kb
+    public static final String PCCLIENT = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11", 
+    MOBILECLIENT = "Mozilla/5.0 (Linux; Android 4.4.4; Nexus 5 Build/KTU84P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.57 Mobile Safari/537.36";
+    static final int BUFFSIZE = 1024 * 400; //1 x 400kb
     
     public static Vector<File> splitImage(File origin, int row, int col, int yOffset, int widthOffset) {
         Vector<File> splits = new Vector<>();
@@ -348,7 +349,7 @@ public class CommonUtils {
     public static long getContentSize(String url) {
         try {
             URLConnection connection = new URL(url).openConnection();
-            connection.setRequestProperty("User-Agent", pcClient);
+            connection.setRequestProperty("User-Agent", PCCLIENT);
             connection.connect();
             return connection.getContentLengthLong();
         } catch (SocketException e){
@@ -396,6 +397,10 @@ public class CommonUtils {
         }
     }
     
+    public static void erasePage(String name) {
+        System.out.println(new File(MainApp.pageCache.getAbsolutePath()+File.separator+name).delete());
+    }
+    
     public static long saveFile(String link, String saveName, File path) throws MalformedURLException{
         return saveFile(link,saveName,path.getAbsolutePath());
     }
@@ -418,7 +423,7 @@ public class CommonUtils {
 	
 	try {
             URLConnection connection = new URL(link).openConnection();
-            connection.setRequestProperty("User-Agent", pcClient);
+            connection.setRequestProperty("User-Agent", PCCLIENT);
             connection.connect();
             int response = ((HttpURLConnection)connection).getResponseCode();
             //if redirect
@@ -427,7 +432,7 @@ public class CommonUtils {
                 if (location.startsWith("/")) 
                     location = "https://"+location;
                 connection = new URL(location).openConnection();
-                connection.setRequestProperty("User-Agent", pcClient);
+                connection.setRequestProperty("User-Agent", PCCLIENT);
                 connection.connect();
             }
             if (s != null) s.addProgress("Connected to Page for");
@@ -436,7 +441,7 @@ public class CommonUtils {
             //MainApp.createMessageDialog(fileSize);
             File save = new File(path+File.separator+saveName);
             out = new FileOutputStream(save,true);
-            byte[] buffer = new byte[buffSize];
+            byte[] buffer = new byte[BUFFSIZE];
             how = checkProgress(link);
             if (save.length() < how)
                 how = save.length();//in.skip(save.length());
@@ -451,7 +456,9 @@ public class CommonUtils {
             
             int count;
             if (s != null) s.addProgress("Downloading");
-            while((count = in.read(buffer,0,buffSize)) != -1) {
+            stopWatch timer = new stopWatch();
+            timer.start();
+            while((count = in.read(buffer,0,BUFFSIZE)) != -1) {
                 //in.reset();
                 if(!MainApp.active)
                     return -2;//application was closed
@@ -459,6 +466,14 @@ public class CommonUtils {
                 how+=count;
                 saveProgress(link,how);
                 if (s != null) s.addProgress(String.format("%.0f",(float)how/fileSize*100)+"% Complete");
+                timer.stop();
+                double secs = timer.getTime().convertToSecs();
+                double speed = (how / secs) / 1024D;
+                if (speed == Double.POSITIVE_INFINITY) {
+                    if (s != null) s.addProgress(String.format("%s%d","^^",0));
+                } else {
+                    if(s != null) s.addProgress(String.format("%s%f","^^",speed));
+                }
             }
             in.close();
             out.flush();

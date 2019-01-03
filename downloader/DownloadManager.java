@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.layout.Pane;
@@ -62,11 +63,15 @@ public class DownloadManager {
     }
     
     public synchronized void addDownload(DownloaderItem d) {
-        if(!isDup(d)) {
-            display(d);
-            sideJobs.execute(new search(d));
-            System.gc();
-        }
+        Platform.runLater(new Runnable() {
+            @Override public void run() {
+                if(!isDup(d)) {
+                    display(d);
+                    sideJobs.execute(new search(d));
+                    System.gc();
+                }
+            }
+        });
     }
     
     private boolean isDup(DownloaderItem d) {
@@ -82,9 +87,9 @@ public class DownloadManager {
             downloadItems.add(d);
             downloads.add(d.createItem());
             ObservableList list = FXCollections.observableList(downloads);
-            MainApp.downloads.setItems(list);
+            MainApp.downloads.setItems(null); MainApp.downloads.setItems(list);
         } catch (IOException e) {
-           MainApp.createMessageDialog("An internal error occurred: 1");
+            MainApp.createMessageDialog("An internal error occurred: 1");
         }
     }
     
@@ -93,13 +98,17 @@ public class DownloadManager {
     }
     
     public void removeDownload(DownloaderItem which) {
-        int i = downloadItems.indexOf(which);
-        downloadItems.get(i).setDone();
-        downloadItems.get(i).release();
-        downloadItems.remove(i);
-        downloads.remove(i);
-        ObservableList list = FXCollections.observableList(downloads);
-        MainApp.downloads.setItems(list);
+        Platform.runLater(new Runnable() {
+            @Override public void run() {
+                int i = downloadItems.indexOf(which);
+                downloadItems.get(i).setDone();
+                downloadItems.get(i).release();
+                downloadItems.remove(i);
+                downloads.remove(i);
+                ObservableList list = FXCollections.observableList(downloads);
+                MainApp.downloads.setItems(null); MainApp.downloads.setItems(list);
+            }
+        });
     }
     
     public void removeAll() {
@@ -108,7 +117,7 @@ public class DownloadManager {
         downloadItems.clear();
         downloads.clear();
         ObservableList list = FXCollections.observableList(downloads);
-        MainApp.downloads.setItems(list);
+        MainApp.downloads.setItems(null); MainApp.downloads.setItems(list);
     }
     
     public void exportAll() {
@@ -146,7 +155,10 @@ public class DownloadManager {
                 removeDownload(d);
             } else { 
                 //wasnt loaded
-                if (d.getSite() != null) MainApp.log(d.getName(),d.getSite());
+                if (d.getSite() != null) {
+                    MainApp.log(d.getName(),d.getSite());
+                    MainApp.log(d.getSide());
+                }
             }
         }
     }
