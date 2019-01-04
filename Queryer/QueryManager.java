@@ -287,7 +287,7 @@ public class QueryManager {
                 @Override
                 public void handle(Event t) {
                     try {
-                        DataIO.saveVideo(new video(results.getLink(which),results.getName(which),results.getThumbnail(which),results.getPreview(which)));
+                        DataIO.saveVideo(new video(results.getLink(which),results.getName(which),results.getThumbnail(which),results.getSize(which),results.getPreview(which)));
                         MainApp.createMessageDialog("Video saved");
                         MainApp.settings.videoUpdate();
                     } catch (IOException e) {
