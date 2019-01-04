@@ -19,12 +19,14 @@ public class GenericQuery implements Serializable{
     protected Vector<String> link, name;
     protected Vector<File> thumbnails;
     protected Vector<Vector<File>> preview;
+    protected Vector<Long> size;
     
     public GenericQuery() {
         thumbnails = new Vector<File>();
         link = new Vector<String>();
         name = new Vector<String>();
         preview = new Vector<Vector<File>>();
+        size = new Vector<Long>();
     }
     
     public GenericQuery(GenericQuery g) {
@@ -32,12 +34,14 @@ public class GenericQuery implements Serializable{
         if (link == null) this.link = new Vector<String>();
         if (preview == null) this.preview = new Vector<Vector<File>>();
         if (name == null) this.name = new Vector<String>();
+        if (size == null) this.size = new Vector<Long>();
         
         for(int i = 0; i < g.thumbnailCount(); i++) {
             this.thumbnails.add(g.getThumbnail(i));
             this.link.add(g.getLink(i));
             this.preview.add(g.getPreview(i));
             this.name.add(g.getName(i));
+            this.size.add(g.getSize(i));
         }
     }
     
@@ -47,6 +51,7 @@ public class GenericQuery implements Serializable{
             this.link.add(g.getLink(i));
             this.preview.add(g.getPreview(i));
             this.name.add(g.getName(i));
+            this.size.add(g.getSize(i));
         }
     }
     
@@ -60,6 +65,10 @@ public class GenericQuery implements Serializable{
     
     public synchronized  void addThumbnail(File thumb) {
         thumbnails.add(thumb);
+    }
+    
+    public synchronized void addSize(long s) {
+        size.add(s);
     }
     
     //thumbnails from search
@@ -83,6 +92,12 @@ public class GenericQuery implements Serializable{
         if ((i > -1) && (i < thumbnails.size()))
             return thumbnails.get(i);
         return null;
+    }
+    
+    public synchronized long getSize(int i) {
+        if ((i > -1) && (i < size.size()))
+            return size.get(i);
+        return -1;
     }
     
      //preview of a search item

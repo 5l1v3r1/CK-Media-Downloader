@@ -47,7 +47,14 @@ public class downloadedMedia implements Serializable{
     }
     
     public String getSize() {
-        long bytes = media.length();
+        long bytes = 0; 
+        if (media.isDirectory()) {
+            File[] files = media.listFiles();
+            for(File f:files)
+                if (f.exists())
+                    bytes += f.length();
+        } else bytes = media.length();
+        
         return MainApp.getSizeText(bytes);
     }
     

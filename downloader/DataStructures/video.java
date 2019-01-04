@@ -5,8 +5,11 @@
  */
 package downloader.DataStructures;
 
+import java.io.Externalizable;
 import java.io.File;
-import java.io.Serializable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.Vector;
 
 /**
@@ -15,22 +18,32 @@ import java.util.Vector;
  */
 
 //this class is to save video info for download later
-public class video implements Serializable{
+public class video implements Externalizable{
     private static final long serialVersionUID = 1L;
-    File thumbnail;
-    Vector<File> preview;
-    String link, name;
+    private static final long version = 2L;
+    private File thumbnail;
+    private Vector<File> preview;
+    private String link, name;
+    private long size;
     
-    
-    public video(String link, String name, File thumbnail) {
-        this(link,name,thumbnail,null);
+    public video() { //to satisfy externalizable
+    	
     }
     
-    public video(String link, String name, File thumbnail, Vector<File> preview) {
+    public video(String link, String name, File thumbnail, long size) {
+        this(link,name,thumbnail,size,null);
+    }
+    
+    public video(String link, String name, File thumbnail, long size, Vector<File> preview) {
         this.link = link; this.name = name;
         this.thumbnail = thumbnail;
         this.preview = preview;
+        this.size = size;
     }    
+    
+    public long getSize() {
+        return size;
+    }
     
     public int getPreviewCount() {
         if (preview == null) return 0;
@@ -76,5 +89,32 @@ public class video implements Serializable{
                 return this.thumbnail.equals(temp.thumbnail);
             else return false;
         } else return false;
+    }
+
+    @Override
+    public void writeExternal(ObjectOutput out) throws IOException {
+        out.writeObject(version);
+        out.writeObject(thumbnail);
+        out.writeObject(preview);
+        out.writeObject(link);
+        out.writeObject(name);
+        out.writeObject(size);
+    }
+
+    @Override
+    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+        long v = (long)in.readObject();
+        if (v == 1) {
+            thumbnail = (File)in.readObject();
+            preview = (Vector<File>)in.readObject();
+            link = (String)in.readObject();
+            name = (String)in.readObject();
+        } else if (v == 2) {
+            thumbnail = (File)in.readObject();
+            preview = (Vector<File>)in.readObject();
+            link = (String)in.readObject();
+            name = (String)in.readObject();
+            size = (long)in.readObject();
+        }
     }
 }
