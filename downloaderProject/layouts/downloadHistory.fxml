@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.text.Font?>
 
-<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="457.0" prefWidth="688.0" stylesheets="@darkPane.css" xmlns:fx="http://javafx.com/fxml/1" fx:controller="downloaderProject.mainLayoutController">
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="457.0" prefWidth="687.0" stylesheets="@darkPane.css" xmlns:fx="http://javafx.com/fxml/1" fx:controller="downloaderProject.mainLayoutController">
    <children> 
       <Pane prefHeight="45.0" prefWidth="688.0" styleClass="header">
          <children>
@@ -16,6 +16,6 @@
             </Label>
          </children>
       </Pane>
-      <ListView id="downloaded" fx:id="downloaded" layoutY="45.0" prefHeight="411.0" prefWidth="688.0" styleClass="background" />
+      <ListView id="downloaded" fx:id="downloaded" layoutY="45.0" prefHeight="412.0" prefWidth="688.0" styleClass="background" />
    </children>
 </Pane>

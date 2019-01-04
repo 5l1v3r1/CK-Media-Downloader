@@ -35,3 +35,14 @@
 	-fx-margin:0;
 	-fx-background-insets: 0px;
 }
+
+.combo-box {
+    -fx-padding: 0px 2px 0px 8px;
+}
+
+/*#speedicon {
+    -fx-border-radius: 5px;
+}
+
+-fx-background-image: url('/icons/icons8-speedometer-480.png');
+    -fx-graphic:url('/icons/icons8-speedometer-480.png');*/

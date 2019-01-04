@@ -2,6 +2,7 @@
 
 <?import com.jfoenix.controls.JFXButton?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
@@ -10,10 +11,10 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.text.Font?>
 
-<StackPane id="root" prefHeight="550.0" prefWidth="850.0" xmlns:fx="http://javafx.com/fxml/1" fx:controller="downloaderProject.mainLayoutController">
+<StackPane id="root" minHeight="550.0" minWidth="850.0" prefHeight="550.0" prefWidth="850.0" xmlns:fx="http://javafx.com/fxml/1" fx:controller="downloaderProject.mainLayoutController">
     <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="550.0" prefWidth="850.0">
        <children>
-          <Pane fx:id="topPane" prefHeight="93.0" prefWidth="850.0" styleClass="darkblue" stylesheets="@darkPane.css">
+          <Pane id="topPane" prefHeight="93.0" prefWidth="850.0" styleClass="darkblue">
              <children>
                 <ImageView fitHeight="48.0" fitWidth="48.0" layoutX="11.0" layoutY="24.0" pickOnBounds="true" preserveRatio="true">
                    <image>
@@ -33,7 +34,7 @@
              </children></Pane>
           <AnchorPane fx:id="currentView" layoutX="164.0" layoutY="93.0" prefHeight="457.0" prefWidth="690.0" />
           <Pane layoutX="0.0" layoutY="93.0" prefHeight="457.0" prefWidth="165.0" styleClass="mainPane" stylesheets="@darkPane.css">
-          <JFXButton layoutY="0.0" onAction="#showDownloads" prefHeight="32.0" prefWidth="164.0" text="Downloads" textFill="#FFFFFF">
+          <JFXButton layoutY="0.0" maxHeight="32.0" onAction="#showDownloads" prefHeight="32.0" prefWidth="164.0" text="Downloads" textFill="#FFFFFF">
              <font>
                 <Font name="System Bold" size="13.0" />
              </font>
@@ -45,7 +46,7 @@
                 </ImageView>
              </graphic>
           </JFXButton>
-          <JFXButton layoutY="32.0" onAction="#showDownloadHistory" prefHeight="32.0" prefWidth="164.0" text="History" textFill="#FFFFFF">
+          <JFXButton layoutY="32.0" maxHeight="32.0" onAction="#showDownloadHistory" prefHeight="32.0" prefWidth="164.0" text="History" textFill="#FFFFFF">
              <font>
                 <Font name="System Bold" size="13.0" />
              </font>
@@ -57,7 +58,7 @@
                 </ImageView>
              </graphic>
           </JFXButton>
-          <JFXButton layoutY="64.0" onAction="#showBrowser" prefHeight="32.0" prefWidth="164.0" text="Browser" textFill="#FFFFFF">
+          <JFXButton layoutY="64.0" maxHeight="32.0" onAction="#showBrowser" prefHeight="32.0" prefWidth="164.0" text="Browser" textFill="#FFFFFF">
              <font>
                 <Font name="System Bold" size="13.0" />
              </font>
@@ -69,7 +70,7 @@
                 </ImageView>
              </graphic>
           </JFXButton>
-          <JFXButton layoutY="160.0" onAction="#showSettings" prefHeight="32.0" prefWidth="164.0" text="Settings" textFill="#FFFFFF">
+          <JFXButton layoutY="160.0" maxHeight="32.0" onAction="#showSettings" prefHeight="32.0" prefWidth="164.0" text="Settings" textFill="#FFFFFF">
              <font>
                 <Font name="System Bold" size="13.0" />
              </font>
@@ -81,7 +82,7 @@
                 </ImageView>
              </graphic>
           </JFXButton>
-          <JFXButton layoutY="96.0" onAction="#showShare" prefHeight="32.0" prefWidth="164.0" text="Share" textFill="#FFFFFF">
+          <JFXButton layoutY="96.0" maxHeight="32.0" onAction="#showShare" prefHeight="32.0" prefWidth="164.0" text="Share" textFill="#FFFFFF">
              <font>
                 <Font name="System Bold" size="13.0" />
              </font>
@@ -93,7 +94,7 @@
                 </ImageView>
              </graphic>
           </JFXButton>
-          <JFXButton layoutY="128.0" onAction="#showAccounts" prefHeight="32.0" prefWidth="164.0" text="Accounts" textFill="#FFFFFF">
+          <JFXButton layoutY="128.0" maxHeight="32.0" onAction="#showAccounts" prefHeight="32.0" prefWidth="164.0" text="Accounts" textFill="#FFFFFF">
              <font>
                 <Font name="System Bold" size="13.0" />
              </font>
@@ -105,7 +106,13 @@
                 </ImageView>
              </graphic>
           </JFXButton>
+            <opaqueInsets>
+               <Insets right="20.0" top="20.0" />
+            </opaqueInsets>
         </Pane>
        </children>
     </AnchorPane>
+   <opaqueInsets>
+      <Insets />
+   </opaqueInsets>
 </StackPane>

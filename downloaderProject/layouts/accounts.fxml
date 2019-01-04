@@ -12,14 +12,14 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.text.Font?>
 
-<Pane id="AnchorPane" prefHeight="457.0" prefWidth="688.0" stylesheets="@darkPane.css" xmlns:fx="http://javafx.com/fxml/1">
+<Pane id="AnchorPane" prefHeight="457.0" prefWidth="687.0" stylesheets="@darkPane.css" xmlns:fx="http://javafx.com/fxml/1">
    <ScrollPane layoutY="45.0" prefHeight="412.0" prefWidth="688.0" styleClass="background">
      <content>
        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="410.0" prefWidth="686.0" styleClass="background">
             <children>
                <ImageView fitHeight="40.0" fitWidth="40.0" layoutX="14.0" layoutY="64.0" pickOnBounds="true" preserveRatio="true">
                   <image>
-                     <Image url="@../../../icons/icons8-instagram-80.png" />
+                     <Image url="@../../icons/icons8-instagram-80.png" />
                   </image>
                </ImageView>
                <TextField layoutX="69.0" layoutY="76.0" prefHeight="26.0" prefWidth="225.0" />
@@ -31,7 +31,7 @@
                   <graphic>
                      <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                         <image>
-                           <Image url="@../../../icons/icons8-add-property-40.png" />
+                           <Image url="@../../icons/icons8-add-property-40.png" />
                         </image>
                      </ImageView>
                   </graphic>
@@ -39,7 +39,7 @@
                <Separator layoutX="21.0" layoutY="137.0" opacity="0.09" prefWidth="500.0" />
                <ImageView fitHeight="40.0" fitWidth="40.0" layoutX="14.0" layoutY="172.0" pickOnBounds="true" preserveRatio="true">
                   <image>
-                     <Image url="@../../../icons/icons8-vimeo-48.png" />
+                     <Image url="@../../icons/icons8-vimeo-48.png" />
                   </image>
                </ImageView>
                <TextField layoutX="69.0" layoutY="189.0" prefHeight="26.0" prefWidth="225.0" />
@@ -50,7 +50,7 @@
                   <graphic>
                      <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                         <image>
-                           <Image url="@../../../icons/icons8-add-property-40.png" />
+                           <Image url="@../../icons/icons8-add-property-40.png" />
                         </image>
                      </ImageView>
                   </graphic>

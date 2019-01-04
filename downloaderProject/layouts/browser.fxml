@@ -11,7 +11,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.Pane?>
 
-<Pane prefHeight="457.0" prefWidth="688.0" styleClass="header" stylesheets="@darkPane.css" xmlns:fx="http://javafx.com/fxml/1" fx:controller="downloaderProject.mainLayoutController">
+<Pane prefHeight="457.0" prefWidth="687.0" styleClass="header" stylesheets="@darkPane.css" xmlns:fx="http://javafx.com/fxml/1" fx:controller="downloaderProject.mainLayoutController">
    <children>
                         <TextField id="queryBox" fx:id="queryBox" layoutX="3.0" layoutY="4.0" prefHeight="26.0" prefWidth="560.0" />
                         <Button id="queryButton" fx:id="queryButton" layoutX="567.0" layoutY="3.0" minHeight="27.0" minWidth="116.0" mnemonicParsing="false" onAction="#queryString" prefHeight="27.0" prefWidth="116.0" text="Search">
@@ -23,8 +23,8 @@
             </ImageView>
          </graphic>
                         <tooltip><Tooltip text="Begin a search" /></tooltip></Button>
-                        <ListView id="resultPane" fx:id="resultPane" layoutY="66.0" prefHeight="390.0" prefWidth="410.0" styleClass="lighter" />
-                        <ScrollPane id="scroll" layoutX="410.0" layoutY="66.0" maxHeight="1000.0" maxWidth="400.0" prefHeight="390.0" prefWidth="278.0" styleClass="background">
+                        <ListView id="resultPane" fx:id="resultPane" layoutY="67.0" prefHeight="390.0" prefWidth="408.0" styleClass="lighter" />
+                        <ScrollPane id="scroll" layoutX="408.0" layoutY="67.0" maxHeight="1000.0" maxWidth="400.0" prefHeight="390.0" prefWidth="279.0" styleClass="background">
                           <content>
                             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="0.0" prefWidth="0.0" styleClass="background" />
                           </content>

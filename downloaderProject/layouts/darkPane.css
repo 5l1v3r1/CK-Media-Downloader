@@ -52,3 +52,7 @@
 .scroll-pane > .viewport {
 	-fx-background-color: #D0D0D0;
 }
+
+.combo-box {
+    -fx-padding: 0px 2px 0px 8px;
+}

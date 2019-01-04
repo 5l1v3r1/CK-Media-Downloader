@@ -8,13 +8,13 @@
 
 <Pane id="item" prefHeight="77.0" prefWidth="665.0" styleClass="background" stylesheets="@darkPane.css" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <ImageView id="mediaThumb" fx:id="mediaThumb" fitHeight="77.0" fitWidth="90.0" pickOnBounds="true" preserveRatio="true" />
+      <ImageView id="mediaThumb" fx:id="mediaThumb" fitHeight="77.0" fitWidth="90.0" pickOnBounds="true" />
       <Label id="mediaName" fx:id="mediaName" layoutX="96.0" layoutY="5.0" prefHeight="36.0" prefWidth="555.0" text="Label" />
       <Button id="view" fx:id="view" layoutX="96.0" layoutY="43.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="90.0" text="Open">
          <graphic>
             <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                <image>
-                  <Image url="@../../../icons/icons8-view-48.png" />
+                  <Image url="@../../icons/icons8-view-48.png" />
                </image>
             </ImageView>
          </graphic>
@@ -35,7 +35,7 @@
          <graphic>
             <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                <image>
-                  <Image url="@../../../icons/icons8-open-40.png" />
+                  <Image url="@../../icons/icons8-open-40.png" />
                </image>
             </ImageView>
          </graphic>
