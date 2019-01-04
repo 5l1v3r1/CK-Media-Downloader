@@ -93,7 +93,7 @@ public class Dailymotion extends GenericExtractor{
             }
             String video = qualities.get(String.valueOf(max));
         
-            super.downloadVideo(video,downloadVideoName(url),s);
+            super.downloadVideo(video,videoName,s);
         }
     }
     
@@ -173,5 +173,31 @@ public class Dailymotion extends GenericExtractor{
         }
         
         return v;*/
+    }
+
+    @Override
+    public long getSize() throws IOException, GenericDownloaderException {
+       Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
+        verify(page); String link = null;
+        for(Element i:page.select("meta")) {
+            if (i.attr("property").equals("og:video:url")) {
+                link = i.attr("content"); break;
+            }
+        }
+        if (link == null) throw new PageNotFoundException("Couldnt get video");
+        else {
+            page = Jsoup.parse(Jsoup.connect(link).userAgent(CommonUtils.PCCLIENT).get().html());
+            Map<String, String> qualities = getQualities(page.toString().substring(page.toString().indexOf("var config = {")+13, page.toString().indexOf("};")+1));
+        
+            int max = 144;
+            Iterator i = qualities.keySet().iterator();
+            while(i.hasNext()) {
+                int temp = Integer.parseInt((String)i.next());
+                if(temp > max)
+                    max = temp;
+            }
+            String video = qualities.get(String.valueOf(max));
+            return CommonUtils.getContentSize(video);
+        }
     }
 }

@@ -10,10 +10,10 @@ import downloader.DataStructures.video;
 import downloaderProject.MainApp;
 import downloaderProject.OperationStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import org.jsoup.UncheckedIOException;
 import java.net.SocketTimeoutException;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -24,6 +24,7 @@ import org.jsoup.select.Elements;
  * @author christopher
  */
 public class Bigtits extends GenericExtractor{
+	private static final int skip = 2;
     
     public Bigtits() { //this contructor is used for when you jus want to search
         
@@ -67,9 +68,9 @@ public class Bigtits extends GenericExtractor{
         Element div = page.getElementById("playerCont");
         String thumb = CommonUtils.getLink(div.toString(),div.toString().indexOf("poster:")+9,'\"');
         
-        if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,2))) //if file not already in cache download it
-            CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,2),MainApp.imageCache);
-        return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,2));
+        if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,skip))) //if file not already in cache download it
+            CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,skip),MainApp.imageCache);
+        return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,skip));
     }
 
     @Override
@@ -78,7 +79,27 @@ public class Bigtits extends GenericExtractor{
     }
 
     @Override
-    public video similar() {
+    public video similar() throws IOException {
+    	/*if (url == null) return null;
+        
+        video v = null;
+        
+        Document page = getPage(url,false);
+        Elements li = page.select("ul.videos").select("li.videobox");
+        Random randomNum = new Random(); int count = 0; boolean got = false; if (li.isEmpty()) got = true;
+        while(!got) {
+        	if (count > li.size()) break;
+        	int i = randomNum.nextInt(li.size()); count++;
+        	String link = "http://www.bigtits.com" + li.get(i).select("a.thumb_click").attr("href");
+            String thumb = li.get(i).select("img.scrub_thumb").attr("src");
+            String title = li.get(i).select("div.title").select("a").text();
+            if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,skip))) //if file not already in cache download it
+            	if (CommonUtils.saveFile(thumb, CommonUtils.getThumbName(thumb,skip),MainApp.imageCache) != -2)
+            		continue;//throw new IOException("Failed to completely download page");
+                v = new video(link,title,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumb,skip)));
+                break;
+            }
+        return v;*/
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -94,16 +115,27 @@ public class Bigtits extends GenericExtractor{
         
         for(int i = 0; i < li.size(); i++) {
         	String thumbLink = li.get(i).select("div.thumb_container").select("a").select("img").attr("src"); 
-        	if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,2))) //if file not already in cache download it
-                if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,2),MainApp.imageCache) != -2)
-                    throw new IOException("Failed to completely download page");
+        	if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,skip))) //if file not already in cache download it
+                    if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,skip),MainApp.imageCache) != -2)
+                        throw new IOException("Failed to completely download page");
         	String link = "http://www.bigtits.com" + li.get(i).select("div.thumb_container").select("a").attr("href");
         	String name = li.get(i).select("div.thumb_container").select("a").select("img").attr("title");
         	if (link.isEmpty() || name.isEmpty()) continue;
-        	v = new video(link,name,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,2)));
+                Document linkPage = Jsoup.parse(Jsoup.connect(link).userAgent(CommonUtils.PCCLIENT).get().html());
+                Element div = linkPage.getElementById("playerCont");
+                String video = CommonUtils.getLink(div.toString(), div.toString().indexOf("<source src=")+13, '\"');
+        	v = new video(link,name,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,skip)),CommonUtils.getContentSize(video));
         	break;
         }
         
         return v;
+    }
+
+    @Override
+    public long getSize() throws IOException {
+        Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
+        Element div = page.getElementById("playerCont");
+	String video = CommonUtils.getLink(div.toString(), div.toString().indexOf("<source src=")+13, '\"');
+        return CommonUtils.getContentSize(video);
     }
 }

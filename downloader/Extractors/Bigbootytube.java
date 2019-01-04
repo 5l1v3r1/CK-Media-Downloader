@@ -8,12 +8,12 @@ package downloader.Extractors;
 import downloader.CommonUtils;
 import downloader.DataStructures.GenericQuery;
 import downloader.DataStructures.video;
-import static downloader.Extractors.GenericExtractor.configureUrl;
 import downloaderProject.MainApp;
 import downloaderProject.OperationStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
+import java.util.Random;
 import java.util.Vector;
 import org.jsoup.Jsoup;
 import org.jsoup.UncheckedIOException;
@@ -25,6 +25,7 @@ import org.jsoup.select.Elements;
  * @author christopher
  */
 public class Bigbootytube extends GenericQueryExtractor{
+	private static final int skip = 4;
     
     public Bigbootytube() { //this contructor is used for when you jus want to query
         
@@ -73,8 +74,10 @@ public class Bigbootytube extends GenericQueryExtractor{
             String thumbBase = CommonUtils.getLink(searchResults.get(i).toString(), searchResults.get(i).toString().indexOf("onmouseover=\"KT_rotationStart(this, \'")+37, '\'');
             stop = Integer.parseInt(CommonUtils.getLink(searchResults.get(i).toString(), searchResults.get(i).toString().indexOf("onmouseover=\"KT_rotationStart(this, \'")+37+thumbBase.length()+3,')'));
             thequery.addPreview(parse(thumbBase));
-            System.out.println("thumbbase: "+thumbBase);
             thequery.addName(downloadVideoName(thequery.getLink(i)));
+            Document linkPage = Jsoup.parse(Jsoup.connect(searchResults.get(i).attr("href")).userAgent(CommonUtils.PCCLIENT).get().html());
+            String video = CommonUtils.getLink(linkPage.toString(),linkPage.toString().indexOf("video_url:")+12,'\'');
+            thequery.addSize(CommonUtils.getContentSize(video));
 	}
         return thequery;
     }
@@ -86,9 +89,9 @@ public class Bigbootytube extends GenericQueryExtractor{
         
         for(int i = 1; i <= stop; i++) {
             String thumbLink = url+String.valueOf(i)+".jpg";
-            if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,4))) //if file not already in cache download it
-                CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,4),MainApp.imageCache);
-            thumbs.add(new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumbLink,4)));
+            if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,skip))) //if file not already in cache download it
+                CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,skip),MainApp.imageCache);
+            thumbs.add(new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumbLink,skip)));
         }
         
         return thumbs;
@@ -104,9 +107,9 @@ public class Bigbootytube extends GenericQueryExtractor{
     private static File downloadThumb(String url) throws IOException, SocketTimeoutException, UncheckedIOException, Exception {
         Document page = getPage(url,false);
         String thumb = CommonUtils.getLink(page.toString(),page.toString().indexOf("preview_url:")+14,'\'');
-        if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,3))) //if file not already in cache download it
-            CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,3),MainApp.imageCache);
-        return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,3));
+        if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,skip))) //if file not already in cache download it
+            CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,skip),MainApp.imageCache);
+        return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,skip));
     }
 
     @Override
@@ -115,8 +118,28 @@ public class Bigbootytube extends GenericQueryExtractor{
     }
 
     @Override
-    public video similar() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public video similar() throws IOException {
+    	if (url == null) return null;
+        
+        video v = null;
+        Document page = getPage(url,false);
+        Elements li = page.select("div.list-thumbs").get(0).select("li");
+        Random randomNum = new Random(); int count = 0; boolean got = false; if (li.isEmpty()) got = true;
+        while(!got) {
+        	if (count > li.size()) break;
+        	int i = randomNum.nextInt(li.size()); count++;
+        	String link = li.get(i).select("a.thumb-img").attr("href");
+            String thumb = li.get(i).select("a.thumb-img").select("img").attr("src");
+            String title = li.get(i).select("div.thumb-title").select("h3").select("a").text();
+            if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,skip))) //if file not already in cache download it
+            	if (CommonUtils.saveFile(thumb, CommonUtils.getThumbName(thumb,skip),MainApp.imageCache) != -2)
+            		continue;//throw new IOException("Failed to completely download page");
+                Document linkPage = Jsoup.parse(Jsoup.connect(link).userAgent(CommonUtils.PCCLIENT).get().html());
+                String video = CommonUtils.getLink(linkPage.toString(),linkPage.toString().indexOf("video_url:")+12,'\'');
+                v = new video(link,title,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumb,skip)),CommonUtils.getContentSize(video));
+                break;
+            }
+        return v;
     }
 
     @Override
@@ -132,10 +155,19 @@ public class Bigbootytube extends GenericQueryExtractor{
             if (!CommonUtils.testPage(searchResults.get(i).attr("href"))) continue; //test to avoid error 404
             //try {verify(page);} catch (GenericDownloaderException e) {continue;}
             try {
-                v = new video(searchResults.get(i).attr("href"),downloadVideoName(searchResults.get(i).attr("href")),downloadThumb(searchResults.get(i).attr("href")));
+                Document linkPage = Jsoup.parse(Jsoup.connect(searchResults.get(i).attr("href")).userAgent(CommonUtils.PCCLIENT).get().html());
+                String video = CommonUtils.getLink(linkPage.toString(),linkPage.toString().indexOf("video_url:")+12,'\'');
+                v = new video(searchResults.get(i).attr("href"),downloadVideoName(searchResults.get(i).attr("href")),downloadThumb(searchResults.get(i).attr("href")),CommonUtils.getContentSize(video));
             } catch(Exception e) { v = null; continue;}
             break; //if u made it this far u already have a vaild video
         }
         return v;        
+    }
+
+    @Override
+    public long getSize() throws IOException {
+        Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
+        String video = CommonUtils.getLink(page.toString(),page.toString().indexOf("video_url:")+12,'\'');
+        return CommonUtils.getContentSize(video);
     }
 }

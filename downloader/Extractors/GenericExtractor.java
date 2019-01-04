@@ -8,6 +8,7 @@ package downloader.Extractors;
 import ChrisPackage.GameTime;
 import downloader.CommonUtils;
 import downloader.DataStructures.downloadedMedia;
+import downloader.Exceptions.GenericDownloaderException;
 import downloaderProject.MainApp;
 import downloaderProject.OperationStream;
 import java.io.File;
@@ -91,6 +92,8 @@ public abstract class GenericExtractor implements Trackable {
     public String getUrl() {
         return this.url;
     }
+    
+    public abstract long getSize() throws IOException, GenericDownloaderException;
     
     public static String configureUrl(String link) {
         if ((!link.startsWith("https://")) && (!link.startsWith("http://"))) return "https://" + link;

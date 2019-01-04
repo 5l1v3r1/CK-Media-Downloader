@@ -48,8 +48,6 @@ public class Yourporn extends GenericExtractor{
 
         Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
         verify(page);
-        Formatter f = new Formatter(new File("/home/christopher/Desktop/file.txt"));
-        f.format("%s",page.toString()); f.flush(); f.close();
      
 	String video = "https://www.yourporn.sexy"+CommonUtils.eraseChar(page.select("span.vidsnfo").attr("data-vnfo").split("\"")[3],'\\');
         //String video = "https://www.yourporn.sexy"+page.select("video.player_el").attr("src");
@@ -94,5 +92,14 @@ public class Yourporn extends GenericExtractor{
     @Override
     public video search(String str) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public long getSize() throws IOException, GenericDownloaderException {
+        Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
+        verify(page);
+     
+	String video = "https://www.yourporn.sexy"+CommonUtils.eraseChar(page.select("span.vidsnfo").attr("data-vnfo").split("\"")[3],'\\');
+        return CommonUtils.getContentSize(video);
     }
 }

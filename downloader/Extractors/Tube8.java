@@ -8,6 +8,7 @@ package downloader.Extractors;
 import downloader.CommonUtils;
 import downloader.DataStructures.GenericQuery;
 import downloader.DataStructures.video;
+import downloader.Exceptions.GenericDownloaderException;
 import downloaderProject.MainApp;
 import downloaderProject.OperationStream;
 import java.io.File;
@@ -16,6 +17,7 @@ import org.jsoup.UncheckedIOException;
 import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.Vector;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -26,6 +28,7 @@ import org.jsoup.select.Elements;
  * @author christopher
  */
 public class Tube8 extends GenericQueryExtractor{
+	private static final int skip = 4;
     
     public Tube8() { //this contructor is used for when you jus want to query
         
@@ -60,12 +63,14 @@ public class Tube8 extends GenericQueryExtractor{
             String thumb = searchResults.get(i).select("div.videoThumbsWrapper").select("img").attr("data-thumb");
             System.out.println("thumb: "+thumb);
             thequery.addLink(link);
-            if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,4))) //if file not already in cache download it
-                if (CommonUtils.saveFile(thumb, CommonUtils.getThumbName(thumb,4),MainApp.imageCache) != -2)
+            if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,skip))) //if file not already in cache download it
+                if (CommonUtils.saveFile(thumb, CommonUtils.getThumbName(thumb,skip),MainApp.imageCache) != -2)
                     throw new IOException("Failed to completely download page");
-            thequery.addThumbnail(new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,4)));
+            thequery.addThumbnail(new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,skip)));
             thequery.addPreview(parse(link));
             thequery.addName(title);
+            long size; try { size = getSize(link); } catch (GenericDownloaderException | IOException e) {size = -1;}
+            thequery.addSize(size);
 	}
         return thequery;
     }
@@ -82,9 +87,9 @@ public class Tube8 extends GenericQueryExtractor{
         
         for(int i = 0; i <= max; i++) {
             String link = CommonUtils.replaceIndex(mainLink,i,String.valueOf(max));
-            if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(link,5)))
-                CommonUtils.saveFile(link, CommonUtils.getThumbName(link,5), MainApp.imageCache);
-            File grid = new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(link,5));
+            if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(link,skip+1)))
+                CommonUtils.saveFile(link, CommonUtils.getThumbName(link,skip+1), MainApp.imageCache);
+            File grid = new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(link,skip+1));
             Vector<File> split = CommonUtils.splitImage(grid, 5, 5, 0, 0);
             for(int j = 0; j < split.size(); j++)
                 thumbs.add(split.get(j));
@@ -92,7 +97,7 @@ public class Tube8 extends GenericQueryExtractor{
         return thumbs;
     }
     
-    private Map<String, String> getQualities(String raw, String s) {
+    private static Map<String, String> getQualities(String raw, String s) {
         int happen, from = 0;
         
         Map<String, String> qualities = new HashMap<>();
@@ -112,10 +117,10 @@ public class Tube8 extends GenericQueryExtractor{
         Map<String, String> quality= getQualities(CommonUtils.getSBracket(page.toString(), page.toString().indexOf("mediaDefinition",page.toString().indexOf("var flashvars"))),"quality");
         String video;
         
-        if (quality.containsKey("480"))
-            video = quality.get("480");
-        else if(quality.containsKey("720"))
-            video = quality.get("720"); 
+        if (quality.containsKey("720"))
+            video = quality.get("720");
+        else if(quality.containsKey("480"))
+            video = quality.get("480"); 
         else if (quality.containsKey("1080"))
             video = quality.get("1080"); 
         else if(quality.containsKey("240"))
@@ -139,9 +144,9 @@ public class Tube8 extends GenericQueryExtractor{
         
         String thumb = CommonUtils.eraseChar(CommonUtils.getLink(page.toString(), page.toString().indexOf("image_url",page.toString().indexOf("var flashvars")) + 12,'\"'), '\\');
         
-        if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,4))) //if file not already in cache download it
-            CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,4),MainApp.imageCache);
-        return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,4));
+        if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,skip))) //if file not already in cache download it
+            CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,skip),MainApp.imageCache);
+        return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,skip));
     }  
     
     @Override
@@ -150,8 +155,22 @@ public class Tube8 extends GenericQueryExtractor{
     }
 
     @Override
-    public video similar() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public video similar() throws IOException {
+    	if (url == null) return null;
+        
+        video v = null;
+        Document page = getPage(url,false);
+        Elements li = page.select("div.gridList.videosList").select("div.video_box");
+        Random randomNum = new Random(); int count = 0; boolean got = false; if (li.isEmpty()) got = true;
+        while(!got) {
+        	if (count > li.size()) break;
+        	int i = randomNum.nextInt(li.size()); count++;
+        	String link = li.get(i).select("a").get(0).attr("href");
+            String title = li.get(i).select("p.video_title").select("a").text();
+                try {v = new video(link,title,downloadThumb(link),getSize(link));}catch(Exception e) {continue;}
+                break;
+            }
+        return v;
     }
 
     @Override
@@ -168,13 +187,39 @@ public class Tube8 extends GenericQueryExtractor{
             String link = searchResults.get(i).select("p.video_title").select("a").attr("href");
             String title = searchResults.get(i).select("p.video_title").select("a").attr("title");
             String thumb = searchResults.get(i).select("div.videoThumbsWrapper").select("img").attr("data-thumb");
-            System.out.println("thumb: "+thumb);
-            if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,4))) //if file not already in cache download it
-                if (CommonUtils.saveFile(thumb, CommonUtils.getThumbName(thumb,4),MainApp.imageCache) != -2)
+            if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,skip))) //if file not already in cache download it
+                if (CommonUtils.saveFile(thumb, CommonUtils.getThumbName(thumb,skip),MainApp.imageCache) != -2)
                     throw new IOException("Failed to completely download page");
-            v = new video(link,title,new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,4)));
+            try { v = new video(link,title,new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,skip)),getSize(link)); } catch (GenericDownloaderException | IOException e) {}
             break; //if u made it this far u already have a vaild video
 	}
         return v;
+    }
+
+    private static long getSize(String link) throws IOException, GenericDownloaderException {
+        Document page = Jsoup.parse(Jsoup.connect(link).get().html());
+        
+        Map<String, String> quality= getQualities(CommonUtils.getSBracket(page.toString(), page.toString().indexOf("mediaDefinition",page.toString().indexOf("var flashvars"))),"quality");
+        String video;
+        
+        if (quality.containsKey("720"))
+            video = quality.get("720");
+        else if(quality.containsKey("480"))
+            video = quality.get("480"); 
+        else if (quality.containsKey("1080"))
+            video = quality.get("1080"); 
+        else if(quality.containsKey("240"))
+            video = quality.get("240");    
+        else if(quality.containsKey("180"))
+            video = quality.get("180");    
+        else 
+            video = quality.get((String)quality.keySet().toArray()[0]);
+        
+        return CommonUtils.getContentSize(video);
+    }
+    
+    @Override
+    public long getSize() throws IOException, GenericDownloaderException {
+        return getSize(url);
     }
 }

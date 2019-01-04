@@ -16,6 +16,7 @@ import java.io.File;
 import java.io.IOException;
 import org.jsoup.UncheckedIOException;
 import java.net.SocketTimeoutException;
+import java.util.Random;
 import java.util.Vector;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -90,6 +91,9 @@ public class Ruleporn extends GenericQueryExtractor{
             thequery.addThumbnail(new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink)));
             thequery.addPreview(parse(thequery.getLink(i)));
             thequery.addName(searchResults.get(i).select("span.title").text());
+            Document linkPage = Jsoup.parse(Jsoup.connect(searchResults.get(i).select("a").get(0).attr("href")).userAgent(CommonUtils.PCCLIENT).get().html());
+             String video = linkPage.select("video").select("source").attr("src");
+             thequery.addSize(CommonUtils.getContentSize(video));
 	}
         return thequery;
     }
@@ -151,8 +155,29 @@ public class Ruleporn extends GenericQueryExtractor{
     }
 
     @Override
-    public video similar() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public video similar() throws IOException {
+    	if (url == null) return null;
+        
+        video v = null;
+        Document page = getPage(url,false);
+        Elements li = page.select("div.row").select("div.item-col.col");
+        Random randomNum = new Random(); int count = 0; boolean got = false; if (li.size() == 0) got = true;
+        while(!got) {
+        	if (count > li.size()) break;
+        	int i = randomNum.nextInt(li.size()); count++;
+        	String link = li.get(i).select("a").attr("href");
+        	try {verify(getPage(link,false));} catch (GenericDownloaderException e) {continue;}
+            String thumb = li.get(i).select("span.image").select("img").attr("src");
+            String title = li.get(i).select("span.title").text();
+            if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb))) //if file not already in cache download it
+            	if (CommonUtils.saveFile(thumb, CommonUtils.getThumbName(thumb),MainApp.imageCache) != -2)
+            		continue;//throw new IOException("Failed to completely download page");
+            Document linkPage = Jsoup.parse(Jsoup.connect(link).userAgent(CommonUtils.PCCLIENT).get().html());
+             String video = linkPage.select("video").select("source").attr("src");
+                v = new video(link,title,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumb)),CommonUtils.getContentSize(video));
+                break;
+            }
+        return v;
     }
 
     @Override
@@ -171,9 +196,20 @@ public class Ruleporn extends GenericQueryExtractor{
             if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink))) //if file not already in cache download it
                 if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink),MainApp.imageCache) != -2)
                     throw new IOException("Failed to completely download page");
-            v = new video(searchResults.get(i).select("a").get(0).attr("href"),searchResults.get(i).select("span.title").text(),new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink)));
+            String link = searchResults.get(i).select("a").get(0).attr("href");
+            Document linkPage = Jsoup.parse(Jsoup.connect(link).userAgent(CommonUtils.PCCLIENT).get().html());
+             String video = linkPage.select("video").select("source").attr("src");
+            v = new video(link,searchResults.get(i).select("span.title").text(),new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink)),CommonUtils.getContentSize(video));
             break; //if u made it this far u already have a vaild video
 	}
         return v;
+    }
+
+    @Override
+    public long getSize() throws IOException, GenericDownloaderException {
+        Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
+	
+        String video = page.select("video").select("source").attr("src");
+        return CommonUtils.getContentSize(video);
     }
 }

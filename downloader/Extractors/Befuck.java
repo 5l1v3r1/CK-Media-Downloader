@@ -7,7 +7,6 @@ package downloader.Extractors;
 
 import downloader.CommonUtils;
 import downloader.DataStructures.video;
-import static downloader.Extractors.GenericExtractor.configureUrl;
 import downloaderProject.MainApp;
 import downloaderProject.OperationStream;
 import java.io.File;
@@ -23,6 +22,7 @@ import org.jsoup.select.Elements;
  * @author christopher
  */
 public class Befuck extends GenericExtractor{
+    private static final int skip = 4;
     
     public Befuck() { //this contructor is used for when you jus want to search
         
@@ -61,9 +61,9 @@ public class Befuck extends GenericExtractor{
     private static File downloadThumb(String url) throws IOException, SocketTimeoutException, UncheckedIOException, Exception {
        Document page = getPage(url,false);
         String thumb = page.select("video").attr("poster");
-        if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,4))) //if file not already in cache download it
-            CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,4),MainApp.imageCache);
-        return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,4));
+        if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,skip))) //if file not already in cache download it
+            CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,skip),MainApp.imageCache);
+        return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,skip));
     }
 
     @Override
@@ -88,16 +88,24 @@ public class Befuck extends GenericExtractor{
         
         for(int i = 0; i < li.size(); i++) {
         	String thumbLink = li.get(i).select("img").attr("data-src"); 
-        	if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,3))) //if file not already in cache download it
-                    if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,3),MainApp.imageCache) != -2)
+        	if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,skip))) //if file not already in cache download it
+                    if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,skip),MainApp.imageCache) != -2)
                         throw new IOException("Failed to completely download page");
         	String link = li.get(i).select("a").attr("href");
         	String name = li.get(i).select("figcaption").text();
         	if (link.isEmpty() || name.isEmpty()) continue;
-        	v = new video(link,name,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,3)));
+                Document linkPage = Jsoup.parse(Jsoup.connect(link).userAgent(CommonUtils.PCCLIENT).get().html());
+                String video = linkPage.select("video").select("source").attr("src");
+        	v = new video(link,name,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,skip)),CommonUtils.getContentSize(video));
         	break;
         }
         
         return v;
+    }
+
+    @Override
+    public long getSize() throws IOException {
+        Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
+        return CommonUtils.getContentSize(page.select("video").select("source").attr("src"));
     }
 }

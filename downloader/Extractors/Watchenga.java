@@ -7,6 +7,7 @@ package downloader.Extractors;
 
 import downloader.CommonUtils;
 import downloader.DataStructures.video;
+import downloader.Exceptions.GenericDownloaderException;
 import downloaderProject.MainApp;
 import downloaderProject.OperationStream;
 import java.io.File;
@@ -76,5 +77,13 @@ public class Watchenga extends GenericExtractor{
     @Override
     public video search(String str) throws IOException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public long getSize() throws IOException, GenericDownloaderException {
+        Document page = Jsoup.parse(Jsoup.connect(url).get().html());
+        
+        String video = page.select("video").select("source").attr("src");
+        return CommonUtils.getContentSize(video);
     }
 }

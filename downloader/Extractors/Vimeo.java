@@ -24,7 +24,6 @@ import org.json.simple.parser.ParseException;
 import org.jsoup.Jsoup;
 import org.jsoup.UncheckedIOException;
 import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
 
 /**
  *
@@ -74,9 +73,9 @@ public class Vimeo extends GenericExtractor{
         verify(page);
         Map<String, String> qualities = getQualities(CommonUtils.getSBracket(page.toString(), page.toString().indexOf("progressive")));
         int max = 144;
-        Iterator i = qualities.keySet().iterator();
+        Iterator<String> i = qualities.keySet().iterator();
         while(i.hasNext()) {
-            String str = (String)i.next();
+            String str = i.next();
             int temp = Integer.parseInt(str.substring(0,str.length()-1));
             if(temp > max)
                 max = temp;
@@ -84,7 +83,7 @@ public class Vimeo extends GenericExtractor{
         
 	String video = qualities.get(String.valueOf(max)+"p");
         
-        super.downloadVideo(video,downloadVideoName(url),s);
+        super.downloadVideo(video,videoName,s);
     }
     
     private static void verify(Document page) throws GenericDownloaderException {
@@ -158,5 +157,25 @@ public class Vimeo extends GenericExtractor{
         }
         
         return v;*/
+    }
+
+    @Override
+    public long getSize() throws IOException, GenericDownloaderException {
+        Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
+        verify(page); String newUrl = "https://player.vimeo.com/video/"+url.split("/")[url.split("/").length -1];
+        page = Jsoup.parse(Jsoup.connect(newUrl).userAgent(CommonUtils.PCCLIENT).get().html());
+        verify(page);
+        Map<String, String> qualities = getQualities(CommonUtils.getSBracket(page.toString(), page.toString().indexOf("progressive")));
+        int max = 144;
+        Iterator<String> i = qualities.keySet().iterator();
+        while(i.hasNext()) {
+            String str = i.next();
+            int temp = Integer.parseInt(str.substring(0,str.length()-1));
+            if(temp > max)
+                max = temp;
+        }
+        
+	String video = qualities.get(String.valueOf(max)+"p");
+        return CommonUtils.getContentSize(video);
     }
 }

@@ -8,12 +8,14 @@ package downloader.Extractors;
 import downloader.CommonUtils;
 import downloader.DataStructures.GenericQuery;
 import downloader.DataStructures.video;
+import downloader.Exceptions.GenericDownloaderException;
 import downloaderProject.MainApp;
 import downloaderProject.OperationStream;
 import java.io.File;
 import java.io.IOException;
 import org.jsoup.UncheckedIOException;
 import java.net.SocketTimeoutException;
+import java.util.Random;
 import java.util.Vector;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -24,6 +26,7 @@ import org.jsoup.select.Elements;
  * @author christopher
  */
 public class Redtube extends GenericQueryExtractor{
+	private static final int skip = 5;
     public Redtube() { //this contructor is used for when you jus want to query
         
     }
@@ -44,13 +47,8 @@ public class Redtube extends GenericQueryExtractor{
     public void getVideo(OperationStream s) throws IOException,SocketTimeoutException, UncheckedIOException, Exception{
         if (s != null) s.startTiming();
         Document page;
-        if (CommonUtils.checkPageCache(CommonUtils.getCacheName(url,false))) //check to see if page was downloaded previous
-            page = Jsoup.parse(CommonUtils.loadPage(MainApp.pageCache.getAbsolutePath()+File.separator+CommonUtils.getCacheName(url,false)));
-        else {
-            String html = Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html();
-            page = Jsoup.parse(html);
-            CommonUtils.savePage(html, url, false);
-        } //if not found in cache download it
+        String html = Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html();
+        page = Jsoup.parse(html);
 		
 	String title = page.select("meta").get(6).attr("content");
 	int mediaIndex = page.toString().indexOf("mediaDefinition:");
@@ -77,12 +75,13 @@ public class Redtube extends GenericQueryExtractor{
             String title = Jsoup.parse(searchResults.get(i).select("div.video_title").toString()).body().text();
             String thumb = searchResults.get(i).select("span.video_thumb_wrap").select("img").attr("data-thumb_url");
             thequery.addLink(link);
-            if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,5))) //if file not already in cache download it
-                if (CommonUtils.saveFile(thumb, CommonUtils.getThumbName(thumb,5),MainApp.imageCache) != -2)
+            if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,skip))) //if file not already in cache download it
+                if (CommonUtils.saveFile(thumb, CommonUtils.getThumbName(thumb,skip),MainApp.imageCache) != -2)
                     throw new IOException("Failed to completely download page");
-            thequery.addThumbnail(new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,5)));
+            thequery.addThumbnail(new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,skip)));
             thequery.addPreview(parse(link));
             thequery.addName(title);
+            try {thequery.addSize(getSize(link));}catch(GenericDownloaderException | IOException e) { thequery.addSize(-1);}
 	}
         return thequery;
     }
@@ -109,9 +108,9 @@ public class Redtube extends GenericQueryExtractor{
 	int height = CommonUtils.getThumbs(definition,definition.indexOf("thumbHeight"),',');
 	for(int i = 0; i <= max; i++) {
             String link = CommonUtils.replaceIndex(mainLink,i,String.valueOf(max));
-            if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(link,5)))
-                CommonUtils.saveFile(link, CommonUtils.getThumbName(link,5), MainApp.imageCache);
-            File grid = new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(link,5));
+            if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(link,skip)))
+                CommonUtils.saveFile(link, CommonUtils.getThumbName(link,skip), MainApp.imageCache);
+            File grid = new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(link,skip));
             Vector<File> split = CommonUtils.splitImage(grid, 5, 5, 0, 0);
             for(int j = 0; j < split.size(); j++)
                 thumbs.add(split.get(j));
@@ -132,9 +131,9 @@ public class Redtube extends GenericQueryExtractor{
         int posterIndex = page.toString().indexOf("poster:");
         String thumb = CommonUtils.eraseChar(CommonUtils.getLink(page.toString(), posterIndex+9, '"'),'\\');
         
-        if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,7))) //if file not already in cache download it
-            CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,7),MainApp.imageCache);
-        return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,7));
+        if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,skip+2))) //if file not already in cache download it
+            CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,skip+2),MainApp.imageCache);
+        return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,skip+2));
     }    
     
     @Override
@@ -143,8 +142,22 @@ public class Redtube extends GenericQueryExtractor{
     }
 
     @Override
-    public video similar() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public video similar() throws IOException {
+    	if (url == null) return null;
+        
+        video v = null;
+        Document page = getPage(url,false);
+        Elements li = page.getElementById("related_videos_tab").select("li.videoblock_list");
+        Random randomNum = new Random(); int count = 0; boolean got = false; if (li.isEmpty()) got = true;
+        while(!got) {
+        	if (count > li.size()) break;
+        	int i = randomNum.nextInt(li.size()); count++;
+        	String link = "https://www.redtube.com" + li.get(i).select("a").get(0).attr("href");
+            String title = li.get(i).select("div.video_title").select("a").text();
+                try {v = new video(link,title,downloadThumb(link),getSize(link)); } catch(Exception e) {} 
+                break;
+            }
+        return v;
     }
 
     @Override
@@ -159,12 +172,29 @@ public class Redtube extends GenericQueryExtractor{
 	for(int i = 0; i < searchResults.size(); i++) {
             if (!CommonUtils.testPage("https://www.redtube.com"+searchResults.get(i).select("a").attr("href"))) continue; //test to avoid error 404
             String thumb = searchResults.get(i).select("span.video_thumb_wrap").select("img").attr("data-thumb_url");
-            if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,5))) //if file not already in cache download it
-                if (CommonUtils.saveFile(thumb, CommonUtils.getThumbName(thumb,5),MainApp.imageCache) != -2)
+            if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,skip))) //if file not already in cache download it
+                if (CommonUtils.saveFile(thumb, CommonUtils.getThumbName(thumb,skip),MainApp.imageCache) != -2)
                     throw new IOException("Failed to completely download page");
-            v = new video("https://www.redtube.com"+searchResults.get(i).select("a").attr("href"),Jsoup.parse(searchResults.get(i).select("div.video_title").toString()).body().text(),new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,5)));
+            String link = "https://www.redtube.com"+searchResults.get(i).select("a").attr("href");
+            try {v = new video(link,Jsoup.parse(searchResults.get(i).select("div.video_title").toString()).body().text(),new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,skip)),getSize(link)); } catch(GenericDownloaderException | IOException e) {}
             break; //if u made it this far u already have a vaild video
         }
         return v;
+    }
+    
+    private static long getSize(String link) throws IOException, GenericDownloaderException {
+        String html = Jsoup.connect(link).userAgent(CommonUtils.PCCLIENT).get().html();
+        Document page = Jsoup.parse(html);
+	
+	int mediaIndex = page.toString().indexOf("mediaDefinition:");
+		
+	String defaultVideo = CommonUtils.getBracket(page.toString(),mediaIndex);
+	String videoLink = CommonUtils.eraseChar(CommonUtils.getLink(defaultVideo,defaultVideo.indexOf("videoUrl")+11,'"'),'\\');
+        return CommonUtils.getContentSize(videoLink);
+    }
+
+    @Override
+    public long getSize() throws IOException, GenericDownloaderException {
+        return getSize(url);
     }
 }

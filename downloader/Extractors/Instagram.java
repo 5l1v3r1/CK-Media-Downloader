@@ -9,6 +9,7 @@ import ChrisPackage.GameTime;
 import downloader.CommonUtils;
 import downloader.DataStructures.downloadedMedia;
 import downloader.DataStructures.video;
+import downloader.Exceptions.GenericDownloaderException;
 import downloaderProject.MainApp;
 import downloaderProject.OperationStream;
 import java.io.File;
@@ -75,7 +76,6 @@ public class Instagram extends GenericExtractor{
             download(videoLink, s,".mp4");
         } else if(isProfilePage(page)) { //download profile pic
            String picLink = null;
-           System.out.println("here3");
             Elements metas = page.select("meta");
             for(int i = 0; i < metas.size(); i++) {
                 if(metas.get(i).attr("property").equals("og:image"))
@@ -83,7 +83,6 @@ public class Instagram extends GenericExtractor{
             }
             download(picLink, s,".jpg");
         } else { //download pic/s
-            System.out.println("here4");
            int occur, from = 0; boolean first = true; int count = 0;
            while((occur = page.toString().indexOf("display_resources",from)) != -1) {
                if (first) {first = false; from = occur + 1; continue;}
@@ -96,7 +95,6 @@ public class Instagram extends GenericExtractor{
                     String brack = CommonUtils.getSBracket(page.toString(),occur);
                     download(parseBracket(brack),s,".jpg");
                } else  {
-                   System.out.println("was -1");
                    String picLink = null;
                     Elements metas = page.select("meta");
                     for(int i = 0; i < metas.size(); i++) {
@@ -196,5 +194,44 @@ public class Instagram extends GenericExtractor{
     @Override
     public video search(String str) {
         return null;
+    }
+
+    @Override
+    public long getSize() throws IOException, GenericDownloaderException {
+        Document page = Jsoup.parse(Jsoup.connect(url).get().html());
+        String videoLink = null; long total = 0;
+        if (isVideo(page)) { //download video
+            Elements metas = page.select("meta");
+            for(int i = 0; i < metas.size(); i++)
+                if(metas.get(i).attr("property").equals("og:video"))
+                    videoLink = metas.get(i).attr("content");
+        } else if(isProfilePage(page)) { //download profile pic
+            Elements metas = page.select("meta");
+            for(int i = 0; i < metas.size(); i++)
+                if(metas.get(i).attr("property").equals("og:image"))
+                    videoLink = metas.get(i).attr("content");
+        } else { //download pic/s
+           int occur, from = 0; boolean first = true; int count = 0;
+           while((occur = page.toString().indexOf("display_resources",from)) != -1) {
+               if (first) {first = false; from = occur + 1; continue;}
+               from = occur + 1; count++;
+               String brack = CommonUtils.getSBracket(page.toString(),occur);
+               total += CommonUtils.getContentSize(parseBracket(brack));
+           } if (count < 1) { //if there really was jus one
+               occur = page.toString().indexOf("display_resources",0);
+               if(occur != -1) {
+                    String brack = CommonUtils.getSBracket(page.toString(),occur);
+                    total += CommonUtils.getContentSize(parseBracket(brack));
+               } else  {
+                    Elements metas = page.select("meta");
+                    for(int i = 0; i < metas.size(); i++)
+                        if(metas.get(i).attr("property").equals("og:image"))
+                            total += CommonUtils.getContentSize(metas.get(i).attr("content"));
+               }
+           }
+           return total;
+        }
+        if (videoLink == null) return -1;
+        else return CommonUtils.getContentSize(videoLink);
     }
 }

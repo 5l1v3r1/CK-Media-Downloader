@@ -8,6 +8,7 @@ package downloader.Extractors;
 import downloader.CommonUtils;
 import downloader.DataStructures.GenericQuery;
 import downloader.DataStructures.video;
+import downloader.Exceptions.GenericDownloaderException;
 import downloaderProject.MainApp;
 import downloaderProject.OperationStream;
 import java.io.File;
@@ -48,7 +49,7 @@ public class Youporn extends GenericQueryExtractor{
         Document page = Jsoup.parse(Jsoup.connect(url).get().html());
         String video = page.getElementById("player-html5").attr("src");
         
-        super.downloadVideo(video,downloadVideoName(url),s);
+        super.downloadVideo(video,videoName,s);
     }
     
     @Override
@@ -72,6 +73,9 @@ public class Youporn extends GenericQueryExtractor{
             thequery.addPreview(parse("https://www.youporn.com"+searchResults.get(i).select("a").attr("href")));
             String title = Jsoup.parse(searchResults.get(i).select("div.video-box-title").toString()).body().text();
             thequery.addName(title);
+            Document linkPage = Jsoup.parse(Jsoup.connect(url).get().html());
+            String video = linkPage.getElementById("player-html5").attr("src");
+            thequery.addSize(CommonUtils.getContentSize(video));
 	}
         return thequery;
     }
@@ -139,9 +143,18 @@ public class Youporn extends GenericQueryExtractor{
             if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb))) //if file not already in cache download it
                 if (CommonUtils.saveFile(thumb, CommonUtils.getThumbName(thumb),MainApp.imageCache) != -2)
                     throw new IOException("Failed to completely download page");
-            v = new video("https://www.youporn.com"+searchResults.get(i).select("a").attr("href"),Jsoup.parse(searchResults.get(i).select("div.video-box-title").toString()).body().text(),new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumb)));
+            Document linkPage = Jsoup.parse(Jsoup.connect(url).get().html());
+            String video = linkPage.getElementById("player-html5").attr("src");
+            v = new video("https://www.youporn.com"+searchResults.get(i).select("a").attr("href"),Jsoup.parse(searchResults.get(i).select("div.video-box-title").toString()).body().text(),new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumb)),CommonUtils.getContentSize(video));
             break; //if u made it this far u already have a vaild video
 	}
         return v;
+    }
+
+    @Override
+    public long getSize() throws IOException, GenericDownloaderException {
+        Document page = Jsoup.parse(Jsoup.connect(url).get().html());
+        String video = page.getElementById("player-html5").attr("src");
+        return CommonUtils.getContentSize(video);
     }
 }
