@@ -17,6 +17,9 @@ import java.util.stream.Collectors;
 import ChrisPackage.Star;
 import downloader.DataStructures.video;
 import downloader.Extractors.*;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DataCollection implements Externalizable{
 	private static final long serialVersionUID = 1L;
@@ -50,6 +53,17 @@ public class DataCollection implements Externalizable{
 		ignoreWords.add("a"); ignoreWords.add("the"); ignoreWords.add("an");
                 Collections.sort(ignoreWords);
 	}
+        
+        public Vector<File> getExempt() {
+           Vector<File> list = new Vector<File>();
+           video[] v = (video[])videoQueue.toArray();
+           for(video l:v) {
+               list.add(l.getThumbnail());
+               for(int i = 0; i < l.getPreviewCount(); i++)
+                   list.add(l.getPreview(i));
+           }
+           return list;
+        }
 	
 	public video next() {
 		return videoQueue.poll();
@@ -253,8 +267,14 @@ public class DataCollection implements Externalizable{
                     if (!Character.isLetterOrDigit(str.charAt(i)))
                         count++;
                 if (count == str.length()) return false; //all characters were neither alphabetic nor digits
-                else return true;
+                
+                count = 0;
+                for(int i = 0; i < str.length(); i++)
+                    if (!Character.isDigit(str.charAt(i)))
+                        count++;
+                if (count == str.length()) return false; //all characters were numbers
             }
+            return true; //you made it this far ... valid
         }
 
 	@Override public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
@@ -262,7 +282,7 @@ public class DataCollection implements Externalizable{
 		if (id == 1) {
 			keywords = (HashMap<String, Integer>)in.readObject();
 			frequentStars = (HashMap<Star, Integer>)in.readObject();
-			videoQueue = (LinkedList<video>)in.readObject();
+			try {videoQueue = (LinkedList<video>)in.readObject(); }catch (IOException e){ videoQueue = new LinkedList<video>();}
 			frequentSites = (HashMap<String, Integer>)in.readObject();
 		}
 	}

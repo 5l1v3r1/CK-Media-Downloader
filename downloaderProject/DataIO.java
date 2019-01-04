@@ -11,6 +11,7 @@ import downloader.DataStructures.downloadedMedia;
 import downloader.DataStructures.historyItem;
 import downloader.DataStructures.itemProgress;
 import downloader.DataStructures.video;
+import static downloaderProject.MainApp.habits;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -89,6 +90,9 @@ public class DataIO {
         } catch (ClassNotFoundException ex) {
            System.out.println("Class not found");
            return null;
+        } catch (ClassCastException e) {
+           System.out.println(e.getMessage());
+           return null; 
         }
     }
     
@@ -301,6 +305,9 @@ public class DataIO {
         } catch(IOException e) {
             e.printStackTrace();
             return new DataCollection(true);
+        } catch (ClassCastException e) {
+            System.out.println("old verison of data collection couldnt be used");
+            return new DataCollection(true);
         }
     }
     
@@ -314,22 +321,25 @@ public class DataIO {
     
     public static boolean exempt(File f) {
          Vector<video> videos = loadVideos();
-         if(videos == null)
-            return false; 
-         else {
+         if(videos != null) {
              for(video v:videos) {
                  if (f.getAbsolutePath().equals(v.getThumbnail().getAbsolutePath())) return true;
                  for(int i = 0; i < v.getPreviewCount(); i++)
                      if (f.getAbsolutePath().equals(v.getPreview(i).getAbsolutePath())) return true;
              }
-             Vector<downloadedMedia> media = loadDownloaded();
-             if (media == null) return false;
-             else {
-                 for(downloadedMedia m: media)
-                     if(m.getThumb().getAbsolutePath().equals(f.getAbsolutePath())) return true;
-             }
-            return false;
          }
+         Vector<File> list =  DataIO.loadCollectedData().getExempt();
+         if(list != null) {
+             for(File file:list)
+                 if (f.getAbsolutePath().equals(file.getAbsolutePath())) return true;
+         }
+         Vector<downloadedMedia> media = loadDownloaded();
+         if (media == null) return false;
+         else {
+            for(downloadedMedia m: media)
+                if(m.getThumb().getAbsolutePath().equals(f.getAbsolutePath())) return true;
+        }
+        return false; //made it this far ... u not exempt
     }
     
     public static void clearCache() {

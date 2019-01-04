@@ -67,20 +67,22 @@ public class MainApp extends Application {
     public static AnchorPane previewPane;
     public static Button searchBtn;
     public static Label searchResultCount;
-    public static final int SUPPORTEDSITES = 28, PANES = 6;
     public static boolean active = true;
     public static Vector<Device> devices;
     public static ComboBox deviceBox;
-    public static Pane[] actionPanes = new Pane[PANES];
-    public static final int DOWNLOADPANE = 0, BROWSERPANE = 1, SETTINGSPANE = 2, SHAREPANE = 3, DOWNLOADHISTORYPANE = 4, ACCOUNTPANE = 5;
     private static AnchorPane actionPaneHolder;
     public static ProgressBar progress;
     public static TextArea log;
     public static Actions act;
-    private static final String TITLE = "Video Downloader Prototype build 21.5";
+    private static final String TITLE = "Video Downloader Prototype build 21.7";
     public static DownloadHistory downloadHistoryList;
     public static StackPane root;
     public static DataCollection habits;
+    
+    private final int width = 850, height = 550, xs = 200;
+    public static final int SUPPORTEDSITES = 28, PANES = 6;
+    public static Pane[] actionPanes = new Pane[PANES];
+    public static final int DOWNLOADPANE = 0, BROWSERPANE = 1, SETTINGSPANE = 2, SHAREPANE = 3, DOWNLOADHISTORYPANE = 4, ACCOUNTPANE = 5;
     
     public static ManageSettings settings;
     private ClipboardListener clippy;
@@ -121,11 +123,11 @@ public class MainApp extends Application {
     
     private void setCacheDir() {
         String home = System.getProperty("user.home");
-        if (null == OS) {
+        if (null == OS) { //assume unix system
             imageCache = new File(home+File.separator+".downloaderCache/images");
-            pageCache = new File(home+File.separator+"/.downloaderCache/pages");
-            progressCache = new File(home+File.separator+"/.downloaderCache/progress");
-            saveDir = new File(home+File.separator+"/.downloaderSettings");
+            pageCache = new File(home+File.separator+".downloaderCache/pages");
+            progressCache = new File(home+File.separator+".downloaderCache/progress");
+            saveDir = new File(home+File.separator+".downloaderSettings");
             if (!imageCache.exists()) imageCache.mkdirs();
             if (!pageCache.exists()) pageCache.mkdirs();
             if (!saveDir.exists()) saveDir.mkdirs();
@@ -244,11 +246,11 @@ public class MainApp extends Application {
             loader.setLocation(MainApp.class.getResource("layouts/mainLayout.fxml"));
             root = loader.load();
             AnchorPane main = (AnchorPane) root.getChildren().get(0);
+            main.setPrefHeight(height);
+            main.setPrefWidth(width);
             //main.getChildren().add(setupMenu());
             
             loadActionPanes();
-
-            final int width = 850, height = 550;
             
             scene = new Scene(root, width, height);
             scene.getStylesheets().add(MainApp.class.getResource("mainStyleSheet.css").toExternalForm());
@@ -303,7 +305,9 @@ public class MainApp extends Application {
     public static String getSizeText(long size) {
         //ik 1024 is the right unit rather than 1000
         //but dividing by 1000 gave a more accurate result
-        if (size < 1024)
+        if (size < 0) 
+            return "----";
+        else if (size < 1024)
             return size + " b";
         else if((size >= 1024) && (size < 1048576)) //1024b * 1024b = ?kb you do the math
             return String.format("%.2f",(double)size / 1000) + " kb"; 
@@ -448,6 +452,12 @@ public class MainApp extends Application {
             //System.exit(0);
         });
        primaryStage.setScene(scene);
+       primaryStage.setMinHeight(height);
+       primaryStage.setMinWidth(width);
+       primaryStage.setMaxHeight(height+xs);
+       primaryStage.setMaxWidth(width+xs);
+       primaryStage.setHeight(height);
+       primaryStage.setWidth(width);
        try {
             if(splash != null)
                  splash.close();
@@ -459,7 +469,7 @@ public class MainApp extends Application {
        loadSuggestions();
        
        ExecutorService x = Executors.newSingleThreadExecutor();
-       x.execute(clippy);
+       x.execute(clippy); x.shutdown();
     }
     
     public static void log(String mediaName, String site) {

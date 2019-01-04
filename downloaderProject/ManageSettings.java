@@ -149,6 +149,7 @@ public class ManageSettings {
                 sites[i].setLayoutX(site.getLayoutX());
                 sites[i].setLayoutY(site.getLayoutY() + (20 * (i+1)));
                 sites[i].setPrefHeight(site.getPrefHeight());
+                sites[i].setPrefWidth(site.getPrefWidth());
                 historyPane.setPrefHeight(sites[i].getLayoutY()+20);
                 historyPane.getChildren().add(sites[i]); 
             }

@@ -13,6 +13,7 @@ import downloader.DataStructures.Device;
 import downloader.DataStructures.video;
 import downloader.DownloaderItem;
 import downloader.Site;
+import java.awt.HeadlessException;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.fxml.Initializable;
@@ -25,8 +26,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Scanner;
 import java.util.Vector;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -89,9 +88,10 @@ public class mainLayoutController implements Initializable, Reactable{
             }
         } catch(UnsupportedFlavorException e) {
             System.out.println("Unsupported clipboard entry");
-        }catch (Exception e) {
+        }catch (HeadlessException | IOException e) {
+            System.out.println(e.getMessage());
             //MainApp.createMessageDialog(e.getMessage());
-            e.printStackTrace();
+            //e.printStackTrace();
         }
     }
     
@@ -144,31 +144,31 @@ public class mainLayoutController implements Initializable, Reactable{
     
     public void importLinks() {
         try {
-        MainApp.createMessageDialog("Each link in the file should be on a new line");
-        FileChooser choose = new FileChooser(); 
-        Vector<String> lines = new Vector<String>();
-        choose.setTitle("Select a file import links from");
-        if((MainApp.settings.preferences.getImportFolder() != null) && (MainApp.settings.preferences.getImportFolder().exists() && (MainApp.settings.preferences.getImportFolder().isDirectory())))
-            choose.setInitialDirectory(MainApp.settings.preferences.getImportFolder());
-        File selected = choose.showOpenDialog(null);
-        if (selected != null) {
-            try (Scanner reader = new Scanner(selected)){
-                while(reader.hasNextLine())
-                    lines.add(reader.nextLine());
-                reader.close();
-            } catch (FileNotFoundException e) {
-                MainApp.createMessageDialog("File doesn't exist");
+            //MainApp.createMessageDialog("Each link in the file should be on a new line");
+            FileChooser choose = new FileChooser(); 
+            Vector<String> lines = new Vector<>();
+            choose.setTitle("Select a file import links from");
+            if((MainApp.settings.preferences.getImportFolder() != null) && (MainApp.settings.preferences.getImportFolder().exists() && (MainApp.settings.preferences.getImportFolder().isDirectory())))
+                choose.setInitialDirectory(MainApp.settings.preferences.getImportFolder());
+            File selected = choose.showOpenDialog(null);
+            if (selected != null) {
+                try (Scanner reader = new Scanner(selected)){
+                    while(reader.hasNextLine())
+                        lines.add(reader.nextLine());
+                    reader.close();
+                } catch (FileNotFoundException e) {
+                    MainApp.createMessageDialog("File doesn't exist");
+                }
+                for(int i = 0; i < lines.size(); i++) {
+                    System.out.println(lines.get(i).trim());
+                    if (Site.getUrlSite(lines.get(i).trim()) == Site.Type.none)
+                        continue;
+                    else determineSite(lines.get(i).trim());
+                }
+                MainApp.settings.preferences.setImportFolder(selected.getParentFile());
+                MainApp.settings.saveSettings();
             }
-            for(int i = 0; i < lines.size(); i++) {
-                System.out.println(lines.get(i).trim());
-                if (Site.getUrlSite(lines.get(i).trim()) == Site.Type.none)
-                    continue;
-                else determineSite(lines.get(i).trim());
-            }
-            MainApp.settings.preferences.setImportFolder(selected.getParentFile());
-            MainApp.settings.saveSettings();
-        }
-        choose = null;
+            choose = null;
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println(e.getMessage());
@@ -353,7 +353,7 @@ public class mainLayoutController implements Initializable, Reactable{
                                 case 4:
                                     DataIO.clearCache();
                                     MainApp.settings.cacheUpdate();
-                                    MainApp.settings.historyUpdate();
+                                    MainApp.settings.setHistory();
                                     break;
                                 case 5:
                                     DataIO.clearVideos();
