@@ -6,6 +6,7 @@
 package Share;
 
 import downloader.DataStructures.video;
+import downloaderProject.MainApp;
 import downloaderProject.OperationStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -19,7 +20,6 @@ import java.net.UnknownHostException;
 import java.util.Vector;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import javax.swing.JOptionPane;
 
 /**
  *
@@ -175,8 +175,8 @@ public class Upload {
         }
         
         private int connectToServer() {
-            if(address == null) { JOptionPane.showMessageDialog(null,"No device address provided");return 1;}
-            else if (address.length() == 0){ JOptionPane.showMessageDialog(null,"Invalid device address"); return 2;}
+            if(address == null) { MainApp.createMessageDialog("No device address provided");return 1;}
+            else if (address.length() == 0){ MainApp.createMessageDialog("Invalid device address"); return 2;}
             else {
                 s.addProgress("Attempting Connection");
                 try {
