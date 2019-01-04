@@ -63,7 +63,7 @@ public class Site {
             return Type.spankwire;
         else if(url.matches("https://vodlocker.nl/[\\S]*.html") || url.matches("https://www.vodlocker.nl/[\\S]*.html"))
             return Type.none;//return Type.vodlocker;
-        else if (url.matches("https://xxx.justporno.tv/[\\S]*/[\\d]*/[\\S]*") || url.matches("https://justporno.tv/[\\S]*/[\\d]*/[\\S]*"))
+        else if (url.matches("https://xxx.justporno.tv/[\\S]*/[\\d]*/[\\S]*") || url.matches("https://justporno.tv/[\\S]*/[\\d]*/[\\S]*") || url.matches("https://xxx.justporno.es/[\\S]*/[\\d]*/[\\S]*") || url.matches("https://justporno.es/[\\S]*/[\\d]*/[\\S]*"))
             return Type.justporno;
         else if (url.matches("https://www.bigbootytube.xxx/videos/[\\d]*/[\\S]*/") || url.matches("https://bigbootytube.xxx/videos/[\\d]*/[\\S]*/"))
             return Type.bigbootytube;

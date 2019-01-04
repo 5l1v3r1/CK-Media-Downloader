@@ -5,6 +5,7 @@
  */
 package downloader;
 
+import ChrisPackage.GameTime;
 import ChrisPackage.stopWatch;
 import downloaderProject.DataIO;
 import downloaderProject.MainApp;
@@ -48,7 +49,7 @@ import org.jsoup.Jsoup;
 public class CommonUtils {
     public static final String PCCLIENT = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11", 
     MOBILECLIENT = "Mozilla/5.0 (Linux; Android 4.4.4; Nexus 5 Build/KTU84P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.57 Mobile Safari/537.36";
-    static final int BUFFSIZE = 1024 * 400; //1 x 400kb
+    static final int BUFFSIZE = 1024 * 50; //1 x 50kb
     
     public static Vector<File> splitImage(File origin, int row, int col, int yOffset, int widthOffset) {
         Vector<File> splits = new Vector<>();
@@ -347,6 +348,7 @@ public class CommonUtils {
     }
     
     public static long getContentSize(String url) {
+        if (url == null) return -1;
         try {
             URLConnection connection = new URL(url).openConnection();
             connection.setRequestProperty("User-Agent", PCCLIENT);
@@ -357,7 +359,7 @@ public class CommonUtils {
         } catch (IOException e) {
             return -2;
         } catch (Exception e) {
-            return 3;
+            return -3;
         }
     }
     
@@ -456,8 +458,7 @@ public class CommonUtils {
             
             int count;
             if (s != null) s.addProgress("Downloading");
-            stopWatch timer = new stopWatch();
-            timer.start();
+            stopWatch timer = new stopWatch(); timer.start();
             while((count = in.read(buffer,0,BUFFSIZE)) != -1) {
                 //in.reset();
                 if(!MainApp.active)
@@ -469,11 +470,13 @@ public class CommonUtils {
                 timer.stop();
                 double secs = timer.getTime().convertToSecs();
                 double speed = (how / secs) / 1024D;
+                long remain = (fileSize - how) / 1024;
+                GameTime g = new GameTime(); g.addSec((long)(remain / speed));
                 if (speed == Double.POSITIVE_INFINITY) {
                     if (s != null) s.addProgress(String.format("%s%d","^^",0));
                 } else {
                     if(s != null) s.addProgress(String.format("%s%f","^^",speed));
-                }
+                } if(s != null) s.addProgress(String.format("%s","**"+g));
             }
             in.close();
             out.flush();

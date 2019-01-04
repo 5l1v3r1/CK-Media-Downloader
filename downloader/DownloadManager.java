@@ -5,6 +5,7 @@
  */
 package downloader;
 
+import downloader.Exceptions.GenericDownloaderException;
 import downloaderProject.MainApp;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -26,12 +27,12 @@ import javafx.stage.DirectoryChooser;
  * @author christopher
  */
 public class DownloadManager {
-    private List downloads = new ArrayList(); //list of panes
+    private List<Pane> downloads = new ArrayList<>(); //list of panes
     private List<DownloaderItem> downloadItems = new ArrayList<>();//list of downloader items that create panes
     private final ExecutorService downloadThreads;
     private final ExecutorService sideJobs;
     //private final int threads = 3;
-    private final int sideThreads = 5;
+    private final int sideThreads = 4;
     
     public void release() {
         try {
@@ -150,15 +151,23 @@ public class DownloadManager {
         @Override
         public void run() {
             System.out.println("Searching link");
-            if(!d.searchLink()) {
-                //MainApp.createMessageDialog("Error with: "+d.getLink());
-                removeDownload(d);
-            } else { 
-                //wasnt loaded
-                if (d.getSite() != null) {
-                    MainApp.log(d.getName(),d.getSite());
-                    MainApp.log(d.getSide());
+            try {
+                if(!d.searchLink()) {
+                    //MainApp.createMessageDialog("Error with: "+d.getLink());
+                    removeDownload(d);
+                } else { 
+                    //wasnt loaded
+                    if (d.getSite() != null) {
+                        MainApp.log(d.getName(),d.getSite());
+                        MainApp.log(d.getSide());
+                    }
                 }
+            } catch (GenericDownloaderException e) {
+                MainApp.createMessageDialog(e.getMessage()+ " "+ d.getLink());
+                removeDownload(d);
+            } catch (Exception e) {
+                MainApp.createMessageDialog(e.getMessage()+ " "+ d.getLink());
+                removeDownload(d);
             }
         }
     }

@@ -13,10 +13,8 @@ import downloaderProject.DataIO;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
-import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -30,7 +28,6 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.image.BufferedImage;
 import java.io.FileNotFoundException;
-import java.io.InputStream;
 import java.net.SocketException;
 import org.jsoup.UncheckedIOException;
 import java.net.SocketTimeoutException;
@@ -55,16 +52,14 @@ import javax.imageio.ImageIO;
  */
 public class DownloaderItem {
     private String url, videoName;
-    private Pane item;
-    private ObservableList<Node> paneElems;
+    private Pane root;
     private GenericExtractor extractor;
     private Site.Type type;
     private video v = null;
     private File thumbFile;
     
     public void release() {
-        item = null;
-        paneElems = null;
+        root = null;
         extractor = null;
         thumbFile = null;
         v = null;
@@ -83,8 +78,7 @@ public class DownloaderItem {
     public video getSide() {
         try {
             return extractor.similar();
-        } catch (UnsupportedOperationException e) {return null;}
-        catch(IOException e){return null;}
+        } catch (UnsupportedOperationException | IOException e) {return null;}
     }
     
     private GenericExtractor getExtractor() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
@@ -150,99 +144,106 @@ public class DownloaderItem {
         } 
     }
     
-    private ImageView getThumbnail(ImageView view) {
-        if (v == null) {
-            try {
-                extractor = getExtractor();
-                if(extractor == null) return null;
-                thumbFile = extractor.getThumb();
-                videoName = extractor.getVideoName();
-                if (thumbFile.length() < 1024 * 1024 * 10) {
-                    FileInputStream fis = new FileInputStream(thumbFile);
-                    Image image = new Image(fis);
-                    if (fis != null) fis.close();
-                    view.setImage(image);
-                } else {
-                    BufferedImage b = ImageIO.read(thumbFile);
-                    view.setImage(SwingFXUtils.toFXImage(b, null));
-                }
-            } catch (FileNotFoundException e) {
-                MainApp.createMessageDialog("Failed to load thumbnail code:2\n"+url);
-                System.out.println("Failed to load thumbnail code:2");
-                return null;
-            } catch (UncheckedIOException e) {
-                e.printStackTrace();
-                MainApp.createMessageDialog("Failed to download thumbnail: "+e.getMessage()+"\n"+url);
-                System.out.println("Failed to download thumbnail");
-                return null;
-            }catch(SocketTimeoutException e) {
-                e.printStackTrace();
-                MainApp.createMessageDialog("Failed to download thumbnail: "+e.getMessage()+"\n"+url);
-                System.out.println("Failed to download thumbnail");
-                return null;
-            } catch (IOException e) {
-                e.printStackTrace();
-                MainApp.createMessageDialog("Failed to download thumbnail: "+e.getMessage()+"\n"+url);
-                System.out.println("Failed to download thumbnail");
-                return null;
-            }catch (GenericDownloaderException e) {
-                MainApp.createMessageDialog("Failed to download thumbnail: "+e.getMessage()+"\n"+url);
-                System.out.println("Failed to download thumbnail");
-                return null;
-            } catch (Exception e) {
-                e.printStackTrace();
-                MainApp.createMessageDialog("Failed to download thumbnail: "+e.getMessage()+"\n"+url);
-                System.out.println("Failed to download thumbnail");
-                return null;
-            }
-        } else {
-            try {
-                videoName = v.getName();
-                thumbFile = v.getThumbnail();
-                FileInputStream fis = new FileInputStream(v.getThumbnail());
+    private boolean setFromVideo(ImageView view) {
+        try {
+            thumbFile = v.getThumbnail();
+            FileInputStream fis = new FileInputStream(v.getThumbnail());
+            Image image = new Image(fis);
+            if (fis != null) fis.close();
+            view.setImage(image); return true;
+        } catch (FileNotFoundException e) {
+            MainApp.createMessageDialog("Couldnt find thumbnail to load it may have be deleted\n"+url);
+            System.out.println("Failed to load thumbnail");
+            return false;
+        } catch (IOException e) {
+            MainApp.createMessageDialog("Failed to load thumbnail\n"+url);
+            System.out.println("Failed to load thumbnail: "+e.getMessage());
+            return false;
+        } catch (Exception e) {
+            MainApp.createMessageDialog("Failed to download thumbnail\n"+url+"\n"+e.getMessage());
+            System.out.println("Failed to download thumbnail: "+e.getMessage());
+            return false;
+        }
+    }
+    
+    private boolean setFromExtractor(ImageView view) {
+        try {
+            if(extractor == null) return false; //couldnt find extractor for link
+            thumbFile = extractor.getThumb();
+            //if more than 10mb (probably a large gif) image stream will run out of memory
+            if (thumbFile.length() < 1024 * 1024 * 10) { 
+                FileInputStream fis = new FileInputStream(thumbFile);
                 Image image = new Image(fis);
                 if (fis != null) fis.close();
                 view.setImage(image);
-            } catch (FileNotFoundException e) {
-                MainApp.createMessageDialog("Failed to load thumbnail may have be deleted\n"+url);
-                System.out.println("Failed to load thumbnail");
-                return null;
-            } catch (IOException e) {
-                MainApp.createMessageDialog("Failed to load thumbnail"+"\n"+url);
-                System.out.println("Failed to load thumbnail");
-                return null;
-            } catch (Exception e) {
-               MainApp.createMessageDialog("Failed to download thumbnail"+"\n"+url);
-                System.out.println("Failed to download thumbnail");
-                return null;
+            } else { //so read it as a still image (if is gif)
+                BufferedImage b = ImageIO.read(thumbFile);
+                view.setImage(SwingFXUtils.toFXImage(b, null));
             }
+            return true;
+        } catch (FileNotFoundException e) {
+            MainApp.createMessageDialog("(2)Couldnt get thumb from link: \n"+url);
+            System.out.println("Failed to load thumbnail code: 2");
+            return false;
+        } catch (UncheckedIOException e) {
+            e.printStackTrace();
+            MainApp.createMessageDialog("Failed to download thumbnail: "+e.getMessage()+"\n"+url);
+            System.out.println("Failed to download thumbnail (network)");
+            return false;
+        }catch(SocketTimeoutException e) {
+            e.printStackTrace();
+            MainApp.createMessageDialog("Failed to download thumbnail: "+e.getMessage()+"\n"+url);
+            System.out.println("Failed to download thumbnail (connection timeout)");
+            return false;
+        } catch (IOException e) {
+            e.printStackTrace();
+            MainApp.createMessageDialog("Failed to download thumbnail: "+e.getMessage()+"\n"+url);
+            System.out.println("Failed to download thumbnail (some IO: network)");
+            return false;
+        } catch (Exception e) {
+            e.printStackTrace();
+            MainApp.createMessageDialog("Failed to download thumbnail: "+e.getMessage()+"\n"+url);
+            System.out.println("Failed to download thumbnail: "+e.getMessage());
+            return false;
         }
-        view.setFitHeight(77);
-        view.setFitWidth(77);
-        return view;
     }
     
-    private Label getName(Label temp) {
-        temp.setText(videoName);
-        return temp;
+    private boolean getThumbnail() {
+        ImageView view = (ImageView)root.lookup("#thumb");
+        if (v == null)
+            return setFromExtractor(view);
+        else
+            return setFromVideo(view);
     }
     
-    private Button getButton(Button downloadBtn) {
+    private void setName() {
+        Platform.runLater(new Runnable() {
+           @Override public void run() {
+                Label temp = (Label)root.lookup("#downloadName");
+                temp.setText(videoName);
+           }
+        });
+    }
+    
+    private void setButton() {
+        Button downloadBtn = (Button)root.lookup("#downloadBtn");
         downloadBtn.setOnAction(event -> {downloadThis();});
         downloadBtn.setDisable(false);
-        return downloadBtn;
     }
     
-    private JFXButton getCloseBtn(JFXButton close) {
+    private void setCloseBtn() {
+        JFXButton close = (JFXButton)root.lookup("#cancel");
         close.setOnAction(event -> {clearThis();});
         close.setDisable(false);
-        return close;
     }
     
-    private void getSaveBtn(Button btn) {
+    private void setSaveBtn() {
+        Button btn = (Button)root.lookup("#save");
         btn.setOnAction(event -> {
             try {
-                DataIO.saveVideo(new video(url,videoName,thumbFile));
+                long size;
+                try {if (extractor == null) extractor = getExtractor(); size = extractor.getSize();}catch(Exception e){size = -1;}
+                DataIO.saveVideo(new video(url,videoName,thumbFile,size));
                 MainApp.createMessageDialog("Media saved");
                 MainApp.settings.videoUpdate();
             } catch (IOException e) {
@@ -251,36 +252,31 @@ public class DownloaderItem {
         });
     }
     
-    public boolean searchLink() {
-       paneElems = item.getChildren();
-       ImageView image =(ImageView)item.lookup("#thumb");
-       Label name = (Label)item.lookup("#downloadName");
-       Button down = (Button)item.lookup("#downloadBtn");
-       Button saveLater = (Button)item.lookup("#save");
-       JFXButton close = (JFXButton)item.lookup("#cancel");
-
-       image = getThumbnail(image);
-       if (image == null) return false; //either link not supported or network error
-       down = getButton(down);
-       getCloseBtn(close);
-       getSaveBtn(saveLater);
+    public boolean searchLink() throws GenericDownloaderException {       
+       try { 
+           if (v == null) {
+               extractor = getExtractor(); if (extractor == null)throw new Exception("couldnt get extractor"); //unsupported link
+               videoName = extractor.getVideoName();
+               setSize();
+           } else {
+               setSize(v.getSize());
+               videoName = v.getName();
+           }
+       } catch (Exception e) {
+           if (e instanceof GenericDownloaderException) throw (GenericDownloaderException)e;
+           System.out.println(e.getMessage()); 
+           return false;
+       }
        
-       final ImageView finalImage = image;
-       final Label finalName = name;
-       final Button finalButton = down, save = saveLater;
-       Platform.runLater(new Runnable() {
-           @Override public void run() {
-                int thumb = paneElems.indexOf((ImageView)item.lookup("#thumb"));
-                paneElems.set(thumb, finalImage);
-                int itemname = paneElems.indexOf((Label)item.lookup("#downloadName"));
-                paneElems.set(itemname, getName(finalName));
-                int itembtn = paneElems.indexOf((Button)item.lookup("#downloadBtn"));
-                paneElems.set(itembtn, finalButton);
-                int saveBtn = paneElems.indexOf((Button)item.lookup("#save"));
-                paneElems.set(saveBtn, save);
-                System.out.println("Found");
-        }}); //post results to ui
-       return true; //if u made it this far process must be sucessful
+       if (!getThumbnail()) return false; //either link not supported or network error
+       
+       setButton();
+       setCloseBtn();
+       setSaveBtn();
+       setName();
+       
+       System.out.println("Found");
+       return true; //if u made it this far process must be successful
     }
     
     public void setType(Site.Type type) {
@@ -301,22 +297,16 @@ public class DownloaderItem {
         else return url;
     }
     
-    private void disableButton(Pane p) {
-        ObservableList<Node> childs = p.getChildren();
-        for(Node n : childs) {
-            if(n.getId().equals("downloadBtn"))
-                n.setDisable(true);
-        }
+    private void disableButton() {
+        ((Button)root.lookup("#downloadBtn")).setDisable(true);
     }
     
     private void enableButton() {
-        ((Button)item.lookup("#downloadBtn")).setDisable(false);
+        ((Button)root.lookup("#downloadBtn")).setDisable(false);
     }
 
     private ImageView getIcon(String path) {
-        InputStream in;
-        in = System.class.getResourceAsStream(path);
-        Image image = new Image(in);
+        Image image = new Image(System.class.getResourceAsStream(path));
         ImageView icon = new ImageView();
         icon.setImage(image);
         icon.setFitHeight(20);
@@ -392,18 +382,18 @@ public class DownloaderItem {
     public Pane createItem() throws IOException {
        FXMLLoader loader = new FXMLLoader();
        loader.setLocation(DownloaderItem.class.getResource("downloaderListItem.fxml"));
-       item = loader.load();
-       disableButton(item);
-       item.setPadding(new Insets(3,3,3,3));
+       root = loader.load();
+       disableButton();
+       root.setPadding(new Insets(3,3,3,3));
        final ContextMenu contextMenu = initContextMenu();
-       item.setOnMouseClicked(new EventHandler() {
+       root.setOnMouseClicked(new EventHandler() {
            @Override
            public void handle(Event t) {
                if (((MouseEvent)t).getButton().equals(MouseButton.SECONDARY))
-                    contextMenu.show(item,((MouseEvent)t).getScreenX(),((MouseEvent)t).getScreenY());
+                    contextMenu.show(root,((MouseEvent)t).getScreenX(),((MouseEvent)t).getScreenY());
            }
        });
-       return item;
+       return root; //give manager a ref to the pane
     }
     
     public void downloadThis() {
@@ -431,10 +421,11 @@ public class DownloaderItem {
     public void setDone() {
         done = true;
         updateSpeed(0);
+        updateEta("00:00:00:00");
     }
     
     public void start() {
-        disableButton(item);
+        disableButton();
         displayStatus("Downloading");
         done = false;
         OperationStream stream = new OperationStream();
@@ -447,6 +438,8 @@ public class DownloaderItem {
                     updateProgressBar((float)Integer.parseInt(text)/100);
                 else if (text.startsWith("^^"))
                     updateSpeed(Double.parseDouble(text.substring(2)));
+                else if (text.startsWith("**"))
+                    updateEta(text.substring(2));
                 else displayStatus(text);
             }
         } app.shutdownNow();
@@ -490,10 +483,29 @@ public class DownloaderItem {
         }
     }
     
+    private void setSize(final long size) {
+        Platform.runLater(new Runnable() {
+           public void run() { 
+                ((Label)root.lookup("#size")).setText(MainApp.getSizeText(size));
+           }
+        });
+    }
+    
+    private void setSize() {
+        long size = 0;
+        try {size = extractor.getSize();}catch(IOException | GenericDownloaderException e) {size = -1;}
+        final long s = size;
+        Platform.runLater(new Runnable() {
+           public void run() { 
+                ((Label)root.lookup("#size")).setText(MainApp.getSizeText(s));
+           }
+        });
+    }
+    
     private void displayStatus(String msg) {
         Platform.runLater(new Runnable() {
            public void run() { 
-                ((Label)item.lookup("#downloadName")).setText(msg+" "+videoName);
+                ((Label)root.lookup("#downloadName")).setText(msg+" "+videoName);
            }
         });
     }
@@ -501,12 +513,23 @@ public class DownloaderItem {
     private void updateSpeed(double speed) {
         Platform.runLater(new Runnable() {
            public void run() {
-               if (item != null) {
-                    if (item.lookup("#speed") != null) {
+               if (root != null) {
+                    if (root.lookup("#speed") != null) {
                          if (speed > 1000)
-                              ((Label)item.lookup("#speed")).setText(String.format("%.0f",speed/1000)+" mb/s");
-                         else ((Label)item.lookup("#speed")).setText(String.format("%.0f",speed)+" kb/s");
+                              ((Label)root.lookup("#speed")).setText(String.format("%.0f",speed/1000)+" mb/s");
+                         else ((Label)root.lookup("#speed")).setText(String.format("%.0f",speed)+" kb/s");
                     }
+               }
+           }
+        });
+    }
+    
+    private void updateEta(String s) {
+        Platform.runLater(new Runnable() {
+           public void run() {
+               if (root != null) {
+                    if (root.lookup("#eta") != null)
+                         ((Label)root.lookup("#eta")).setText(s);
                }
            }
         });
@@ -515,14 +538,9 @@ public class DownloaderItem {
     private void updateProgressBar(final float progress) {
         Platform.runLater(new Runnable() {
            public void run() {
-               for(int i = 0; i < paneElems.size(); i++) {
-                   if (paneElems.get(i) instanceof ProgressBar) {
-                        ProgressBar stat = (ProgressBar)paneElems.get(i);
-                        stat.setProgress(progress);
-                        paneElems.set(i,stat);
-                        break;
-                   }
-               }
+               if (root != null) 
+                   if (root.lookup("#pBar") != null)
+                        ((ProgressBar)root.lookup("#pBar")).setProgress(progress);
            }
         });
     }
