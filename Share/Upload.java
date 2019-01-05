@@ -181,7 +181,7 @@ public class Upload {
                 s.addProgress("Attempting Connection");
                 try {
                     s.addProgress("Server: "+InetAddress.getByName(address).toString());
-                    soc = new Socket(InetAddress.getByName(address), 1401);
+                    soc = new Socket(InetAddress.getByName(address), Actions.port);
                     if (getStreams() == 0)
                         return 0;
                     else return 5;
@@ -189,6 +189,7 @@ public class Upload {
                     s.addProgress("Unknown Host");
                     return 3;
                 } catch (IOException ex) {
+                    ex.printStackTrace();
                     s.addProgress("An I/O error occurred");
                     return 4;
                 }

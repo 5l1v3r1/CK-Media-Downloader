@@ -19,6 +19,7 @@ import javafx.stage.FileChooser;
  * @author christopher
  */
 public class Actions {
+    public static final int port = 32901;
     private boolean isPureDigit(String s) {
         if (s.length() < 1) return false;
         for(int i = 0; i < s.length(); i++)

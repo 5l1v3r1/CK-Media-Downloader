@@ -150,6 +150,7 @@ public class Download {
                 out.flush();
                 in = new ObjectInputStream(soc.getInputStream());
             } catch(IOException e) {
+                e.printStackTrace();
                 return 1;
             }
             s.addProgress("got I/O streams");
@@ -159,13 +160,14 @@ public class Download {
         private int openConnection() {
             try {
                 s.addProgress("Waiting for peer to connect");
-                server = new ServerSocket(1401,1);
+                server = new ServerSocket(Actions.port,1);
                 soc = server.accept();
                 if(getStreams() == 0) {
                     s.addProgress("Connected to "+soc.getInetAddress().getHostName()); 
                     return 0;
                 } else return 1;
             } catch (IOException e) {
+                e.printStackTrace();
                 return 2;
             }
         }
