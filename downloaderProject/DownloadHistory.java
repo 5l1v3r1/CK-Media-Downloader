@@ -106,6 +106,7 @@ public class DownloadHistory {
             Label name = (Label)item.lookup("#mediaName");
             name.setText(d.getName());
             ImageView thumb = (ImageView)item.lookup("#mediaThumb");
+            if (d.getDownloaded().equals("Instagram")) thumb.preserveRatioProperty().setValue(true);
             try {
                 if (d.getThumb().length() < 1024 * 1024 * 10) {
                     FileInputStream fis = new FileInputStream(d.getThumb());
