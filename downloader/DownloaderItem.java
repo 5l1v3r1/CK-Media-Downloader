@@ -210,6 +210,7 @@ public class DownloaderItem {
     
     private boolean getThumbnail() {
         ImageView view = (ImageView)root.lookup("#thumb");
+        if (type == Site.Type.instagram) view.preserveRatioProperty().setValue(true);
         if (v == null)
             return setFromExtractor(view);
         else
@@ -421,7 +422,7 @@ public class DownloaderItem {
     public void setDone() {
         done = true;
         updateSpeed(0);
-        updateEta("00:00:00:00");
+        updateEta("ETA 00:00:00:00");
     }
     
     public void start() {
@@ -529,7 +530,7 @@ public class DownloaderItem {
            public void run() {
                if (root != null) {
                     if (root.lookup("#eta") != null)
-                         ((Label)root.lookup("#eta")).setText(s);
+                         ((Label)root.lookup("#eta")).setText("ETA "+s);
                }
            }
         });
