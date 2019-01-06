@@ -74,10 +74,11 @@ public class MainApp extends Application {
     public static ProgressBar progress;
     public static TextArea log;
     public static Actions act;
-    private static final String TITLE = "Video Downloader Prototype build 21.7";
+    private static final String TITLE = "Video Downloader Prototype build 21.8";
     public static DownloadHistory downloadHistoryList;
     public static StackPane root;
     public static DataCollection habits;
+    private static boolean dontLoad;
     
     private final int width = 850, height = 550, xs = 200;
     public static final int SUPPORTEDSITES = 28, PANES = 6;
@@ -466,7 +467,8 @@ public class MainApp extends Application {
        }
        primaryStage.show();
        
-       loadSuggestions();
+       if (!dontLoad)
+           loadSuggestions();
        
        ExecutorService x = Executors.newSingleThreadExecutor();
        x.execute(clippy); x.shutdown();
@@ -486,13 +488,14 @@ public class MainApp extends Application {
         habits = DataIO.loadCollectedData();
         if (habits != null) {
             int pull = 1;
-            if (habits.suggestions() > 15) pull = 2;
-            else if (habits.suggestions() > 24) pull = 3;
+            if (habits.suggestions() > 12) pull = 2;
+            else if (habits.suggestions() > 20) pull = 3;
+            else if (habits.suggestions() > 35) pull = 4;
             for(int i = 0; i < pull; i++) {
                 video temp = habits.next(); 
                 if (temp != null)
                     determineSite(temp.getLink(),temp);
-                else System.out.println("null?");
+                else System.out.println("no suggestions");
             }
             try {DataIO.saveCollectedData(habits);} catch(IOException e) {System.out.println("Failed to save habits");}
         } else {habits = new DataCollection(true);}
@@ -511,6 +514,11 @@ public class MainApp extends Application {
     
     static SplashScreen splash;
     public static void main(String[] args) {
+        dontLoad = false;
+        if (args != null)
+            if (args.length > 0)
+                if (args[0].toLowerCase().equals("suppress"))
+                    dontLoad = true;
         splash = SplashScreen.getSplashScreen();
         launch(args); 
     }

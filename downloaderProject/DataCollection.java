@@ -18,8 +18,6 @@ import ChrisPackage.Star;
 import downloader.DataStructures.video;
 import downloader.Extractors.*;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 public class DataCollection implements Externalizable{
 	private static final long serialVersionUID = 1L;
@@ -54,8 +52,9 @@ public class DataCollection implements Externalizable{
                 Collections.sort(ignoreWords);
 	}
         
-        public Vector<File> getExempt() {
-           Vector<File> list = new Vector<File>();
+        public Vector<File> getExempt() { 
+           //for clearing cache and avoiding suggested video cache
+           Vector<File> list = new Vector<>();
            video[] v = (video[])videoQueue.toArray();
            for(video l:v) {
                list.add(l.getThumbnail());
@@ -183,9 +182,10 @@ public class DataCollection implements Externalizable{
                             generateSearch(keywordChart);
                     }
 		} else if (i.hasNext()) {
-			String top = i.next(); System.out.println("top: "+keywords.get(top)+" it: "+top);			if (keywords.get(top) > 1) {
-				generateSearch(keywordChart);
-                        }
+                    String top = i.next(); 
+                    System.out.println("top: "+keywords.get(top)+" it: "+top);			
+                    if (keywords.get(top) > 1)
+                        generateSearch(keywordChart);
 		} else if(j.hasNext()) {
 			Star topStar = j.next();
 			if (frequentStars.get(topStar) > 1)
@@ -194,9 +194,9 @@ public class DataCollection implements Externalizable{
 	}
 	
 	private void generateSearch(Map<String,Integer> kwords, Map<Star,Integer> stars) {
-		Star star = stars.keySet().iterator().next();
+		Star star = stars.keySet().iterator().next(); //get top star
 		Random randomNum = new Random();
-		int max = randomNum.nextInt(3); //generate 0 - 2
+		int max = randomNum.nextInt(5); //generate 0 - 4
 		
 		int count = 0; Iterator<String> i = kwords.keySet().iterator();
 		StringBuilder words = new StringBuilder();
