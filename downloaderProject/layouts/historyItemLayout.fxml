@@ -4,7 +4,7 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.Pane?>
 
-<Pane id="pane" prefHeight="93.0" prefWidth="388.0" styleClass="lighter" stylesheets="@darkPane.css" xmlns:fx="http://javafx.com/fxml/1">
+<Pane id="pane" prefHeight="100.0" prefWidth="388.0" styleClass="lighter" stylesheets="@darkPane.css" xmlns:fx="http://javafx.com/fxml/1">
     <Label id="searchString" prefHeight="48.0" prefWidth="388.0" styleClass="darkblue" text="   Search"> </Label>
    <Label id="site" layoutX="16.0" layoutY="55.0" prefHeight="28.0" prefWidth="249.0" text="Search" />
    <Button id="view" layoutX="281.0" layoutY="53.0" text="View Search" />
