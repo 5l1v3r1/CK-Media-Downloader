@@ -11,15 +11,15 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.Pane?>
 
-<Pane prefHeight="457.0" prefWidth="685.0" styleClass="background" stylesheets="@darkPane.css" xmlns:fx="http://javafx.com/fxml/1" fx:controller="downloaderProject.mainLayoutController">
+<Pane prefHeight="550.0" prefWidth="694.0" styleClass="background" stylesheets="@darkPane.css" xmlns:fx="http://javafx.com/fxml/1" fx:controller="downloaderProject.mainLayoutController">
    <children>
-                        <ScrollPane id="settingsScroller" fx:id="settingsScroller" prefHeight="456.0" prefWidth="685.0" styleClass="background">
+                        <ScrollPane id="settingsScroller" fx:id="settingsScroller" prefHeight="550.0" prefWidth="695.0" styleClass="background">
                           <content>
-                            <AnchorPane id="searchHistoryPane" minHeight="0.0" minWidth="0.0" prefHeight="650.0" prefWidth="667.0" styleClass="background">
+                            <AnchorPane id="searchHistoryPane" minHeight="0.0" minWidth="0.0" prefHeight="650.0" prefWidth="677.0" styleClass="background">
                                  <children>
-                                    <TextField id="videodownloadLoc" fx:id="videodownloadLoc" layoutX="8.0" layoutY="43.0" onAction="#setVideoLocation" prefHeight="28.0" prefWidth="538.0" promptText="Location" />
+                                    <TextField id="videodownloadLoc" fx:id="videodownloadLoc" layoutX="8.0" layoutY="43.0" onAction="#setVideoLocation" prefHeight="28.0" prefWidth="545.0" promptText="Location" />
                                     <Label layoutX="9.0" layoutY="24.0" prefHeight="16.0" prefWidth="173.0" text="Video Download Location" />
-                                    <Button layoutX="562.0" layoutY="41.0" maxHeight="26.0" mnemonicParsing="false" onAction="#setVideoLocation" prefHeight="26.0" prefWidth="95.0" text="Browse">
+                                    <Button layoutX="567.0" layoutY="41.0" maxHeight="26.0" mnemonicParsing="false" onAction="#setVideoLocation" prefHeight="26.0" prefWidth="95.0" text="Browse">
                      <graphic>
                         <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                            <image>
@@ -54,8 +54,8 @@
                                     <tooltip><Tooltip text="Clear cache created from searches" /></tooltip></Button>
                                     <Label id="cacheSize" layoutX="221.0" layoutY="490.0" prefHeight="24.0" prefWidth="170.0" text="Label" />
                                     <Label id="videoCount" layoutX="221.0" layoutY="450.0" prefHeight="24.0" prefWidth="136.0" text="Label" />
-                  <TextField id="picdownloadLoc" fx:id="picdownloadLoc" layoutX="8.0" layoutY="100.0" onAction="#setVideoLocation" prefHeight="28.0" prefWidth="538.0" promptText="Location" />
-                  <Button layoutX="562.0" layoutY="98.0" mnemonicParsing="false" onAction="#setPictureLocation" prefHeight="26.0" prefWidth="95.0" text="Browse">
+                  <TextField id="picdownloadLoc" fx:id="picdownloadLoc" layoutX="8.0" layoutY="100.0" onAction="#setVideoLocation" prefHeight="28.0" prefWidth="545.0" promptText="Location" />
+                  <Button layoutX="567.0" layoutY="98.0" mnemonicParsing="false" onAction="#setPictureLocation" prefHeight="26.0" prefWidth="95.0" text="Browse">
                      <graphic>
                         <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                            <image>
@@ -78,8 +78,8 @@
                   </Button>
                   <Label id="deviceCount" layoutX="221.0" layoutY="529.0" prefHeight="22.0" prefWidth="100.0" text="Label" />
                   <Label layoutX="8.0" layoutY="138.0" prefHeight="16.0" prefWidth="188.0" text="Shared Media Location" />
-                  <TextField id="sharedMediaLoc" fx:id="picdownloadLoc1" layoutX="8.0" layoutY="157.0" onAction="#setVideoLocation" prefHeight="28.0" prefWidth="538.0" promptText="Location" />
-                  <Button layoutX="562.0" layoutY="156.0" mnemonicParsing="false" onAction="#setPictureLocation" prefHeight="26.0" prefWidth="95.0" text="Browse">
+                  <TextField id="sharedMediaLoc" fx:id="picdownloadLoc1" layoutX="8.0" layoutY="157.0" onAction="#setVideoLocation" prefHeight="28.0" prefWidth="545.0" promptText="Location" />
+                  <Button layoutX="567.0" layoutY="156.0" mnemonicParsing="false" onAction="#setPictureLocation" prefHeight="26.0" prefWidth="95.0" text="Browse">
                      <graphic>
                         <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                            <image>
@@ -89,8 +89,8 @@
                      </graphic>
                      <tooltip><Tooltip text="Browse for a new folder" /></tooltip>
                   </Button>
-                  <ListView id="searches" layoutX="267.0" layoutY="230.0" prefHeight="200.0" prefWidth="390.0" styleClass="lighter" />
-                  <Label layoutX="268.0" layoutY="206.0" prefHeight="16.0" prefWidth="106.0" text="Search History" />
+                  <ListView id="searches" layoutX="272.0" layoutY="230.0" prefHeight="200.0" prefWidth="390.0" styleClass="lighter" />
+                  <Label layoutX="273.0" layoutY="206.0" prefHeight="16.0" prefWidth="106.0" text="Search History" />
                   <Button layoutX="9.0" layoutY="561.0" mnemonicParsing="false" onAction="#clearHistory" prefHeight="30.0" prefWidth="196.0" text="Clear Search History">
                      <graphic>
                         <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">

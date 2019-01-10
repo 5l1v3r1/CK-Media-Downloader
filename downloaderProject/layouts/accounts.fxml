@@ -12,10 +12,10 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.text.Font?>
 
-<Pane id="AnchorPane" prefHeight="457.0" prefWidth="687.0" stylesheets="@darkPane.css" xmlns:fx="http://javafx.com/fxml/1">
-   <ScrollPane layoutY="45.0" prefHeight="412.0" prefWidth="688.0" styleClass="background">
+<Pane id="AnchorPane" prefHeight="549.0" prefWidth="694.0" stylesheets="@darkPane.css" xmlns:fx="http://javafx.com/fxml/1">
+   <ScrollPane layoutY="55.0" prefHeight="495.0" prefWidth="695.0" styleClass="background">
      <content>
-       <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="410.0" prefWidth="686.0" styleClass="background">
+       <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="495.0" prefWidth="695.0" styleClass="background">
             <children>
                <ImageView fitHeight="40.0" fitWidth="40.0" layoutX="14.0" layoutY="64.0" pickOnBounds="true" preserveRatio="true">
                   <image>
@@ -59,9 +59,9 @@
          </AnchorPane>
      </content>
    </ScrollPane>
-    <Pane prefHeight="45.0" prefWidth="688.0" styleClass="header">
+    <Pane prefHeight="55.0" prefWidth="695.0" styleClass="header">
          <children>
-            <Label layoutX="25.0" layoutY="10.0" prefHeight="24.0" prefWidth="500.0" text="Accounts" textFill="#FFFFFF">
+            <Label layoutX="25.0" layoutY="10.0" prefHeight="39.0" prefWidth="500.0" text="Accounts" textFill="#FFFFFF">
                <font>
                   <Font name="System Bold" size="14.0" />
                </font>

@@ -1,13 +1,13 @@
-.text-field, .lighter, .list-view{
-	-fx-background-color:  #D0D0D0;
+.text-field, .lighter{
+	-fx-background-color:  #D0D0D0;  
 }
 
-.background {
-	-fx-background-color: #919191;
+.background{
+    -fx-background-color: #919191;
 }
 
 .header {
-	-fx-background-color: #BAA618;
+	-fx-background-color: #DDD339;
 }
 
 .separator {
@@ -25,13 +25,19 @@
 	-fx-border-radius: 2px;
 }
 
+.jfx-button:hover {
+	-fx-text-fill: #F0F0F0;	
+	-fx-border-color:#919191;
+	-fx-background-color: #919191;
+}
+
 .text-area, .lighter {
 	-fx-border-color:#717171;
 	-fx-border-radius: 2px;
 }
 
 .darkblue {
-	-fx-background-color: #3C7E86;
+	-fx-background-color: #0095db;
 }
 
 .mainPane {
@@ -44,15 +50,34 @@
 	-fx-border-color:#575757;
 }
 
+.jfx-cancel {
+	-fx-text-fill: #F0F0F0;	
+	-fx-border-color:#919191;
+	-fx-background-color: #919191;
+}
+
 .list-cell {
-	-fx-padding:0;
-	-fx-background-insets: 0px;
+    -fx-padding:0;
+    -fx-background-insets: 0px;
+    -fx-background-color:  #D0D0D0;  
 }
 
 .scroll-pane > .viewport {
-	-fx-background-color: #D0D0D0;
+    -fx-background-color: #D0D0D0;
 }
 
 .combo-box {
     -fx-padding: 0px 2px 0px 8px;
+}
+
+.progress-bar {
+    -fx-accent:#0095db;
+}
+
+.progress-bar .track{
+    -fx-background-color:#D0D0D0;
+}
+
+.list-cell:focused, .list-cell:selected {
+    -fx-background-color: #D0D0D0;
 }

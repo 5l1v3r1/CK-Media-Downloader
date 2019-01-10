@@ -10,10 +10,10 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.Pane?>
 
-<Pane prefHeight="457.0" prefWidth="687.0" styleClass="background" stylesheets="@darkPane.css" xmlns:fx="http://javafx.com/fxml/1" fx:controller="downloaderProject.mainLayoutController">
+<Pane prefHeight="550.0" prefWidth="694.0" styleClass="background" stylesheets="@darkPane.css" xmlns:fx="http://javafx.com/fxml/1" fx:controller="downloaderProject.mainLayoutController">
    <children>
       <ComboBox id="devices" fx:id="devices" layoutX="14.0" layoutY="14.0" prefHeight="30.0" prefWidth="522.0" promptText="Device" />
-      <Button layoutX="541.0" layoutY="14.0" minHeight="30.0" mnemonicParsing="false" onAction="#addDevice" prefHeight="30.0" prefWidth="141.0" text="Add Device">
+      <Button layoutX="543.0" layoutY="14.0" minHeight="30.0" mnemonicParsing="false" onAction="#addDevice" prefHeight="30.0" prefWidth="141.0" text="Add Device">
           <graphic>
                 <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                     <image>
@@ -23,8 +23,8 @@
          </graphic>
          <tooltip><Tooltip text="Add a device to begin sharing with" /></tooltip>
       </Button>
-      <Label layoutX="14.0" layoutY="97.0" prefHeight="16.0" prefWidth="230.0" text="Choose an option" />
-      <Button layoutX="14.0" layoutY="124.0" minHeight="26.0" mnemonicParsing="false" onAction="#sendSavedVideos" prefHeight="26.0" prefWidth="245.0" text="Send saved media">
+      <Label layoutX="14.0" layoutY="155.0" prefHeight="16.0" prefWidth="230.0" text="Choose an option" />
+      <Button layoutX="14.0" layoutY="182.0" minHeight="26.0" mnemonicParsing="false" onAction="#sendSavedVideos" prefHeight="26.0" prefWidth="245.0" text="Send saved media">
         <graphic>
                 <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                     <image>
@@ -34,7 +34,7 @@
          </graphic>
          <tooltip><Tooltip text="Send media previously saved (not downloaded) to another device" /></tooltip>
         </Button>
-      <Button layoutX="14.0" layoutY="174.0" minHeight="26.0" mnemonicParsing="false" onAction="#receiveSavedVideos" prefHeight="26.0" prefWidth="245.0" text="Receive saved media">
+      <Button layoutX="14.0" layoutY="232.0" minHeight="26.0" mnemonicParsing="false" onAction="#receiveSavedVideos" prefHeight="26.0" prefWidth="245.0" text="Receive saved media">
           <graphic>
                 <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                     <image>
@@ -44,7 +44,7 @@
          </graphic>
          <tooltip><Tooltip text="Receive media (not downloaded) from another device" /></tooltip>
       </Button>
-      <Button layoutX="14.0" layoutY="228.0" minHeight="26.0" mnemonicParsing="false" onAction="#sendMedia" prefHeight="26.0" prefWidth="245.0" text="Send downloaded media">
+      <Button layoutX="14.0" layoutY="286.0" minHeight="26.0" mnemonicParsing="false" onAction="#sendMedia" prefHeight="26.0" prefWidth="245.0" text="Send downloaded media">
           <graphic>
                 <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                     <image>
@@ -54,7 +54,7 @@
          </graphic>
          <tooltip><Tooltip text="Send any media on device to another device" /></tooltip>
       </Button>
-      <Button layoutX="14.0" layoutY="277.0" minHeight="30.0" mnemonicParsing="false" onAction="#receiveMedia" prefHeight="30.0" prefWidth="245.0" text="Receive downloaded media">
+      <Button layoutX="14.0" layoutY="335.0" minHeight="30.0" mnemonicParsing="false" onAction="#receiveMedia" prefHeight="30.0" prefWidth="245.0" text="Receive downloaded media">
           <graphic>
                 <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                     <image>
@@ -64,8 +64,8 @@
          </graphic>
          <tooltip><Tooltip text="Receive any media on device to another device" /></tooltip>
       </Button>
-      <TextArea id="log" layoutX="309.0" layoutY="84.0" prefHeight="200.0" prefWidth="365.0" />
-      <ProgressBar id="progressBar" layoutX="309.0" layoutY="293.0" prefHeight="20.0" prefWidth="365.0" progress="0.0" />
-      <Label id="deviceName" layoutX="14.0" layoutY="54.0" prefHeight="16.0" prefWidth="544.0" text="This Device: " textFill="#7c3333" />
+      <TextArea id="log" layoutX="313.0" layoutY="142.0" prefHeight="200.0" prefWidth="365.0" />
+      <ProgressBar id="progressBar" layoutX="313.0" layoutY="351.0" prefHeight="20.0" prefWidth="365.0" progress="0.0" />
+      <Label id="deviceName" layoutX="14.0" layoutY="67.0" prefHeight="30.0" prefWidth="663.0" text="This Device: " textFill="#7c3333" />
    </children>
 </Pane>

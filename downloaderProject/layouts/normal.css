@@ -6,16 +6,12 @@
 	-fx-background-color: #ffe000;
 }
 
-.button {
-	-fx-border-radius: 2px;
-}
-
 .text-area {
 	-fx-border-radius: 2px;
 }
 
 .darkblue {
-	-fx-background-color: #33e9ff;
+	-fx-background-color: #0095dA;
 }
 
 .slider {
@@ -23,21 +19,38 @@
 }
 
 .mainPane {
-	-fx-background-color: #D1D1D1;
+	-fx-background-color: #C1C1C1;
 }
 
-.jfx-button {
+.jfx-button,.jfx-cancel{
 	-fx-text-fill: #F0F0F0;	
+}
+
+.jfx-button:hover{
+	-fx-background-color: #B1B1B1;
+	-fx-border-color:#B1B1B1;
+}
+
+.jfx-cancel:hover {
+   -fx-background-color: white; 
+   -fx-border-color:white;
 }
 
 .list-cell {
 	-fx-padding:0;
-	-fx-margin:0;
 	-fx-background-insets: 0px;
 }
 
-.combo-box {
+.combo-box{
     -fx-padding: 0px 2px 0px 8px;
+}
+
+.progress-bar {
+    -fx-accent: #0095dA;
+}
+
+.list-view .list-cell:selected {
+    -fx-background-color: #D0D0D0;
 }
 
 /*#speedicon {
