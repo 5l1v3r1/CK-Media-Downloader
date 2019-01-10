@@ -12,7 +12,7 @@ package downloader.Exceptions;
 public class PrivateVideoException extends GenericDownloaderException{
     
     public PrivateVideoException(String video) {
-        super(video+" is private");
+        super(video);
     }
     
     public PrivateVideoException() {

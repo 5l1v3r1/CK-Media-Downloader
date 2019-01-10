@@ -16,6 +16,6 @@ public class VideoDeletedException extends GenericDownloaderException{
     }
     
     public VideoDeletedException(String video) {
-        super(video+" deleted");
+        super(video);
     }
 }
