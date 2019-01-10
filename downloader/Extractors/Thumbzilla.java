@@ -15,7 +15,6 @@ import java.io.File;
 import java.io.IOException;
 import org.jsoup.UncheckedIOException;
 import java.net.SocketTimeoutException;
-import java.util.Formatter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;

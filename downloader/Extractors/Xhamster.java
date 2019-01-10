@@ -83,7 +83,7 @@ public class Xhamster extends GenericQueryExtractor{
             thequery.addThumbnail(new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,skip)));
             thequery.addPreview(parse(thequery.getLink(i)));
             thequery.addName(Jsoup.parse(searchResults.get(i).select("div.video-thumb-info").select("a").toString()).body().text());
-            Document linkPage = Jsoup.parse(Jsoup.connect(url).get().html());
+            Document linkPage = Jsoup.parse(Jsoup.connect(searchResults.get(i).select("a").attr("href")).get().html());
             String video = linkPage.select("a.player-container__no-player.xplayer.xplayer-fallback-image.xh-helper-hidden").attr("href");
             thequery.addSize(CommonUtils.getContentSize(video));
 	}

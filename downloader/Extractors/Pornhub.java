@@ -49,6 +49,7 @@ public class Pornhub extends GenericQueryExtractor{
     
     public Pornhub(String url) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
         this(url,downloadThumb(configureUrl(url)),downloadVideoName(configureUrl(url)));
+        
     }
     
     public Pornhub(String url, File thumb) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
@@ -160,10 +161,22 @@ public class Pornhub extends GenericQueryExtractor{
             throw new PageNotFoundException(page.location());
         if (!page.select("div.privateContainer").isEmpty())
                 throw new PrivateVideoException();
-            Element e;
-            if ((e = page.getElementById("messageWrapper")) != null)
-                if (Jsoup.parse(e.select("p").toString()).body().text().equals("This video was deleted by uploader."))
-                    throw new VideoDeletedException();
+        if (!page.select("div.removed").isEmpty()) {
+        	Elements span = page.select("div.removed").select("div.notice.video-notice").select("span");
+        	if (!span.isEmpty())
+        		throw new VideoDeletedException(span.text());
+        	else throw new VideoDeletedException("Video was removed");
+        }
+        Element e; 
+       if ((e = page.getElementById("messageWrapper")) != null) {
+    	   if (Jsoup.parse(e.select("p").toString()).body().text().equals("This video was deleted by uploader."))
+    		   throw new VideoDeletedException();
+    	   else if (e.select("p").text().toLowerCase().contains("video has been removed"))
+    		   throw new VideoDeletedException(e.select("p").text());
+       }
+       e = page.getElementById("userPremium");
+       if (e != null) 
+    	   throw new PrivateVideoException("Premium Video");
     }
 
     @Override
@@ -393,7 +406,7 @@ public class Pornhub extends GenericQueryExtractor{
                 if (thumb.length() < 1) li.get(i).select("div.phimage").select("a.img").select("img").attr("data-thumb_url");
                 String title = li.get(i).select("div.phimage").select("a.img").attr("data-title");
                 if (title.length() < 1) title = li.get(i).select("div.phimage").select("a.img").attr("data-title");
-                try {if (title.length() < 1) title = new Pornhub(link).getVideoName();}catch(Exception e) {continue;}
+                try {if (title.length() < 1) title = downloadVideoName(link);}catch(Exception e) {continue;}
                 if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,skip))) //if file not already in cache download it
                     if (CommonUtils.saveFile(thumb, CommonUtils.getThumbName(thumb,skip),MainApp.imageCache) != -2)
                         throw new IOException("Failed to completely download page");
@@ -427,7 +440,7 @@ public class Pornhub extends GenericQueryExtractor{
                 if (thumb.length() < 1) li.select("div.phimage").select("a.img").select("img").attr("data-thumb_url");
                 String title = li.select("div.phimage").select("a.img").attr("data-title");
                 if (title.length() < 1) title = li.select("div.phimage").select("a.img").attr("data-title");
-                try {if (title.length() < 1) title = new Pornhub(link).getVideoName();}catch(Exception e) {continue;}
+                try {if (title.length() < 1) title = downloadVideoName(link);}catch(Exception e) {continue;}
                 if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,skip))) //if file not already in cache download it
                     if (CommonUtils.saveFile(thumb, CommonUtils.getThumbName(thumb,skip),MainApp.imageCache) != -2)
                         throw new IOException("Failed to completely download page");
@@ -453,9 +466,9 @@ public class Pornhub extends GenericQueryExtractor{
 	for(int i = 0; i < searchResults.size(); i++)  {
             if (!CommonUtils.testPage("https://pornhub.com"+searchResults.get(i).select("a").attr("href"))) continue; //test to avoid error 404
             try {
-                Document pageLink = Jsoup.parse(Jsoup.connect(searchUrl).userAgent(CommonUtils.PCCLIENT).get().html());
+                Document pageLink = Jsoup.parse(Jsoup.connect("https://pornhub.com"+searchResults.get(i).select("a").attr("href")).userAgent(CommonUtils.PCCLIENT).get().html());
                 while(pageLink.toString().contains("RNKEY"))
-                    pageLink = Jsoup.parse(Jsoup.connect("https://pornhub.com"+searchResults.get(i).select("a").attr("href")).cookie("RNKEY", getRNKEY(page.toString())).userAgent(CommonUtils.PCCLIENT).get().html());
+                    pageLink = Jsoup.parse(Jsoup.connect("https://pornhub.com"+searchResults.get(i).select("a").attr("href")).cookie("RNKEY", getRNKEY(pageLink.toString())).userAgent(CommonUtils.PCCLIENT).get().html());
                 verify(pageLink);
                 
             } catch (GenericDownloaderException e) {continue;}
