@@ -10,11 +10,11 @@
 
 <?import com.jfoenix.controls.JFXButton?>
 
-<Pane id="AnchorPane" prefHeight="84.0" prefWidth="664.0" styleClass="lighter" xmlns:fx="http://javafx.com/fxml/1">
+<Pane id="AnchorPane" prefHeight="84.0" prefWidth="685.0" styleClass="background" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <ImageView id="thumb" fx:id="thumb" fitHeight="84.0" fitWidth="90.0" pickOnBounds="true" />
-      <Label id="downloadName" fx:id="downloadName" layoutX="98.0" layoutY="1.0" prefHeight="40.0" prefWidth="519.0" text="Searching media" wrapText="true" />
-      <JFXButton fx:id="cancel" layoutX="635.0" layoutY="1.0" prefHeight="32.0" prefWidth="50.0" text="" textFill="#33e9ff">
+      <Label id="downloadName" fx:id="downloadName" layoutX="98.0" layoutY="1.0" prefHeight="40.0" prefWidth="546.0" text="Searching media" wrapText="true" />
+      <JFXButton fx:id="cancel" layoutX="656.0" layoutY="1.0" prefHeight="32.0" prefWidth="25.0" text="" textFill="#33e9ff">
          <graphic>
             <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                <image>
@@ -24,7 +24,7 @@
          </graphic>
          <tooltip><Tooltip text="remove from list" /></tooltip>
       </JFXButton>
-      <Button id="downloadBtn" fx:id="downloadBtn" layoutX="96.0" layoutY="52.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="115.0" text="Download">
+      <Button id="downloadBtn" fx:id="downloadBtn" layoutX="96.0" layoutY="50.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="115.0" text="Download">
          <graphic>
             <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                <image>
@@ -34,8 +34,8 @@
          </graphic>
          <tooltip><Tooltip text="download media" /></tooltip>
       </Button>
-      <ProgressBar id="pBar" fx:id="pBar" layoutX="256.0" layoutY="62.0" prefHeight="20.0" prefWidth="403.0" progress="0.0" />
-      <Button id="save" fx:id="save" layoutX="215.0" layoutY="52.0" mnemonicParsing="false" prefHeight="30.0">
+      <ProgressBar id="pBar" fx:id="pBar" layoutX="260.0" layoutY="62.0" prefHeight="20.0" prefWidth="426.0" progress="0.0" />
+      <Button id="save" fx:id="save" layoutX="215.0" layoutY="50.0" mnemonicParsing="false" prefHeight="30.0">
          <graphic>
             <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                <image>

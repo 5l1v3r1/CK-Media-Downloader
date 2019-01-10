@@ -37,7 +37,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
-import javafx.event.Event;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
@@ -57,6 +57,7 @@ public class DownloaderItem {
     private Site.Type type;
     private video v = null;
     private File thumbFile;
+    private boolean loaded;
     
     public void release() {
         root = null;
@@ -81,67 +82,125 @@ public class DownloaderItem {
         } catch (UnsupportedOperationException | IOException e) {return null;}
     }
     
-    private GenericExtractor getExtractor() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
-        if (null == type)
+    private GenericExtractor getExtractor(video v) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
+    	if (null == type)
             return null;
         else switch (type) {
             case spankbang:
-                return new SpankBang(url);
+            	if (v == null)
+            		return new SpankBang(url);
+            	else return new SpankBang(url,v.getThumbnail(),v.getName());
             case pornhub:
-                return new Pornhub(url);
+            	if (v == null)
+            		return new Pornhub(url);
+            	else return new Pornhub(url,v.getThumbnail(),v.getName());
             case xhamster:
-                return new Xhamster(url); 
+            	if (v == null)
+            		return new Xhamster(url); 
+            	else return new Xhamster(url,v.getThumbnail(),v.getName());
             case xvideos:
-                return new Xvideos(url);
+            	if (v == null)
+            		return new Xvideos(url);
+            	else return new Xvideos(url,v.getThumbnail(),v.getName());
             case xnxx:
-                return new Xvideos(url); //xnxx shares the same setup so they use the extractor
+            	if (v == null)
+            		return new Xvideos(url); //xnxx shares the same setup so they use the extractor
+            	else return new Xvideos(url,v.getThumbnail(),v.getName());
             case youporn:
-                return new Youporn(url);
+            	if (v == null)
+            		return new Youporn(url);
+            	else return new Youporn(url,v.getThumbnail(),v.getName());
             case redtube:
-                return new Redtube(url);
+            	if (v == null)
+            		return new Redtube(url);
+            	else return new Redtube(url,v.getThumbnail(),v.getName());
             case thumbzilla:
-                return new Thumbzilla(url);
+            	if (v == null)
+            		return new Thumbzilla(url);
+            	else return new Thumbzilla(url,v.getThumbnail(),v.getName());
             case shesfreaky:
-                return new Shesfreaky(url);
+            	if (v == null)
+            		return new Shesfreaky(url);
+            	else return new Shesfreaky(url,v.getThumbnail(),v.getName());
             case instagram:
-                return new Instagram(url);
+            	if (v == null)
+            		return new Instagram(url);
+            	else return new Instagram(url,v.getThumbnail(),v.getName());
             case yourporn:
-                return new Yourporn(url);
+            	if (v == null)
+            		return new Yourporn(url);
+            	else return new Yourporn(url,v.getThumbnail(),v.getName());
             case bigtits:
-                return new Bigtits(url);
+            	if (v == null)
+                	return new Bigtits(url);
+            	else return new Bigtits(url,v.getThumbnail(),v.getName());
             case pornhd:
-                return new Pornhd(url);
+            	if (v == null)
+            		return new Pornhd(url);
+            	else return new Pornhd(url,v.getThumbnail(),v.getName());
             case vporn:
-                return new Vporn(url);
+            	if (v == null)
+            		return new Vporn(url);
+            	else return new Vporn(url,v.getThumbnail(),v.getName());
             case ghettotube:
-                return new Ghettotube(url);
+            	if (v == null)
+            		return new Ghettotube(url);
+            	else return new Ghettotube(url,v.getThumbnail(),v.getName());
             case tube8:
-                return new Tube8(url);
+            	if (v == null)
+            		return new Tube8(url);
+            	else return new Tube8(url,v.getThumbnail(),v.getName());
             case watchenga:
-                return new Watchenga(url);
+            	if (v == null)
+            		return new Watchenga(url);
+            	else return new Watchenga(url,v.getThumbnail(),v.getName());
             case youjizz:
-                return new Youjizz(url);
+            	if (v == null)
+            		return new Youjizz(url);
+            	else return new Youjizz(url,v.getThumbnail(),v.getName());
             case xtube:
-                return new Xtube(url);
+            	if (v == null)
+            		return new Xtube(url);
+            	else return new Xtube(url,v.getThumbnail(),v.getName());
             case spankwire:
-                return new Spankwire(url);
+            	if (v == null)
+            		return new Spankwire(url);
+            	else return new Spankwire(url,v.getThumbnail(),v.getName());
             case justporno:
-                return new Justporno(url);
+            	if (v == null)
+            		return new Justporno(url);
+            	else return new Justporno(url,v.getThumbnail(),v.getName());
             case bigbootytube:
-                return new Bigbootytube(url);
+            	if (v == null)
+            		return new Bigbootytube(url);
+            	else return new Bigbootytube(url,v.getThumbnail(),v.getName());
             case befuck:
-                return new Befuck(url); 
+            	if (v == null)
+            		return new Befuck(url); 
+            	else return new Befuck(url,v.getThumbnail(),v.getName());
             case dailymotion:
-                return new Dailymotion(url);
+            	if (v == null)
+            		return new Dailymotion(url);
+            	else return new Dailymotion(url,v.getThumbnail(),v.getName());
             case vimeo:
-                return new Vimeo(url);
+            	if (v == null)
+            		return new Vimeo(url);
+            	else return new Vimeo(url,v.getThumbnail(),v.getName());
             case cumlouder:
-                return new Cumlouder(url);
+            	if (v == null)
+            		return new Cumlouder(url);
+            	else return new Cumlouder(url,v.getThumbnail(),v.getName());
             case ruleporn:
-                return new Ruleporn(url);
+            	if (v == null)
+            		return new Ruleporn(url);
+            	else return new Ruleporn(url,v.getThumbnail(),v.getName());
             default:
                 return null;
-        } 
+        }
+    }
+    
+    private GenericExtractor getExtractor() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
+        return getExtractor(null);
     }
     
     private boolean setFromVideo(ImageView view) {
@@ -234,8 +293,11 @@ public class DownloaderItem {
     
     private void setCloseBtn() {
         JFXButton close = (JFXButton)root.lookup("#cancel");
+        //close.getStyleClass().clear();
+        close.getStyleClass().add("jfx-cancel");
         close.setOnAction(event -> {clearThis();});
         close.setDisable(false);
+        System.out.println("set close");
     }
     
     private void setSaveBtn() {
@@ -244,7 +306,7 @@ public class DownloaderItem {
             try {
                 long size;
                 try {if (extractor == null) extractor = getExtractor(); size = extractor.getSize();}catch(Exception e){size = -1;}
-                DataIO.saveVideo(new video(url,videoName,thumbFile,size));
+                DataIO.saveVideo(new video(url,extractor.getVideoName(),extractor.getThumb(),size));
                 MainApp.createMessageDialog("Media saved");
                 MainApp.settings.videoUpdate();
             } catch (IOException e) {
@@ -256,20 +318,23 @@ public class DownloaderItem {
     public boolean searchLink() throws GenericDownloaderException {       
        try { 
            if (v == null) {
-               extractor = getExtractor(); if (extractor == null)throw new Exception("couldnt get extractor"); //unsupported link
+        	   loaded = false;
+               extractor = getExtractor(); if (extractor == null) throw new Exception("couldnt get extractor"); //unsupported link
                videoName = extractor.getVideoName();
                setSize();
            } else {
+        	   loaded = true;
+        	   extractor = getExtractor(v);
                setSize(v.getSize());
                videoName = v.getName();
            }
        } catch (Exception e) {
            if (e instanceof GenericDownloaderException) throw (GenericDownloaderException)e;
-           System.out.println(e.getMessage()); 
+           System.out.println(e.getMessage()); release();
            return false;
        }
        
-       if (!getThumbnail()) return false; //either link not supported or network error
+       if (!getThumbnail()) {release(); return false;} //either link not supported or network error
        
        setButton();
        setCloseBtn();
@@ -278,6 +343,10 @@ public class DownloaderItem {
        
        System.out.println("Found");
        return true; //if u made it this far process must be successful
+    }
+    
+    public boolean wasLoaded() {
+    	return loaded;
     }
     
     public void setType(Site.Type type) {
@@ -299,11 +368,13 @@ public class DownloaderItem {
     }
     
     private void disableButton() {
-        ((Button)root.lookup("#downloadBtn")).setDisable(true);
+        if (root != null)
+            ((Button)root.lookup("#downloadBtn")).setDisable(true);
     }
     
     private void enableButton() {
-        ((Button)root.lookup("#downloadBtn")).setDisable(false);
+        if (root != null)
+            ((Button)root.lookup("#downloadBtn")).setDisable(false);
     }
 
     private ImageView getIcon(String path) {
@@ -326,17 +397,17 @@ public class DownloaderItem {
        item[4] = new MenuItem("export links to file");
        
        item[0].setGraphic(getIcon("/icons/icons8-copy-link-48.png"));
-       item[0].setOnAction(new EventHandler() {
+       item[0].setOnAction(new EventHandler<ActionEvent>() {
             @Override
-            public void handle(Event t) {
+            public void handle(ActionEvent t) {
                 Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
                 clipboard.setContents(new StringSelection(url), new StringSelection(MainApp.username));
             }
        });
        item[1].setGraphic(getIcon("/icons/icons8-open-in-browser-40.png"));
-       item[1].setOnAction(new EventHandler() {
+       item[1].setOnAction(new EventHandler<ActionEvent>() {
            @Override
-            public void handle(Event t) {
+            public void handle(ActionEvent t) {
                 if (Desktop.isDesktopSupported()) {
                     new Thread(() -> {
                         try {
@@ -353,23 +424,23 @@ public class DownloaderItem {
             }
        });
        item[2].setGraphic(getIcon("/icons/icons8-cancel-40.png"));
-       item[2].setOnAction(new EventHandler() {
+       item[2].setOnAction(new EventHandler<ActionEvent>() {
             @Override
-            public void handle(Event t) {
+            public void handle(ActionEvent t) {
                 clearThis();
             }
        });
        item[3].setGraphic(getIcon("/icons/icons8-cancel-40.png"));
-       item[3].setOnAction(new EventHandler() {
+       item[3].setOnAction(new EventHandler<ActionEvent>() {
            @Override 
-           public void handle(Event t) {
+           public void handle(ActionEvent t) {
                MainApp.dm.removeAll();
            }
        });
        item[4].setGraphic(getIcon("/icons/icons8-export-40.png"));
-       item[4].setOnAction(new EventHandler() {
+       item[4].setOnAction(new EventHandler<ActionEvent>() {
            @Override 
-           public void handle(Event t) {
+           public void handle(ActionEvent t) {
                MainApp.dm.exportAll();
            }
        });
@@ -387,9 +458,9 @@ public class DownloaderItem {
        disableButton();
        root.setPadding(new Insets(3,3,3,3));
        final ContextMenu contextMenu = initContextMenu();
-       root.setOnMouseClicked(new EventHandler() {
+       root.setOnMouseClicked(new EventHandler<MouseEvent>() {
            @Override
-           public void handle(Event t) {
+           public void handle(MouseEvent t) {
                if (((MouseEvent)t).getButton().equals(MouseButton.SECONDARY))
                     contextMenu.show(root,((MouseEvent)t).getScreenX(),((MouseEvent)t).getScreenY());
            }
@@ -404,6 +475,7 @@ public class DownloaderItem {
     private void clearThis() {
         MainApp.dm.removeDownload(this);
         setDone();
+        release();
     }
     
     private boolean isPureDigit(String s) {
@@ -422,7 +494,7 @@ public class DownloaderItem {
     public void setDone() {
         done = true;
         updateSpeed(0);
-        updateEta("ETA 00:00:00:00");
+        updateEta("00:00:00:00");
     }
     
     public void start() {
@@ -463,20 +535,15 @@ public class DownloaderItem {
                 extractor.getVideo(stream);
             } catch (SocketException e) {
                 displayStatus(e.getMessage());
-                setDone();
             }catch(SocketTimeoutException e) {
                 displayStatus("Took too long to download page");
-                setDone();
             }catch (IOException e) {
                 displayStatus(e.getMessage());
-                setDone();
             } catch (GenericDownloaderException e) {
                 displayStatus(e.getMessage());
-                setDone();
             } catch(Exception e){
                 displayStatus(e.getMessage());
                 e.printStackTrace();
-                setDone();
             } finally { 
                 System.out.println("done");
             }

@@ -42,6 +42,7 @@ public class DownloadManager {
             sideJobs.shutdown();
             sideJobs.awaitTermination(2, TimeUnit.SECONDS);
             sideJobs.shutdownNow();
+            removeAll();
             downloads = null;
             downloadItems = null;
         } catch (InterruptedException ex) {
@@ -87,7 +88,7 @@ public class DownloadManager {
         try {
             downloadItems.add(d);
             downloads.add(d.createItem());
-            ObservableList list = FXCollections.observableList(downloads);
+            ObservableList<Pane> list = FXCollections.observableList(downloads);
             MainApp.downloads.setItems(null); MainApp.downloads.setItems(list);
         } catch (IOException e) {
             MainApp.createMessageDialog("An internal error occurred: 1");
@@ -101,24 +102,25 @@ public class DownloadManager {
     public void removeDownload(DownloaderItem which) {
         Platform.runLater(new Runnable() {
             @Override public void run() {
-                int i = downloadItems.indexOf(which);
-                downloadItems.get(i).setDone();
-                downloadItems.get(i).release();
-                downloadItems.remove(i);
-                downloads.remove(i);
-                ObservableList list = FXCollections.observableList(downloads);
-                MainApp.downloads.setItems(null); MainApp.downloads.setItems(list);
+            	if (downloadItems != null) {
+	                int i = downloadItems.indexOf(which);
+	                if (i != -1) {
+		                downloadItems.get(i).setDone();
+		                downloadItems.remove(i);
+		                downloads.remove(i);
+		                ObservableList<Pane> list = FXCollections.observableList(downloads);
+		                MainApp.downloads.setItems(null); MainApp.downloads.setItems(list);
+	                }
+            	}
             }
         });
     }
     
     public void removeAll() {
-        for(DownloaderItem d: downloadItems)
-            d.setDone();
-        downloadItems.clear();
-        downloads.clear();
-        ObservableList list = FXCollections.observableList(downloads);
-        MainApp.downloads.setItems(null); MainApp.downloads.setItems(list);
+        for(DownloaderItem d: downloadItems) {
+            removeDownload(d);
+            d.release();
+        }
     }
     
     public void exportAll() {
@@ -157,7 +159,7 @@ public class DownloadManager {
                     removeDownload(d);
                 } else { 
                     //wasnt loaded
-                    if (d.getSite() != null) {
+                    if (!d.wasLoaded()) {
                         MainApp.log(d.getName(),d.getSite());
                         MainApp.log(d.getSide());
                     }

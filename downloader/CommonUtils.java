@@ -49,7 +49,7 @@ import org.jsoup.Jsoup;
 public class CommonUtils {
     public static final String PCCLIENT = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11", 
     MOBILECLIENT = "Mozilla/5.0 (Linux; Android 4.4.4; Nexus 5 Build/KTU84P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.57 Mobile Safari/537.36";
-    static final int BUFFSIZE = 1024 * 50; //1 x 50kb
+    static final int BUFFSIZE = 1024 * 600; //1 x 600kb
     
     public static Vector<File> splitImage(File origin, int row, int col, int yOffset, int widthOffset) {
         Vector<File> splits = new Vector<>();
@@ -382,6 +382,7 @@ public class CommonUtils {
         
         while(reader.hasNextLine())
             page.append("\n"+reader.nextLine());
+        reader.close();
         return page.toString();
     }
     
@@ -391,8 +392,7 @@ public class CommonUtils {
             
             Formatter f = new Formatter(save);
             f.format("%s", page);
-            f.flush();
-            f.close();
+            f.flush(); f.close();
             MainApp.settings.cacheUpdate();
         } catch (FileNotFoundException ex) {
             System.out.println("Failed to save page: file not found");
