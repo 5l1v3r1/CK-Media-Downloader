@@ -32,13 +32,13 @@ import javax.imageio.ImageIO;
  * @author christopher
  */
 public class DownloadHistory {
-    private final ListView downloadHistoryList;
-    private final List items;
+    private final ListView<Pane> downloadHistoryList;
+    private final List<Pane> items;
     private ManageSettings settingsRef;
     
-    public DownloadHistory(ListView d) {
+    public DownloadHistory(ListView<Pane> d) {
         downloadHistoryList = d;
-        items = new ArrayList();
+        items = new ArrayList<>();
         refresh();
     }
     

@@ -270,9 +270,9 @@ public class DataCollection implements Externalizable{
                 
                 count = 0;
                 for(int i = 0; i < str.length(); i++)
-                    if (!Character.isDigit(str.charAt(i)))
+                    if (Character.isDigit(str.charAt(i)) || !Character.isLetter(str.charAt(i))) //ik this is redundant
                         count++;
-                if (count == str.length()) return false; //all characters were numbers
+                if (count == str.length()) return false; //all characters were either numbers or non alphabet chars
             }
             return true; //you made it this far ... valid
         }

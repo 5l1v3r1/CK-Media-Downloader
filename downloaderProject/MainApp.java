@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Iterator;
 import java.util.Vector;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -37,7 +36,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListView;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.control.Label;
@@ -62,25 +60,22 @@ public class MainApp extends Application {
     public static File pageCache, imageCache, saveDir, progressCache;
     public static DownloadManager dm;
     public static QueryManager query;
-    public static ListView downloads, queryPane;
+    public static ListView<Pane> downloads;
     public static Scene scene;
-    public static AnchorPane previewPane;
-    public static Button searchBtn;
-    public static Label searchResultCount;
     public static boolean active = true;
     public static Vector<Device> devices;
-    public static ComboBox deviceBox;
+    public static ComboBox<Device> deviceBox;
     private static AnchorPane actionPaneHolder;
     public static ProgressBar progress;
     public static TextArea log;
     public static Actions act;
-    private static final String TITLE = "Video Downloader Prototype build 21.8";
+    private static final String TITLE = "Video Downloader Prototype build 22";
     public static DownloadHistory downloadHistoryList;
     public static StackPane root;
     public static DataCollection habits;
     private static boolean dontLoad;
     
-    private final int width = 850, height = 550, xs = 200;
+    public static final int WIDTH = 895, HEIGHT = 550, XS = 100;
     public static final int SUPPORTEDSITES = 28, PANES = 6;
     public static Pane[] actionPanes = new Pane[PANES];
     public static final int DOWNLOADPANE = 0, BROWSERPANE = 1, SETTINGSPANE = 2, SHAREPANE = 3, DOWNLOADHISTORYPANE = 4, ACCOUNTPANE = 5;
@@ -88,6 +83,7 @@ public class MainApp extends Application {
     public static ManageSettings settings;
     private ClipboardListener clippy;
     public static mainLayoutController mainController;
+    public static Stage window;
 
     private void getUserName() {
         username = System.getProperty("user.name");
@@ -188,15 +184,8 @@ public class MainApp extends Application {
                 else ((Pane)n).getStylesheets().add(MainApp.class.getResource("layouts/normal.css").toExternalForm());
             }
         } 
-        if (queryPane != null) {
-            Iterator<Pane> i = queryPane.getItems().iterator();
-            while(i.hasNext()) {
-                Pane j = i.next(); if (j.getStylesheets() != null) j.getStylesheets().clear();
-                if (enable)
-                    j.getStylesheets().add(MainApp.class.getResource("layouts/darkPane.css").toExternalForm());
-                else j.getStylesheets().add(MainApp.class.getResource("layouts/normal.css").toExternalForm());
-            }
-        } 
+        if (query != null)
+        	query.switchTheme(enable);
         if (downloadHistoryList != null)
             downloadHistoryList.switchTheme(enable);
         if(dm != null) 
@@ -210,7 +199,7 @@ public class MainApp extends Application {
     }
     
     public static void loadQuery(GenericQuery q) {
-        if(query == null) query = new QueryManager();
+        if(query == null) query = new QueryManager(actionPanes[BROWSERPANE]);
             query.loadSearch(q);
         displayPane(BROWSERPANE);
     }
@@ -247,16 +236,16 @@ public class MainApp extends Application {
             loader.setLocation(MainApp.class.getResource("layouts/mainLayout.fxml"));
             root = loader.load();
             AnchorPane main = (AnchorPane) root.getChildren().get(0);
-            main.setPrefHeight(height);
-            main.setPrefWidth(width);
+            main.setPrefHeight(HEIGHT);
+            main.setPrefWidth(WIDTH);
             //main.getChildren().add(setupMenu());
             
             loadActionPanes();
             
-            scene = new Scene(root, width, height);
+            scene = new Scene(root, WIDTH, HEIGHT);
             scene.getStylesheets().add(MainApp.class.getResource("mainStyleSheet.css").toExternalForm());
-            root.scaleXProperty().bind(scene.widthProperty().divide(width));
-            root.scaleYProperty().bind(scene.heightProperty().divide(height));
+            root.scaleXProperty().bind(scene.widthProperty().divide(WIDTH));
+            root.scaleYProperty().bind(scene.heightProperty().divide(HEIGHT));
             setDarkTheme(settings.preferences.dark());
         } catch (IOException e) {
             createMessageDialog("Failed: "+e.getMessage());
@@ -338,7 +327,7 @@ public class MainApp extends Application {
     }
     
     private void setupSharePane() {
-        deviceBox = (ComboBox)actionPanes[SHAREPANE].lookup("#devices");
+        deviceBox = (ComboBox<Device>)actionPanes[SHAREPANE].lookup("#devices");
         updateDevices();
         
         progress = (ProgressBar)actionPanes[SHAREPANE].lookup("#progressBar");
@@ -350,7 +339,7 @@ public class MainApp extends Application {
     }
     
     private void setupDownloadHistoryPane() {
-        downloadHistoryList = new DownloadHistory((ListView)actionPanes[DOWNLOADHISTORYPANE].lookup("#downloaded"));
+        downloadHistoryList = new DownloadHistory((ListView<Pane>)actionPanes[DOWNLOADHISTORYPANE].lookup("#downloaded"));
         downloadHistoryList.display();
         if (downloadHistoryList != null)
             downloadHistoryList.switchTheme(settings.preferences.dark());
@@ -407,6 +396,7 @@ public class MainApp extends Application {
     }
     
     @Override public void start(Stage primaryStage) {
+    	window = primaryStage;
         determineOS(); //determine what OS is running
         getUserName(); //get the username
         setCacheDir(); //set up cache (create it if it doesnt exist yet)
@@ -421,29 +411,21 @@ public class MainApp extends Application {
        actionPaneHolder = (AnchorPane)scene.lookup("#currentView");
        displayPane(DOWNLOADPANE);
        
-       downloads = (ListView) actionPanes[DOWNLOADPANE].lookup("#downloadList"); //listview of downloads
+       downloads = (ListView<Pane>) actionPanes[DOWNLOADPANE].lookup("#downloadList"); //listview of downloads
        //downloads.getStyleClass().add("list-view");
-       queryPane = (ListView) actionPanes[BROWSERPANE].lookup("#resultPane"); //list view of thumbnails from search
-       searchBtn = (Button)actionPanes[BROWSERPANE].lookup("#queryButton");
        Label userLabel = (Label) scene.lookup("#username");
-       Label dets = (Label) scene.lookup("#details");
        
-      dets.setText("Paste a link or import links from file to download");
-      userLabel.setText(username);      
+      userLabel.setText(username);
       
        settings.init(); setupDownloadHistoryPane();
        downloadHistoryList.setSettings(settings);
        
        setupSharePane();
        
-       //get the scrollpane to get the anchor which contains the imageviews
-       ScrollPane pre = (ScrollPane)actionPanes[BROWSERPANE].lookup("#scroll");
-       previewPane = (AnchorPane)pre.getContent();
-       searchResultCount = (Label)actionPanes[BROWSERPANE].lookup("#searchResult");
        clippy = new ClipboardListener(mainController);
        
-       primaryStage.setTitle(TITLE);
-       primaryStage.setOnCloseRequest(event -> {
+       window.setTitle(TITLE);
+       window.setOnCloseRequest(event -> {
            if (query != null)
                query.release();
             dm.release();
@@ -452,20 +434,20 @@ public class MainApp extends Application {
             System.out.println("Exiting");
             //System.exit(0);
         });
-       primaryStage.setScene(scene);
-       primaryStage.setMinHeight(height);
-       primaryStage.setMinWidth(width);
-       primaryStage.setMaxHeight(height+xs);
-       primaryStage.setMaxWidth(width+xs);
-       primaryStage.setHeight(height);
-       primaryStage.setWidth(width);
+       window.setScene(scene);
+       window.setMinHeight(HEIGHT);
+       window.setMinWidth(WIDTH);
+       window.setMaxHeight(HEIGHT+XS);
+       window.setMaxWidth(WIDTH+XS);
+       window.setHeight(HEIGHT);
+       window.setWidth(WIDTH);
        try {
             if(splash != null)
                  splash.close();
        } catch (IllegalStateException e) {
            System.out.println("Splash screen error");
        }
-       primaryStage.show();
+       window.show();
        
        if (!dontLoad)
            loadSuggestions();

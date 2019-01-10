@@ -23,3 +23,49 @@ and open the template in the editor.
     -fx-color:pink;
     /*-fx-translate-y: 2;*/
 }
+
+.button {
+	-fx-background-radius: 4px;
+    -fx-border-color: transparent;
+}
+
+.scroll-pane, .list-view{
+    -fx-padding: 0px;
+}
+
+.scroll-pane .scroll-bar:vertical, .list-view .scroll-bar:vertical {
+    -fx-background-color: transparent;
+    -fx-background-radius: 0;
+}
+
+.scroll-pane .scroll-bar:vertical .track, .list-view .scroll-bar:vertical .track  {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-background-radius: 0em;
+    -fx-border-radius: 2em;
+}
+
+.scroll-pane .scroll-bar:horizontal .decrement-button, .list-view .scroll-bar:horizontal .decrement-button {
+    -fx-background-color: transparent;
+    -fx-background-radius: 0em;
+    -fx-padding: 0 0 10 0;
+}
+
+.scroll-pane .scroll-bar:vertical .decrement-button, .list-view .scroll-bar:vertical .decrement-button {
+    -fx-background-color: transparent;
+    -fx-background-radius: 0em;
+    -fx-padding: 0 10 0 0;
+}
+
+.scroll-pane .scroll-bar .increment-arrow,
+.scroll-pane .scroll-bar .decrement-arrow,
+.list-view .scroll-bar .increment-arrow,
+.list-view .scroll-bar .decrement-arrow {
+    -fx-padding: -2;
+}
+
+.scroll-pane .scroll-bar:vertical .thumb, .list-view .scroll-bar:vertical .thumb {
+    -fx-background-color: #0095db;/*derive(blue,95%);*/
+    -fx-background-insets: 2, 0, 0;
+    -fx-background-radius: 2em;
+}

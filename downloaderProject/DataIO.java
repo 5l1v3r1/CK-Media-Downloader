@@ -11,7 +11,6 @@ import downloader.DataStructures.downloadedMedia;
 import downloader.DataStructures.historyItem;
 import downloader.DataStructures.itemProgress;
 import downloader.DataStructures.video;
-import static downloaderProject.MainApp.habits;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;

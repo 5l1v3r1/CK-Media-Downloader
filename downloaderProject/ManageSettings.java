@@ -37,8 +37,8 @@ public class ManageSettings {
     private AnchorPane querySitePane;
     private Label cacheAmount, savedVideos, deviceCount, searchCount, downloadHistory, toogleThemeText;
     public Settings preferences;
-    private ListView searchHistory;
-    private final List HISTORYLIST = new ArrayList();
+    private ListView<Pane> searchHistory;
+    private final List<Pane> HISTORYLIST = new ArrayList<>();
     
     public ManageSettings(Pane p, Settings preferences) {
        this.root = p; this.preferences = preferences;
@@ -129,7 +129,7 @@ public class ManageSettings {
     
     public void clearHistory() {
         HISTORYLIST.clear();
-        ObservableList list = FXCollections.observableList(HISTORYLIST);
+        ObservableList<Pane> list = FXCollections.observableList(HISTORYLIST);
         searchHistory.setItems(list);
     }
     
@@ -150,7 +150,7 @@ public class ManageSettings {
                 sites[i].setLayoutY(site.getLayoutY() + (20 * (i+1)));
                 sites[i].setPrefHeight(site.getPrefHeight());
                 sites[i].setPrefWidth(site.getPrefWidth());
-                historyPane.setPrefHeight(sites[i].getLayoutY()+20);
+                historyPane.setPrefHeight(sites[i].getLayoutY()+30);
                 historyPane.getChildren().add(sites[i]); 
             }
             Button viewSearch = (Button)historyPane.lookup("#view");
@@ -166,11 +166,12 @@ public class ManageSettings {
     }
     
     public void setHistory() {
+        clearHistory();
         Vector<historyItem> history = DataIO.loadHistory();
         if(history != null)
             for(historyItem h:history)
                 HISTORYLIST.add(addHistoryPane(h));
-        ObservableList list = FXCollections.observableList(HISTORYLIST);
+        ObservableList<Pane> list = FXCollections.observableList(HISTORYLIST);
         searchHistory.setItems(list);
         historyUpdate();
     }
@@ -264,7 +265,7 @@ public class ManageSettings {
        searchCount = (Label)a.lookup("#searchLabel");
        downloadHistory = (Label)a.lookup("#downloadLabel");
        
-       searchHistory = (ListView)a.lookup("#searches");
+       searchHistory = (ListView<Pane>)a.lookup("#searches");
        toogleThemeText = (Label)a.lookup("#toogleThemeLabel");
        a.getChildren().add(setToogle());
        
