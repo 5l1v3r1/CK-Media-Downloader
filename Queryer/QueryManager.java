@@ -29,16 +29,19 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.Vector;
 import javafx.collections.ObservableList;
-import javafx.event.Event;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import downloaderProject.MainApp;
 import java.awt.Desktop;
 import java.io.InputStream;
 import org.jsoup.UncheckedIOException;
+
 import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -47,6 +50,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import javafx.application.Platform;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 
 /**
@@ -55,6 +62,41 @@ import javafx.scene.layout.Pane;
  */
 public class QueryManager {
     private ExecutorService app;
+    private Pane root;
+    private ListView<Pane> queryPane;
+    private Button searchBtn;
+    private AnchorPane previewPane;
+    private Label searchResultCount;
+    private ScrollPane previewScroller;
+    
+    //private final int scrollerWidth = 287;
+    
+    public QueryManager(Pane root) {
+    	this.root = root;
+    	getRefs();
+    }
+    
+    private void getRefs() {
+    	queryPane = (ListView<Pane>)root.lookup("#resultPane"); //list view of thumbnails from search
+        searchBtn = (Button)root.lookup("#queryButton");
+    	
+    	//get the scrollpane to get the anchor which contains the imageviews
+        previewScroller = (ScrollPane)root.lookup("#scroll");
+        previewPane = (AnchorPane)previewScroller.getContent();
+        searchResultCount = (Label)root.lookup("#searchResult");
+    }
+    
+    public void switchTheme(boolean enable) {
+    	if (queryPane != null) {
+            Iterator<Pane> i = queryPane.getItems().iterator();
+            while(i.hasNext()) {
+                Pane j = i.next(); if (j.getStylesheets() != null) j.getStylesheets().clear();
+                if (enable)
+                    j.getStylesheets().add(MainApp.class.getResource("layouts/darkPane.css").toExternalForm());
+                else j.getStylesheets().add(MainApp.class.getResource("layouts/normal.css").toExternalForm());
+            }
+        }
+    }
     
     public void release() {
         try {
@@ -70,9 +112,9 @@ public class QueryManager {
     
     public void generateContent(String url) {
         //if a search was done previously clear results 
-        MainApp.queryPane.getItems().clear();
+        queryPane.getItems().clear();
         clearPreviewImages();
-        MainApp.searchResultCount.setText("");
+        searchResultCount.setText("");
         
         app = Executors.newSingleThreadExecutor();
         //display thumbnails of results found    
@@ -81,16 +123,16 @@ public class QueryManager {
     }
     
     public void clearPreviewImages() {
-        MainApp.previewPane.getChildren().clear();
+        previewPane.getChildren().clear();
         //for(int i = 0; i < MainApp.previewImages.size(); i++)
           //  MainApp.previewImages.get(i).imageProperty().set(null);
     }
     
     public void loadSearch(GenericQuery q) {
         //if a search was done previously clear results 
-        MainApp.queryPane.getItems().clear();
+        queryPane.getItems().clear();
         clearPreviewImages();
-        MainApp.searchResultCount.setText("");
+        searchResultCount.setText("");
         new generate().load(q);
     }
     
@@ -193,41 +235,46 @@ public class QueryManager {
         private void changeButton(String msg) {
             Platform.runLater(new Runnable() {
                 @Override public void run() {
-                    MainApp.searchBtn.setText(msg);
+                    searchBtn.setText(msg);
                     if (msg.equals("Searching"))
-                        MainApp.searchBtn.setDisable(true);
-                    else MainApp.searchBtn.setDisable(false);
+                        searchBtn.setDisable(true);
+                    else searchBtn.setDisable(false);
                 }
             });
         }
         
         private void setOnclickAction() {
-            MainApp.queryPane.setOnMouseClicked(new EventHandler() {
-                @Override public void handle(Event t) {
-                clearPreviewImages();
-                int index = MainApp.queryPane.getSelectionModel().getSelectedIndex();
-                Vector<File> imgs = results.getPreview(index);
-                int currentHeight = 0;
-                for(int j = 0; j < imgs.size(); j++) {
-                    FileInputStream fis;
-                    try {
-                        fis = new FileInputStream(imgs.get(j));
-                        Image image = new Image(fis);
-                        //adjust size of imageview to fit the image and set the image
-                        MainApp.previewPane.setMinWidth(image.getWidth());
-                        ImageView imgView = new ImageView();
-                        imgView.setLayoutY(currentHeight);
-                        currentHeight += image.getHeight();
-                        MainApp.previewPane.setMinHeight(currentHeight);
-                        imgView.setFitHeight(image.getHeight());
-                        imgView.setFitWidth(image.getWidth());
-                        imgView.setImage(image);
-                        MainApp.previewPane.getChildren().add(imgView);
-                    } catch (FileNotFoundException ex) {
-                       MainApp.createMessageDialog("Error");
-                    }
-                }//endfor
-            }});
+            queryPane.setOnMouseClicked(new EventHandler<MouseEvent>() {
+				@Override
+				public void handle(MouseEvent arg0) {
+					clearPreviewImages();
+	                int index = queryPane.getSelectionModel().getSelectedIndex();
+	                Vector<File> imgs = results.getPreview(index);
+	                int currentHeight = 0;
+	                if (imgs != null) {
+		                for(int j = 0; j < imgs.size(); j++) {
+		                    FileInputStream fis;
+		                    try {
+		                        fis = new FileInputStream(imgs.get(j));
+		                        Image image = new Image(fis);
+		                        //adjust size of imageview to fit the image and set the image
+		                        double width = 285;
+		                        if (image.getWidth() < 285)
+		                        	width = image.getWidth();
+		                        previewPane.setPrefWidth(width);
+		                        ImageView imgView = new ImageView();
+		                        imgView.setFitWidth(width);
+		                        imgView.setImage(image);
+		                        imgView.setLayoutY(currentHeight);
+		                        currentHeight += image.getHeight();
+		                        previewPane.setMinHeight(currentHeight);
+		                        previewPane.getChildren().add(imgView);
+		                    } catch (FileNotFoundException ex) {
+		                       MainApp.createMessageDialog("Error");
+		                    }
+		                }//endfor
+	                }
+				}});
         }
         
         private Vector<ImageView> getImages() throws FileNotFoundException{
@@ -249,9 +296,9 @@ public class QueryManager {
             btn.setLayoutX(offset+20);
             btn.setLayoutY(80);
             btn.setText("Open in browser");
-            btn.setOnAction(new EventHandler() {
+            btn.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
-                public void handle(Event t) {
+                public void handle(ActionEvent t) {
                     if (Desktop.isDesktopSupported()) {
                         new Thread(() -> {
                             try {
@@ -283,9 +330,9 @@ public class QueryManager {
             btn.setLayoutX(offset+20);
             btn.setLayoutY(45);
             btn.setText("Download Later");
-            btn.setOnAction(new EventHandler() {
+            btn.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
-                public void handle(Event t) {
+                public void handle(ActionEvent t) {
                     try {
                         DataIO.saveVideo(new video(results.getLink(which),results.getName(which),results.getThumbnail(which),results.getSize(which),results.getPreview(which)));
                         MainApp.createMessageDialog("Video saved");
@@ -312,9 +359,9 @@ public class QueryManager {
             btn.setLayoutX(offset+20);
             btn.setLayoutY(10);
             btn.setText("Add to Download List");
-            btn.setOnAction(new EventHandler() {
+            btn.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
-                public void handle(Event t) {
+                public void handle(ActionEvent t) {
                     DownloaderItem download = new DownloaderItem();
                     download.setLink(results.getLink(which)); 
                     download.setType(Site.getUrlSite(results.getLink(which)));
@@ -344,7 +391,7 @@ public class QueryManager {
                 width = 235;
             else width = (int) image.getImage().getWidth();
             image.setFitWidth(width);
-            pane.setPrefWidth(500); 
+            pane.setPrefWidth(450); 
             pane.getChildren().add(image);
             pane.getChildren().add(createDownloadBtn(i,width));
             pane.getChildren().add(createDownloadLaterBtn(i,width));
@@ -356,7 +403,7 @@ public class QueryManager {
         private void updateView() {
             Platform.runLater(new Runnable() {
                 @Override public void run() {
-                    ObservableList<Pane> panes = MainApp.queryPane.getItems();
+                    ObservableList<Pane> panes = queryPane.getItems();
                     try {
                         Vector<ImageView>images = getImages();
                         for(int i = 0; i < images.size(); i++)
@@ -365,7 +412,7 @@ public class QueryManager {
                     } catch (FileNotFoundException e) {
                         MainApp.createMessageDialog("Error in cache : 1");
                     }
-                    MainApp.searchResultCount.setText(panes.size()+" results found");
+                    searchResultCount.setText(panes.size()+" results found");
                 }
             });
         } //end update view   
