@@ -58,8 +58,7 @@
 
 .list-cell {
     -fx-padding:0;
-    -fx-background-insets: 0px;
-    -fx-background-color:  #D0D0D0;  
+    -fx-background-insets: 0px; 
 }
 
 .scroll-pane > .viewport {
@@ -78,6 +77,6 @@
     -fx-background-color:#D0D0D0;
 }
 
-.list-cell:focused, .list-cell:selected {
+.list-view .list-cell:selected, .list-view .list-cell {
     -fx-background-color: #D0D0D0;
 }
