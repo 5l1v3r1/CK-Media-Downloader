@@ -69,14 +69,14 @@ public class MainApp extends Application {
     public static ProgressBar progress;
     public static TextArea log;
     public static Actions act;
-    private static final String TITLE = "Video Downloader Prototype build 22";
+    private static final String TITLE = "Video Downloader Prototype build 22.1";
     public static DownloadHistory downloadHistoryList;
     public static StackPane root;
     public static DataCollection habits;
     private static boolean dontLoad;
     
     public static final int WIDTH = 895, HEIGHT = 550, XS = 100;
-    public static final int SUPPORTEDSITES = 28, PANES = 6;
+    public static final int SUPPORTEDSITES = 29, PANES = 6;
     public static Pane[] actionPanes = new Pane[PANES];
     public static final int DOWNLOADPANE = 0, BROWSERPANE = 1, SETTINGSPANE = 2, SHAREPANE = 3, DOWNLOADHISTORYPANE = 4, ACCOUNTPANE = 5;
     

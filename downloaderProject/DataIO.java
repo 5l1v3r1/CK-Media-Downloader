@@ -270,14 +270,14 @@ public class DataIO {
         return words;
     }*/
     
-    public synchronized static Vector<String> loadIgnoreWords() {
+    public synchronized static Vector<String> loadIgnoreWords() throws FileNotFoundException {
         Vector<String> words = new Vector<>();
         
-        Scanner reader = new Scanner(System.class.getResource("/data/conjunctions.txt").getFile());
+        Scanner reader = new Scanner(System.class.getResourceAsStream("/data/conjunctions.txt"));
         while(reader.hasNextLine()) words.add(reader.nextLine()); reader.close();
-        reader = new Scanner(System.class.getResource("/data/prepositions.txt").getFile());
+        reader = new Scanner(System.class.getResourceAsStream("/data/prepositions.txt"));
         while(reader.hasNextLine()) words.add(reader.nextLine()); reader.close();
-        reader = new Scanner(System.class.getResource("/data/pronouns.txt").getFile());
+        reader = new Scanner(System.class.getResourceAsStream("/data/pronouns.txt"));
         while(reader.hasNextLine()) words.add(reader.nextLine()); reader.close();
         return words;
     }
