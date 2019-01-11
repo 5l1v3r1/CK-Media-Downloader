@@ -18,6 +18,8 @@ import ChrisPackage.Star;
 import downloader.DataStructures.video;
 import downloader.Extractors.*;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Formatter;
 
 public class DataCollection implements Externalizable{
 	private static final long serialVersionUID = 1L;
@@ -47,7 +49,7 @@ public class DataCollection implements Externalizable{
 	private void loadLibs() {
 		starList = DataIO.loadStarList(); Collections.sort(starList);
 		//dictionary = DataIO.loadDictionary(); Collections.sort(dictionary);
-		ignoreWords = DataIO.loadIgnoreWords(); 
+		try { ignoreWords = DataIO.loadIgnoreWords(); }catch (FileNotFoundException e) {}
 		ignoreWords.add("a"); ignoreWords.add("the"); ignoreWords.add("an");
                 Collections.sort(ignoreWords);
 	}
@@ -55,7 +57,8 @@ public class DataCollection implements Externalizable{
         public Vector<File> getExempt() { 
            //for clearing cache and avoiding suggested video cache
            Vector<File> list = new Vector<>();
-           video[] v = (video[])videoQueue.toArray();
+           video[] v = new video[videoQueue.size()];
+           videoQueue.toArray(v);
            for(video l:v) {
                list.add(l.getThumbnail());
                for(int i = 0; i < l.getPreviewCount(); i++)
