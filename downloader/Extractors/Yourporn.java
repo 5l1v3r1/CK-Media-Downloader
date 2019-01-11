@@ -15,7 +15,6 @@ import java.io.File;
 import java.io.IOException;
 import org.jsoup.UncheckedIOException;
 import java.net.SocketTimeoutException;
-import java.util.Formatter;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -100,6 +99,6 @@ public class Yourporn extends GenericExtractor{
         verify(page);
      
 	String video = "https://www.yourporn.sexy"+CommonUtils.eraseChar(page.select("span.vidsnfo").attr("data-vnfo").split("\"")[3],'\\');
-        return CommonUtils.getContentSize(video);
+        return CommonUtils.getContentSize(video.replace("cdn", "cdn3").replace("s12-1", "s12"));
     }
 }

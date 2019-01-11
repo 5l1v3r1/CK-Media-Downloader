@@ -49,7 +49,7 @@ public abstract class GenericExtractor implements Trackable {
     
     protected static Document getPage(String url, boolean mobile) throws FileNotFoundException, IOException {
         Document page;
-         if (CommonUtils.checkPageCache(CommonUtils.getCacheName(url,mobile))) //check to see if page was downloaded previous
+        if (CommonUtils.checkPageCache(CommonUtils.getCacheName(url,mobile))) //check to see if page was downloaded previous
             page = Jsoup.parse(CommonUtils.loadPage(MainApp.pageCache.getAbsolutePath()+File.separator+CommonUtils.getCacheName(url,mobile)));
         else { String html;
              if (mobile)
