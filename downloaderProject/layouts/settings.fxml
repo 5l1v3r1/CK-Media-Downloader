@@ -15,7 +15,7 @@
    <children>
                         <ScrollPane id="settingsScroller" fx:id="settingsScroller" prefHeight="550.0" prefWidth="695.0" styleClass="background">
                           <content>
-                            <AnchorPane id="searchHistoryPane" minHeight="0.0" minWidth="0.0" prefHeight="650.0" prefWidth="677.0" styleClass="background">
+                            <AnchorPane id="searchHistoryPane" minHeight="0.0" minWidth="0.0" prefHeight="650.0" prefWidth="685.0" styleClass="background">
                                  <children>
                                     <TextField id="videodownloadLoc" fx:id="videodownloadLoc" layoutX="8.0" layoutY="43.0" onAction="#setVideoLocation" prefHeight="28.0" prefWidth="545.0" promptText="Location" />
                                     <Label layoutX="9.0" layoutY="24.0" prefHeight="16.0" prefWidth="173.0" text="Video Download Location" />
@@ -30,7 +30,7 @@
                                     <tooltip><Tooltip text="Browse for a new folder" /></tooltip></Button>
                                     <ScrollPane id="querySites" layoutX="8.0" layoutY="230.0" prefHeight="200.0" prefWidth="244.0" styleClass="lighter">
                                       <content>
-                                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="198.0" prefWidth="226.0" styleClass="lighter" />
+                                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="198.0" prefWidth="232.0" styleClass="lighter" />
                                       </content>
                                     </ScrollPane>
                                     <Label layoutX="8.0" layoutY="206.0" prefHeight="16.0" prefWidth="205.0" text="Sites to search with browser" />
@@ -99,6 +99,7 @@
                            </image>
                         </ImageView>
                      </graphic>
+                     <tooltip><Tooltip text="Clear items in search history" /></tooltip>
                   </Button>
                   <Label id="searchLabel" layoutX="221.0" layoutY="568.0" prefHeight="23.0" prefWidth="215.0" text="Label" />
                   <Button layoutX="9.0" layoutY="600.0" mnemonicParsing="false" onAction="#clearDownloadHistory" prefHeight="30.0" prefWidth="200.0" text="Clear Download History">
@@ -109,6 +110,7 @@
                            </image>
                         </ImageView>
                      </graphic>
+                     <tooltip><Tooltip text="Clear downloaded items history" /></tooltip>
                   </Button>
                   <Label id="downloadLabel" layoutX="221.0" layoutY="607.0" prefHeight="23.0" prefWidth="212.0" text="Label" />
                   <Label id="toogleThemeLabel" layoutX="471.0" layoutY="492.0" prefHeight="16.0" prefWidth="195.0" text="Enable Dark Theme" />
