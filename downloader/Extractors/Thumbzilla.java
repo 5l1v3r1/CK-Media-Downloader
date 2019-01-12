@@ -28,7 +28,7 @@ import org.jsoup.select.Elements;
  * @author christopher
  */
 public class Thumbzilla extends GenericQueryExtractor{
-	private static final int skip = 4;
+    private static final int skip = 4;
     
     public Thumbzilla() { //this contructor is used for when you jus want to query
         

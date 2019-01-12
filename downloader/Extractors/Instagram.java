@@ -15,7 +15,6 @@ import downloaderProject.OperationStream;
 import java.io.File;
 import java.io.IOException;
 import org.jsoup.UncheckedIOException;
-import static java.lang.Thread.sleep;
 import java.net.SocketTimeoutException;
 import java.util.Vector;
 import org.jsoup.Jsoup;
@@ -48,11 +47,6 @@ public class Instagram extends GenericExtractor{
         do {
             if (s != null) s.addProgress("Trying "+CommonUtils.clean(name));
             stop = CommonUtils.saveFile(url,CommonUtils.clean(name),folder,s);
-            try {
-                sleep(4000);
-            } catch (InterruptedException ex) {
-                System.out.println("Failed to pause");
-            }
         }while(stop != -2); //retry download if failed
         MainApp.createNotification("Download Success","Finished Downloading "+CommonUtils.clean(name));
         File saved = new File(folder + File.separator + CommonUtils.clean(name));

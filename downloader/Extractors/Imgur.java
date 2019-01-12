@@ -13,7 +13,6 @@ import downloaderProject.MainApp;
 import downloaderProject.OperationStream;
 import java.io.File;
 import java.io.IOException;
-import static java.lang.Thread.sleep;
 import org.jsoup.UncheckedIOException;
 import java.net.SocketTimeoutException;
 
@@ -58,11 +57,7 @@ public class Imgur extends GenericExtractor {
         do {
             if (s != null) s.addProgress("Trying "+name);
             stop = CommonUtils.saveFile(url,name,folder,s);
-            try {
-                sleep(4000);
-            } catch (InterruptedException ex) {
-                System.out.println("Failed to pause");
-            }
+           
         }while(stop != -2); //retry download if failed
         MainApp.createNotification("Download Success","Finished Downloading "+name);
         File saved = new File(folder + File.separator + name);

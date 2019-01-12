@@ -75,7 +75,7 @@ public class Pornhub extends GenericQueryExtractor{
                 stop = CommonUtils.saveFile(link,CommonUtils.clean(name),MainApp.settings.preferences.getPictureFolder().getAbsolutePath(),s);
             else stop = CommonUtils.saveFile(link,CommonUtils.clean(name),MainApp.settings.preferences.getPictureFolder().getAbsolutePath()+File.separator+folder,s);
             try {
-                sleep(4000);
+                sleep(2000);
             } catch (InterruptedException ex) {
                 System.out.println("Failed to pause");
             }

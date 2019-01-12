@@ -5,41 +5,54 @@
  */
 package downloader.Extractors;
 
+import ChrisPackage.GameTime;
 import downloader.CommonUtils;
+import downloader.DataStructures.downloadedMedia;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
-import downloader.Exceptions.VideoDeletedException;
+import static downloader.Extractors.GenericExtractor.configureUrl;
+import static downloader.Extractors.GenericExtractor.getPage;
 import downloaderProject.MainApp;
 import downloaderProject.OperationStream;
 import java.io.File;
 import java.io.IOException;
-import org.jsoup.UncheckedIOException;
+import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import org.jsoup.Jsoup;
+import org.jsoup.UncheckedIOException;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 /**
  *
  * @author christopher
  */
-public class Yourporn extends GenericExtractor{
+public class Pornpics extends GenericExtractor{
     private static final int skip = 2;
-    
-    public Yourporn() { //this contructor is used for when you jus want to search
+
+    public Pornpics() { //this contructor is used for when you jus want to search
         
     }
 
-    public Yourporn(String url) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
+    public Pornpics(String url) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
         this(url,downloadThumb(configureUrl(url)),downloadVideoName(configureUrl(url)));
     }
     
-    public Yourporn(String url, File thumb) throws IOException, SocketTimeoutException, UncheckedIOException,GenericDownloaderException, Exception{
+    public Pornpics(String url, File thumb) throws IOException, SocketTimeoutException, UncheckedIOException,GenericDownloaderException, Exception{
         this(url,thumb,downloadVideoName(configureUrl(url)));
     }
     
-    public Yourporn(String url, File thumb, String videoName){
+    public Pornpics(String url, File thumb, String videoName){
         super(url,thumb,videoName);
+    }
+    
+    private void downloadPic(String link, OperationStream s) throws MalformedURLException {
+        long stop = 0; String name = CommonUtils.getThumbName(link,skip);
+        do {
+            if (s != null) s.addProgress("Trying "+CommonUtils.clean(name));
+            stop = CommonUtils.saveFile(link,CommonUtils.clean(name),MainApp.settings.preferences.getPictureFolder().getAbsolutePath()+File.separator+videoName,s);
+        }while(stop != -2); //retry download if failed
     }
 
     @Override
@@ -47,35 +60,25 @@ public class Yourporn extends GenericExtractor{
         if (s != null) s.startTiming();
 
         Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
-        verify(page);
-     
-	String video = "https://www.yourporn.sexy"+CommonUtils.eraseChar(page.select("span.vidsnfo").attr("data-vnfo").split("\"")[3],'\\');
-        //String video = "https://www.yourporn.sexy"+page.select("video.player_el").attr("src");
-        String raw = page.select("meta").get(6).attr("content");
-        String title = raw.contains("#") ? raw.substring(0,raw.indexOf("#") -4) : raw.replace(" on YourPorn. Sexy","");
-        
-        super.downloadVideo(video.replace("cdn", "cdn3").replace("s12-1", "s12"),title,s);
-    }
-    
-    private static void verify(Document page) throws GenericDownloaderException {
-        Element e;
-        if ((e = page.getElementById("player_el")) == null)
-            throw new VideoDeletedException();
+        Elements a = page.select("a.rel-link");
+        for(Element item :a)
+            downloadPic(item.attr("href"),s);
+        GameTime took = s.endOperation();
+        if (s != null) s.addProgress("Took "+took.getTime()+" to download");
+        MainApp.createNotification("Download Success","Finished Downloading Album"+videoName);
+        File saved = new File(MainApp.settings.preferences.getPictureFolder() + File.separator + this.videoName);
+        MainApp.downloadHistoryList.add(new downloadedMedia(videoName,videoThumb,saved,name()));
     }
     
     private static String downloadVideoName(String url) throws IOException , SocketTimeoutException, UncheckedIOException, GenericDownloaderException,Exception{
         Document page = getPage(url,false);
-        verify(page);
-        //return page.select("meta").get(6).attr("content").replace(" on YourPorn. Sexy","");
-        String raw = page.select("meta").get(6).attr("content");
-        return raw.contains("#") ? raw.substring(0,raw.indexOf("#") -4) : raw.replace(" on YourPorn. Sexy","");
+        return page.select("title").text().replace(" - PornPics.com","");
     } 
 	
     //getVideo thumbnail
     private static File downloadThumb(String url) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
-         Document page = getPage(url,false);
-         verify(page);
-         String thumbLink = "https:"+page.getElementById("player_el").attr("poster");
+        Document page = getPage(url,false);
+        String thumbLink = page.select("a.rel-link").get(0).attr("href");
          
         if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,skip))) //if file not already in cache download it
             CommonUtils.saveFile(thumbLink,CommonUtils.getThumbName(thumbLink,skip),MainApp.imageCache);
@@ -84,7 +87,7 @@ public class Yourporn extends GenericExtractor{
     
     @Override
     protected void setExtractorName() {
-        extractorName = "Yourporn";
+        extractorName = "Pornpics";
     }
 
     @Override
@@ -99,10 +102,11 @@ public class Yourporn extends GenericExtractor{
 
     @Override
     public long getSize() throws IOException, GenericDownloaderException {
-        Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
-        verify(page);
-     
-	String video = "https://www.yourporn.sexy"+CommonUtils.eraseChar(page.select("span.vidsnfo").attr("data-vnfo").split("\"")[3],'\\');
-        return CommonUtils.getContentSize(video.replace("cdn", "cdn3").replace("s12-1", "s12"));
+        long total = 0;
+        Document page = getPage(url,false);
+        Elements a = page.select("a.rel-link");
+        for(Element item :a)
+            total += CommonUtils.getContentSize(item.attr("href"));
+        return total;
     }
 }
