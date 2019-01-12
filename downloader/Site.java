@@ -11,7 +11,7 @@ package downloader;
  */
 
 public class Site {
-    public enum Type {none, spankbang, pornhub, xhamster, xvideos, xnxx, youporn, redtube, thumbzilla, shesfreaky, instagram, yourporn, bigtits, pornhd, vporn, ghettotube, tube8, watchenga, youjizz, xtube, spankwire, vodlocker, justporno, bigbootytube, befuck, dailymotion, vimeo, cumlouder, ruleporn};
+    public enum Type {none, spankbang, pornhub, xhamster, xvideos, xnxx, youporn, redtube, thumbzilla, shesfreaky, instagram, yourporn, bigtits, pornhd, vporn, ghettotube, tube8, watchenga, youjizz, xtube, spankwire, vodlocker, justporno, bigbootytube, befuck, dailymotion, vimeo, cumlouder, ruleporn, imgur, pornpics};
     public static String[] QueryType = {Type.spankbang.name(), Type.pornhub.name(), Type.xhamster.name(), Type.xvideos.name(), Type.youporn.name(), Type.redtube.name(), Type.thumbzilla.name(), Type.shesfreaky.name(), Type.tube8.name(), Type.spankwire.name(), Type.bigbootytube.name(), Type.ruleporn.name()};
 	
     public static Type getUrlSite(String url) {
@@ -77,6 +77,10 @@ public class Site {
             return Type.cumlouder;
         else if ((url.matches("https://ruleporn.com/[\\S]*/") || url.matches("https://www.ruleporn.com/[\\S]*/")))
             return Type.ruleporn;
+        else if (url.matches("https://imgur.com/gallery/[\\S]*") || url.matches("https://www.imgur.com/gallery/[\\S]*") || url.matches("https://imgur.com/[\\S]*") || url.matches("https://www.imgur.com/[\\S]*"))
+            return Type.imgur;
+        else if (url.matches("https://pornpics.com/galleries/[\\S]*/") || url.matches("https://www.pornpics.com/galleries/[\\S]*/"))
+            return Type.pornpics;
 	else return Type.none;
     }
 }

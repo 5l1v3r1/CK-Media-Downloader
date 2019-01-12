@@ -78,69 +78,72 @@ public class DownloaderItem {
     
     public video getSide() {
         try {
-            return extractor.similar();
+            if (extractor != null)
+                return extractor.similar();
+            else return null;
         } catch (UnsupportedOperationException | IOException e) {return null;}
     }
     
     private GenericExtractor getExtractor(video v) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
+        System.out.println("Getting extractor");
     	if (null == type)
             return null;
         else switch (type) {
             case spankbang:
             	if (v == null)
-            		return new SpankBang(url);
+                    return new SpankBang(url);
             	else return new SpankBang(url,v.getThumbnail(),v.getName());
             case pornhub:
             	if (v == null)
-            		return new Pornhub(url);
+                    return new Pornhub(url);
             	else return new Pornhub(url,v.getThumbnail(),v.getName());
             case xhamster:
             	if (v == null)
-            		return new Xhamster(url); 
+                    return new Xhamster(url); 
             	else return new Xhamster(url,v.getThumbnail(),v.getName());
             case xvideos:
             	if (v == null)
-            		return new Xvideos(url);
+                    return new Xvideos(url);
             	else return new Xvideos(url,v.getThumbnail(),v.getName());
             case xnxx:
             	if (v == null)
-            		return new Xvideos(url); //xnxx shares the same setup so they use the extractor
+                    return new Xvideos(url); //xnxx shares the same setup so they use the extractor
             	else return new Xvideos(url,v.getThumbnail(),v.getName());
             case youporn:
             	if (v == null)
-            		return new Youporn(url);
+                    return new Youporn(url);
             	else return new Youporn(url,v.getThumbnail(),v.getName());
             case redtube:
             	if (v == null)
-            		return new Redtube(url);
+                    return new Redtube(url);
             	else return new Redtube(url,v.getThumbnail(),v.getName());
             case thumbzilla:
             	if (v == null)
-            		return new Thumbzilla(url);
+                    return new Thumbzilla(url);
             	else return new Thumbzilla(url,v.getThumbnail(),v.getName());
             case shesfreaky:
             	if (v == null)
-            		return new Shesfreaky(url);
+                    return new Shesfreaky(url);
             	else return new Shesfreaky(url,v.getThumbnail(),v.getName());
             case instagram:
             	if (v == null)
-            		return new Instagram(url);
+                    return new Instagram(url);
             	else return new Instagram(url,v.getThumbnail(),v.getName());
             case yourporn:
             	if (v == null)
-            		return new Yourporn(url);
+                    return new Yourporn(url);
             	else return new Yourporn(url,v.getThumbnail(),v.getName());
             case bigtits:
             	if (v == null)
-                	return new Bigtits(url);
+                    return new Bigtits(url);
             	else return new Bigtits(url,v.getThumbnail(),v.getName());
             case pornhd:
             	if (v == null)
-            		return new Pornhd(url);
+                    return new Pornhd(url);
             	else return new Pornhd(url,v.getThumbnail(),v.getName());
             case vporn:
             	if (v == null)
-            		return new Vporn(url);
+                    return new Vporn(url);
             	else return new Vporn(url,v.getThumbnail(),v.getName());
             case ghettotube:
             	if (v == null)
@@ -148,52 +151,60 @@ public class DownloaderItem {
             	else return new Ghettotube(url,v.getThumbnail(),v.getName());
             case tube8:
             	if (v == null)
-            		return new Tube8(url);
+                    return new Tube8(url);
             	else return new Tube8(url,v.getThumbnail(),v.getName());
             case watchenga:
             	if (v == null)
-            		return new Watchenga(url);
+                    return new Watchenga(url);
             	else return new Watchenga(url,v.getThumbnail(),v.getName());
             case youjizz:
             	if (v == null)
-            		return new Youjizz(url);
+                    return new Youjizz(url);
             	else return new Youjizz(url,v.getThumbnail(),v.getName());
             case xtube:
             	if (v == null)
-            		return new Xtube(url);
+                    return new Xtube(url);
             	else return new Xtube(url,v.getThumbnail(),v.getName());
             case spankwire:
             	if (v == null)
-            		return new Spankwire(url);
+                    return new Spankwire(url);
             	else return new Spankwire(url,v.getThumbnail(),v.getName());
             case justporno:
             	if (v == null)
-            		return new Justporno(url);
+                    return new Justporno(url);
             	else return new Justporno(url,v.getThumbnail(),v.getName());
             case bigbootytube:
             	if (v == null)
-            		return new Bigbootytube(url);
+                    return new Bigbootytube(url);
             	else return new Bigbootytube(url,v.getThumbnail(),v.getName());
             case befuck:
             	if (v == null)
-            		return new Befuck(url); 
+                    return new Befuck(url); 
             	else return new Befuck(url,v.getThumbnail(),v.getName());
             case dailymotion:
             	if (v == null)
-            		return new Dailymotion(url);
+                    return new Dailymotion(url);
             	else return new Dailymotion(url,v.getThumbnail(),v.getName());
             case vimeo:
             	if (v == null)
-            		return new Vimeo(url);
+                    return new Vimeo(url);
             	else return new Vimeo(url,v.getThumbnail(),v.getName());
             case cumlouder:
             	if (v == null)
-            		return new Cumlouder(url);
+                    return new Cumlouder(url);
             	else return new Cumlouder(url,v.getThumbnail(),v.getName());
             case ruleporn:
             	if (v == null)
-            		return new Ruleporn(url);
+                    return new Ruleporn(url);
             	else return new Ruleporn(url,v.getThumbnail(),v.getName());
+            case imgur:
+                if (v == null)
+                    return new Imgur(url);
+            	else return new Imgur(url,v.getThumbnail(),v.getName());
+            case pornpics:
+                if (v == null)
+                    return new Pornpics(url);
+            	else return new Pornpics(url,v.getThumbnail(),v.getName());
             default:
                 return null;
         }
@@ -317,6 +328,7 @@ public class DownloaderItem {
     
     public boolean searchLink() throws GenericDownloaderException {       
        try { 
+           setIndeteminate(true);
            if (v == null) {
         	   loaded = false;
                extractor = getExtractor(); if (extractor == null) throw new Exception("couldnt get extractor"); //unsupported link
@@ -330,6 +342,7 @@ public class DownloaderItem {
            }
        } catch (Exception e) {
            if (e instanceof GenericDownloaderException) throw (GenericDownloaderException)e;
+           e.printStackTrace();
            System.out.println(e.getMessage()); release();
            return false;
        }
@@ -342,6 +355,7 @@ public class DownloaderItem {
        setName();
        
        System.out.println("Found");
+       setIndeteminate(false);
        return true; //if u made it this far process must be successful
     }
     
@@ -609,6 +623,18 @@ public class DownloaderItem {
                if (root != null) 
                    if (root.lookup("#pBar") != null)
                         ((ProgressBar)root.lookup("#pBar")).setProgress(progress);
+           }
+        });
+    }
+    
+    private void setIndeteminate(boolean enable) {
+        Platform.runLater(new Runnable() {
+           public void run() {
+               if (root != null) 
+                   if (root.lookup("#pBar") != null)
+                       if (enable)
+                            ((ProgressBar)root.lookup("#pBar")).setProgress(ProgressBar.INDETERMINATE_PROGRESS);
+                       else ((ProgressBar)root.lookup("#pBar")).setProgress(0);
            }
         });
     }
