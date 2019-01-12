@@ -64,8 +64,8 @@ public class toggleButton extends Parent{
     public void setBoolValue(boolean state) {
         switchedOn = state;
         translateAnimation.setToX(state ? 25 - 12.5 : 0);
-        fillAnimation.setFromValue(state ? Color.WHITE : Color.LIGHTBLUE);
-        fillAnimation.setToValue(state ? Color.LIGHTBLUE : Color.WHITE);
+        fillAnimation.setFromValue(state ? Color.WHITE : Color.web("#0095db"));
+        fillAnimation.setToValue(state ? Color.web("#0095db") : Color.WHITE);
 
         animation.play();
     }

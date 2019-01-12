@@ -178,10 +178,10 @@ public class ManageSettings {
     
     private Pane newItem(String label, boolean enable) {
         Label site = new Label(label);
-        site.setLayoutX(2);
+        site.setLayoutX(5);
         site.setLayoutY(5);
         toggleButton toggle = new toggleButton(enable);
-        toggle.setLayoutX(195);
+        toggle.setLayoutX(200);
         toggle.setLayoutY(6);
         toggle.setOnMouseClicked(event -> {
             toggle.setBoolValue(!toggle.switchedOnProperty());

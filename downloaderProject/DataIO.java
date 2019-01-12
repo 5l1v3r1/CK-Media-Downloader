@@ -285,7 +285,7 @@ public class DataIO {
     public synchronized static Vector<String> loadStarList() {
         Vector<String> words = new Vector<>();
         
-        Scanner reader = new Scanner(System.class.getResource("/data/starList.dat").getFile());
+        Scanner reader = new Scanner(System.class.getResourceAsStream("/data/starList.dat"));
         while(reader.hasNextLine()) words.add(reader.nextLine()); reader.close();
         return words;
     }

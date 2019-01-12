@@ -19,14 +19,12 @@ import downloader.DataStructures.video;
 import downloader.Extractors.*;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.Formatter;
 
 public class DataCollection implements Externalizable{
 	private static final long serialVersionUID = 1L;
-	private static final long VERSION = 1;
+	private static final long VERSION = 2;
 	private transient Vector<String> starList, /*dictionary,*/ ignoreWords;
-	private Map<String, Integer> keywords;
-	private Map<Star, Integer> frequentStars;
+	private Map<String, Integer> keywords, frequentStars;
 	private Map<String, Integer> frequentSites;
 	private Queue<video> videoQueue; 
 	
@@ -149,10 +147,10 @@ public class DataCollection implements Externalizable{
 	
 	private void addStar(String name) {
 		//if (frequentStars.containsKey(name))
-                if (frequentStars.containsKey(new Star(name,true)))
-			frequentStars.put(new Star(name, MainApp.settings.preferences.getProfileFolder()), frequentStars.get(new Star(name,true)) + 1);
-		else
-			frequentStars.put(new Star(name, MainApp.settings.preferences.getProfileFolder()), 1);
+                if (frequentStars.containsKey(name))
+			frequentStars.put(name, frequentStars.get(name) + 1);
+                else
+			frequentStars.put(name, 1);
 	}
 	
 	private void addKeyword(String word) {
@@ -171,16 +169,18 @@ public class DataCollection implements Externalizable{
 	
 	private void generateSuggestion() {
 		final Map<String, Integer> keywordChart = keywords.entrySet().stream().sorted(Map.Entry.<String, Integer>comparingByValue().reversed()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
-		final Map<Star, Integer> StarChart = frequentStars.entrySet().stream().sorted(Map.Entry.<Star, Integer>comparingByValue().reversed()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+		final Map<String, Integer> StarChart = frequentStars.entrySet().stream().sorted(Map.Entry.<String, Integer>comparingByValue().reversed()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
 		Iterator<String> i = keywordChart.keySet().iterator();
-		Iterator<Star> j = StarChart.keySet().iterator();
+		Iterator<String> j = StarChart.keySet().iterator();
 		if (i.hasNext() && j.hasNext()) {
                     String top = i.next();
-                    Star topStar = j.next();
+                    System.out.println("top: "+keywords.get(top)+" it: "+top);
+                    String topStar = j.next();
+                    System.out.println("topstar: "+frequentStars.get(topStar)+" it: "+topStar);
                     if ((keywords.get(top) > 1) && (frequentStars.get(topStar) > 1))
                             generateSearch(keywordChart,StarChart);
                     else if (frequentStars.get(topStar) > 1)
-                            search(StarChart.keySet().iterator().next().getName()); //search top star
+                            search(StarChart.keySet().iterator().next()); //search top star
                     else if (keywords.get(top) > 1) {
                             generateSearch(keywordChart);
                     }
@@ -190,14 +190,15 @@ public class DataCollection implements Externalizable{
                     if (keywords.get(top) > 1)
                         generateSearch(keywordChart);
 		} else if(j.hasNext()) {
-			Star topStar = j.next();
+			String topStar = j.next();
+                        System.out.println("topstar: "+frequentStars.get(topStar)+" it: "+topStar);
 			if (frequentStars.get(topStar) > 1)
-				search(StarChart.keySet().iterator().next().getName()); //search top star
+				search(StarChart.keySet().iterator().next()); //search top star
 		}
 	}
 	
-	private void generateSearch(Map<String,Integer> kwords, Map<Star,Integer> stars) {
-		Star star = stars.keySet().iterator().next(); //get top star
+	private void generateSearch(Map<String,Integer> kwords, Map<String,Integer> stars) {
+		String star = stars.keySet().iterator().next(); //get top star
 		Random randomNum = new Random();
 		int max = randomNum.nextInt(5); //generate 0 - 4
 		
@@ -284,10 +285,21 @@ public class DataCollection implements Externalizable{
 		long id = (long)in.readObject();
 		if (id == 1) {
 			keywords = (HashMap<String, Integer>)in.readObject();
-			frequentStars = (HashMap<Star, Integer>)in.readObject();
+			Map<Star,Integer> star = (HashMap<Star, Integer>)in.readObject();
+                        Iterator<Star> i = star.keySet().iterator();
+                        frequentStars = new HashMap<>();
+                        while(i.hasNext()) {
+                            Star next = i.next();
+                            frequentStars.put(next.getName(),star.get(next));
+                        }
 			try {videoQueue = (LinkedList<video>)in.readObject(); }catch (IOException e){ videoQueue = new LinkedList<video>();}
 			frequentSites = (HashMap<String, Integer>)in.readObject();
-		}
+		} else if (id == 2) {
+                    keywords = (HashMap<String, Integer>)in.readObject();
+                    frequentStars = (HashMap<String, Integer>)in.readObject();
+                    try {videoQueue = (LinkedList<video>)in.readObject(); }catch (IOException e){ videoQueue = new LinkedList<video>();}
+                    frequentSites = (HashMap<String, Integer>)in.readObject();
+                }
 	}
 
 	@Override public void writeExternal(ObjectOutput out) throws IOException {

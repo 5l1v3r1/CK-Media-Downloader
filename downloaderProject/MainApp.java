@@ -69,14 +69,14 @@ public class MainApp extends Application {
     public static ProgressBar progress;
     public static TextArea log;
     public static Actions act;
-    private static final String TITLE = "Video Downloader Prototype build 22.1";
+    private static final String TITLE = "Video Downloader Prototype build 22.2";
     public static DownloadHistory downloadHistoryList;
     public static StackPane root;
     public static DataCollection habits;
     private static boolean dontLoad;
     
     public static final int WIDTH = 895, HEIGHT = 550, XS = 100;
-    public static final int SUPPORTEDSITES = 29, PANES = 6;
+    public static final int SUPPORTEDSITES = 30, PANES = 6;
     public static Pane[] actionPanes = new Pane[PANES];
     public static final int DOWNLOADPANE = 0, BROWSERPANE = 1, SETTINGSPANE = 2, SHAREPANE = 3, DOWNLOADHISTORYPANE = 4, ACCOUNTPANE = 5;
     
@@ -162,6 +162,23 @@ public class MainApp extends Application {
         }
     }
     
+    private void setProfileFolder() {
+        if (null == OS) { //assume unix system
+            settings.preferences.setProfileFolder(new File(MainApp.saveDir.getAbsolutePath()+"/Stars"));
+            if (!settings.preferences.getProfileFolder().exists()) settings.preferences.getProfileFolder().mkdirs();
+        } else switch (OS) {
+            case Windows:                
+                settings.preferences.setProfileFolder(new File(MainApp.saveDir.getAbsolutePath()+"\\Stars"));
+                if (!settings.preferences.getProfileFolder().exists()) settings.preferences.getProfileFolder().mkdirs();
+                break;
+            case Linux:
+            case Apple:
+            default:
+                settings.preferences.setProfileFolder(new File(MainApp.saveDir.getAbsolutePath()+"/Stars"));
+                if (!settings.preferences.getProfileFolder().exists()) settings.preferences.getProfileFolder().mkdirs();
+        }       
+    }
+    
     public static void displayPane(int tab) {
         actionPaneHolder.getChildren().clear();
         actionPaneHolder.getChildren().add(actionPanes[tab]);
@@ -215,7 +232,6 @@ public class MainApp extends Application {
             loader = new FXMLLoader();
             loader.setLocation(MainApp.class.getResource("layouts/settings.fxml"));
             actionPanes[SETTINGSPANE] = loader.load();
-            settings = new ManageSettings(actionPanes[SETTINGSPANE],DataIO.loadSettings());
             loader = new FXMLLoader();
             loader.setLocation(MainApp.class.getResource("layouts/share.fxml"));
             actionPanes[SHAREPANE] = loader.load();
@@ -246,7 +262,6 @@ public class MainApp extends Application {
             scene.getStylesheets().add(MainApp.class.getResource("mainStyleSheet.css").toExternalForm());
             root.scaleXProperty().bind(scene.widthProperty().divide(WIDTH));
             root.scaleYProperty().bind(scene.heightProperty().divide(HEIGHT));
-            setDarkTheme(settings.preferences.dark());
         } catch (IOException e) {
             createMessageDialog("Failed: "+e.getMessage());
         }
@@ -405,6 +420,9 @@ public class MainApp extends Application {
        dm = new DownloadManager(); //create the download manager
         
        loadView();
+       settings = new ManageSettings(actionPanes[SETTINGSPANE],DataIO.loadSettings());
+       setProfileFolder();
+       setDarkTheme(settings.preferences.dark());
 
        Pane topPane = (Pane)scene.lookup("#topPane");
        setOSicon((ImageView)topPane.lookup("#OSicon"));
