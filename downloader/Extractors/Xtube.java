@@ -6,10 +6,10 @@
 package downloader.Extractors;
 
 import downloader.CommonUtils;
+import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
 import downloaderProject.MainApp;
-import downloaderProject.OperationStream;
 import java.io.File;
 import java.io.IOException;
 import org.jsoup.UncheckedIOException;
@@ -56,29 +56,14 @@ public class Xtube extends GenericExtractor{
         return qualities;
     }
     
-    @Override
-    public void getVideo(OperationStream s) throws IOException, SocketTimeoutException, UncheckedIOException, Exception {
-        if (s != null) s.startTiming();
-        
+    public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException{        
         Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
-        
-	String title = Jsoup.parse(page.select("h1").get(0).toString()).body().text();
 	Map<String,String> quality = getQualities(page.toString());
         
-        //CommonUtils.showQualityDialog(quality);
+        MediaDefinition media = new MediaDefinition();
+        media.addThread(quality,videoName);
         
-        String video = null;
-        if (quality.containsKey("720"))
-            video = quality.get("720");
-        else if(quality.containsKey("480"))
-            video = quality.get("480");
-        else if (quality.containsKey("360"))
-            video = quality.get("360");
-        else if (quality.containsKey("240"))
-            video = quality.get("240");
-        else video = quality.get((String)quality.values().toArray()[0]);
-        
-        super.downloadVideo(video,title,s);
+        return media;
     }
     
     private static String downloadVideoName(String url) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
@@ -98,13 +83,11 @@ public class Xtube extends GenericExtractor{
         return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,skip-2));
     }
     
-    @Override
-    protected void setExtractorName() {
+    @Override protected void setExtractorName() {
         extractorName = "Xtube";
     }
 
-    @Override
-    public video similar() throws IOException {
+    @Override public video similar() throws IOException {
     	if (url == null) return null;
         
         video v = null;
@@ -122,8 +105,7 @@ public class Xtube extends GenericExtractor{
         return v;
     }
 
-    @Override
-    public video search(String str) throws IOException{
+    @Override public video search(String str) throws IOException{
     	str = str.trim(); str = str.replaceAll(" ", "-");
     	String searchUrl = "https://www.xtube.com/search/video/"+str;
     	
@@ -165,8 +147,7 @@ public class Xtube extends GenericExtractor{
         return CommonUtils.getContentSize(video);
     }
 
-    @Override
-    public long getSize() throws IOException, GenericDownloaderException {
+    @Override public long getSize() throws IOException, GenericDownloaderException {
         return getSize(url);
     }
 }

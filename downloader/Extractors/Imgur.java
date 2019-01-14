@@ -5,16 +5,18 @@
  */
 package downloader.Extractors;
 
-import ChrisPackage.GameTime;
 import downloader.CommonUtils;
-import downloader.DataStructures.downloadedMedia;
+import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
+import downloader.Exceptions.GenericDownloaderException;
+import downloader.Exceptions.PageParseException;
 import downloaderProject.MainApp;
-import downloaderProject.OperationStream;
 import java.io.File;
 import java.io.IOException;
 import org.jsoup.UncheckedIOException;
 import java.net.SocketTimeoutException;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -48,34 +50,12 @@ public class Imgur extends GenericExtractor {
     public Imgur(String url, File thumb, String videoName) {
         super(chop(url),thumb,videoName);
     }
-    
-    private void download(String url, OperationStream s, String type, String name) throws IOException {
-       long stop = 0; File folder;
-      if ((type.equals(".jpg")) || (type.equals(".png")) || (type.equals(".gif")))
-           folder = MainApp.settings.preferences.getPictureFolder();
-       else folder = MainApp.settings.preferences.getVideoFolder();
-        do {
-            if (s != null) s.addProgress("Trying "+name);
-            stop = CommonUtils.saveFile(url,name,folder,s);
-           
-        }while(stop != -2); //retry download if failed
-        MainApp.createNotification("Download Success","Finished Downloading "+name);
-        File saved = new File(folder + File.separator + name);
-        if ((type.equals(".jpg")) || (type.equals(".png")) || (type.equals(".gif")))
-            MainApp.downloadHistoryList.add(new downloadedMedia(videoName,saved,saved,name()));
-        else MainApp.downloadHistoryList.add(new downloadedMedia(videoName,getThumb(),saved,name()));
-    }
 
-    @Override
-    public void getVideo(OperationStream s) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
-        if (s != null) s.startTiming();
+    @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException{
         
         if (url.matches("https://imgur.com/gallery/[\\S]*"))
-            getImgurGallery(url,s);
-	else getImgurSingle(url,s);
-        
-        GameTime took = s.endOperation();
-        if (s != null) s.addProgress("Took "+took.getTime()+" to download");
+            return getImgurGallery(url);
+	else return getImgurSingle(url);
     }
     
     private static String downloadVideoName(String url) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
@@ -115,49 +95,54 @@ public class Imgur extends GenericExtractor {
     	return s.charAt(s.length()-1) == '/' ? s.substring(0,s.length()-1) : s;    		
     }
     
-    private void getImgurGallery(String url, OperationStream s) throws IOException {
+    private MediaDefinition getImgurGallery(String url) throws IOException, GenericDownloaderException {
         try {
             Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
             String data = page.toString().substring(page.toString().indexOf("image               : {")+22,page.toString().indexOf("},\n",page.toString().indexOf("image               : {"))+1);
             JSONObject details = (JSONObject)new JSONParser().parse(data);
             if (details.get("album_images") == null)
-                getSingle(details,s);
+                return getSingle(details);
             else {
+                MediaDefinition media = new MediaDefinition();
                 int count = Integer.parseInt(String.valueOf(((JSONObject)details.get("album_images")).get("count")));
 		JSONArray images = ((JSONArray)((JSONObject)details.get("album_images")).get("images"));
 		String title = (String)details.get("title");
         	for(int i = 0; i < count; i++) {
                     String name = title.length() < 1 ? ((JSONObject)images.get(i)).get("hash")+" "+String.valueOf(i+1)+((JSONObject)images.get(i)).get("ext") : title + " " + String.valueOf(i+1);
                     String link = "https://i.imgur.com/"+ ((JSONObject)images.get(i)).get("hash")+""+((JSONObject)images.get(i)).get("ext"); 
-                    download(link, s,(String)((JSONObject)images.get(i)).get("ext"), name);
+                    Map<String,String> qualities = new HashMap<>();
+                    qualities.put("single",link); media.setAlbumName(videoName);
+                    media.addThread(qualities,name);
                 }
+                return media;
             }
 	} catch (ParseException e) {
-            System.out.println(e.getMessage());
+            throw new PageParseException(e.getMessage());
 	}
     }
 	
-    private void getSingle(JSONObject details, OperationStream s) throws IOException {
+    private MediaDefinition getSingle(JSONObject details) throws IOException {
         String title = (String)details.get("title");
                
         String name = title.length() < 1 ? details.get("hash")+""+details.get("ext") : title;
         String link = "https://i.imgur.com/"+ details.get("hash")+""+details.get("ext"); 
-        download(link,s,(String)details.get("ext"),name);
+        Map<String,String> qualities = new HashMap<>(); MediaDefinition media = new MediaDefinition();
+        qualities.put("single",link); media.addThread(qualities,name);
+        return media;
     }
 	
-    private void getImgurSingle(String url, OperationStream s) throws IOException {
+    private MediaDefinition getImgurSingle(String url) throws IOException, GenericDownloaderException{
         try {
             Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
             String data = page.toString().substring(page.toString().indexOf("image               : {")+22,page.toString().indexOf("},\n",page.toString().indexOf("image               : {"))+1);
             JSONObject details = (JSONObject)new JSONParser().parse(data);
-            getSingle(details,s);
+            return getSingle(details);
         } catch (ParseException e) {
-            System.out.println(e.getMessage());
+            throw new PageParseException(e.getMessage());
         }
     }
     
-    @Override
-    protected void setExtractorName() {
+    @Override protected void setExtractorName() {
         extractorName = "Imgur";
     }
     
@@ -198,20 +183,17 @@ public class Imgur extends GenericExtractor {
         return -1;
     }
 
-    @Override
-    public long getSize() throws IOException {
+    @Override public long getSize() throws IOException {
         if (url.matches("https://imgur.com/gallery/[\\S]*"))
             return getCollectSize();
 	else return getSingleSize();
     }
 
-    @Override
-    public video similar() throws IOException {
+    @Override public video similar() throws IOException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override
-    public video search(String str) throws IOException {
+    @Override public video search(String str) throws IOException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

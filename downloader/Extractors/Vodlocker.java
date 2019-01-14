@@ -6,13 +6,15 @@
 package downloader.Extractors;
 
 import downloader.CommonUtils;
+import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
 import downloaderProject.MainApp;
-import downloaderProject.OperationStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
+import java.util.HashMap;
+import java.util.Map;
 import org.jsoup.Jsoup;
 import org.jsoup.UncheckedIOException;
 import org.jsoup.nodes.Document;
@@ -36,15 +38,15 @@ public class Vodlocker extends GenericExtractor{
         super(url,thumb,videoName);
     }
 
-    @Override
-    public void getVideo(OperationStream s) throws IOException, SocketTimeoutException, UncheckedIOException, Exception {
-        if (s != null) s.startTiming();
+    @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException{
         Document page =  Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
         
         String video = page.select("video").select("source").attr("src");
-        String title = downloadVideoName(url);
-        System.out.println(video);
-        super.downloadVideo(video,title,s);
+        Map<String,String> qualities = new HashMap<>();
+        qualities.put("single",video); MediaDefinition media = new MediaDefinition();
+        media.addThread(qualities,videoName);
+        
+        return media;
     }
     
     private static String downloadVideoName(String url) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
@@ -79,27 +81,20 @@ public class Vodlocker extends GenericExtractor{
         return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb));
     }
 
-    @Override
-    protected void setExtractorName() {
+    @Override protected void setExtractorName() {
         extractorName = "Vodlocker";
     }
 
-    @Override
-    public video similar() {
+    @Override public video similar() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override
-    public video search(String str) throws IOException {
+    @Override public video search(String str) throws IOException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override
-    public long getSize() throws IOException, GenericDownloaderException {
-        Document page =  Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
-        
-        String video = page.select("video").select("source").attr("src");
-        return CommonUtils.getContentSize(video);
+    @Override public long getSize() throws IOException, GenericDownloaderException {
+        return CommonUtils.getContentSize(getVideo().iterator().next().get("single"));
     }
     
 }

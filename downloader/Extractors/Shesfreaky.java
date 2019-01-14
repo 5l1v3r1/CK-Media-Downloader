@@ -7,16 +7,18 @@ package downloader.Extractors;
 
 import downloader.CommonUtils;
 import downloader.DataStructures.GenericQuery;
+import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
 import downloader.Exceptions.PageNotFoundException;
 import downloader.Exceptions.PrivateVideoException;
 import downloaderProject.MainApp;
-import downloaderProject.OperationStream;
 import java.io.File;
 import java.io.IOException;
 import org.jsoup.UncheckedIOException;
 import java.net.SocketTimeoutException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 import java.util.Vector;
 import org.jsoup.Jsoup;
@@ -46,16 +48,17 @@ public class Shesfreaky extends GenericQueryExtractor{
         super(url,thumb,videoName);
     }
 
-    @Override
-    public void getVideo(OperationStream s) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
-        if (s != null) s.startTiming();
+    @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException{
         
         Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
         verify(page);
 	String video = page.select("video").select("source").attr("src");
-        String title = Jsoup.parse(page.getElementById("n-vid-details").select("h2").toString()).body().text(); //pull out text from span
         
-        super.downloadVideo(video,title,s);
+        Map<String,String> qualities = new HashMap<>();
+        qualities.put("single",video); MediaDefinition media = new MediaDefinition();
+        media.addThread(qualities,videoName);
+        
+        return media;
     }
 
     private static void verify(Document page) throws GenericDownloaderException {
@@ -66,8 +69,7 @@ public class Shesfreaky extends GenericQueryExtractor{
            throw new PageNotFoundException();
     }
     
-    @Override
-    public GenericQuery query(String search) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
+    @Override public GenericQuery query(String search) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
         search = search.trim(); 
         search = search.replaceAll(" ", "-");
         String searchUrl = "https://www.shesfreaky.com/search/videos/"+search+"/page1.html";
@@ -98,8 +100,7 @@ public class Shesfreaky extends GenericQueryExtractor{
          return thequery;
     }
 
-    @Override
-    protected Vector<File> parse(String url) throws IOException, SocketTimeoutException, UncheckedIOException {
+    @Override protected Vector<File> parse(String url) throws IOException, SocketTimeoutException, UncheckedIOException {
         Document page; 
         Vector<File> thumbs = new Vector<>();
          page = getPage(url,false);
@@ -153,13 +154,11 @@ public class Shesfreaky extends GenericQueryExtractor{
         return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumbLink,skip));
     }
     
-    @Override
-    protected void setExtractorName() {
+    @Override protected void setExtractorName() {
         extractorName = "Shesfreaky";
     }
 
-    @Override
-    public video similar() throws IOException {
+    @Override public video similar() throws IOException {
     	if (url == null) return null;
         
         video v = null;
@@ -180,8 +179,7 @@ public class Shesfreaky extends GenericQueryExtractor{
         return v;
     }
 
-    @Override
-    public video search(String str) throws IOException {
+    @Override public video search(String str) throws IOException {
         str = str.trim(); 
         str = str.replaceAll(" ", "-");
         String searchUrl = "https://www.shesfreaky.com/search/videos/"+str+"/page1.html";
@@ -208,11 +206,7 @@ public class Shesfreaky extends GenericQueryExtractor{
          return v;
     }
 
-    @Override
-    public long getSize() throws IOException, GenericDownloaderException {
-        Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
-        verify(page);
-	String video = page.select("video").select("source").attr("src");
-        return CommonUtils.getContentSize(video);
+    @Override  public long getSize() throws IOException, GenericDownloaderException {
+        return CommonUtils.getContentSize(getVideo().iterator().next().get("single"));
     }
 }

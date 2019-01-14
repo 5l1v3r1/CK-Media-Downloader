@@ -6,11 +6,11 @@
 package downloader.Extractors;
 
 import downloader.CommonUtils;
+import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
 import downloader.Exceptions.PageNotFoundException;
 import downloaderProject.MainApp;
-import downloaderProject.OperationStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
@@ -30,6 +30,7 @@ import org.jsoup.nodes.Document;
  * @author christopher
  */
 public class Vimeo extends GenericExtractor{
+    private static final int skip = 2;
     
     public Vimeo() { //this contructor is used for when you jus want to search
         
@@ -63,27 +64,17 @@ public class Vimeo extends GenericExtractor{
         return qualities;
     }
     
-    @Override
-    public void getVideo(OperationStream s) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
-        if (s != null) s.startTiming();
-        
+    @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
         Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
         verify(page); String newUrl = "https://player.vimeo.com/video/"+url.split("/")[url.split("/").length -1];
         page = Jsoup.parse(Jsoup.connect(newUrl).userAgent(CommonUtils.PCCLIENT).get().html());
         verify(page);
+        
         Map<String, String> qualities = getQualities(CommonUtils.getSBracket(page.toString(), page.toString().indexOf("progressive")));
-        int max = 144;
-        Iterator<String> i = qualities.keySet().iterator();
-        while(i.hasNext()) {
-            String str = i.next();
-            int temp = Integer.parseInt(str.substring(0,str.length()-1));
-            if(temp > max)
-                max = temp;
-        }
+        MediaDefinition media = new MediaDefinition();
+        media.addThread(qualities,videoName);
         
-	String video = qualities.get(String.valueOf(max)+"p");
-        
-        super.downloadVideo(video,videoName,s);
+        return media;
     }
     
     private static void verify(Document page) throws GenericDownloaderException {
@@ -113,27 +104,24 @@ public class Vimeo extends GenericExtractor{
             System.out.println("error parsing for thumb "+url);
             throw e;
         }
-        if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,2))) //if file not already in cache download it
-            CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,2),MainApp.imageCache);
-        return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,2));
+        if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,skip))) //if file not already in cache download it
+            CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,skip),MainApp.imageCache);
+        return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,skip));
     }
     
     private static String convertUrl(String url) {
         return url.replace("player.vimeo.com/video/", "vimeo.com/");
     }
 
-    @Override
-    protected void setExtractorName() {
+    @Override protected void setExtractorName() {
         extractorName = "Vimeo";
     }
 
-    @Override
-    public video similar() {
+    @Override public video similar() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override
-    public video search(String str) throws IOException {
+    @Override public video search(String str) throws IOException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     	/*str = str.trim(); str = str.replaceAll(" ", "+");
     	String searchUrl = "https://www.vimeo.com/search?q="+str;
@@ -145,22 +133,21 @@ public class Vimeo extends GenericExtractor{
         
         for(int i = 0; i < li.size(); i++) {
         	String thumbLink = li.get(i).select("div.iris_thumbnail.iris_thumbnail.iris_thumbnail--16-9").select("img").attr("src"); 
-        	if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,2))) //if file not already in cache download it
-                    if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,2),MainApp.imageCache) != -2)
+        	if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,skip))) //if file not already in cache download it
+                    if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,skip),MainApp.imageCache) != -2)
                         throw new IOException("Failed to completely download page");
         	String link = li.get(i).select("a.iris_video-vital__overlay.iris_link-box.iris_annotation-box.iris_chip-box").attr("href");
         	String name = li.get(i).select("span.iris_link.iris_link--gray-2").text();
                 System.out.println("link = "+link+"\nname = "+name);
         	if (link.isEmpty() || name.isEmpty()) continue;
-        	v = new video(link,name,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,2)));
+        	v = new video(link,name,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,skip)));
         	break;
         }
         
         return v;*/
     }
 
-    @Override
-    public long getSize() throws IOException, GenericDownloaderException {
+    @Override public long getSize() throws IOException, GenericDownloaderException {
         Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
         verify(page); String newUrl = "https://player.vimeo.com/video/"+url.split("/")[url.split("/").length -1];
         page = Jsoup.parse(Jsoup.connect(newUrl).userAgent(CommonUtils.PCCLIENT).get().html());

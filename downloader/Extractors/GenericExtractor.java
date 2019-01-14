@@ -5,18 +5,14 @@
  */
 package downloader.Extractors;
 
-import ChrisPackage.GameTime;
 import downloader.CommonUtils;
-import downloader.DataStructures.downloadedMedia;
+import downloader.DataStructures.MediaDefinition;
 import downloader.Exceptions.GenericDownloaderException;
 import downloaderProject.MainApp;
-import downloaderProject.OperationStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import org.jsoup.UncheckedIOException;
-import static java.lang.Thread.sleep;
-import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -61,25 +57,7 @@ public abstract class GenericExtractor implements Trackable {
         return page;
     }
     
-    public abstract void getVideo(OperationStream s) throws IOException, SocketTimeoutException, UncheckedIOException, Exception;
-    
-    protected void downloadVideo(String video, String title, OperationStream s) throws MalformedURLException {
-        long stop = 0;
-        do {
-            if (s != null) s.addProgress("Trying "+CommonUtils.clean(title+".mp4"));
-            stop = CommonUtils.saveFile(video,CommonUtils.clean(title+".mp4"),MainApp.settings.preferences.getVideoFolder(),s);
-            try {
-                sleep(4000);
-            } catch (InterruptedException ex) {
-                System.out.println("Failed to pause");
-            }
-        }while(stop != -2); //retry download if failed
-        GameTime took = s.endOperation();
-        if (s != null) s.addProgress("Took "+took.getTime()+" to download");
-        MainApp.createNotification("Download Success","Finished Downloading "+title);
-        File saved = new File(MainApp.settings.preferences.getVideoFolder() + File.separator + CommonUtils.clean(title+".mp4"));
-        MainApp.downloadHistoryList.add(new downloadedMedia(videoName,videoThumb,saved,name()));
-    }
+    public abstract MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException;
     
     public String getVideoName() {
         return this.videoName;
@@ -96,7 +74,8 @@ public abstract class GenericExtractor implements Trackable {
     public abstract long getSize() throws IOException, GenericDownloaderException;
     
     public static String configureUrl(String link) {
-        if ((!link.startsWith("https://")) && (!link.startsWith("http://"))) return "https://" + link;
-        else return link;
+        if (!link.matches("http(s)?://[\\S]+")) return "https://" + link;
+        else
+            return link;
     }
 }

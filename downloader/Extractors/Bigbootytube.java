@@ -7,12 +7,14 @@ package downloader.Extractors;
 
 import downloader.CommonUtils;
 import downloader.DataStructures.GenericQuery;
+import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
 import downloaderProject.MainApp;
-import downloaderProject.OperationStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 import java.util.Vector;
 import org.jsoup.Jsoup;
@@ -25,7 +27,7 @@ import org.jsoup.select.Elements;
  * @author christopher
  */
 public class Bigbootytube extends GenericQueryExtractor{
-	private static final int skip = 4;
+    private static final int skip = 4;
     
     public Bigbootytube() { //this contructor is used for when you jus want to query
         
@@ -43,20 +45,19 @@ public class Bigbootytube extends GenericQueryExtractor{
         super(url,thumb,videoName);
     }
     
-    @Override
-    public void getVideo(OperationStream s) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
-        if (s != null) s.startTiming();
+    @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException{
         
         Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
         String video = CommonUtils.getLink(page.toString(),page.toString().indexOf("video_url:")+12,'\'');
-        String title = Jsoup.parse(page.select("h1").toString()).body().text();
+        Map<String,String> qualities = new HashMap<>(); qualities.put("single",video);
+        MediaDefinition media = new MediaDefinition(); media.addThread(qualities,videoName);
         
-        super.downloadVideo(video,title,s);
+        return media;
+        //super.downloadVideo(video,title,s);
     }
     
     int stop;
-    @Override
-    public GenericQuery query(String search) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
+    @Override public GenericQuery query(String search) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
         search = search.trim(); 
         
         search = search.replaceAll(" ", "+");
@@ -83,8 +84,7 @@ public class Bigbootytube extends GenericQueryExtractor{
     }
     
     //get preview thumbnails
-    @Override
-    protected Vector<File> parse(String url) throws IOException, SocketTimeoutException, UncheckedIOException{ 
+    @Override protected Vector<File> parse(String url) throws IOException, SocketTimeoutException, UncheckedIOException{ 
         Vector<File> thumbs = new Vector<>();
         
         for(int i = 1; i <= stop; i++) {
@@ -112,13 +112,11 @@ public class Bigbootytube extends GenericQueryExtractor{
         return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,skip));
     }
 
-    @Override
-    protected void setExtractorName() {
+    @Override protected void setExtractorName() {
         extractorName = "Bigbootytube";
     }
 
-    @Override
-    public video similar() throws IOException {
+    @Override public video similar() throws IOException {
     	if (url == null) return null;
         
         video v = null;
@@ -142,8 +140,7 @@ public class Bigbootytube extends GenericQueryExtractor{
         return v;
     }
 
-    @Override
-    public video search(String str) throws IOException {
+    @Override public video search(String str) throws IOException {
         str = str.trim(); 
         str = str.replaceAll(" ", "+");
         String searchUrl = "http://www.bigbootytube.xxx/search/?q="+str;
@@ -164,8 +161,7 @@ public class Bigbootytube extends GenericQueryExtractor{
         return v;        
     }
 
-    @Override
-    public long getSize() throws IOException {
+    @Override public long getSize() throws IOException {
         Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
         String video = CommonUtils.getLink(page.toString(),page.toString().indexOf("video_url:")+12,'\'');
         return CommonUtils.getContentSize(video);

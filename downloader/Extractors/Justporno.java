@@ -6,13 +6,15 @@
 package downloader.Extractors;
 
 import downloader.CommonUtils;
+import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
 import downloaderProject.MainApp;
-import downloaderProject.OperationStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.jsoup.Jsoup;
 import org.jsoup.UncheckedIOException;
@@ -42,15 +44,16 @@ public class Justporno extends GenericExtractor{
         super(url,thumb,videoName);
     }
     
-    @Override
-    public void getVideo(OperationStream s) throws IOException, SocketTimeoutException, UncheckedIOException, Exception {
-        if (s != null) s.startTiming();
-        
+    @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException {        
         Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
         String video = page.select("video").select("source").attr("src");
-        String title = Jsoup.parse(page.select("h1").toString()).body().text();
         
-        super.downloadVideo(video,title,s);
+        Map<String,String> qualities = new HashMap<>();
+        qualities.put("single",video); MediaDefinition media = new MediaDefinition();
+        media.addThread(qualities,videoName);
+        
+        return media;
+        //super.downloadVideo(video,title,s);
     }
     
     private static String downloadVideoName(String url) throws IOException , SocketTimeoutException, UncheckedIOException, Exception{
@@ -69,13 +72,11 @@ public class Justporno extends GenericExtractor{
         return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,skip-2));
     }
 
-    @Override
-    protected void setExtractorName() {
+    @Override protected void setExtractorName() {
         extractorName = "Justporno";
     }
 
-    @Override
-    public video similar() throws IOException {
+    @Override public video similar() throws IOException {
     	if (url == null) return null;
         
         video v = null;
@@ -98,8 +99,7 @@ public class Justporno extends GenericExtractor{
         return v;
     }
 
-    @Override
-    public video search(String str) throws IOException {
+    @Override public video search(String str) throws IOException {
     	str = str.trim(); str = str.replaceAll(" ", "+");
     	String searchUrl = "http://justporno.tv/search?query="+str;
     	
@@ -126,10 +126,7 @@ public class Justporno extends GenericExtractor{
         return v;
     }
 
-    @Override
-    public long getSize() throws IOException, GenericDownloaderException {
-        Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
-        String video = page.select("video").select("source").attr("src");
-        return CommonUtils.getContentSize(video);
+    @Override public long getSize() throws IOException, GenericDownloaderException {
+        return CommonUtils.getContentSize(getVideo().iterator().next().get("single"));
     }
 }

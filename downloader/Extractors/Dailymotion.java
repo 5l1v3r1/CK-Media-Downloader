@@ -6,12 +6,12 @@
 package downloader.Extractors;
 
 import downloader.CommonUtils;
+import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
 import downloader.Exceptions.PageNotFoundException;
 import downloader.Exceptions.PrivateVideoException;
 import downloaderProject.MainApp;
-import downloaderProject.OperationStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
@@ -68,9 +68,7 @@ public class Dailymotion extends GenericExtractor{
         return links;
     }
     
-    @Override
-    public void getVideo(OperationStream s) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
-        if (s != null) s.startTiming();
+    @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException{
         
         Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
         verify(page); String link = null;
@@ -84,16 +82,11 @@ public class Dailymotion extends GenericExtractor{
             page = Jsoup.parse(Jsoup.connect(link).userAgent(CommonUtils.PCCLIENT).get().html());
             Map<String, String> qualities = getQualities(page.toString().substring(page.toString().indexOf("var config = {")+13, page.toString().indexOf("};")+1));
         
-            int max = 144;
-            Iterator i = qualities.keySet().iterator();
-            while(i.hasNext()) {
-                int temp = Integer.parseInt((String)i.next());
-                if(temp > max)
-                    max = temp;
-            }
-            String video = qualities.get(String.valueOf(max));
-        
-            super.downloadVideo(video,videoName,s);
+            MediaDefinition media = new MediaDefinition(); //all the qualities will have the same name
+            media.addThread(qualities,videoName);
+            
+            return media;
+            //super.downloadVideo(video,videoName,s);
         }
     }
     
@@ -138,18 +131,15 @@ public class Dailymotion extends GenericExtractor{
         return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,1));
     }
 
-    @Override
-    protected void setExtractorName() {
+    @Override protected void setExtractorName() {
         extractorName = "Dailymotion";
     }
 
-    @Override
-    public video similar() {
+    @Override public video similar() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override
-    public video search(String str) throws IOException {
+    @Override public video search(String str) throws IOException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     	/*str = str.trim(); str = str.replaceAll(" ", "%20");
     	String searchUrl = "https://www.dailymotion.com/search/"+str;
@@ -175,8 +165,7 @@ public class Dailymotion extends GenericExtractor{
         return v;*/
     }
 
-    @Override
-    public long getSize() throws IOException, GenericDownloaderException {
+    @Override public long getSize() throws IOException, GenericDownloaderException {
        Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
         verify(page); String link = null;
         for(Element i:page.select("meta")) {

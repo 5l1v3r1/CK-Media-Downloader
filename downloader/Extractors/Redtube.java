@@ -7,14 +7,16 @@ package downloader.Extractors;
 
 import downloader.CommonUtils;
 import downloader.DataStructures.GenericQuery;
+import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
 import downloaderProject.MainApp;
-import downloaderProject.OperationStream;
 import java.io.File;
 import java.io.IOException;
 import org.jsoup.UncheckedIOException;
 import java.net.SocketTimeoutException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 import java.util.Vector;
 import org.jsoup.Jsoup;
@@ -26,7 +28,7 @@ import org.jsoup.select.Elements;
  * @author christopher
  */
 public class Redtube extends GenericQueryExtractor{
-	private static final int skip = 5;
+    private static final int skip = 5;
     public Redtube() { //this contructor is used for when you jus want to query
         
     }
@@ -43,24 +45,22 @@ public class Redtube extends GenericQueryExtractor{
         super(url,thumb,videoName);
     }
 
-    @Override
-    public void getVideo(OperationStream s) throws IOException,SocketTimeoutException, UncheckedIOException, Exception{
-        if (s != null) s.startTiming();
+    @Override public MediaDefinition getVideo() throws IOException,SocketTimeoutException, UncheckedIOException{
         Document page;
         String html = Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html();
         page = Jsoup.parse(html);
-		
-	String title = page.select("meta").get(6).attr("content");
+        
 	int mediaIndex = page.toString().indexOf("mediaDefinition:");
 		
 	String defaultVideo = CommonUtils.getBracket(page.toString(),mediaIndex);
 	String videoLink = CommonUtils.eraseChar(CommonUtils.getLink(defaultVideo,defaultVideo.indexOf("videoUrl")+11,'"'),'\\');
         
-        super.downloadVideo(videoLink,title,s);
+        Map<String,String> qualities = new HashMap<>(); MediaDefinition media = new MediaDefinition();
+        qualities.put("single", videoLink); media.addThread(qualities, videoName);
+        return media;
     }
     
-    @Override
-    public GenericQuery query(String search) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
+    @Override public GenericQuery query(String search) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
         search = search.trim(); 
         search = search.replaceAll(" ", "+");
         String searchUrl = "https://www.redtube.com/?search=/"+search+"/";
@@ -86,8 +86,7 @@ public class Redtube extends GenericQueryExtractor{
         return thequery;
     }
     
-    @Override
-    protected Vector<File> parse(String url) throws IOException, SocketTimeoutException, UncheckedIOException {
+    @Override protected Vector<File> parse(String url) throws IOException, SocketTimeoutException, UncheckedIOException {
         Vector<File> thumbs = new Vector<File>();
         Document page;
         if (CommonUtils.checkPageCache(CommonUtils.getCacheName(url,false))) //check to see if page was downloaded previous
@@ -136,13 +135,11 @@ public class Redtube extends GenericQueryExtractor{
         return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,skip+2));
     }    
     
-    @Override
-    protected void setExtractorName() {
+    @Override protected void setExtractorName() {
         extractorName = "Redtube";
     }
 
-    @Override
-    public video similar() throws IOException {
+    @Override public video similar() throws IOException {
     	if (url == null) return null;
         
         video v = null;
@@ -160,8 +157,7 @@ public class Redtube extends GenericQueryExtractor{
         return v;
     }
 
-    @Override
-    public video search(String str) throws IOException {
+    @Override public video search(String str) throws IOException {
         str = str.trim(); 
         str = str.replaceAll(" ", "+");
         String searchUrl = "https://www.redtube.com/?search=/"+str+"/";
@@ -193,8 +189,7 @@ public class Redtube extends GenericQueryExtractor{
         return CommonUtils.getContentSize(videoLink);
     }
 
-    @Override
-    public long getSize() throws IOException, GenericDownloaderException {
+    @Override public long getSize() throws IOException, GenericDownloaderException {
         return getSize(url);
     }
 }

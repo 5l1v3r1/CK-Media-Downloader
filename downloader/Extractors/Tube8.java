@@ -7,10 +7,10 @@ package downloader.Extractors;
 
 import downloader.CommonUtils;
 import downloader.DataStructures.GenericQuery;
+import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
 import downloaderProject.MainApp;
-import downloaderProject.OperationStream;
 import java.io.File;
 import java.io.IOException;
 import org.jsoup.UncheckedIOException;
@@ -108,28 +108,15 @@ public class Tube8 extends GenericQueryExtractor{
         return qualities;
     }
 
-    @Override
-    public void getVideo(OperationStream s) throws IOException, SocketTimeoutException, UncheckedIOException, Exception {
-        if (s != null) s.startTiming();
+    @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException{
         Document page = Jsoup.parse(Jsoup.connect(url).get().html());
         
-        String title = Jsoup.parse(page.select("h1").toString()).body().text();
-        Map<String, String> quality= getQualities(CommonUtils.getSBracket(page.toString(), page.toString().indexOf("mediaDefinition",page.toString().indexOf("var flashvars"))),"quality");
-        String video;
+        Map<String, String> quality = getQualities(CommonUtils.getSBracket(page.toString(), page.toString().indexOf("mediaDefinition",page.toString().indexOf("var flashvars"))),"quality");
+       
+        MediaDefinition media = new MediaDefinition();
+        media.addThread(quality,videoName);
         
-        if (quality.containsKey("720"))
-            video = quality.get("720");
-        else if(quality.containsKey("480"))
-            video = quality.get("480"); 
-        else if (quality.containsKey("1080"))
-            video = quality.get("1080"); 
-        else if(quality.containsKey("240"))
-            video = quality.get("240");    
-        else if(quality.containsKey("180"))
-            video = quality.get("180");    
-        else 
-            video = quality.get((String)quality.keySet().toArray()[0]);
-        super.downloadVideo(video, title, s);       
+        return media;   
     }
     
     private static String downloadVideoName(String url) throws IOException, SocketTimeoutException, UncheckedIOException, Exception {
@@ -149,13 +136,11 @@ public class Tube8 extends GenericQueryExtractor{
         return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,skip));
     }  
     
-    @Override
-    protected void setExtractorName() {
+    @Override protected void setExtractorName() {
         extractorName = "Tube8";
     }
 
-    @Override
-    public video similar() throws IOException {
+    @Override public video similar() throws IOException {
     	if (url == null) return null;
         
         video v = null;
@@ -173,8 +158,7 @@ public class Tube8 extends GenericQueryExtractor{
         return v;
     }
 
-    @Override
-    public video search(String str) throws IOException {
+    @Override public video search(String str) throws IOException {
         str = str.trim(); 
         str = str.replaceAll(" ", "+");
         String searchUrl = "https://www.tube8.com/searches.html?q=/"+str+"/";
@@ -218,8 +202,7 @@ public class Tube8 extends GenericQueryExtractor{
         return CommonUtils.getContentSize(video);
     }
     
-    @Override
-    public long getSize() throws IOException, GenericDownloaderException {
+    @Override public long getSize() throws IOException, GenericDownloaderException {
         return getSize(url);
     }
 }

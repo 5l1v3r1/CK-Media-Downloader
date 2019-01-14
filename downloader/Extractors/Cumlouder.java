@@ -6,13 +6,15 @@
 package downloader.Extractors;
 
 import downloader.CommonUtils;
+import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
 import downloaderProject.MainApp;
-import downloaderProject.OperationStream;
 import java.io.File;
 import java.io.IOException;
 import org.jsoup.UncheckedIOException;
 import java.net.SocketTimeoutException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 import org.jsoup.Jsoup;
@@ -42,9 +44,7 @@ public class Cumlouder extends GenericExtractor {
         super(url,thumb,videoName);
     }
 
-    @Override
-    public void getVideo(OperationStream s) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
-        if (s != null) s.startTiming();
+    @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException {
         
         Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
         String video = "";
@@ -52,7 +52,12 @@ public class Cumlouder extends GenericExtractor {
             video = "https:"+page.select("video").select("source").attr("src");
         else video = "https:"+page.select("video").attr("src");
         
-        super.downloadVideo(video,this.videoName,s);
+        Map<String,String> qualities = new HashMap<>();
+        qualities.put("single",video); MediaDefinition media = new MediaDefinition();
+        media.addThread(qualities,videoName);
+        
+        return media;
+        //super.downloadVideo(video,this.videoName,s);
     }
     
     private static String downloadVideoName(String url) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
@@ -72,13 +77,11 @@ public class Cumlouder extends GenericExtractor {
         return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,skip));
     }
     
-    @Override
-    protected void setExtractorName() {
+    @Override protected void setExtractorName() {
         extractorName = "Cumlouder";
     }
 
-    @Override
-    public video similar() throws IOException{
+    @Override public video similar() throws IOException{
     	if (url == null) return null;
         
         video v = null;
@@ -105,8 +108,7 @@ public class Cumlouder extends GenericExtractor {
         return v;
     }
 
-    @Override
-    public video search(String str) throws IOException {
+    @Override public video search(String str) throws IOException {
     	str = str.trim(); str = str.replaceAll(" ", "%20");
     	String searchUrl = "https://www.cumlouder.com/search?q="+str;
     	
@@ -135,13 +137,7 @@ public class Cumlouder extends GenericExtractor {
         return v;
     }
 
-    @Override
-    public long getSize() throws IOException {
-        Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
-        String video = "";
-        if (page.select("video").select("source") != null)
-            video = "https:"+page.select("video").select("source").attr("src");
-        else video = "https:"+page.select("video").attr("src");
-        return CommonUtils.getContentSize(video);
+    @Override public long getSize() throws IOException {
+        return CommonUtils.getContentSize(getVideo().iterator().next().get("single"));
     }
 }

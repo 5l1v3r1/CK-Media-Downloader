@@ -7,14 +7,16 @@ package downloader.Extractors;
 
 import downloader.CommonUtils;
 import downloader.DataStructures.GenericQuery;
+import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
 import downloaderProject.MainApp;
-import downloaderProject.OperationStream;
 import java.io.File;
 import java.io.IOException;
 import org.jsoup.UncheckedIOException;
 import java.net.SocketTimeoutException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Vector;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -42,18 +44,18 @@ public class Youporn extends GenericQueryExtractor{
         super(url,thumb,videoName);
     }
 
-    @Override
-    public void getVideo(OperationStream s) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
-        if (s != null) s.startTiming();
-        
+    @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException{        
         Document page = Jsoup.parse(Jsoup.connect(url).get().html());
         String video = page.getElementById("player-html5").attr("src");
         
-        super.downloadVideo(video,videoName,s);
+        Map<String,String> qualities = new HashMap<>();
+        qualities.put("single",video); MediaDefinition media = new MediaDefinition();
+        media.addThread(qualities,videoName);
+        
+        return media;
     }
     
-    @Override
-    public GenericQuery query(String search) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
+    @Override public GenericQuery query(String search) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
         GenericQuery thequery = new GenericQuery();
         search = search.trim(); 
         search = search.replaceAll(" ", "+");
@@ -80,8 +82,7 @@ public class Youporn extends GenericQueryExtractor{
         return thequery;
     }
     
-    @Override
-    protected Vector<File> parse(String url) throws IOException, SocketTimeoutException, UncheckedIOException {
+    @Override protected Vector<File> parse(String url) throws IOException, SocketTimeoutException, UncheckedIOException {
         Vector<File> thumb = new Vector<>();
          Document page = getPage(url,true);
 		
@@ -117,19 +118,15 @@ public class Youporn extends GenericQueryExtractor{
         return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,6));
     }
     
-    @Override
-    protected void setExtractorName() {
+    @Override protected void setExtractorName() {
         extractorName = "Youporn";
     }
 
-    @Override
-    public video similar() {
+    @Override public video similar() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override
-    public video search(String str) throws IOException {
-        GenericQuery thequery = new GenericQuery();
+    @Override  public video search(String str) throws IOException {
         str = str.trim(); 
         str = str.replaceAll(" ", "+");
         String searchUrl = "https://www.youporn.com/search?query="+str;
@@ -151,10 +148,7 @@ public class Youporn extends GenericQueryExtractor{
         return v;
     }
 
-    @Override
-    public long getSize() throws IOException, GenericDownloaderException {
-        Document page = Jsoup.parse(Jsoup.connect(url).get().html());
-        String video = page.getElementById("player-html5").attr("src");
-        return CommonUtils.getContentSize(video);
+    @Override public long getSize() throws IOException, GenericDownloaderException {
+        return CommonUtils.getContentSize(getVideo().iterator().next().get("single"));
     }
 }

@@ -7,10 +7,10 @@ package downloader.Extractors;
 
 import downloader.CommonUtils;
 import downloader.DataStructures.GenericQuery;
+import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
 import downloaderProject.MainApp;
-import downloaderProject.OperationStream;
 import java.io.File;
 import java.io.IOException;
 import org.jsoup.UncheckedIOException;
@@ -111,27 +111,14 @@ public class Spankwire extends GenericQueryExtractor{
         return qualities;
     }
 
-    @Override
-    public void getVideo(OperationStream s) throws IOException, SocketTimeoutException, UncheckedIOException, Exception {
-         if (s != null) s.startTiming();
-        
+    @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException {
         Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
+	Map<String,String> qualities = getQualities(page.toString());
         
-	String title = Jsoup.parse(page.select("h1").get(0).toString()).body().text();
-	Map<String,String> quality = getQualities(page.toString());
-
-        String video = null;
-        if (quality.containsKey("720"))
-            video = quality.get("720");
-        else if(quality.containsKey("480"))
-            video = quality.get("480");
-        else if (quality.containsKey("360"))
-            video = quality.get("360");
-        else if (quality.containsKey("240"))
-            video = quality.get("240");
-        else video = quality.get((String)quality.values().toArray()[0]);
+        MediaDefinition media = new MediaDefinition();
+        media.addThread(qualities,videoName);
         
-        super.downloadVideo(video,title,s);
+        return media;
     }
     
     private static String downloadVideoName(String url) throws IOException , SocketTimeoutException, UncheckedIOException,Exception{
@@ -149,13 +136,11 @@ public class Spankwire extends GenericQueryExtractor{
         return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,skip));
     }
     
-    @Override
-    protected void setExtractorName() {
+    @Override protected void setExtractorName() {
         extractorName = "Spankwire";
     }
 
-    @Override
-    public video similar() throws IOException {
+    @Override public video similar() throws IOException {
     	/*if (url == null) return null;
         
         video v = null;
@@ -177,8 +162,7 @@ public class Spankwire extends GenericQueryExtractor{
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override
-    public video search(String str) throws IOException {
+    @Override public video search(String str) throws IOException {
         str = str.trim(); 
         str = str.replaceAll(" ", "%2B");
         String searchUrl = "https://spankwire.com/search/straight/keyword/"+str;
@@ -218,8 +202,7 @@ public class Spankwire extends GenericQueryExtractor{
         return CommonUtils.getContentSize(video);
     }
     
-    @Override
-    public long getSize() throws IOException, GenericDownloaderException {
+    @Override public long getSize() throws IOException, GenericDownloaderException {
         return getSize(url);
     }
 }

@@ -6,10 +6,10 @@
 package downloader.Extractors;
 
 import downloader.CommonUtils;
+import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
 import downloaderProject.MainApp;
-import downloaderProject.OperationStream;
 import java.io.File;
 import java.io.IOException;
 import org.jsoup.UncheckedIOException;
@@ -45,10 +45,7 @@ public class Pornhd extends GenericExtractor{
         super(url,thumb,videoName);
     }
 
-    @Override
-    public void getVideo(OperationStream s) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
-        if (s != null) s.startTiming();
-        
+    @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException{
         Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
         
 	String title = page.select("div.section-title").select("h1").toString();
@@ -56,25 +53,14 @@ public class Pornhd extends GenericExtractor{
 	
 	Elements temp = page.getElementById("mainPlayerContainer").select("script");
 	String[] rawData = CommonUtils.getBracket(temp.toString(), temp.toString().indexOf("sources:")).split("\"");
-	Map<String,String> qualities = new HashMap<>();
+	Map<String,String> qualities = new HashMap<>(); MediaDefinition media = new MediaDefinition();
 	for(int i = 0; i < rawData.length; i++) {
             if (i == 0) continue;
             qualities.put(rawData[i], CommonUtils.eraseChar(rawData[i+2],'\\'));
             i+=3;
 	}
-        
-        String video = null;
-        if (qualities.containsKey("720p"))
-            video = qualities.get("720p");
-        else if(qualities.containsKey("480p"))
-            video = qualities.get("480p");
-        else if (qualities.containsKey("360p"))
-            video = qualities.get("360p");
-        else if (qualities.containsKey("240p"))
-            video = qualities.get("240p");
-        else video = qualities.get((String)qualities.values().toArray()[0]);
-        
-        super.downloadVideo(video,title,s);
+        media.addThread(qualities, videoName);
+        return media;
     }
     
     private static String downloadVideoName(String url) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
@@ -95,13 +81,11 @@ public class Pornhd extends GenericExtractor{
         return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,skip));
     }
     
-    @Override
-    protected void setExtractorName() {
+    @Override protected void setExtractorName() {
         extractorName = "Pornhd";
     }
 
-    @Override
-    public video similar() throws IOException {
+    @Override public video similar() throws IOException {
     	if (url == null) return null;
         
         video v = null;
@@ -119,13 +103,11 @@ public class Pornhd extends GenericExtractor{
         return v;
     }
 
-    @Override
-    public video search(String str) {
+    @Override public video search(String str) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override
-    public long getSize() throws IOException, GenericDownloaderException {
+    @Override public long getSize() throws IOException, GenericDownloaderException {
         return getSize(url);
     }
     

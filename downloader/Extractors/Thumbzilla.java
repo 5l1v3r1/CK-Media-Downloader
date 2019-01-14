@@ -7,10 +7,10 @@ package downloader.Extractors;
 
 import downloader.CommonUtils;
 import downloader.DataStructures.GenericQuery;
+import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
 import downloaderProject.MainApp;
-import downloaderProject.OperationStream;
 import java.io.File;
 import java.io.IOException;
 import org.jsoup.UncheckedIOException;
@@ -46,13 +46,9 @@ public class Thumbzilla extends GenericQueryExtractor{
         super(url,thumb,videoName);
     }
     
-    @Override
-    public void getVideo(OperationStream s) throws IOException,SocketTimeoutException, UncheckedIOException, Exception{
-        if (s != null) s.startTiming();
-        
+    @Override public MediaDefinition getVideo() throws IOException,SocketTimeoutException, UncheckedIOException{
         Document page =  Jsoup.parse(Jsoup.connect(url).get().html());
-                
-	String title = Jsoup.parse(page.select("h1.videoTitle").toString()).body().text();
+        
 	Elements qualities = page.select("a.qualityButton");
         Map<String,String> quality = new HashMap<>();
         for(int i = 0; i < qualities.size(); i++) {
@@ -61,20 +57,13 @@ public class Thumbzilla extends GenericQueryExtractor{
             quality.put(qualityName, qualityLink);
         }
         
-        String video; //quality link
-        if (quality.containsKey("720P"))
-            video = quality.get("720P");
-        else if (quality.containsKey("480P"))
-            video = quality.get("480P");
-        else if (quality.containsKey("1080P"))
-            video = quality.get("1080P");
-        else video = quality.get("240P");
+        MediaDefinition media = new MediaDefinition();
+        media.addThread(quality,videoName);
         
-        super.downloadVideo(video,title,s);
+        return media;
     }
     
-    @Override
-    public GenericQuery query(String search) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
+    @Override public GenericQuery query(String search) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
         search = search.trim(); 
         search = search.replaceAll(" ", "+");
         String searchUrl = "https://www.thumbzilla.com/video/search?q="+search;
@@ -99,8 +88,7 @@ public class Thumbzilla extends GenericQueryExtractor{
         return thequery;
     }
 
-    @Override
-    protected Vector<File> parse(String url) throws IOException, SocketTimeoutException, UncheckedIOException {
+    @Override protected Vector<File> parse(String url) throws IOException, SocketTimeoutException, UncheckedIOException {
         Document page = getPage(url,false);
         
         String thumb = page.select("img.mainImage.playVideo.removeWhenPlaying").attr("src");
@@ -132,13 +120,11 @@ public class Thumbzilla extends GenericQueryExtractor{
         return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,skip));
     }
     
-    @Override
-    protected void setExtractorName() {
+    @Override protected void setExtractorName() {
         extractorName = "Thumbzilla";
     }
 
-    @Override
-    public video similar() throws IOException {
+    @Override public video similar() throws IOException {
     	if (url == null) return null;
         
         video v = null;
@@ -156,8 +142,7 @@ public class Thumbzilla extends GenericQueryExtractor{
         return v;
     }
 
-    @Override
-    public video search(String str) throws IOException {
+    @Override public video search(String str) throws IOException {
         str = str.trim(); 
         str = str.replaceAll(" ", "+");
         String searchUrl = "https://www.thumbzilla.com/video/search?q="+str;

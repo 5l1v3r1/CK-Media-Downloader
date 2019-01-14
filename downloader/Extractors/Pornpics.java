@@ -5,19 +5,18 @@
  */
 package downloader.Extractors;
 
-import ChrisPackage.GameTime;
 import downloader.CommonUtils;
-import downloader.DataStructures.downloadedMedia;
+import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
 import static downloader.Extractors.GenericExtractor.configureUrl;
 import static downloader.Extractors.GenericExtractor.getPage;
 import downloaderProject.MainApp;
-import downloaderProject.OperationStream;
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
+import java.util.HashMap;
+import java.util.Map;
 import org.jsoup.Jsoup;
 import org.jsoup.UncheckedIOException;
 import org.jsoup.nodes.Document;
@@ -46,28 +45,15 @@ public class Pornpics extends GenericExtractor{
     public Pornpics(String url, File thumb, String videoName){
         super(url,thumb,videoName);
     }
-    
-    private void downloadPic(String link, OperationStream s) throws MalformedURLException {
-        long stop = 0; String name = CommonUtils.getThumbName(link,skip);
-        do {
-            if (s != null) s.addProgress("Trying "+CommonUtils.clean(name));
-            stop = CommonUtils.saveFile(link,CommonUtils.clean(name),MainApp.settings.preferences.getPictureFolder().getAbsolutePath()+File.separator+videoName,s);
-        }while(stop != -2); //retry download if failed
-    }
 
-    @Override
-    public void getVideo(OperationStream s) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException,Exception{
-        if (s != null) s.startTiming();
-
+    @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException{
         Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
         Elements a = page.select("a.rel-link");
-        for(Element item :a)
-            downloadPic(item.attr("href"),s);
-        GameTime took = s.endOperation();
-        if (s != null) s.addProgress("Took "+took.getTime()+" to download");
-        MainApp.createNotification("Download Success","Finished Downloading Album"+videoName);
-        File saved = new File(MainApp.settings.preferences.getPictureFolder() + File.separator + this.videoName);
-        MainApp.downloadHistoryList.add(new downloadedMedia(videoName,videoThumb,saved,name()));
+        MediaDefinition media = new MediaDefinition();
+        for(Element item :a) {
+            Map<String,String> qualities = new HashMap<>(); qualities.put("single",item.attr("href"));
+            media.addThread(qualities, CommonUtils.getThumbName(item.attr("href"),skip));
+        } return media;
     }
     
     private static String downloadVideoName(String url) throws IOException , SocketTimeoutException, UncheckedIOException, GenericDownloaderException,Exception{
@@ -85,23 +71,19 @@ public class Pornpics extends GenericExtractor{
         return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumbLink,skip));
     }
     
-    @Override
-    protected void setExtractorName() {
+    @Override protected void setExtractorName() {
         extractorName = "Pornpics";
     }
 
-    @Override
-    public video similar() {
+    @Override public video similar() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override
-    public video search(String str) {
+    @Override public video search(String str) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override
-    public long getSize() throws IOException, GenericDownloaderException {
+    @Override public long getSize() throws IOException, GenericDownloaderException {
         long total = 0;
         Document page = getPage(url,false);
         Elements a = page.select("a.rel-link");

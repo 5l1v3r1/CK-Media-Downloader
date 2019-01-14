@@ -7,15 +7,17 @@ package downloader.Extractors;
 
 import downloader.CommonUtils;
 import downloader.DataStructures.GenericQuery;
+import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
 import downloaderProject.MainApp;
-import downloaderProject.OperationStream;
 import java.io.File;
 import java.io.IOException;
 import org.jsoup.UncheckedIOException;
 import java.net.SocketTimeoutException;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Random;
 import java.util.Vector;
 
@@ -44,27 +46,26 @@ public class Xhamster extends GenericQueryExtractor{
     }
     
     public Xhamster(String url, File thumb) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
-        this(url,thumb,downloadVideoName(convertUrl(configureUrl(url))));
+        this(convertUrl(url),thumb,downloadVideoName(convertUrl(configureUrl(url))));
     }
     
     public Xhamster(String url, File thumb, String videoName){
         super(convertUrl(url),thumb,videoName);
     }
 
-    @Override
-    public void getVideo(OperationStream s) throws IOException,SocketTimeoutException, UncheckedIOException, Exception{
-        if (s != null) s.startTiming();
+    @Override public MediaDefinition getVideo() throws IOException,SocketTimeoutException, UncheckedIOException {
         
         Document page = Jsoup.parse(Jsoup.connect(url).get().html());
  
 	String video = page.select("a.player-container__no-player.xplayer.xplayer-fallback-image.xh-helper-hidden").attr("href");
-	String name = Jsoup.parse(page.select("h1.entity-info-container__title").toString()).body().text();
+        Map<String,String> qualities = new HashMap<>();
+        qualities.put("single",video); MediaDefinition media = new MediaDefinition();
+        media.addThread(qualities,videoName);
 
-        super.downloadVideo(video,name,s);
+        return media;
     }
 
-    @Override
-    public GenericQuery query(String search) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
+    @Override public GenericQuery query(String search) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
         search = search.trim(); 
         search = search.replaceAll(" ", "+");
         String searchUrl = "https://xhamster.com/search?q="+search;
@@ -91,8 +92,7 @@ public class Xhamster extends GenericQueryExtractor{
     }
     
      //get preview thumbnails
-    @Override
-    protected Vector<File> parse(String url) throws IOException, SocketTimeoutException {
+    @Override protected Vector<File> parse(String url) throws IOException, SocketTimeoutException {
         Vector<File> thumbs = new Vector<File>();
         
         Document page = getPage(url,true);
@@ -133,13 +133,11 @@ public class Xhamster extends GenericQueryExtractor{
         else return url;
     }
     
-    @Override
-    protected void setExtractorName() {
+    @Override protected void setExtractorName() {
         extractorName = "Xhamster";
     }
 
-    @Override
-    public video similar() throws IOException {
+    @Override public video similar() throws IOException {
     	if (url == null) return null;
         
         video v = null;
@@ -164,8 +162,7 @@ public class Xhamster extends GenericQueryExtractor{
         return v;
     }
 
-    @Override
-    public video search(String str) throws IOException {
+    @Override public video search(String str) throws IOException {
         str = str.trim(); 
         str = str.replaceAll(" ", "+");
         String searchUrl = "https://xhamster.com/search?q="+str;
@@ -188,11 +185,7 @@ public class Xhamster extends GenericQueryExtractor{
         return v;
     }
 
-    @Override
-    public long getSize() throws IOException, GenericDownloaderException {
-        Document page = Jsoup.parse(Jsoup.connect(url).get().html());
- 
-	String video = page.select("a.player-container__no-player.xplayer.xplayer-fallback-image.xh-helper-hidden").attr("href");
-	return CommonUtils.getContentSize(video);
+    @Override public long getSize() throws IOException, GenericDownloaderException {
+        return CommonUtils.getContentSize(getVideo().iterator().next().get("single"));
     }
 }

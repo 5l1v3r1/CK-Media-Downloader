@@ -6,10 +6,10 @@
 package downloader.Extractors;
 
 import downloader.CommonUtils;
+import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
 import downloaderProject.MainApp;
-import downloaderProject.OperationStream;
 import java.io.File;
 import java.io.IOException;
 import org.jsoup.UncheckedIOException;
@@ -46,29 +46,18 @@ public class Vporn extends GenericExtractor{
     }
 
 
-    @Override
-    public void getVideo(OperationStream s) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
-        if (s != null) s.startTiming();
-        
+    @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException{
         Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
-	String title = Jsoup.parse(page.select("h1").toString()).body().text();
 	Elements rawQualities = page.getElementById("vporn-video-player").select("source");
 	Map<String,String> qualities = new HashMap<>();
 		
 	for(int i = 0; i < rawQualities.size(); i++)
             qualities.put(rawQualities.get(i).attr("label"),rawQualities.get(i).attr("src"));
         
-        String video = null;
-        if (qualities.containsKey("720p"))
-            video = qualities.get("720p");
-        else if (qualities.containsKey("480p"))
-            video = qualities.get("480p");
-        else if (qualities.containsKey("320p"))
-            video = qualities.get("320p");
-        else if (qualities.containsKey("240p"))
-            video = qualities.get("240p");
+        MediaDefinition media = new MediaDefinition();
+        media.addThread(qualities,videoName);
         
-        super.downloadVideo(video,title,s);
+        return media;
     }
     
      private static String downloadVideoName(String url) throws IOException, SocketTimeoutException, UncheckedIOException {
@@ -88,13 +77,11 @@ public class Vporn extends GenericExtractor{
         return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,skip));
     }
     
-    @Override
-    protected void setExtractorName() {
+    @Override protected void setExtractorName() {
         extractorName = "Vporn";
     }
 
-    @Override
-    public video similar() throws IOException {
+    @Override public video similar() throws IOException {
     	if (url == null) return null;
         video v = null;
         Document page = getPage(url,false);
@@ -115,8 +102,7 @@ public class Vporn extends GenericExtractor{
         return v;
     }
 
-    @Override
-    public video search(String str) throws IOException {
+    @Override public video search(String str) throws IOException {
     	str = str.trim(); str = str.replaceAll(" ", "+");
     	String searchUrl = "https://www.vporn.com/search?q="+str;
     	
@@ -161,8 +147,7 @@ public class Vporn extends GenericExtractor{
         return CommonUtils.getContentSize(video);
     }
 
-    @Override
-    public long getSize() throws IOException, GenericDownloaderException {
+    @Override public long getSize() throws IOException, GenericDownloaderException {
         return getSize(url);
     }
 }

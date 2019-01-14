@@ -7,20 +7,20 @@ package downloader.Extractors;
 
 import downloader.CommonUtils;
 import downloader.DataStructures.GenericQuery;
+import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
 import downloader.Exceptions.PageNotFoundException;
 import downloader.Exceptions.VideoDeletedException;
 import downloaderProject.MainApp;
-import downloaderProject.OperationStream;
 import java.io.File;
 import java.io.IOException;
 import org.jsoup.UncheckedIOException;
 import java.net.SocketTimeoutException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 import java.util.Vector;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -53,10 +53,7 @@ public class Xvideos extends GenericQueryExtractor{
         super(url,thumb,videoName);
     }
     
-    @Override
-    public void getVideo(OperationStream s) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
-        if (s != null) s.startTiming();
-        
+    @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
         Document page = Jsoup.parse(Jsoup.connect(url).get().html());
         verify(page);
         
@@ -68,7 +65,12 @@ public class Xvideos extends GenericQueryExtractor{
         }
         Vector<String> stats = getStats(page.select("script").get(use).toString());
         
-        super.downloadVideo(stats.get(2),stats.get(0),s);
+        Map<String,String> qualities = new HashMap<>();
+        qualities.put("high",stats.get(2)); qualities.put("low",stats.get(1));
+        MediaDefinition media = new MediaDefinition();
+        media.addThread(qualities,videoName);
+        
+        return media;
     }
     
     private static void verify(Document page) throws VideoDeletedException {
@@ -76,8 +78,7 @@ public class Xvideos extends GenericQueryExtractor{
             throw new VideoDeletedException();
     }
 
-    @Override
-    public GenericQuery query(String search) throws IOException, SocketTimeoutException, UncheckedIOException, Exception {
+    @Override public GenericQuery query(String search) throws IOException, SocketTimeoutException, UncheckedIOException, Exception {
         search = search.trim(); 
         search = search.replaceAll(" ", "+");
         String searchUrl = "https://www.xvideos.com/?k="+search;
@@ -111,8 +112,7 @@ public class Xvideos extends GenericQueryExtractor{
         return thequery;
     }
     
-    @Override
-    protected Vector<File> parse(String url) throws IOException, SocketTimeoutException, UncheckedIOException {
+    @Override protected Vector<File> parse(String url) throws IOException, SocketTimeoutException, UncheckedIOException {
        Document page = getPage(url,false);
         int use = 5;
         for(int i = 0; i < page.select("script").size(); i++) {
@@ -200,13 +200,11 @@ public class Xvideos extends GenericQueryExtractor{
         return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(stats.get(4),skip));
     }
     
-    @Override
-    protected void setExtractorName() {
+    @Override protected void setExtractorName() {
         extractorName = "Xvideos";
     }
 
-    @Override
-    public video similar() throws IOException {
+    @Override public video similar() throws IOException {
         if (url == null) return null;
         
         video v = null;
@@ -234,8 +232,7 @@ public class Xvideos extends GenericQueryExtractor{
         return v;
     }
 
-    @Override
-    public video search(String str) throws IOException {
+    @Override public video search(String str) throws IOException {
         str = str.trim(); 
         str = str.replaceAll(" ", "+");
         String searchUrl = "https://www.xvideos.com/?k="+str;
@@ -280,8 +277,7 @@ public class Xvideos extends GenericQueryExtractor{
         return CommonUtils.getContentSize(stats.get(2));
     }
 
-    @Override
-    public long getSize() throws IOException, GenericDownloaderException {
+    @Override public long getSize() throws IOException, GenericDownloaderException {
        return getSize(url);
     }
 }

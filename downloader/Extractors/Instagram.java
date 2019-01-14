@@ -5,17 +5,17 @@
  */
 package downloader.Extractors;
 
-import ChrisPackage.GameTime;
 import downloader.CommonUtils;
-import downloader.DataStructures.downloadedMedia;
+import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
 import downloaderProject.MainApp;
-import downloaderProject.OperationStream;
 import java.io.File;
 import java.io.IOException;
 import org.jsoup.UncheckedIOException;
 import java.net.SocketTimeoutException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Vector;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -38,70 +38,54 @@ public class Instagram extends GenericExtractor{
     public Instagram(String url, File thumb, String videoName) {
         super(url,thumb,videoName);
     }
-    
-    private void download(String url, OperationStream s, String type) throws IOException {
-       long stop = 0; String name = CommonUtils.parseName(url,type); File folder;
-       if (type.equals(".jpg"))
-           folder = MainApp.settings.preferences.getPictureFolder();
-       else folder = MainApp.settings.preferences.getVideoFolder();
-        do {
-            if (s != null) s.addProgress("Trying "+CommonUtils.clean(name));
-            stop = CommonUtils.saveFile(url,CommonUtils.clean(name),folder,s);
-        }while(stop != -2); //retry download if failed
-        MainApp.createNotification("Download Success","Finished Downloading "+CommonUtils.clean(name));
-        File saved = new File(folder + File.separator + CommonUtils.clean(name));
-        if (type.equals(".jpg"))
-            MainApp.downloadHistoryList.add(new downloadedMedia(videoName,saved,saved,name()));
-        else MainApp.downloadHistoryList.add(new downloadedMedia(videoName,getThumb(),saved,name()));
-    }
 
-    @Override
-    public void getVideo(OperationStream s) throws IOException,SocketTimeoutException, UncheckedIOException, Exception{
-        if (s != null) s.startTiming();
+    @Override public MediaDefinition getVideo() throws IOException,SocketTimeoutException, UncheckedIOException{
+        Document page = Jsoup.parse(Jsoup.connect(url).get().html()); MediaDefinition media = new MediaDefinition();
         
-        Document page = Jsoup.parse(Jsoup.connect(url).get().html());
 	if (isVideo(page)) { //download video
             String videoLink = null;
             Elements metas = page.select("meta");
-            for(int i = 0; i < metas.size(); i++) {
+            for(int i = 0; i < metas.size(); i++)
                 if(metas.get(i).attr("property").equals("og:video"))
                     videoLink = metas.get(i).attr("content");
-            }
-            download(videoLink, s,".mp4");
+            Map<String,String> qualities = new HashMap<>(); qualities.put("single",videoLink);
+            media.addThread(qualities,CommonUtils.parseName(videoLink,".mp4"));
+            return media;
         } else if(isProfilePage(page)) { //download profile pic
            String picLink = null;
             Elements metas = page.select("meta");
-            for(int i = 0; i < metas.size(); i++) {
+            for(int i = 0; i < metas.size(); i++)
                 if(metas.get(i).attr("property").equals("og:image"))
                     picLink = metas.get(i).attr("content");
-            }
-            download(picLink, s,".jpg");
+            Map<String,String> qualities = new HashMap<>(); qualities.put("single",picLink);
+            media.addThread(qualities,CommonUtils.parseName(picLink,".jpg"));
+            return media;
         } else { //download pic/s
            int occur, from = 0; boolean first = true; int count = 0;
            while((occur = page.toString().indexOf("display_resources",from)) != -1) {
                if (first) {first = false; from = occur + 1; continue;}
-               from = occur + 1; count++;
-               String brack = CommonUtils.getSBracket(page.toString(),occur);
-               download(parseBracket(brack),s,".jpg");
+               from = occur + 1; count++; 
+               String brack = CommonUtils.getSBracket(page.toString(),occur); String link = parseBracket(brack);
+               Map<String,String> qualities = new HashMap<>(); qualities.put("single",link);
+               media.addThread(qualities, CommonUtils.getThumbName(link));
            } if (count < 1) { //if there really was jus one
                occur = page.toString().indexOf("display_resources",0);
                if(occur != -1) {
-                    String brack = CommonUtils.getSBracket(page.toString(),occur);
-                    download(parseBracket(brack),s,".jpg");
+                    String brack = CommonUtils.getSBracket(page.toString(),occur); String link = parseBracket(brack);
+                    Map<String,String> qualities = new HashMap<>(); qualities.put("single",link);
+                    media.addThread(qualities, CommonUtils.parseName(link,".jpg"));
                } else  {
                    String picLink = null;
                     Elements metas = page.select("meta");
-                    for(int i = 0; i < metas.size(); i++) {
+                    for(int i = 0; i < metas.size(); i++)
                         if(metas.get(i).attr("property").equals("og:image"))
                             picLink = metas.get(i).attr("content");
-                    }
-                    download(picLink, s,".jpg");
+                    Map<String,String> qualities = new HashMap<>(); qualities.put("single",picLink);
+                    media.addThread(qualities, CommonUtils.parseName(picLink,".jpg"));
                }
            }
+           return media;
         }
-        
-        GameTime took = s.endOperation();
-        if (s != null) s.addProgress("Took "+took.getTime()+" to download");
     }
     
     private static String getLinks(String src) {
@@ -175,23 +159,19 @@ public class Instagram extends GenericExtractor{
         return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.parseName(thumbLink,".jpg"));
     }
     
-    @Override
-    protected void setExtractorName() {
+    @Override protected void setExtractorName() {
         extractorName = "Instagram";
     }
 
-    @Override
-    public video similar() {
+    @Override public video similar() {
         return null;
     }
 
-    @Override
-    public video search(String str) {
+    @Override public video search(String str) {
         return null;
     }
 
-    @Override
-    public long getSize() throws IOException, GenericDownloaderException {
+    @Override public long getSize() throws IOException, GenericDownloaderException {
         Document page = Jsoup.parse(Jsoup.connect(url).get().html());
         String videoLink = null; long total = 0;
         if (isVideo(page)) { //download video

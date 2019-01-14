@@ -6,12 +6,14 @@
 package downloader.Extractors;
 
 import downloader.CommonUtils;
+import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
 import downloaderProject.MainApp;
-import downloaderProject.OperationStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
+import java.util.HashMap;
+import java.util.Map;
 import org.jsoup.Jsoup;
 import org.jsoup.UncheckedIOException;
 import org.jsoup.nodes.Document;
@@ -40,15 +42,16 @@ public class Befuck extends GenericExtractor{
         super(url,thumb,videoName);
     }
     
-    @Override
-    public void getVideo(OperationStream s) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
-        if (s != null) s.startTiming();
+    @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException{
         
         Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
         String video = page.select("video").select("source").attr("src");
-        String title = Jsoup.parse(page.select("div.desc").select("span").get(0).toString()).body().text();
+        Map<String,String> qualities = new HashMap<>();
+        qualities.put("single",video); MediaDefinition media = new MediaDefinition();
+        media.addThread(qualities,videoName);
         
-        super.downloadVideo(video,title,s);
+        return media;
+        //super.downloadVideo(video,title,s);
     }
    
     private static String downloadVideoName(String url) throws IOException , SocketTimeoutException, UncheckedIOException, Exception{
@@ -66,18 +69,15 @@ public class Befuck extends GenericExtractor{
         return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,skip));
     }
 
-    @Override
-    protected void setExtractorName() {
+    @Override protected void setExtractorName() {
         extractorName = "Befuck";
     }
 
-    @Override
-    public video similar() {
+    @Override public video similar() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override
-    public video search(String str) throws IOException {
+    @Override public video search(String str) throws IOException {
     	str = str.trim(); str = str.replaceAll(" ", "+");
     	String searchUrl = "https://befuck.com/search/"+str;
     	
@@ -103,8 +103,7 @@ public class Befuck extends GenericExtractor{
         return v;
     }
 
-    @Override
-    public long getSize() throws IOException {
+    @Override public long getSize() throws IOException {
         Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
         return CommonUtils.getContentSize(page.select("video").select("source").attr("src"));
     }

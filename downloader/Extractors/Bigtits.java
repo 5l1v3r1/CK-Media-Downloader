@@ -6,13 +6,15 @@
 package downloader.Extractors;
 
 import downloader.CommonUtils;
+import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
 import downloaderProject.MainApp;
-import downloaderProject.OperationStream;
 import java.io.File;
 import java.io.IOException;
 import org.jsoup.UncheckedIOException;
 import java.net.SocketTimeoutException;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -24,7 +26,7 @@ import org.jsoup.select.Elements;
  * @author christopher
  */
 public class Bigtits extends GenericExtractor{
-	private static final int skip = 2;
+    private static final int skip = 2;
     
     public Bigtits() { //this contructor is used for when you jus want to search
         
@@ -42,17 +44,16 @@ public class Bigtits extends GenericExtractor{
         super(url,thumb,videoName);
     }
 
-    @Override
-    public void getVideo(OperationStream s) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
-        if (s != null) s.startTiming();
-        
+    @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException {
+       
         Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
         Element div = page.getElementById("playerCont");
 	String video = CommonUtils.getLink(div.toString(), div.toString().indexOf("<source src=")+13, '\"');
-        String temp = Jsoup.parse(page.select("div.vid_title").select("h1").toString()).body().text();
-        String title = temp.substring(temp.lastIndexOf('>')+2);
+        Map<String,String> qualities = new HashMap<>();qualities.put("single",video); 
+        MediaDefinition media = new MediaDefinition(); media.addThread(qualities, videoName);
         
-        super.downloadVideo(video,title,s);
+        return media;
+        //super.downloadVideo(video,title,s);
     }
    
     private static String downloadVideoName(String url) throws IOException , SocketTimeoutException, UncheckedIOException, Exception{
@@ -73,13 +74,11 @@ public class Bigtits extends GenericExtractor{
         return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,skip));
     }
 
-    @Override
-    protected void setExtractorName() {
+    @Override protected void setExtractorName() {
         extractorName = "Bigtits";
     }
 
-    @Override
-    public video similar() throws IOException {
+    @Override public video similar() throws IOException {
     	/*if (url == null) return null;
         
         video v = null;
@@ -103,8 +102,7 @@ public class Bigtits extends GenericExtractor{
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override
-    public video search(String str) throws IOException {
+    @Override public video search(String str) throws IOException {
     	str = str.trim(); str = str.replaceAll(" ", "+");
     	String searchUrl = "http://www.bigtits.com/search?q="+str;
     	
@@ -131,11 +129,7 @@ public class Bigtits extends GenericExtractor{
         return v;
     }
 
-    @Override
-    public long getSize() throws IOException {
-        Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
-        Element div = page.getElementById("playerCont");
-	String video = CommonUtils.getLink(div.toString(), div.toString().indexOf("<source src=")+13, '\"');
-        return CommonUtils.getContentSize(video);
+    @Override public long getSize() throws IOException {
+        return CommonUtils.getContentSize(getVideo().iterator().next().get("single"));
     }
 }

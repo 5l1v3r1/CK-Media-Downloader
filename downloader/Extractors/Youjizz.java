@@ -6,10 +6,10 @@
 package downloader.Extractors;
 
 import downloader.CommonUtils;
+import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
 import downloaderProject.MainApp;
-import downloaderProject.OperationStream;
 import java.io.File;
 import java.io.IOException;
 import org.jsoup.UncheckedIOException;
@@ -58,33 +58,18 @@ public class Youjizz extends GenericExtractor{
         return qualities;
     }
 
-    @Override
-    public void getVideo(OperationStream s) throws IOException, SocketTimeoutException, UncheckedIOException, Exception {
-        if (s != null) s.startTiming();
-        
+    @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException {
         Document page = Jsoup.parse(Jsoup.connect(url).get().html());
-        String title = Jsoup.parse(page.select("title").toString()).text();
         Map<String, String> quality = getQualities(CommonUtils.getSBracket(page.toString(), page.toString().indexOf("var encodings")),"quality");
-        String video;
         
-        //ik this ordered retarded
-        if(quality.containsKey("720"))
-            video = quality.get("720");
-        else if(quality.containsKey("480"))
-            video = quality.get("480");
-        else if(quality.containsKey("1080"))
-            video = quality.get("1080");
-        else if(quality.containsKey("360"))
-            video = quality.get("360");
-        else if(quality.containsKey("288"))
-            video = quality.get("288");
-        else video = quality.get((String)quality.keySet().toArray()[0]);
+        MediaDefinition media = new MediaDefinition();
+        media.addThread(quality,videoName);
         
-        super.downloadVideo(video, title, s);
+        return media;
     }
     
     private static String downloadVideoName(String url) throws IOException, SocketTimeoutException, UncheckedIOException, Exception {
-         Document page = getPage(url,false);
+        Document page = getPage(url,false);
 
 	return Jsoup.parse(page.select("title").toString()).text();
     } 
@@ -100,13 +85,11 @@ public class Youjizz extends GenericExtractor{
         return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,skip));
     }
     
-    @Override
-    protected void setExtractorName() {
+    @Override protected void setExtractorName() {
         extractorName = "Youjizz";
     }
 
-    @Override
-    public video similar() throws IOException {
+    @Override public video similar() throws IOException {
     	if (url == null) return null;
         
         video v = null;
@@ -130,8 +113,7 @@ public class Youjizz extends GenericExtractor{
         return v;
     }
 
-    @Override
-    public video search(String str) throws IOException {
+    @Override public video search(String str) throws IOException {
     	str = str.trim(); str = str.replaceAll(" ", "-");
     	String searchUrl = "https://www.youjizz.com/search/"+str+"-1.html?";
     	
@@ -174,8 +156,7 @@ public class Youjizz extends GenericExtractor{
         return CommonUtils.getContentSize(video);
     }
      
-    @Override
-    public long getSize() throws IOException, GenericDownloaderException {
+    @Override public long getSize() throws IOException, GenericDownloaderException {
         return getSize(url);
     }
 }
