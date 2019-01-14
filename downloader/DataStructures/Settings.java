@@ -122,10 +122,10 @@ public class Settings implements Externalizable{
     }
     
     //set/add sites in list from a set ... new additions deafult true for querying
-    public void setSites(Set set) {
-        Iterator i = set.iterator();
+    public void setSites(Set<String> set) {
+        Iterator<String> i = set.iterator();
         while(i.hasNext())
-            supportedSite.put((String)i.next(), true);
+            supportedSite.put(i.next(), true);
     }
     
     //set/add sites in list from a vector ... new additions deafult true for querying
@@ -155,7 +155,7 @@ public class Settings implements Externalizable{
     }
     
     //get all sites in list as a set
-    public Set getSupportedSites() {
+    public Set<String> getSupportedSites() {
         return supportedSite.keySet();
     }
     
@@ -172,18 +172,18 @@ public class Settings implements Externalizable{
         switch(OS) {
             case Windows:
                 String homeFolder = System.getProperty("user.home");
-                MainApp.settings.preferences.setVideoFolder(new File(homeFolder+"\\Videos"));
-                MainApp.settings.preferences.setPictureFolder(new File(homeFolder+"\\Pictures"));
-                MainApp.settings.preferences.setImportFolder(new File(homeFolder));
-                MainApp.settings.preferences.setSharedFolder(new File(homeFolder+"\\DownloaderShared"));
+                setVideoFolder(new File(homeFolder+"\\Videos"));
+                setPictureFolder(new File(homeFolder+"\\Pictures"));
+                setImportFolder(new File(homeFolder));
+                setSharedFolder(new File(homeFolder+"\\DownloaderShared"));
                 break;
             case Linux:
             case Apple:
             default:
-                MainApp.settings.preferences.setVideoFolder(new File(home+File.separator+"Videos"));
-                MainApp.settings.preferences.setPictureFolder(new File(home+File.separator+"Pictures"));
-                MainApp.settings.preferences.setImportFolder(new File(home+username));
-                MainApp.settings.preferences.setSharedFolder(new File(home+File.separator+"Shared"));
+                setVideoFolder(new File(home+File.separator+"Videos"));
+                setPictureFolder(new File(home+File.separator+"Pictures"));
+                setImportFolder(new File(home+username));
+                setSharedFolder(new File(home+File.separator+"Shared"));
         }
     }
     
