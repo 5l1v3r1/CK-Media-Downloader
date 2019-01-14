@@ -69,7 +69,7 @@ public class MainApp extends Application {
     public static ProgressBar progress;
     public static TextArea log;
     public static Actions act;
-    private static final String TITLE = "Video Downloader Prototype build 22.2";
+    private static final String TITLE = "Video Downloader Prototype build 23";
     public static DownloadHistory downloadHistoryList;
     public static StackPane root;
     public static DataCollection habits;
@@ -309,16 +309,17 @@ public class MainApp extends Application {
     
     public static String getSizeText(long size) {
         //ik 1024 is the right unit rather than 1000
-        //but dividing by 1000 gave a more accurate result
+        //but dividing by 1000 gave a more accurate result on linux
+        int divide = OS == OsType.Windows ? 1024 : 1000;
         if (size < 0) 
             return "----";
         else if (size < 1024)
             return size + " b";
         else if((size >= 1024) && (size < 1048576)) //1024b * 1024b = ?kb you do the math
-            return String.format("%.2f",(double)size / 1000) + " kb"; 
+            return String.format("%.2f",(double)size / divide) + " kb"; 
         else if ((size >= 1048576) && (size < 1073741824)) //1024kb * 1024kb = ?mb you do the math
-            return String.format("%.2f",(double)size / 1000 / 1000) + " mb";
-        else return String.format("%.2f",(double)size / 1000 / 1000 / 1000) + " gb"; //1024mb * 1024mb = ?gb you do the math
+            return String.format("%.2f",(double)size / divide / divide) + " mb";
+        else return String.format("%.2f",(double)size / divide / divide / divide) + " gb"; //1024mb * 1024mb = ?gb you do the math
     }
     
     private String getlocalDeviceName() {

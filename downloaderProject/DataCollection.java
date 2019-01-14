@@ -198,9 +198,9 @@ public class DataCollection implements Externalizable{
 	}
 	
 	private void generateSearch(Map<String,Integer> kwords, Map<String,Integer> stars) {
-		String star = stars.keySet().iterator().next(); //get top star
 		Random randomNum = new Random();
-		int max = randomNum.nextInt(5); //generate 0 - 4
+		int max = randomNum.nextInt(5); //generate 1 - 5 words
+                int starIndex = randomNum.nextInt(5); //generate from top 5 stars
 		
 		int count = 0; Iterator<String> i = kwords.keySet().iterator();
 		StringBuilder words = new StringBuilder();
@@ -209,6 +209,14 @@ public class DataCollection implements Externalizable{
 			words.append(" "+i.next());
 			count++;
 		}
+                
+                Iterator<String> j = stars.keySet().iterator();
+                String star = ""; count = 0;
+		while(j.hasNext()) { //keep going until u find the chosen top star
+                    //but break if u dont have that many
+                    if (count >= starIndex + 1) break;
+                    star = j.next(); count++;
+                }
 		search(star+words.toString()); //search top star with random number of available keywords
 	}
         
@@ -234,7 +242,7 @@ public class DataCollection implements Externalizable{
 	}
         
         private GenericExtractor getExtractor(String type) {
-            if (type.equals("Spankbang")) return new SpankBang();
+            if (type.equals("Spankbang")) return new Spankbang();
             if (type.equals("Pornhub"))return new Pornhub();
             if (type.equals("Xhamster")) return new Xhamster(); 
             if (type.equals("Xvideos")) return new Xvideos();
