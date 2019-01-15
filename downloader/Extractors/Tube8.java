@@ -10,15 +10,21 @@ import downloader.DataStructures.GenericQuery;
 import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
+import downloader.Exceptions.PageParseException;
 import downloaderProject.MainApp;
 import java.io.File;
 import java.io.IOException;
 import org.jsoup.UncheckedIOException;
 import java.net.SocketTimeoutException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 import java.util.Vector;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -97,21 +103,24 @@ public class Tube8 extends GenericQueryExtractor{
         return thumbs;
     }
     
-    private static Map<String, String> getQualities(String raw, String s) {
-        int happen, from = 0;
-        
-        Map<String, String> qualities = new HashMap<>();
-        while((happen = raw.indexOf(s,from)) != -1) {
-            qualities.put(CommonUtils.getLink(raw,happen + 10,'\"'), CommonUtils.eraseChar(CommonUtils.getUrl(raw,happen),'\\'));
-            from = happen +1;
+    private static Map<String,String> getQualities(String s) throws PageParseException {
+        Map<String,String> q = new HashMap<>();
+        try {
+            JSONArray json = (JSONArray)new JSONParser().parse(s.substring(0,s.indexOf("}],")+2));
+            Iterator<JSONObject> i = json.iterator();
+            while(i.hasNext()) {
+                JSONObject temp = i.next();
+                q.put(String.valueOf(temp.get("quality")), (String)temp.get("videoUrl"));
+            }
+            return q;
+        } catch (ParseException e) {
+            throw new PageParseException(e.getMessage());
         }
-        return qualities;
     }
 
-    @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException{
+    @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
         Document page = Jsoup.parse(Jsoup.connect(url).get().html());
-        
-        Map<String, String> quality = getQualities(CommonUtils.getSBracket(page.toString(), page.toString().indexOf("mediaDefinition",page.toString().indexOf("var flashvars"))),"quality");
+        Map<String, String> quality = getQualities(page.toString().substring(page.toString().indexOf("mediaDefinition")+17));
        
         MediaDefinition media = new MediaDefinition();
         media.addThread(quality,videoName);
@@ -183,7 +192,7 @@ public class Tube8 extends GenericQueryExtractor{
     private static long getSize(String link) throws IOException, GenericDownloaderException {
         Document page = Jsoup.parse(Jsoup.connect(link).get().html());
         
-        Map<String, String> quality= getQualities(CommonUtils.getSBracket(page.toString(), page.toString().indexOf("mediaDefinition",page.toString().indexOf("var flashvars"))),"quality");
+        Map<String, String> quality = getQualities(page.toString().substring(page.toString().indexOf("mediaDefinition")+17));
         String video;
         
         if (quality.containsKey("720"))

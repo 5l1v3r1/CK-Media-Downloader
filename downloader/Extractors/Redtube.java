@@ -10,15 +10,21 @@ import downloader.DataStructures.GenericQuery;
 import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
+import downloader.Exceptions.PageParseException;
 import downloaderProject.MainApp;
 import java.io.File;
 import java.io.IOException;
 import org.jsoup.UncheckedIOException;
 import java.net.SocketTimeoutException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 import java.util.Vector;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -44,19 +50,35 @@ public class Redtube extends GenericQueryExtractor{
     public Redtube(String url, File thumb, String videoName){
         super(url,thumb,videoName);
     }
+    
+    private Map<String,String> getQualities(String s) throws PageParseException {
+        Map<String,String> q = new HashMap<>();
+        try {
+            JSONArray json = (JSONArray)new JSONParser().parse(s.substring(0,s.indexOf("}],")+2));
+            Iterator<JSONObject> i = json.iterator();
+            while(i.hasNext()) {
+                JSONObject temp = i.next();
+                q.put((String)temp.get("quality"), (String)temp.get("videoUrl"));
+            }
+            return q;
+        } catch (ParseException e) {
+            throw new PageParseException(e.getMessage());
+        }
+    }
 
-    @Override public MediaDefinition getVideo() throws IOException,SocketTimeoutException, UncheckedIOException{
+    @Override public MediaDefinition getVideo() throws IOException,SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
         Document page;
         String html = Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html();
         page = Jsoup.parse(html);
         
 	int mediaIndex = page.toString().indexOf("mediaDefinition:");
+        Map<String,String> qualities = getQualities(page.toString().substring(mediaIndex+17));
 		
-	String defaultVideo = CommonUtils.getBracket(page.toString(),mediaIndex);
-	String videoLink = CommonUtils.eraseChar(CommonUtils.getLink(defaultVideo,defaultVideo.indexOf("videoUrl")+11,'"'),'\\');
+	//String defaultVideo = CommonUtils.getBracket(page.toString(),mediaIndex);
+	//String videoLink = CommonUtils.eraseChar(CommonUtils.getLink(defaultVideo,defaultVideo.indexOf("videoUrl")+11,'"'),'\\');
         
-        Map<String,String> qualities = new HashMap<>(); MediaDefinition media = new MediaDefinition();
-        qualities.put("single", videoLink); media.addThread(qualities, videoName);
+        MediaDefinition media = new MediaDefinition();
+        media.addThread(qualities, videoName);
         return media;
     }
     

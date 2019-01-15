@@ -59,7 +59,7 @@ public class Ruleporn extends GenericQueryExtractor{
     }
     
     private static void verify(Document page) throws GenericDownloaderException {
-        if (page.select("video") == null)
+        if ((page.select("video") == null) || (page.select("video").isEmpty()))
             throw new VideoDeletedException("No video found");
         else if (page.select("video").attr("poster").length() < 1)
             throw new VideoDeletedException("No video found");

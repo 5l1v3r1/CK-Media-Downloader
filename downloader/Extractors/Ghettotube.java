@@ -9,13 +9,19 @@ import downloader.CommonUtils;
 import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
+import downloader.Exceptions.PageParseException;
 import downloaderProject.MainApp;
 import java.io.File;
 import java.io.IOException;
 import org.jsoup.UncheckedIOException;
 import java.net.SocketTimeoutException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -43,14 +49,28 @@ public class Ghettotube extends GenericExtractor{
     public Ghettotube(String url, File thumb, String videoName){
         super(url,thumb,videoName);
     }
+    
+    private Map<String,String> getQualities(String s) throws PageParseException {
+        Map<String,String> q = new HashMap<>();
+        try {
+            String src = s.substring(s.indexOf("sources: [{")+9,s.indexOf("}],")+2).replaceAll("file", "\"file\"").replaceAll("label", "\"label\"");
+            JSONArray json = (JSONArray)new JSONParser().parse(src);
+            Iterator<JSONObject> i = json.iterator();
+            while(i.hasNext()) {
+                JSONObject temp = i.next();
+                q.put((String)temp.get("label"), (String)temp.get("file"));
+            }
+            return q;
+        } catch (ParseException e) {
+            throw new PageParseException(e.getMessage());
+        }
+    }
 
-    @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException{
+    @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
         Document page =  Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
-        Elements scripts = page.select("div.play").select("script");
-        String video = CommonUtils.getLink(scripts.get(scripts.size()-1).toString(), scripts.get(scripts.size()-1).toString().indexOf("file:")+7, '\"');
+        Map<String,String> qualities = getQualities(page.toString().substring(page.toString().indexOf("playerInstance.setup({")));
         
-        Map<String,String> qualities = new HashMap<>();
-        qualities.put("single",video); MediaDefinition media = new MediaDefinition();
+        MediaDefinition media = new MediaDefinition();
         media.addThread(qualities,videoName);
         
         return media;

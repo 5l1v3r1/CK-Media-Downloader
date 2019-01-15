@@ -10,14 +10,20 @@ import downloader.DataStructures.GenericQuery;
 import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
+import downloader.Exceptions.PageParseException;
 import downloaderProject.MainApp;
 import java.io.File;
 import java.io.IOException;
 import org.jsoup.UncheckedIOException;
 import java.net.SocketTimeoutException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Vector;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -43,13 +49,28 @@ public class Youporn extends GenericQueryExtractor{
     public Youporn(String url, File thumb, String videoName){
         super(url,thumb,videoName);
     }
+    
+    private static Map<String,String> getQualities(String s) throws PageParseException {
+        Map<String,String> q = new HashMap<>();
+        try {
+            JSONArray json = (JSONArray)new JSONParser().parse(s.substring(0,s.indexOf("}];")+2));
+            Iterator<JSONObject> i = json.iterator();
+            while(i.hasNext()) {
+                JSONObject quality = i.next();
+                q.put((String)quality.get("quality"), CommonUtils.eraseChar((String)quality.get("videoUrl"),'\\'));
+            }
+            return q;
+        } catch (ParseException e) {
+            throw new PageParseException(e.getMessage());
+        }
+    }
 
-    @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException{        
+    @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {        
         Document page = Jsoup.parse(Jsoup.connect(url).get().html());
-        String video = page.getElementById("player-html5").attr("src");
+        //String video = page.getElementById("player-html5").attr("src");
         
-        Map<String,String> qualities = new HashMap<>();
-        qualities.put("single",video); MediaDefinition media = new MediaDefinition();
+        Map<String,String> qualities = getQualities(page.toString().substring(page.toString().indexOf("mediaDefinition = [{")+18));
+        MediaDefinition media = new MediaDefinition();
         media.addThread(qualities,videoName);
         
         return media;
@@ -149,6 +170,8 @@ public class Youporn extends GenericQueryExtractor{
     }
 
     @Override public long getSize() throws IOException, GenericDownloaderException {
-        return CommonUtils.getContentSize(getVideo().iterator().next().get("single"));
+        Document page = getPage(url,false);
+        Map<String,String> qualities = getQualities(page.toString().substring(page.toString().indexOf("mediaDefinition = [{")+18));
+        return CommonUtils.getContentSize(qualities.values().iterator().next());
     }
 }

@@ -10,6 +10,7 @@ import downloader.DataStructures.GenericQuery;
 import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
+import downloader.Exceptions.PageParseException;
 import downloaderProject.MainApp;
 import java.io.File;
 import java.io.IOException;
@@ -20,6 +21,10 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 import java.util.Vector;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -53,13 +58,30 @@ public class Xhamster extends GenericQueryExtractor{
         super(convertUrl(url),thumb,videoName);
     }
 
-    @Override public MediaDefinition getVideo() throws IOException,SocketTimeoutException, UncheckedIOException {
+    private static Map<String,String> getQualities(String s) throws PageParseException {
+        Map<String,String> q = new HashMap<>();
+        try {
+            JSONArray json = (JSONArray)new JSONParser().parse(s.substring(0,s.indexOf("}]}")+2));
+            Iterator<JSONObject> i = json.iterator();
+            while(i.hasNext()) {
+                JSONObject quality = i.next();
+                if (quality.get("quality").equals("auto")) continue;
+                q.put((String)quality.get("quality"), CommonUtils.eraseChar((String)quality.get("fallback"),'\\'));
+            }
+            return q;
+        } catch (ParseException e) {
+            throw new PageParseException(e.getMessage());
+        }
+    }
+    
+    @Override public MediaDefinition getVideo() throws IOException,SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
         
         Document page = Jsoup.parse(Jsoup.connect(url).get().html());
+        Map<String,String> qualities =  getQualities(page.toString().substring(page.toString().indexOf("mp4\":[")+5));
  
-	String video = page.select("a.player-container__no-player.xplayer.xplayer-fallback-image.xh-helper-hidden").attr("href");
-        Map<String,String> qualities = new HashMap<>();
-        qualities.put("single",video); MediaDefinition media = new MediaDefinition();
+	//String video = page.select("a.player-container__no-player.xplayer.xplayer-fallback-image.xh-helper-hidden").attr("href");
+        
+        MediaDefinition media = new MediaDefinition();
         media.addThread(qualities,videoName);
 
         return media;
@@ -186,6 +208,21 @@ public class Xhamster extends GenericQueryExtractor{
     }
 
     @Override public long getSize() throws IOException, GenericDownloaderException {
-        return CommonUtils.getContentSize(getVideo().iterator().next().get("single"));
+        Document page = Jsoup.parse(Jsoup.connect(url).get().html());
+        Map<String,String> quality =  getQualities(page.toString().substring(page.toString().indexOf("mp4\":[")+5));
+        String video;
+        
+        if (quality.containsKey("720p"))
+            video = quality.get("720p");
+        else if(quality.containsKey("480p"))
+            video = quality.get("480p"); 
+        else if (quality.containsKey("1080p"))
+            video = quality.get("1080p"); 
+        else if(quality.containsKey("240p"))
+            video = quality.get("240p");
+        else 
+            video = quality.get((String)quality.keySet().toArray()[0]);
+        
+        return CommonUtils.getContentSize(video);
     }
 }

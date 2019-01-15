@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Vector;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 /**
@@ -113,7 +114,9 @@ public class Spankwire extends GenericQueryExtractor{
 
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException {
         Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
-	Map<String,String> qualities = getQualities(page.toString());
+	//Map<String,String> qualities = getQualities(page.toString());
+        Map<String,String> qualities = new HashMap<>();
+        qualities.put("single", page.select("div.shareDownload_container__item__dropdown").select("a").get(0).attr("href"));
         
         MediaDefinition media = new MediaDefinition();
         media.addThread(qualities,videoName);
@@ -123,13 +126,22 @@ public class Spankwire extends GenericQueryExtractor{
     
     private static String downloadVideoName(String url) throws IOException , SocketTimeoutException, UncheckedIOException,Exception{
         Document page = getPage(url,false);
-	return Jsoup.parse(page.select("h1").get(0).toString()).body().text();
+	return Jsoup.parse(page.select("h1").get(0).toString()).body().text().trim();
     } 
 	
     //getVideo thumbnail
     private static File downloadThumb(String url) throws IOException, SocketTimeoutException, UncheckedIOException, Exception {
        Document page = getPage(url,false);
-        String thumb = "https:" + CommonUtils.getLink(page.toString(),page.toString().indexOf("'//",page.toString().indexOf("playerData.poster"))+1, '\'');
+       String thumb = "";
+        if(page.toString().contains("playerData.poster")) 
+            thumb = "https:" + CommonUtils.getLink(page.toString(),page.toString().indexOf("'//",page.toString().indexOf("playerData.poster"))+1, '\'');
+        else {
+            Elements meta = page.select("meta");
+            for(Element m: meta)
+                if (m.attr("property").equals("og:image")) {
+                    thumb = m.attr("content"); break;
+                }
+        }
         
         if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,skip))) //if file not already in cache download it
             CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,skip),MainApp.imageCache);
@@ -186,9 +198,7 @@ public class Spankwire extends GenericQueryExtractor{
     
     private static long getSize(String link) throws IOException, GenericDownloaderException{
         Document page = Jsoup.parse(Jsoup.connect(link).userAgent(CommonUtils.PCCLIENT).get().html());
-        
-	Map<String,String> quality = getQualities(page.toString());
-
+	/*Map<String,String> quality = getQualities(page.toString());
         String video = null;
         if (quality.containsKey("720"))
             video = quality.get("720");
@@ -199,7 +209,8 @@ public class Spankwire extends GenericQueryExtractor{
         else if (quality.containsKey("240"))
             video = quality.get("240");
         else video = quality.get((String)quality.values().toArray()[0]);
-        return CommonUtils.getContentSize(video);
+        return CommonUtils.getContentSize(video);*/
+        return CommonUtils.getContentSize(page.select("div.shareDownload_container__item__dropdown").select("a").get(0).attr("href"));
     }
     
     @Override public long getSize() throws IOException, GenericDownloaderException {

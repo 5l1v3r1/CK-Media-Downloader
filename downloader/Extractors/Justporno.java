@@ -46,7 +46,10 @@ public class Justporno extends GenericExtractor{
     
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException {        
         Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
-        String video = page.select("video").select("source").attr("src");
+        String video;
+        if (!page.select("video").isEmpty())
+            video = page.select("video").select("source").attr("src");
+        else video = CommonUtils.getLink(page.toString(),page.toString().indexOf("video_url: '")+12,'\'');
         
         Map<String,String> qualities = new HashMap<>();
         qualities.put("single",video); MediaDefinition media = new MediaDefinition();
@@ -58,18 +61,24 @@ public class Justporno extends GenericExtractor{
     
     private static String downloadVideoName(String url) throws IOException , SocketTimeoutException, UncheckedIOException, Exception{
         Document page = getPage(url,false);
-	return Jsoup.parse(page.select("h1").toString()).body().text();
+        if (!page.select("h1").isEmpty())
+            return Jsoup.parse(page.select("h1").toString()).body().text();
+        else return Jsoup.parse(page.select("h2").toString()).body().text();
     } 
 	
     //getVideo thumbnail
     private static File downloadThumb(String url) throws IOException, SocketTimeoutException, UncheckedIOException, Exception {
         Document page = getPage(url,false);
-        String thumb = page.select("video").attr("poster");
-        thumb = thumb.startsWith("http") ? thumb : "https:" + thumb;
+        String thumb;
+        if (!page.select("video").isEmpty()) {
+            thumb = page.select("video").attr("poster"); if (thumb.length() < 1) return null;
+            thumb = thumb.startsWith("http") ? thumb : "https:" + thumb;
+        } else 
+            thumb = CommonUtils.getLink(page.toString(),page.toString().indexOf("preview_url: '")+14,'\'');
         
-        if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,skip-2))) //if file not already in cache download it
-            CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,skip-2),MainApp.imageCache);
-        return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,skip-2));
+        if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,skip))) //if file not already in cache download it
+            CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,skip),MainApp.imageCache);
+        return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,skip));
     }
 
     @Override protected void setExtractorName() {
@@ -86,7 +95,7 @@ public class Justporno extends GenericExtractor{
         	String link = li.get(i).select("a").attr("href");
             String thumb = li.get(i).select("img").attr("src");
             if (thumb.length() < 1) li.get(i).select("img").attr("data-original");
-            //thumb = thumb.startsWith("http") ? thumb : "https:" + thumb; 
+            thumb = thumb.startsWith("http") ? thumb : "https:" + thumb;
             String title = li.get(i).select("p.thumb-item-desc").select("span").text();
             if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,skip))) //if file not already in cache download it
             	if (CommonUtils.saveFile(thumb, CommonUtils.getThumbName(thumb,skip),MainApp.imageCache) != -2)
