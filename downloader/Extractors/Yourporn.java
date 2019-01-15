@@ -51,7 +51,14 @@ public class Yourporn extends GenericExtractor{
 	String video = "https://www.yourporn.sexy"+CommonUtils.eraseChar(page.select("span.vidsnfo").attr("data-vnfo").split("\"")[3],'\\');
         //String video = "https://www.yourporn.sexy"+page.select("video.player_el").attr("src");
         Map<String,String> qualities = new HashMap<>();
-        qualities.put("single",video.replace("cdn", "cdn3").replace("s12-1", "s12"));
+        //idk wtf them keep changind the cdn
+        String test = video.replace("cdn", "cdn3").replace("s12-1", "s12");
+        if (CommonUtils.getContentSize(test) < 1)
+          test = test.replace("cdn3", "cdn2");
+        if (CommonUtils.getContentSize(test) < 1)
+            test = test.replace("cdn2", "cdn4");
+        System.out.println("What was test "+test);
+        qualities.put("single",test);
         MediaDefinition media = new MediaDefinition();
         media.addThread(qualities,videoName);
         
@@ -60,8 +67,11 @@ public class Yourporn extends GenericExtractor{
     }
     
     private static void verify(Document page) throws GenericDownloaderException {
-        if (page.getElementById("player_el") == null)
-            throw new VideoDeletedException();
+        if (page.getElementById("player_el") == null) {
+            if (page.select("span.page_message") != null || !page.select("span.page_message").isEmpty())
+                throw new VideoDeletedException(page.select("span.page_message").text());
+            else throw new VideoDeletedException();
+        }
     }
     
     private static String downloadVideoName(String url) throws IOException , SocketTimeoutException, UncheckedIOException, GenericDownloaderException,Exception{
