@@ -170,6 +170,7 @@ public class DownloadManager {
             } catch (Exception e) {
                 MainApp.createMessageDialog(e.getMessage()+ " "+ d.getLink());
                 removeDownload(d);
+                e.printStackTrace();
             }
         }
     }

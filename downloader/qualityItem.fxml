@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.Pane?>
+
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="40.0" prefWidth="498.0" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <RadioButton id="button" layoutX="14.0" layoutY="11.0" mnemonicParsing="false" prefHeight="17.0" prefWidth="6.0" />
+      <Label id="qualityName" alignment="CENTER_RIGHT" layoutX="117.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="40.0" prefWidth="155.0" text="Label" />
+      <Label id="size" layoutX="342.0" prefHeight="40.0" prefWidth="155.0" text="Size">
+         <graphic>
+            <ImageView fitHeight="30.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../icons/icons8-database-40.png" />
+               </image>
+            </ImageView>
+         </graphic>
+      </Label>
+   </children>
+</Pane>

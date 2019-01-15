@@ -5,7 +5,10 @@
  */
 package downloader;
 
+import ChrisPackage.GameTime;
 import com.jfoenix.controls.JFXButton;
+import downloader.DataStructures.MediaDefinition;
+import downloader.DataStructures.downloadedMedia;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
 import downloader.Extractors.*;
@@ -28,11 +31,17 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.image.BufferedImage;
 import java.io.FileNotFoundException;
+import static java.lang.Thread.sleep;
+import java.net.MalformedURLException;
 import java.net.SocketException;
 import org.jsoup.UncheckedIOException;
 import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Vector;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import javafx.application.Platform;
@@ -58,12 +67,15 @@ public class DownloaderItem {
     private video v = null;
     private File thumbFile;
     private boolean loaded;
+    private Vector<String> downloadLinks, downloadNames;
+    private String albumName;
     
     public void release() {
         root = null;
         extractor = null;
         thumbFile = null;
         v = null;
+        downloadLinks = null;
     }
     
     public String getName() {
@@ -91,8 +103,8 @@ public class DownloaderItem {
         else switch (type) {
             case spankbang:
             	if (v == null)
-                    return new SpankBang(url);
-            	else return new SpankBang(url,v.getThumbnail(),v.getName());
+                    return new Spankbang(url);
+            	else return new Spankbang(url,v.getThumbnail(),v.getName());
             case pornhub:
             	if (v == null)
                     return new Pornhub(url);
@@ -205,6 +217,10 @@ public class DownloaderItem {
                 if (v == null)
                     return new Pornpics(url);
             	else return new Pornpics(url,v.getThumbnail(),v.getName());
+            case bigboobsalert:
+                if (v == null)
+                    return new Bigboobsalert(url);
+            	else return new Bigboobsalert(url,v.getThumbnail(),v.getName());
             default:
                 return null;
         }
@@ -483,7 +499,22 @@ public class DownloaderItem {
     }
     
     public void downloadThis() {
-        MainApp.dm.startDownload(this);
+        try {
+            determineLink();
+        } catch (SocketException e) {
+            displayStatus(e.getMessage());
+        } catch(SocketTimeoutException e) {
+            displayStatus("Took too long to download page");
+        } catch (IOException e) {
+            displayStatus(e.getMessage());
+        } catch (GenericDownloaderException e) {
+            displayStatus(e.getMessage());
+        } catch (Exception e) {
+            displayStatus(e.getMessage());
+        }
+        if (downloadLinks != null)
+            if (!downloadLinks.isEmpty())
+                MainApp.dm.startDownload(this);
     }
     
     private void clearThis() {
@@ -535,6 +566,47 @@ public class DownloaderItem {
         app = null;
     }
     
+    private void determineLink() throws GenericDownloaderException, UncheckedIOException, Exception {
+        if (extractor == null) extractor = getExtractor();
+        MediaDefinition media = extractor.getVideo();
+        downloadLinks = new Vector<>(); downloadNames = new Vector<>();
+        if (!media.isSingleThread()) { //if more than one thread
+            Map<String, String> m = new HashMap<>(); //to hold media link + name
+            Iterator<Map<String,String>> i = media.iterator(); int j = 0;
+            while(i.hasNext()) { //get qualities from threads
+                Map<String,String> temp = i.next();
+                if (temp.keySet().size() > 1) { //if more than one quality avaliable
+                   QualityDialog d = new QualityDialog();
+                    String quality = d.display(temp, media.getThreadName(0));
+                    if (quality != null)
+                        m.put(m.get(quality), media.getThreadName(j++));
+                } else //get the single avaliable quality
+                    m.put(temp.get(temp.keySet().iterator().next()), media.getThreadName(j++));
+            }
+            Iterator<String> k = m.keySet().iterator();
+            while(k.hasNext()) { //download threads with chosen qualities
+                String tempLink = k.next();
+                downloadLinks.add(tempLink);
+                downloadNames.add(m.get(tempLink));
+                albumName = media.getAlbumName();
+            }
+        } else {
+            Map<String,String> m = media.iterator().next();
+            String link = null;
+            if (m.keySet().size() > 1) { //if more than one quality avaliable
+                QualityDialog d = new QualityDialog();
+                String quality = d.display(m,media.getThreadName(0));
+                if (quality != null)
+                    link = m.get(quality);
+            } else //get the single avaliable quality
+                link = m.get(m.keySet().iterator().next());
+            if (link != null) {
+                downloadLinks.add(link);
+                downloadNames.add(media.getThreadName(0));
+            }
+        }
+    }
+    
     private class download implements Runnable{
         OperationStream stream;
 
@@ -545,16 +617,11 @@ public class DownloaderItem {
         @Override
         public void run() {
             try {
-                if (extractor == null) extractor = getExtractor();
-                extractor.getVideo(stream);
-            } catch (SocketException e) {
-                displayStatus(e.getMessage());
-            }catch(SocketTimeoutException e) {
-                displayStatus("Took too long to download page");
-            }catch (IOException e) {
-                displayStatus(e.getMessage());
-            } catch (GenericDownloaderException e) {
-                displayStatus(e.getMessage());
+                stream.startTiming();
+                for(int i = 0; i < downloadLinks.size(); i++)
+                    download(downloadLinks.get(i),downloadNames.get(i),stream,albumName);
+                GameTime took = stream.endOperation();
+                stream.addProgress("Took "+took.getTime()+" to download");
             } catch(Exception e){
                 displayStatus(e.getMessage());
                 e.printStackTrace();
@@ -563,6 +630,35 @@ public class DownloaderItem {
             }
             setDone();
         }
+    }
+    
+    private void download(String link, String name, OperationStream s, String albumName) throws MalformedURLException {
+        //if albumName == null not an album
+        if (!CommonUtils.isImage(name))
+            if (CommonUtils.hasExtension(name, "mp4"))
+                name = name + ".mp4"; //assume video
+        File folder;
+        if (CommonUtils.isImage(name)) folder = MainApp.settings.preferences.getPictureFolder(); 
+        else folder = MainApp.settings.preferences.getVideoFolder();
+        
+        long stop = 0;
+        do {
+            if (s != null) s.addProgress("Trying "+CommonUtils.clean(name));
+            if (albumName != null)
+                stop = CommonUtils.saveFile(link,CommonUtils.clean(name),folder+File.separator+albumName,s);
+            else stop = CommonUtils.saveFile(link,CommonUtils.clean(name),folder,s);
+            try {
+                sleep(4000);
+            } catch (InterruptedException ex) {
+                System.out.println("Failed to pause");
+            }
+        }while(stop != -2); //retry download if failed
+        MainApp.createNotification("Download Success","Finished Downloading "+name);
+        File saved;
+        if (albumName != null)
+            saved = new File(folder + File.separator + albumName + File.separator + CommonUtils.clean(name));
+        else saved = new File(folder + File.separator + CommonUtils.clean(name));
+        MainApp.downloadHistoryList.add(new downloadedMedia(CommonUtils.clean(name),extractor.getThumb(),saved,extractor.name()));
     }
     
     private void setSize(final long size) {
@@ -594,7 +690,7 @@ public class DownloaderItem {
     
     private void updateSpeed(double speed) {
         Platform.runLater(new Runnable() {
-           public void run() {
+           @Override public void run() {
                if (root != null) {
                     if (root.lookup("#speed") != null) {
                          if (speed > 1000)
@@ -608,7 +704,7 @@ public class DownloaderItem {
     
     private void updateEta(String s) {
         Platform.runLater(new Runnable() {
-           public void run() {
+           @Override public void run() {
                if (root != null) {
                     if (root.lookup("#eta") != null)
                          ((Label)root.lookup("#eta")).setText("ETA "+s);
@@ -619,7 +715,7 @@ public class DownloaderItem {
     
     private void updateProgressBar(final float progress) {
         Platform.runLater(new Runnable() {
-           public void run() {
+           @Override public void run() {
                if (root != null) 
                    if (root.lookup("#pBar") != null)
                         ((ProgressBar)root.lookup("#pBar")).setProgress(progress);
@@ -629,7 +725,7 @@ public class DownloaderItem {
     
     private void setIndeteminate(boolean enable) {
         Platform.runLater(new Runnable() {
-           public void run() {
+           @Override public void run() {
                if (root != null) 
                    if (root.lookup("#pBar") != null)
                        if (enable)

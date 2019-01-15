@@ -25,20 +25,8 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.Arrays;
 import java.util.Formatter;
-import java.util.Iterator;
-import java.util.Map;
 import java.util.Scanner;
 import java.util.Vector;
-import javafx.application.Platform;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.control.Dialog;
-import javafx.scene.control.DialogPane;
-import javafx.scene.control.Label;
-import javafx.scene.control.RadioButton;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.ToggleGroup;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.Pane;
 import javax.imageio.ImageIO;
 import org.jsoup.Jsoup;
 
@@ -91,6 +79,16 @@ public class CommonUtils {
                 pure.append(s.charAt(i));
         }
         return pure.toString();
+    }
+    
+    public static boolean hasExtension(String name, String exe) {
+        return name.endsWith(exe);
+    }
+    
+    public static boolean isImage(String name) {
+        if (hasExtension(name,"gif") || hasExtension(name,"png") || hasExtension(name,"jpg"))
+            return true;
+        else return false;
     }
     
     public static String getPicName(String link) {
@@ -303,48 +301,6 @@ public class CommonUtils {
         if (mobile)
             return url+".mobile";
         else return url+".pc";
-    }
-    
-    public static String showQualityDialog(Map<String,String> qualities) throws IOException {
-         Platform.runLater(new Runnable() {
-           public void run(){
-               Iterator i  = qualities.keySet().iterator();
-                Dialog d = new Dialog();
-                d.setTitle("Choose Quality");
-                DialogPane pane = new DialogPane();
-                FXMLLoader loader = new FXMLLoader();
-                loader.setLocation(CommonUtils.class.getResource("qualityDialog.fxml"));
-                Pane main = null; try {main = loader.load();} catch (Exception e) {}
-
-                ScrollPane scroll = (ScrollPane)main.getChildren().get(0);
-                
-                ToggleGroup group = new ToggleGroup();
-
-                int j = 0;
-                while(i.hasNext()) {
-                    Pane qualityPane = new Pane();
-                    qualityPane.setPrefHeight(20);
-                    qualityPane.setPrefWidth(scroll.getPrefWidth());
-                    qualityPane.setLayoutX(0); qualityPane.setLayoutY(j++ * 20);
-
-                    Label quality = new Label((String)i.next());
-                    quality.setLayoutX(30); quality.setLayoutY(4); 
-                    qualityPane.getChildren().add(quality);
-
-                    RadioButton btn = new RadioButton();
-                    btn.setLayoutX(4); btn.setLayoutY(4); 
-                    btn.setToggleGroup(group);
-                    qualityPane.getChildren().add(btn);
-
-                    ((AnchorPane)scroll.getContent()).getChildren().add(qualityPane);
-                }
-
-                pane.setContent(main); 
-                d.setDialogPane(pane);
-                d.show();
-           }
-        });
-        return null;
     }
     
     public static long getContentSize(String url) {
