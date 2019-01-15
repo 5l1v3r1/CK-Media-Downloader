@@ -33,7 +33,7 @@ import javafx.stage.StageStyle;
  * @author christopher
  */
 public class QualityDialog {
-    private static final int HEIGHT = 280, WIDTH = 500;
+    private static final int HEIGHT = 240, WIDTH = 400;
     private static ToggleGroup group;
     private String choice = null;
     
@@ -67,6 +67,7 @@ public class QualityDialog {
             pane = FXMLLoader.load(this.getClass().getResource("qualityDialog.fxml"));
             pane.getStylesheets().clear();
             //assume light theme is settings null
+            pane.getStylesheets().add(MainApp.class.getResource("mainStyleSheet.css").toExternalForm());
             if (MainApp.settings == null) pane.getStylesheets().add(MainApp.class.getResource("layouts/normal.css").toExternalForm());
             else {
                 if(MainApp.settings.preferences.dark())

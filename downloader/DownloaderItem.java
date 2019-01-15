@@ -256,6 +256,7 @@ public class DownloaderItem {
         try {
             if(extractor == null) return false; //couldnt find extractor for link
             thumbFile = extractor.getThumb();
+            if (thumbFile == null) return true; //no thumb //this really shouldnt be allowed but....
             //if more than 10mb (probably a large gif) image stream will run out of memory
             if (thumbFile.length() < 1024 * 1024 * 10) { 
                 FileInputStream fis = new FileInputStream(thumbFile);
@@ -635,7 +636,7 @@ public class DownloaderItem {
     private void download(String link, String name, OperationStream s, String albumName) throws MalformedURLException {
         //if albumName == null not an album
         if (!CommonUtils.isImage(name))
-            if (CommonUtils.hasExtension(name, "mp4"))
+            if (!CommonUtils.hasExtension(name, "mp4"))
                 name = name + ".mp4"; //assume video
         File folder;
         if (CommonUtils.isImage(name)) folder = MainApp.settings.preferences.getPictureFolder(); 

@@ -81,6 +81,14 @@ public class CommonUtils {
         return pure.toString();
     }
     
+    public static String getPureDigit(String s) {
+        StringBuilder pure = new StringBuilder();
+        for(int i = 0; i < s.length(); i++)
+            if (Character.isDigit(s.charAt(i)))
+                pure.append(s.charAt(i));
+        return pure.toString();
+    }
+    
     public static boolean hasExtension(String name, String exe) {
         return name.endsWith(exe);
     }

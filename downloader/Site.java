@@ -57,7 +57,7 @@ public class Site {
             return Type.youjizz;
         else if ((url.matches("https://(www.)?xtube.com/video-watch/[\\S]+")))
             return Type.xtube;
-        else if ((url.matches("https://(www.)?spankwire.com/[\\S]+/video[\\d]+/[\\d]+")))
+        else if ((url.matches("https://(www.)?spankwire.com/[\\S]+/video[\\d]+/([\\d]+)?")))
             return Type.spankwire;
         else if(url.matches("https://(www.)?vodlocker.nl/[\\S]+.html"))
             return Type.none;//return Type.vodlocker;
