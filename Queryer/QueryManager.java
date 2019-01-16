@@ -15,7 +15,7 @@ import downloader.Extractors.Pornhub;
 import downloader.Extractors.Redtube;
 import downloader.Extractors.Ruleporn;
 import downloader.Extractors.Shesfreaky;
-import downloader.Extractors.SpankBang;
+import downloader.Extractors.Spankbang;
 import downloader.Extractors.Spankwire;
 import downloader.Extractors.Thumbzilla;
 import downloader.Extractors.Tube8;
@@ -53,6 +53,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 
@@ -110,16 +111,19 @@ public class QueryManager {
         }
     }
     
-    public void generateContent(String url) {
-        //if a search was done previously clear results 
-        queryPane.getItems().clear();
-        clearPreviewImages();
-        searchResultCount.setText("");
-        
-        app = Executors.newSingleThreadExecutor();
-        //display thumbnails of results found    
-        app.execute(new generate(url));
-        app.shutdown();
+    public void generateContent() {
+        TextField searchString = (TextField)root.lookup("#queryBox");
+        if (searchString.getText().length() > 0) {
+            //if a search was done previously clear results 
+            queryPane.getItems().clear();
+            clearPreviewImages();
+            searchResultCount.setText("");
+
+            app = Executors.newSingleThreadExecutor();
+            //display thumbnails of results found    
+            app.execute(new generate(searchString.getText()));
+            app.shutdown();
+        } else MainApp.createMessageDialog("Probably should enter something to search first");
     }
     
     public void clearPreviewImages() {
@@ -156,7 +160,7 @@ public class QueryManager {
         //this will return the appropriate extractor
         private GenericQueryExtractor getExtractor(String site) {
             if(site.equals("spankbang"))
-                return new SpankBang();
+                return new Spankbang();
             else if (site.equals("pornhub"))
                 return new Pornhub();
             else if (site.equals("xhamster"))
