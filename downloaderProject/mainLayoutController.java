@@ -96,12 +96,9 @@ public class mainLayoutController implements Initializable, Reactable{
     }
     
     public void queryString() {
-    	if (MainApp.query != null)
+    	if (MainApp.query == null)
     		MainApp.query = new QueryManager(MainApp.actionPanes[MainApp.BROWSERPANE]);
-        TextField searchString = (TextField)MainApp.scene.lookup("#queryBox");
-        if (searchString.getText().length() > 0)
-            MainApp.query.generateContent(searchString.getText());
-        else MainApp.createMessageDialog("Probably should enter something to search");
+        MainApp.query.generateContent();
     }
     
     public void setVideoLocation() {
