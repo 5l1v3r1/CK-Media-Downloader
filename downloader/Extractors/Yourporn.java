@@ -79,7 +79,7 @@ public class Yourporn extends GenericExtractor{
         verify(page);
         //return page.select("meta").get(6).attr("content").replace(" on YourPorn. Sexy","");
         String raw = page.select("meta").get(6).attr("content");
-        return raw.contains("#") ? raw.substring(0,raw.indexOf("#") -4) : raw.replace(" on YourPorn. Sexy","");
+        return raw.contains("#") ? raw.substring(0,raw.indexOf("#") - 2) : raw.replace(" on YourPorn. Sexy","");
     } 
 	
     //getVideo thumbnail

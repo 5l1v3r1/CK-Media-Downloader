@@ -67,7 +67,9 @@ public class Instagram extends GenericExtractor{
                from = occur + 1; count++; 
                String brack = CommonUtils.getSBracket(page.toString(),occur); String link = parseBracket(brack);
                Map<String,String> qualities = new HashMap<>(); qualities.put("single",link);
-               media.addThread(qualities, CommonUtils.getThumbName(link));
+               if (link.contains(".mp4"))
+                    media.addThread(qualities, CommonUtils.parseName(link,".mp4"));
+               else media.addThread(qualities, CommonUtils.parseName(link,".jpg"));
            } if (count < 1) { //if there really was jus one
                occur = page.toString().indexOf("display_resources",0);
                if(occur != -1) {
