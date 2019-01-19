@@ -12,6 +12,7 @@ import downloader.DataStructures.downloadedMedia;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
 import downloader.Extractors.GenericExtractor;
+import downloader.Extractors.Playlist;
 import downloaderProject.DataIO;
 import java.io.File;
 import java.io.FileInputStream;
@@ -221,7 +222,7 @@ public class DownloaderItem {
         });
     }
     
-    public boolean searchLink() throws GenericDownloaderException {       
+    public boolean searchLink() throws GenericDownloaderException, IOException {       
        try { 
            setIndeteminate(true);
            if (v == null) {
@@ -240,6 +241,18 @@ public class DownloaderItem {
            e.printStackTrace();
            System.out.println(e.getMessage()); release();
            return false;
+       }
+       
+       if (extractor instanceof Playlist) {
+            if (((Playlist)extractor).isPlaylist()) {
+                Vector<String> links = ((Playlist)extractor).getItems();
+                DownloaderItem download;
+                for(int i = 0; i < links.size(); i++) {
+                    download = new DownloaderItem();
+                    download.setLink(links.get(i)); download.setType(Site.getUrlSite(links.get(i))); download.setVideo(null);
+                    MainApp.dm.addDownload(download);
+                }
+            }
        }
        
        if (!getThumbnail()) {release(); return false;} //either link not supported or network error

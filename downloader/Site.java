@@ -17,7 +17,7 @@ public class Site {
     public static Type getUrlSite(String url) {
         if ((!url.startsWith("https://")) && (!url.startsWith("http://"))) url = "https://" + url;
         if (url.startsWith("http://")) url = url.replace("http://", "https://"); //so it doesnt matter if link is http / https
-	    if ((url.matches("https://(www.)?pornhub.com/view_video.php[?]viewkey=[\\S]*")) || (url.matches("https://(www.)?pornhub.com/(photo|album|gif)?/[\\S]*")))    
+	    if ((url.matches("https://(www.)?pornhub.com/view_video.php[?]viewkey=[\\S]*")) || (url.matches("https://(www.)?pornhub.com/(photo|album|gif|playlist)/[\\S]*")))    
 	    	return Type.pornhub;
 		else if (url.matches("https://(www.)?instagram.com/[\\S]+/") || url.matches("https://(www.)?instagram.com/p/[\\S]+(/[?]taken-by=[\\S]*)?"))
 	            return Type.instagram;
@@ -25,7 +25,7 @@ public class Site {
 	            return Type.xhamster; //this one done retarded ik
 		else if (url.matches("https://((www|m).)?xhamster.com/videos/[\\S]+"))
 	            return Type.xhamster;
-		else if (url.matches("https://(((www)|([mt])).)?spankbang.com/[\\S]+/video/[\\S]+"))
+		else if (url.matches("https://(((www)|([mt])).)?spankbang.com/[\\S]+/(video|playlist)/[\\S]+"))
 	            return Type.spankbang;
 		else if (url.matches("https://(www.)?xvideos.com/video[\\S]+/[\\S]+"))
 	            return Type.xvideos;
