@@ -31,20 +31,33 @@ import java.util.Map;
  * @author christopher
  */
 
-public class Spankbang extends GenericQueryExtractor{
+public class Spankbang extends GenericQueryExtractor implements Playlist{
     //this class will eventually not be static and will have an output stream to send status messages
-	private static final int skip = 3;
+    private static final int skip = 3;
+    private String playlistUrl = null;
     
     public Spankbang() { //this contructor is used for when you jus want to query
         
     }
     
     public Spankbang(String url) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
-        this(convertUrl(url),downloadThumb(convertUrl(configureUrl(url))),downloadVideoName(convertUrl(configureUrl(url))));
+        if (isPlaylist(url)) {
+            playlistUrl = convertUrl(configureUrl(url));
+            this.url = convertUrl(getFirstUrl(url));
+        } else
+            this.url = convertUrl(configureUrl(url));
+        this.videoThumb = downloadThumb(convertUrl(configureUrl(this.url)));
+        this.videoName = downloadVideoName(convertUrl(configureUrl(this.url)));
     }
     
     public Spankbang(String url, File thumb) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
-        this(convertUrl(url),thumb,downloadVideoName(convertUrl(configureUrl(url))));
+        if (isPlaylist(url)) {
+            playlistUrl = convertUrl(configureUrl(url));
+            this.url = convertUrl(getFirstUrl(url));
+        } else
+            this.url = convertUrl(configureUrl(url));
+        this.videoThumb = thumb;
+        this.videoName = downloadVideoName(convertUrl(configureUrl(this.url)));
     }
     
     public Spankbang(String url, File thumb, String videoName){
@@ -156,6 +169,13 @@ public class Spankbang extends GenericQueryExtractor{
         return url.replace("https://m.", "https://www.");
     }
     
+    private static boolean isPlaylist(String url) {
+        if (url.startsWith("http://")) url = url.replace("http://", "https://"); //so it doesnt matter if link is http / https
+        if (url.matches("https://(www.)?spankbang.com/[a-zA-Z0-9]+/playlist/[\\S]*"))
+            return true;
+        else return false;
+    }
+    
     @Override protected void setExtractorName() {
         extractorName = "Spankbang";
     }
@@ -205,6 +225,27 @@ public class Spankbang extends GenericQueryExtractor{
             break; //if u made it this far u already have a vaild video
 	}
         return v;
+    }
+    
+    private static String getFirstUrl(String url) throws IOException {
+        Document page = getPage(url,false);
+        Elements div = page.select("div.results").select("div.video-item");
+        return "https://spankbang.com" + div.get(0).select("a").get(0).attr("href");
+    }
+    
+    @Override
+    public boolean isPlaylist() {
+        return playlistUrl != null;
+    }
+
+    @Override
+    public Vector<String> getItems() throws IOException, GenericDownloaderException {
+        Document page = getPage(playlistUrl,false);
+        Elements div = page.select("div.results").select("div.video-item");
+        Vector<String> list = new Vector<>();
+        for(int i = 0; i < div.size(); i++)
+            list.add("https://spankbang.com" + div.get(i).select("a").get(0).attr("href"));
+        return list;
     }
 
     @Override public long getSize() throws IOException, GenericDownloaderException {

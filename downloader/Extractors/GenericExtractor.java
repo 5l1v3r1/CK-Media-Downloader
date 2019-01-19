@@ -7,6 +7,7 @@ package downloader.Extractors;
 
 import downloader.CommonUtils;
 import downloader.DataStructures.MediaDefinition;
+import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
 import downloaderProject.MainApp;
 import java.io.File;
@@ -21,7 +22,7 @@ import org.jsoup.nodes.Document;
  *
  * @author christopher
  */
-public abstract class GenericExtractor implements Trackable {
+public abstract class GenericExtractor {
     protected File videoThumb;
     protected String videoName, url;
     protected String extractorName;
@@ -71,9 +72,11 @@ public abstract class GenericExtractor implements Trackable {
         return this.url;
     }
     
+    public abstract video similar() throws IOException; //get a video from the related items list
+    public abstract video search(String str) throws IOException; //search (similar to query except no img preview and only 1 result) 
     public abstract long getSize() throws IOException, GenericDownloaderException;
     
-    public static String configureUrl(String link) {
+    protected static String configureUrl(String link) {
         if (!link.matches("http(s)?://[\\S]+")) return "https://" + link;
         else
             return link;

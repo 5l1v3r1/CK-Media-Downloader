@@ -38,20 +38,32 @@ import org.jsoup.select.Elements;
  *
  * @author christopher
  */
-public class Pornhub extends GenericQueryExtractor{
+public class Pornhub extends GenericQueryExtractor implements Playlist{
     private static final int skip = 4;
+    private String playlistUrl = null;
     
     public Pornhub() { //this contructor is used for when you jus want to query
         
     }
     
     public Pornhub(String url) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
-        this(url,downloadThumb(configureUrl(url)),downloadVideoName(configureUrl(url)));
-        
+        if (isPlaylist(url)) {
+            playlistUrl = configureUrl(url);
+            this.url = getFirstUrl(url);
+        } else
+            this.url = configureUrl(url);
+        this.videoThumb = downloadThumb(configureUrl(this.url));
+        this.videoName = downloadVideoName(configureUrl(this.url));
     }
     
     public Pornhub(String url, File thumb) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
-        this(url,thumb,downloadVideoName(configureUrl(url)));
+        if (isPlaylist(url)) {
+            playlistUrl = configureUrl(url);
+            this.url = getFirstUrl(url);
+        } else
+            this.url = configureUrl(url);
+        this.videoThumb = thumb;
+        this.videoName = downloadVideoName(configureUrl(this.url));
     }
     
     public Pornhub(String url, File thumb, String videoName) {
@@ -135,13 +147,15 @@ public class Pornhub extends GenericQueryExtractor{
             throw new PageNotFoundException(page.location());
         if (!page.select("div.privateContainer").isEmpty())
                 throw new PrivateVideoException();
+        Element e;
+        if((e = page.getElementById("imgPrivateContainer")) != null) 
+            throw new PrivateVideoException(e.select("div.userMessageSection.float-left").text());
         if (!page.select("div.removed").isEmpty()) {
         	Elements span = page.select("div.removed").select("div.notice.video-notice").select("span");
         	if (!span.isEmpty())
                     throw new VideoDeletedException(span.text());
         	else throw new VideoDeletedException("Video was removed");
         }
-        Element e; 
        if ((e = page.getElementById("messageWrapper")) != null) {
     	   if (Jsoup.parse(e.select("p").toString()).body().text().equals("This video was deleted by uploader."))
     		   throw new VideoDeletedException();
@@ -231,22 +245,28 @@ public class Pornhub extends GenericQueryExtractor{
     
     private static boolean isAlbum(String url) {
         if (url.startsWith("http://")) url = url.replace("http://", "https://"); //so it doesnt matter if link is http / https
-        if (url.matches("https://(www.)?pornhub.com/album/[\\S]*"))
+        if (url.matches("https://(www.)?pornhub.com/album/[\\S]+"))
             return true;
         else return false;
     }
     
     private static boolean isPhoto(String url) {
         if (url.startsWith("http://")) url = url.replace("http://", "https://"); //so it doesnt matter if link is http / https
-        if (url.matches("https://(www.)?pornhub.com/photo/[\\S]*"))
-            return true;
-        if (url.matches("https://(www.)?pornhub.com/gif/[\\S]*"))
+        if (url.matches("https://(www.)?pornhub.com/(photo|gif)/[\\S]+"))
             return true;
         else return false;
     }
     
     private static boolean isGif(String url) {
-        if (url.matches("https://(www.)?pornhub.com/gif/[\\S]*"))
+        if (url.startsWith("http://")) url = url.replace("http://", "https://"); //so it doesnt matter if link is http / https
+        if (url.matches("https://(www.)?pornhub.com/gif/[\\S]+"))
+            return true;
+        else return false;
+    }
+    
+    private static boolean isPlaylist(String url) {
+        if (url.startsWith("http://")) url = url.replace("http://", "https://"); //so it doesnt matter if link is http / https
+        if (url.matches("https://(www.)?pornhub.com/playlist/[\\S]+"))
             return true;
         else return false;
     }
@@ -460,7 +480,7 @@ public class Pornhub extends GenericQueryExtractor{
 	for(int i = 0; i < searchResults.size(); i++)  {
             if (!CommonUtils.testPage("https://pornhub.com"+searchResults.get(i).select("a").attr("href"))) continue; //test to avoid error 404
             try {
-                Document pageLink = Jsoup.parse(Jsoup.connect("https://pornhub.com"+searchResults.get(i).select("a").attr("href")).userAgent(CommonUtils.PCCLIENT).get().html());
+                Document pageLink = getPage("https://pornhub.com"+searchResults.get(i).select("a").attr("href"),false);
                 while(pageLink.toString().contains("RNKEY"))
                     pageLink = Jsoup.parse(Jsoup.connect("https://pornhub.com"+searchResults.get(i).select("a").attr("href")).cookie("RNKEY", getRNKEY(pageLink.toString())).userAgent(CommonUtils.PCCLIENT).get().html());
                 verify(pageLink);
@@ -490,9 +510,41 @@ public class Pornhub extends GenericQueryExtractor{
         return img;
     }
     
+    private static String getFirstUrl(String url) throws IOException, PageNotFoundException {
+        Document page = getPage(url,false);
+        while(page.toString().contains("RNKEY"))
+            page = Jsoup.parse(Jsoup.connect(url).cookie("RNKEY", getRNKEY(page.toString())).userAgent(CommonUtils.PCCLIENT).get().html());
+        Element ul = page.getElementById("videoPlaylist");
+        if (ul == null)
+            throw new PageNotFoundException("Could find playlist");
+        else {
+            Elements li = ul.select("li.videoblock.videoBox");
+            return "https://pornhub.com" + li.get(0).select("div.phimage").select("a.img").attr("href");
+        }
+    }
+    
+    public boolean isPlaylist() {
+        return playlistUrl != null;
+    }
+    
+    @Override public Vector<String> getItems() throws IOException, PageNotFoundException {
+        Document page = getPage(playlistUrl,false);
+        while(page.toString().contains("RNKEY"))
+            page = Jsoup.parse(Jsoup.connect(playlistUrl).cookie("RNKEY", getRNKEY(page.toString())).userAgent(CommonUtils.PCCLIENT).get().html());
+        Element ul = page.getElementById("videoPlaylist");
+        if (ul == null)
+            throw new PageNotFoundException("Could find playlist");
+        else {
+            Elements li = ul.select("li.videoblock.videoBox");
+            Vector<String> links = new Vector<>();
+            for(Element item: li)
+                links.add("https://pornhub.com" + item.select("div.phimage").select("a.img").attr("href"));
+            return links;
+        }
+    }
+    
     private static long getSize(String link) throws IOException, GenericDownloaderException{
-        Document page = null;
-        page = Jsoup.parse(Jsoup.connect(link).userAgent(CommonUtils.PCCLIENT).get().html());
+        Document page = getPage(link,false);
         while(page.toString().contains("RNKEY"))
             page = Jsoup.parse(Jsoup.connect(link).cookie("RNKEY", getRNKEY(page.toString())).userAgent(CommonUtils.PCCLIENT).get().html());
         verify(page);
