@@ -177,9 +177,11 @@ public class DataCollection implements Externalizable{
                     System.out.println("top: "+keywords.get(top)+" it: "+top);
                     String topStar = j.next();
                     System.out.println("topstar: "+frequentStars.get(topStar)+" it: "+topStar);
-                    if ((keywords.get(top) > 1) && (frequentStars.get(topStar) > 1))
-                            generateSearch(keywordChart,StarChart);
-                    else if (frequentStars.get(topStar) > 1)
+                    if ((keywords.get(top) > 1) && (frequentStars.get(topStar) > 1)) {
+                            if (new Random().nextInt(2) == 0)
+                                generateSearch(keywordChart,StarChart);
+                            else generateSearch(keywordChart); //dont always search with star because u can
+                    } else if (frequentStars.get(topStar) > 1)
                             search(StarChart.keySet().iterator().next()); //search top star
                     else if (keywords.get(top) > 1) {
                             generateSearch(keywordChart);
@@ -199,7 +201,7 @@ public class DataCollection implements Externalizable{
 	
 	private void generateSearch(Map<String,Integer> kwords, Map<String,Integer> stars) {
 		Random randomNum = new Random();
-		int max = randomNum.nextInt(5); //generate 1 - 5 words
+		int max = randomNum.nextInt(8); //generate 1 - 8 words
                 int starIndex = randomNum.nextInt(5); //generate from top 5 stars
 		
 		int count = 0; Iterator<String> i = kwords.keySet().iterator();
@@ -222,7 +224,7 @@ public class DataCollection implements Externalizable{
         
         private void generateSearch(Map<String,Integer> kwords) {
             Random randomNum = new Random();
-            int max = randomNum.nextInt(5); //generate 0 - 4
+            int max = randomNum.nextInt(8); //generate 0 - 7
             System.out.println("key size: "+kwords.keySet().size());
             int count = 0; Iterator<String> i = kwords.keySet().iterator();
             StringBuilder words = new StringBuilder();
