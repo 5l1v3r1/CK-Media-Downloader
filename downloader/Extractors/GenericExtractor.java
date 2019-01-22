@@ -26,6 +26,7 @@ public abstract class GenericExtractor {
     protected File videoThumb;
     protected String videoName, url;
     protected String extractorName;
+    //protected Map<String,String> cookieJar;
 
     GenericExtractor(String url, File thumb, String videoName) {
        this();
@@ -80,5 +81,9 @@ public abstract class GenericExtractor {
         if (!link.matches("http(s)?://[\\S]+")) return "https://" + link;
         else
             return link;
+    }
+    
+    protected static String changeHttp(String link) {
+        return link.replace("https", "http");
     }
 }

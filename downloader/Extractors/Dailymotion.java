@@ -10,6 +10,7 @@ import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
 import downloader.Exceptions.PageNotFoundException;
+import downloader.Exceptions.PageParseException;
 import downloader.Exceptions.PrivateVideoException;
 import downloaderProject.MainApp;
 import java.io.File;
@@ -50,7 +51,7 @@ public class Dailymotion extends GenericExtractor{
         super(url,thumb,videoName);
     }
     
-    private Map<String,String> getQualities(String src) {
+    private Map<String,String> getQualities(String src) throws PageParseException {
         Map<String, String> links = new HashMap<>();
         
         try {
@@ -63,7 +64,7 @@ public class Dailymotion extends GenericExtractor{
                 links.put(q, (String)((JSONObject)((JSONArray)qualities.get(q)).get(1)).get("url"));
             }
         } catch (ParseException e) {
-            System.out.println("error parsing "+url);
+            throw new PageParseException(e.getMessage());
         }
         return links;
     }

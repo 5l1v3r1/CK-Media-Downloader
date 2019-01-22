@@ -45,10 +45,6 @@ public class Bigboobsalert extends GenericExtractor{
         super(url,thumb,videoName);
         this.url = changeHttp(this.url);
     }
-    
-    private static String changeHttp(String link) {
-        return link.replace("https", "http");
-    }
 
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException {
         Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
