@@ -357,10 +357,10 @@ public class CommonUtils {
             Formatter f = new Formatter(save);
             f.format("%s", page);
             f.flush(); f.close();
-            MainApp.settings.cacheUpdate();
         } catch (FileNotFoundException ex) {
-            System.out.println("Failed to save page: file not found");
+            System.out.println("Failed to save page: "+ex.getMessage());
         }
+        MainApp.settings.cacheUpdate();
     }
     
     public static void erasePage(String name) {

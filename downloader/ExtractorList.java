@@ -48,6 +48,11 @@ public class ExtractorList {
             case imgur: return new Imgur(url);
             case pornpics: return new Pornpics(url);
             case bigboobsalert: return new Bigboobsalert(url);
+            case eporner: return new Eporner(url);
+            case pornheed: return new Pornheed(url);
+            case homemoviestube: return new Homemoviestube(url);
+            case anysex: return new Anysex(url);
+            case porn: return new Porn(url);
             default:
                 return null;
         }
@@ -85,6 +90,11 @@ public class ExtractorList {
             case imgur: return new Imgur(url,thumb,name);
             case pornpics: return new Pornpics(url,thumb,name);
             case bigboobsalert: return new Bigboobsalert(url,thumb,name);
+            case eporner: return new Eporner(url,thumb,name);
+            case pornheed: return new Pornheed(url,thumb,name);
+            case homemoviestube: return new Homemoviestube(url,thumb,name);
+            case anysex: return new Anysex(url,thumb,name);
+            case porn: return new Porn(url,thumb,name);
             default:
                 return null;
         }

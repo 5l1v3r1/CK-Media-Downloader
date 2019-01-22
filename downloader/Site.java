@@ -11,10 +11,11 @@ package downloader;
  */
 
 public class Site {
-    public enum Type {none, spankbang, pornhub, xhamster, xvideos, xnxx, youporn, redtube, thumbzilla, shesfreaky, instagram, yourporn, bigtits, pornhd, vporn, ghettotube, tube8, watchenga, youjizz, xtube, spankwire, vodlocker, justporno, bigbootytube, befuck, dailymotion, vimeo, cumlouder, ruleporn, imgur, pornpics, bigboobsalert};
+    public enum Type {none, spankbang, pornhub, xhamster, xvideos, xnxx, youporn, redtube, thumbzilla, shesfreaky, instagram, yourporn, bigtits, pornhd, vporn, ghettotube, tube8, watchenga, youjizz, xtube, spankwire, vodlocker, justporno, bigbootytube, befuck, dailymotion, vimeo, cumlouder, ruleporn, imgur, pornpics, bigboobsalert, eporner, pornheed, homemoviestube, anysex, porn};
     public static String[] QueryType = {Type.spankbang.name(), Type.pornhub.name(), Type.xhamster.name(), Type.xvideos.name(), Type.youporn.name(), Type.redtube.name(), Type.thumbzilla.name(), Type.shesfreaky.name(), Type.tube8.name(), Type.spankwire.name(), Type.bigbootytube.name(), Type.ruleporn.name()};
 	
     public static Type getUrlSite(String url) {
+        
         if ((!url.startsWith("https://")) && (!url.startsWith("http://"))) url = "https://" + url;
         if (url.startsWith("http://")) url = url.replace("http://", "https://"); //so it doesnt matter if link is http / https
 	    if ((url.matches("https://(www.)?pornhub.com/view_video.php[?]viewkey=[\\S]*")) || (url.matches("https://(www.)?pornhub.com/(photo|album|gif|playlist)/[\\S]*")))    
@@ -39,7 +40,7 @@ public class Site {
             return Type.youporn;
         else if ((url.matches("https://(www.)?shesfreaky.com/video/[\\S]+.html")))
             return Type.shesfreaky;
-        else if ((url.matches("https://(www.)?yourporn.sexy/post/[\\S]+.html([?][\\S]*)?")))
+        else if ((url.matches("https://(www.)?yourporn.sexy/post/[\\S]+.html([?][\\S]*)?")) || (url.matches("https://pics.vc/watch[?]g=[\\S]+")))
             return Type.yourporn;
         else if ((url.matches("https://(www.)?bigtits.com/videos/watch/[\\S]+/[\\d]+")))
             return Type.bigtits;
@@ -82,6 +83,16 @@ public class Site {
         else if(url.matches("https://(www.)?bigboobsalert.com/[\\S]+[.]php"))
             //return Type.bigboobsalert;
             return Type.none;
+        else if(url.matches("https://(www.)?eporner.com/hd-porn/[\\S]+/[\\S]+/"))
+                return Type.none;
+        else if(url.matches("https://(www.)?pornheed.com/video/[\\d]+/[\\S]+"))
+            return Type.pornheed;
+        else if(url.matches("https://(www.)?homemoviestube.com/videos/[\\d]+/[\\S]+.html"))
+            return Type.homemoviestube;
+        else if(url.matches("https://(www.)?anysex.com/[\\d]+/"))
+            return Type.anysex;
+        else if(url.matches("https://(www.)?porn.com/videos/([\\S]+[-])+[\\d]+"))
+            return Type.porn;
         else return Type.none;
     }
 }
