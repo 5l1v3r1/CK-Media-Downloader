@@ -69,14 +69,14 @@ public class MainApp extends Application {
     public static ProgressBar progress;
     public static TextArea log;
     public static Actions act;
-    private static final String TITLE = "Video Downloader Prototype build 24";
+    private static final String TITLE = "Video Downloader Prototype build 25";
     public static DownloadHistory downloadHistoryList;
     public static StackPane root;
     public static DataCollection habits;
     private static boolean dontLoad;
     
     public static final int WIDTH = 895, HEIGHT = 550, XS = 100;
-    public static final int SUPPORTEDSITES = 30, PANES = 6;
+    public static final int SUPPORTEDSITES = 36, PANES = 6;
     public static Pane[] actionPanes = new Pane[PANES];
     public static final int DOWNLOADPANE = 0, BROWSERPANE = 1, SETTINGSPANE = 2, SHAREPANE = 3, DOWNLOADHISTORYPANE = 4, ACCOUNTPANE = 5;
     
@@ -470,7 +470,6 @@ public class MainApp extends Application {
        
        if (!dontLoad)
            loadSuggestions();
-       
        ExecutorService x = Executors.newSingleThreadExecutor();
        x.execute(clippy); x.shutdown();
     }
@@ -489,8 +488,8 @@ public class MainApp extends Application {
         habits = DataIO.loadCollectedData();
         if (habits != null) {
             int pull = 1;
-            if (habits.suggestions() > 12) pull = 2;
-            else if (habits.suggestions() > 20) pull = 3;
+            if (habits.suggestions() > 12 && habits.suggestions() <= 20) pull = 2;
+            else if (habits.suggestions() > 20 && habits.suggestions() <= 35) pull = 3;
             else if (habits.suggestions() > 35) pull = 4;
             for(int i = 0; i < pull; i++) {
                 video temp = habits.next(); 
