@@ -19,7 +19,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Vector;
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -59,21 +58,20 @@ public class Yourporn extends GenericExtractor{
     }
 	
     private static Vector<String> getImages(String url) throws IOException {
-        Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
+        Document page = getPage(url,false,true);
 	//thumb == first image
         
         Elements pagination = page.getElementById("center_control").select("a");
         Vector<String> links = new Vector<>();
 	if (pagination.size() > 0)
             for(Element link: pagination)
-                links.addAll(getImages(Jsoup.parse(Jsoup.connect("http://pics.vc/"+ link.attr("href")).userAgent(CommonUtils.PCCLIENT).get().html())));
+                links.addAll(getImages(getPage("http://pics.vc/"+ link.attr("href"),false)));
         else return getImages(page);
         return links;
     }
 
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
-
-        Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
+        Document page = getPage(url,false,true);
         verify(page);
      
         MediaDefinition media = new MediaDefinition();
@@ -122,7 +120,7 @@ public class Yourporn extends GenericExtractor{
         verify(page);
         //return page.select("meta").get(6).attr("content").replace(" on YourPorn. Sexy","");
         if (!isAlbum(url)) {
-            String raw = page.select("meta").get(6).attr("content");
+            String raw = getTitle(page);
             return raw.contains("#") ? raw.substring(0,raw.indexOf("#")-1).trim() : raw.replace(" on YourPorn. Sexy","");
         } else
             return page.select("div.gall_header").select("h2").text();

@@ -18,8 +18,8 @@ import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-
 import org.jsoup.Jsoup;
+
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
@@ -28,7 +28,7 @@ import org.jsoup.select.Elements;
  * @author christopher
  */
 public class Xtube extends GenericExtractor{
-	private static final int skip = 6;
+	private static final int SKIP = 6;
     
     public Xtube() { //this contructor is used for when you jus want to search
         
@@ -59,7 +59,7 @@ public class Xtube extends GenericExtractor{
     }
     
     public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException{        
-        Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
+        Document page = getPage(url,false,true);
 	Map<String,String> quality = getQualities(page.toString());
         
         MediaDefinition media = new MediaDefinition();
@@ -89,9 +89,9 @@ public class Xtube extends GenericExtractor{
         
         String thumb = CommonUtils.eraseChar(CommonUtils.getLink(page.toString(),page.toString().indexOf(from) + offset,'\"'), '\\');
         
-        if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,skip))) //if file not already in cache download it
-            CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,skip),MainApp.imageCache);
-        return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,skip));
+        if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
+            CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache);
+        return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,SKIP));
     }
     
     @Override protected void setExtractorName() {
@@ -131,12 +131,12 @@ public class Xtube extends GenericExtractor{
             String link = "http://www.xtube.com" + li.get(i).select("a").get(0).attr("href");
                 try {verify(getPage(link,false));} catch (GenericDownloaderException ex) {continue;}
         	String thumbLink = li.get(i).select("img").get(0).attr("src"); 
-        	if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,skip))) //if file not already in cache download it
-                    if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,skip),MainApp.imageCache) != -2)
+        	if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,SKIP))) //if file not already in cache download it
+                    if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,SKIP),MainApp.imageCache) != -2)
                         throw new IOException("Failed to completely download page");
         	String name = li.get(i).select("h3").text();
         	if (link.isEmpty() || name.isEmpty()) continue;
-        	try { v = new video(link,name,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,skip)),getSize(link)); } catch(GenericDownloaderException | IOException e)  {}
+        	try { v = new video(link,name,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)),getSize(link)); } catch(GenericDownloaderException | IOException e)  {}
         	break;
         }
         
@@ -144,7 +144,7 @@ public class Xtube extends GenericExtractor{
     }
     
     private static long getSize(String link) throws IOException, GenericDownloaderException {
-        Document page = Jsoup.parse(Jsoup.connect(link).userAgent(CommonUtils.PCCLIENT).get().html());
+        Document page = getPage(link,false,true);
         
 	Map<String,String> quality = getQualities(page.toString());
         

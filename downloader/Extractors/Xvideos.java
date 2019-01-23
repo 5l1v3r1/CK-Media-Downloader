@@ -54,7 +54,7 @@ public class Xvideos extends GenericQueryExtractor{
     }
     
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
-        Document page = Jsoup.parse(Jsoup.connect(url).get().html());
+        Document page = getPage(url,false,true);
         verify(page);
         
         int use = 5;
@@ -179,7 +179,7 @@ public class Xvideos extends GenericQueryExtractor{
                 html = Jsoup.connect(url).get().html();
             } catch (HttpStatusException e) {
                 if (e.getStatusCode() == 404)
-                    throw new PageNotFoundException("Video may be deleted as it is");
+                    throw new PageNotFoundException("Video may be deleted as it is not found");
                 else throw e;
             }
             page = Jsoup.parse(html);
@@ -264,7 +264,7 @@ public class Xvideos extends GenericQueryExtractor{
     }
     
     private static long getSize(String link) throws IOException, GenericDownloaderException {
-         Document page = Jsoup.parse(Jsoup.connect(link).get().html());
+        Document page = getPage(link,false,true);
         verify(page);
         
         int use = 5;

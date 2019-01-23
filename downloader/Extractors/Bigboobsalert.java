@@ -8,15 +8,12 @@ package downloader.Extractors;
 import downloader.CommonUtils;
 import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
-import static downloader.Extractors.GenericExtractor.configureUrl;
-import static downloader.Extractors.GenericExtractor.getPage;
 import downloaderProject.MainApp;
 import java.io.File;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
-import org.jsoup.Jsoup;
 import org.jsoup.UncheckedIOException;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -47,7 +44,7 @@ public class Bigboobsalert extends GenericExtractor{
     }
 
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException {
-        Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
+        Document page = getPage(url,false,true);
         
         Elements links = page.select("table.bg5").select("a"); MediaDefinition media = new MediaDefinition();
         for(Element link: links) {
@@ -75,8 +72,6 @@ public class Bigboobsalert extends GenericExtractor{
             if (!link.attr("href").matches("pics/[\\S]+[.]jpg")) continue;
             thumbLink += link.attr("href"); break;
         }
-        
-        System.out.println("thumb link = "+thumbLink);
         if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink))) //if file not already in cache download it
             CommonUtils.saveFile(thumbLink,CommonUtils.getThumbName(thumbLink),MainApp.imageCache);
         return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumbLink));

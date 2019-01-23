@@ -38,11 +38,10 @@ public class Watchenga extends GenericExtractor{
     }
 
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException{        
-        Document page = Jsoup.parse(Jsoup.connect(url).get().html());
+        Document page = getPage(url,false,true);
 
-        String video = page.select("video").select("source").attr("src");
         Map<String,String> qualities = new HashMap<>();
-        qualities.put("single",video); MediaDefinition media = new MediaDefinition();
+        qualities.put("single",getDefaultVideo(page)); MediaDefinition media = new MediaDefinition();
         media.addThread(qualities,videoName);
         
         return media;

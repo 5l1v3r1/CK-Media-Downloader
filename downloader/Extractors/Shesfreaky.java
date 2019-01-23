@@ -30,7 +30,7 @@ import org.jsoup.select.Elements;
  * @author christopher
  */
 public class Shesfreaky extends GenericQueryExtractor{
-	private static final int skip = 1;
+    private static final int SKIP = 1;
     
     public Shesfreaky() { //this contructor is used for when you jus want to query
         
@@ -49,13 +49,11 @@ public class Shesfreaky extends GenericQueryExtractor{
     }
 
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException{
-        
-        Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
+        Document page = getPage(url,false,true);
         verify(page);
-	String video = page.select("video").select("source").attr("src");
         
         Map<String,String> qualities = new HashMap<>();
-        qualities.put("single",video); MediaDefinition media = new MediaDefinition();
+        qualities.put("single",getDefaultVideo(page)); MediaDefinition media = new MediaDefinition();
         media.addThread(qualities,videoName);
         
         return media;
@@ -87,12 +85,11 @@ public class Shesfreaky extends GenericQueryExtractor{
             if (!thumb.startsWith("https:"))
                 thumb = "https:" + thumb;
             thequery.addLink(link);
-            if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,skip))) //if file not already in cache download it
-                if (CommonUtils.saveFile(thumb, CommonUtils.getThumbName(thumb,skip),MainApp.imageCache) != -2)
+            if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
+                if (CommonUtils.saveFile(thumb, CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache) != -2)
                     throw new IOException("Failed to completely download page");
-            Document linkPage = Jsoup.parse(Jsoup.connect(link).userAgent(CommonUtils.PCCLIENT).get().html());
-            String video = linkPage.select("video").select("source").attr("src");
-            thequery.addThumbnail(new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,skip)));
+            String video = getDefaultVideo(getPage(link,false));
+            thequery.addThumbnail(new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,SKIP)));
             thequery.addPreview(parse(link));
             thequery.addName(title);
             thequery.addSize(CommonUtils.getContentSize(video));
@@ -117,9 +114,9 @@ public class Shesfreaky extends GenericQueryExtractor{
                 String link = thumbLinks.get(i).select("a").select("img").attr("src");
                 if (!link.startsWith("https:"))
                     link = "https:" + link;
-                 if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(link,skip))) //if file not already in cache download it
-                   CommonUtils.saveFile(link,CommonUtils.getThumbName(link,skip),MainApp.imageCache);
-               thumbs.add(new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(link,skip)));
+                 if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(link,SKIP))) //if file not already in cache download it
+                   CommonUtils.saveFile(link,CommonUtils.getThumbName(link,SKIP),MainApp.imageCache);
+               thumbs.add(new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(link,SKIP)));
             }
          }
          return thumbs;
@@ -149,9 +146,9 @@ public class Shesfreaky extends GenericQueryExtractor{
                 link = "https:" + link;
             thumbLink = link;
         }
-        if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,skip))) //if file not already in cache download it
-            CommonUtils.saveFile(thumbLink,CommonUtils.getThumbName(thumbLink,skip),MainApp.imageCache);
-        return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumbLink,skip));
+        if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,SKIP))) //if file not already in cache download it
+            CommonUtils.saveFile(thumbLink,CommonUtils.getThumbName(thumbLink,SKIP),MainApp.imageCache);
+        return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumbLink,SKIP));
     }
     
     @Override protected void setExtractorName() {
@@ -166,16 +163,15 @@ public class Shesfreaky extends GenericQueryExtractor{
         Elements li = page.select("div.relatedSection").get(0).select("div.blockItem.blockItemBox");
         Random randomNum = new Random(); int count = 0; boolean got = false; if (li.size() == 0) got = true;
         while(!got) {
-        	if (count > li.size()) break;
-        	int i = randomNum.nextInt(li.size()); count++;
-        	String link = li.get(i).select("a").attr("href");
-        	try {verify(getPage(url,false)); } catch(GenericDownloaderException e) {continue;}
+            if (count > li.size()) break;
+            int i = randomNum.nextInt(li.size()); count++;
+            String link = li.get(i).select("a").attr("href");
+            try {verify(getPage(url,false)); } catch(GenericDownloaderException e) {continue;}
             String title = li.get(i).select("em").attr("title");
-            Document linkPage = Jsoup.parse(Jsoup.connect(link).userAgent(CommonUtils.PCCLIENT).get().html());
-            String video = linkPage.select("video").select("source").attr("src");
-                try {v = new video(link,title,downloadThumb(link),CommonUtils.getContentSize(video));} catch(Exception e) {continue;}
-                break;
-            }
+            String video = getDefaultVideo(getPage(link,false));
+            try {v = new video(link,title,downloadThumb(link),CommonUtils.getContentSize(video));} catch(Exception e) {continue;}
+            break;
+        }
         return v;
     }
 
@@ -195,12 +191,11 @@ public class Shesfreaky extends GenericQueryExtractor{
             String thumb = searchResults.get(i).select("span.thumb").select("img").attr("data-src");
             if (!thumb.startsWith("https:"))
                 thumb = "https:" + thumb;
-            if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,skip))) //if file not already in cache download it
-                if (CommonUtils.saveFile(thumb, CommonUtils.getThumbName(thumb,skip),MainApp.imageCache) != -2)
+            if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
+                if (CommonUtils.saveFile(thumb, CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache) != -2)
                     throw new IOException("Failed to completely download page");
-            Document linkPage = Jsoup.parse(Jsoup.connect(link).userAgent(CommonUtils.PCCLIENT).get().html());
-            String video = linkPage.select("video").select("source").attr("src");
-            v = new video(link,title,new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,skip)),CommonUtils.getContentSize(video));
+            String video = getDefaultVideo(getPage(link,false));
+            v = new video(link,title,new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,SKIP)),CommonUtils.getContentSize(video));
             break; //if u made it this far u already have a vaild video
          }
          return v;

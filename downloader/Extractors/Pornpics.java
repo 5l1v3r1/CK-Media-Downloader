@@ -9,15 +9,12 @@ import downloader.CommonUtils;
 import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
-import static downloader.Extractors.GenericExtractor.configureUrl;
-import static downloader.Extractors.GenericExtractor.getPage;
 import downloaderProject.MainApp;
 import java.io.File;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
-import org.jsoup.Jsoup;
 import org.jsoup.UncheckedIOException;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -28,7 +25,7 @@ import org.jsoup.select.Elements;
  * @author christopher
  */
 public class Pornpics extends GenericExtractor{
-    private static final int skip = 2;
+    private static final int SKIP = 2;
 
     public Pornpics() { //this contructor is used for when you jus want to search
         
@@ -47,12 +44,12 @@ public class Pornpics extends GenericExtractor{
     }
 
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException{
-        Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
+        Document page = getPage(url,false,true);
         Elements a = page.select("a.rel-link");
         MediaDefinition media = new MediaDefinition();
         for(Element item :a) {
             Map<String,String> qualities = new HashMap<>(); qualities.put("single",item.attr("href"));
-            media.addThread(qualities, CommonUtils.getThumbName(item.attr("href"),skip));
+            media.addThread(qualities, CommonUtils.getThumbName(item.attr("href"),SKIP));
         } return media;
     }
     
@@ -66,9 +63,9 @@ public class Pornpics extends GenericExtractor{
         Document page = getPage(url,false);
         String thumbLink = page.select("a.rel-link").get(0).attr("href");
          
-        if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,skip))) //if file not already in cache download it
-            CommonUtils.saveFile(thumbLink,CommonUtils.getThumbName(thumbLink,skip),MainApp.imageCache);
-        return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumbLink,skip));
+        if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,SKIP))) //if file not already in cache download it
+            CommonUtils.saveFile(thumbLink,CommonUtils.getThumbName(thumbLink,SKIP),MainApp.imageCache);
+        return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumbLink,SKIP));
     }
     
     @Override protected void setExtractorName() {

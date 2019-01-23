@@ -10,6 +10,7 @@ import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
 import downloader.Exceptions.PageNotFoundException;
+import downloader.Exceptions.PageParseException;
 import downloaderProject.MainApp;
 import java.io.File;
 import java.io.IOException;
@@ -30,7 +31,7 @@ import org.jsoup.nodes.Document;
  * @author christopher
  */
 public class Vimeo extends GenericExtractor{
-    private static final int skip = 2;
+    private static final int SKIP = 2;
     
     public Vimeo() { //this contructor is used for when you jus want to search
         
@@ -48,7 +49,7 @@ public class Vimeo extends GenericExtractor{
         super(url,thumb,videoName);
     }
     
-    private Map<String,String> getQualities(String src) {
+    private Map<String,String> getQualities(String src) throws PageParseException {
         Map<String, String> qualities = new HashMap<>();
         
         try {
@@ -59,15 +60,15 @@ public class Vimeo extends GenericExtractor{
                 qualities.put((String)quality.get("quality"), (String)quality.get("url"));
             }
         } catch (ParseException e) {
-            System.out.println("error parsing "+url);
+            throw new PageParseException(e.getMessage());
         }
         return qualities;
     }
     
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
-        Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
+        Document page = getPage(url,false,true);
         verify(page); String newUrl = "https://player.vimeo.com/video/"+url.split("/")[url.split("/").length -1];
-        page = Jsoup.parse(Jsoup.connect(newUrl).userAgent(CommonUtils.PCCLIENT).get().html());
+        page = getPage(newUrl,false,true);
         verify(page);
         
         Map<String, String> qualities = getQualities(CommonUtils.getSBracket(page.toString(), page.toString().indexOf("progressive")));
@@ -94,7 +95,7 @@ public class Vimeo extends GenericExtractor{
     //getVideo thumbnail
     private static File downloadThumb(String url) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception {
         String newUrl = "https://player.vimeo.com/video/"+url.split("/")[url.split("/").length -1];
-         Document page = getPage(newUrl,false);
+        Document page = getPage(newUrl,false);
         verify(page); String thumb = null;
         try {
             String thumbs = CommonUtils.getBracket(page.toString(), page.toString().indexOf("thumbs\":{"));
@@ -104,9 +105,9 @@ public class Vimeo extends GenericExtractor{
             System.out.println("error parsing for thumb "+url);
             throw e;
         }
-        if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,skip))) //if file not already in cache download it
-            CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,skip),MainApp.imageCache);
-        return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,skip));
+        if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
+            CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache);
+        return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,SKIP));
     }
     
     private static String convertUrl(String url) {
@@ -148,9 +149,9 @@ public class Vimeo extends GenericExtractor{
     }
 
     @Override public long getSize() throws IOException, GenericDownloaderException {
-        Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
+        Document page = getPage(url,false,true);
         verify(page); String newUrl = "https://player.vimeo.com/video/"+url.split("/")[url.split("/").length -1];
-        page = Jsoup.parse(Jsoup.connect(newUrl).userAgent(CommonUtils.PCCLIENT).get().html());
+        page = getPage(newUrl,false,true);
         verify(page);
         Map<String, String> qualities = getQualities(CommonUtils.getSBracket(page.toString(), page.toString().indexOf("progressive")));
         int max = 144;

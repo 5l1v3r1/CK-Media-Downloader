@@ -17,8 +17,8 @@ import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-
 import org.jsoup.Jsoup;
+
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
@@ -27,7 +27,7 @@ import org.jsoup.select.Elements;
  * @author christopher
  */
 public class Vporn extends GenericExtractor{
-	private static final int skip = 3;
+    private static final int SKIP = 3;
     
     public Vporn() { //this contructor is used for when you jus want to search
         
@@ -47,7 +47,7 @@ public class Vporn extends GenericExtractor{
 
 
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException{
-        Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
+        Document page = getPage(url,false,true);
 	Elements rawQualities = page.getElementById("vporn-video-player").select("source");
 	Map<String,String> qualities = new HashMap<>();
 		
@@ -72,9 +72,9 @@ public class Vporn extends GenericExtractor{
         
         String thumb = page.getElementById("vporn-video-player").attr("poster");
         
-        if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,skip))) //if file not already in cache download it
-            CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,skip),MainApp.imageCache);
-        return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,skip));
+        if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
+            CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache);
+        return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,SKIP));
     }
     
     @Override protected void setExtractorName() {
@@ -93,10 +93,10 @@ public class Vporn extends GenericExtractor{
         	String link = li.get(i).select("a.links").attr("href");
             String thumb = li.get(i).select("img").attr("src");
             String title = li.get(i).select("span.cwrap").text();
-            if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,skip))) //if file not already in cache download it
-            	if (CommonUtils.saveFile(thumb, CommonUtils.getThumbName(thumb,skip),MainApp.imageCache) != -2)
+            if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
+            	if (CommonUtils.saveFile(thumb, CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache) != -2)
             		continue;//throw new IOException("Failed to completely download page");
-                try { v = new video(link,title,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumb,skip)),getSize(link)); } catch (GenericDownloaderException | IOException e) {}
+                try { v = new video(link,title,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumb,SKIP)),getSize(link)); } catch (GenericDownloaderException | IOException e) {}
                 break;
             }
         return v;
@@ -115,12 +115,12 @@ public class Vporn extends GenericExtractor{
         for(int i = 0; i < li.size(); i++) {
         	String thumbLink = li.get(i).select("img.imgvideo").attr("src");
         	String link= li.get(i).select("a").attr("href");
-        	if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,skip))) //if file not already in cache download it
-                    if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,skip),MainApp.imageCache) != -2)
+        	if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,SKIP))) //if file not already in cache download it
+                    if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,SKIP),MainApp.imageCache) != -2)
                         throw new IOException("Failed to completely download page");
         	String name = li.get(i).select("div.thumb-info").select("span").get(0).text();
         	if (link.isEmpty() || name.isEmpty()) continue;
-        	try { v = new video(link,name,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,skip)),getSize(link)); } catch(GenericDownloaderException | IOException e) {}
+        	try { v = new video(link,name,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)),getSize(link)); } catch(GenericDownloaderException | IOException e) {}
         	break;
         }
         
@@ -128,7 +128,7 @@ public class Vporn extends GenericExtractor{
     }
     
     private static long getSize(String link) throws IOException, GenericDownloaderException {
-        Document page = Jsoup.parse(Jsoup.connect(link).userAgent(CommonUtils.PCCLIENT).get().html());
+        Document page = getPage(link,false,true);
 	Elements rawQualities = page.getElementById("vporn-video-player").select("source");
 	Map<String,String> qualities = new HashMap<>();
 		

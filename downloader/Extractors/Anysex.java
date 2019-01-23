@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
-import org.jsoup.Jsoup;
 import org.jsoup.UncheckedIOException;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -26,7 +25,7 @@ import org.jsoup.select.Elements;
  * @author christopher
  */
 public class Anysex extends GenericExtractor{
-    private static final int skip = 4;
+    private static final int SKIP = 4;
     
     public Anysex() { //this contructor is used for when you jus want to search
         
@@ -45,10 +44,10 @@ public class Anysex extends GenericExtractor{
     }
 
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
-        Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
+        Document page = getPage(url,false,true);
      
         Map<String,String> qualities = new HashMap<>();
-        String video = page.select("video").select("source").attr("src");
+        String video = getDefaultVideo(page);
 	
         qualities.put("single",video);
         MediaDefinition media = new MediaDefinition();
@@ -64,18 +63,11 @@ public class Anysex extends GenericExtractor{
     //getVideo thumbnail
     private static File downloadThumb(String url) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
         Document page = getPage(url,false);
-        String thumbLink = null; 
-	for(Element meta :page.select("meta"))
-            if (meta.attr("property").equals("og:image"))
-                thumbLink = meta.attr("content");
-	if (thumbLink == null)
-            for(Element meta :page.select("meta"))
-                if (meta.attr("itemprop").equals("og:image"))
-                    thumbLink = meta.attr("content");
+        String thumbLink = getMetaImage(page);
          
-        if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,skip))) //if file not already in cache download it
-            CommonUtils.saveFile(thumbLink,CommonUtils.getThumbName(thumbLink,skip),MainApp.imageCache);
-        return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumbLink,skip));
+        if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,SKIP))) //if file not already in cache download it
+            CommonUtils.saveFile(thumbLink,CommonUtils.getThumbName(thumbLink,SKIP),MainApp.imageCache);
+        return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumbLink,SKIP));
     }
     
     @Override protected void setExtractorName() {
@@ -88,24 +80,23 @@ public class Anysex extends GenericExtractor{
 
     @Override public video search(String str) throws IOException {
         String searchUrl = "https://anysex.com/search/?q="+str.replaceAll(" ", "+");
-	Document page = Jsoup.parse(Jsoup.connect(searchUrl).userAgent(CommonUtils.PCCLIENT).get().html());
+	Document page = getPage(searchUrl,false);
 
 	Elements lis = page.select("ul.box").select("li.item"); video v = null;
 	for(Element li: lis) {
             if (li.select("a").isEmpty()) continue;
             if (!CommonUtils.testPage(li.select("a").attr("href"))) continue; //test to avoid error 404
-            String link = li.select("a").attr("href");
-            try { v = new video(link,downloadVideoName(link),downloadThumb(link),getSize(link)); } catch (Exception e) {continue;}
+            String link = "https://anysex.com" + li.select("a").attr("href");
+            String video = getDefaultVideo(getPage(link,false,true));
+            try { v = new video(link,downloadVideoName(link),downloadThumb(link),getSize(video)); } catch (Exception e) {continue;}
             break; //if u made it this far u already have a vaild video
 	}
         return v;
     }
     
-    public long getSize(String url) throws IOException, GenericDownloaderException {
-        Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
-     
-        String video = page.select("video").select("source").attr("src");
-        return CommonUtils.getContentSize(video);
+    public long getSize(String link) throws IOException, GenericDownloaderException {
+        Document page = getPage(link,false,true);
+        return CommonUtils.getContentSize(getDefaultVideo(page));
     }
 
     @Override public long getSize() throws IOException, GenericDownloaderException {

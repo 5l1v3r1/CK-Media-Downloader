@@ -15,10 +15,8 @@ import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
-import org.jsoup.Jsoup;
 import org.jsoup.UncheckedIOException;
 import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
 
 /**
  *
@@ -39,9 +37,9 @@ public class Vodlocker extends GenericExtractor{
     }
 
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException{
-        Document page =  Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
+        Document page = getPage(url,false,true);
         
-        String video = page.select("video").select("source").attr("src");
+        String video = getDefaultVideo(page);
         Map<String,String> qualities = new HashMap<>();
         qualities.put("single",video); MediaDefinition media = new MediaDefinition();
         media.addThread(qualities,videoName);
@@ -54,27 +52,14 @@ public class Vodlocker extends GenericExtractor{
         
         //<meta property="og:title" content="Incredibles 2" />
         
-        Elements metas = page.select("meta"); String name = null;
-        for(int i = 0; i < metas.size(); i++) {
-            if (metas.get(i).attr("property").equals("og:title")) {
-                name = metas.get(i).attr("content");
-                break;
-            }
-        }
-        
-	return name;
+        return getTitle(page);
     } 
 	
     //getVideo thumbnail
     private static File downloadThumb(String url) throws IOException, SocketTimeoutException, UncheckedIOException, Exception {
         Document page = getPage(url,false);
         
-        String thumb = null;
-        Elements metas = page.select("meta");
-        for(int i = 0; i < metas.size(); i++) {
-            if(metas.get(i).attr("property").equals("og:image"))
-                thumb = metas.get(i).attr("content");
-        }
+        String thumb = getMetaImage(page);
         
         if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb))) //if file not already in cache download it
             CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb),MainApp.imageCache);

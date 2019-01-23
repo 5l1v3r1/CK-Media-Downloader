@@ -59,7 +59,7 @@ public class Youjizz extends GenericExtractor{
     }
 
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException {
-        Document page = Jsoup.parse(Jsoup.connect(url).get().html());
+        Document page = getPage(url,false,true);
         Map<String, String> quality = getQualities(CommonUtils.getSBracket(page.toString(), page.toString().indexOf("var encodings")),"quality");
         
         MediaDefinition media = new MediaDefinition();
@@ -137,7 +137,7 @@ public class Youjizz extends GenericExtractor{
     }
 
     public static long getSize(String link) throws IOException, GenericDownloaderException {
-        Document page = Jsoup.parse(Jsoup.connect(link).get().html());
+        Document page = getPage(link,false,true);
         Map<String, String> quality = getQualities(CommonUtils.getSBracket(page.toString(), page.toString().indexOf("var encodings")),"quality");
         String video;
         

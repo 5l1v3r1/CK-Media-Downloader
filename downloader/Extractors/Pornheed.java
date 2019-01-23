@@ -9,14 +9,12 @@ import downloader.CommonUtils;
 import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
-import static downloader.Extractors.GenericExtractor.configureUrl;
 import downloaderProject.MainApp;
 import java.io.File;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
-import org.jsoup.Jsoup;
 import org.jsoup.UncheckedIOException;
 import org.jsoup.nodes.Document;
 
@@ -25,8 +23,7 @@ import org.jsoup.nodes.Document;
  * @author christopher
  */
 public class Pornheed extends GenericExtractor{
-    
-    private static final int skip = 2;
+    private static final int SKIP = 2;
     
     public Pornheed() { //this contructor is used for when you jus want to search
         
@@ -47,15 +44,13 @@ public class Pornheed extends GenericExtractor{
     }
 
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
-
-        Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
+        Document page = getPage(url,false,true);
      
         String embed = page.getElementById("first").select("iframe").attr("src");
-        page = Jsoup.parse(Jsoup.connect(embed).userAgent(CommonUtils.PCCLIENT).get().html());
-        
-	String video = page.select("video").select("source").attr("src");
+        page = getPage(embed,false,true);
+
         Map<String,String> qualities = new HashMap<>();
-        qualities.put("single",video);
+        qualities.put("single",getDefaultVideo(page));
         MediaDefinition media = new MediaDefinition();
         media.addThread(qualities,videoName);
         return media;
@@ -70,13 +65,13 @@ public class Pornheed extends GenericExtractor{
     private static File downloadThumb(String url) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
          Document page = getPage(url,false);
          String embed = page.getElementById("first").select("iframe").attr("src");
-        page = Jsoup.parse(Jsoup.connect(embed).userAgent(CommonUtils.PCCLIENT).get().html());
+        page = getPage(embed,false,true);
         
 	String thumbLink = page.select("video").attr("poster");
          
-        if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,skip))) //if file not already in cache download it
-            CommonUtils.saveFile(thumbLink,CommonUtils.getThumbName(thumbLink,skip),MainApp.imageCache);
-        return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumbLink,skip));
+        if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,SKIP))) //if file not already in cache download it
+            CommonUtils.saveFile(thumbLink,CommonUtils.getThumbName(thumbLink,SKIP),MainApp.imageCache);
+        return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumbLink,SKIP));
     }
     
     @Override protected void setExtractorName() {

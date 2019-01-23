@@ -20,7 +20,6 @@ import java.util.Map;
 import java.util.Vector;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 /**
@@ -28,7 +27,7 @@ import org.jsoup.select.Elements;
  * @author christopher
  */
 public class Spankwire extends GenericQueryExtractor{
-	private static final int skip = 5;
+    private static final int SKIP = 5;
     
     public Spankwire() { //this contructor is used for when you jus want to query
         
@@ -60,10 +59,10 @@ public class Spankwire extends GenericQueryExtractor{
             if (!CommonUtils.testPage("https://spankwire.com"+searchResults.get(i).select("a").get(0).attr("href"))) continue; //test to avoid error 404
             thequery.addLink("https://spankwire.com"+searchResults.get(i).select("a").get(0).attr("href"));
             String thumbLink = "https:"+searchResults.get(i).select("img").attr("data-original");
-            if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,skip))) //if file not already in cache download it
-                if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,skip),MainApp.imageCache) != -2)
+            if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,SKIP))) //if file not already in cache download it
+                if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,SKIP),MainApp.imageCache) != -2)
                     throw new IOException("Failed to completely download page");
-            thequery.addThumbnail(new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,skip)));
+            thequery.addThumbnail(new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)));
             thequery.addPreview(parse(thequery.getLink(i)));
             thequery.addName(Jsoup.parse(searchResults.get(i).select("div.video_thumb_wrapper__thumb-wrapper__title_video").select("a").toString()).body().text());
             long size = -1; try { size = getSize("https://spankwire.com"+searchResults.get(i).select("a").get(0).attr("href")); } catch (GenericDownloaderException | IOException e) {}
@@ -85,11 +84,11 @@ public class Spankwire extends GenericQueryExtractor{
         for(int i = 0; i <= max; i++) {
             long result;
             String link = "https:"+CommonUtils.replaceIndex(mainLink,i,String.valueOf(max));
-            if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(link,skip)))
-                result = CommonUtils.saveFile(link, CommonUtils.getThumbName(link,skip), MainApp.imageCache);
+            if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(link,SKIP)))
+                result = CommonUtils.saveFile(link, CommonUtils.getThumbName(link,SKIP), MainApp.imageCache);
             else result = -2;
             if (result == -2) {
-                File grid = new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(link,skip));
+                File grid = new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(link,SKIP));
                 Vector<File> split = CommonUtils.splitImage(grid, 5, 5, 0, 0);
                 for(int j = 0; j < split.size(); j++)
                     thumbs.add(split.get(j));
@@ -113,7 +112,7 @@ public class Spankwire extends GenericQueryExtractor{
     }
 
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException {
-        Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
+        Document page = getPage(url,false,true);
 	//Map<String,String> qualities = getQualities(page.toString());
         Map<String,String> qualities = new HashMap<>();
         qualities.put("single", page.select("div.shareDownload_container__item__dropdown").select("a").get(0).attr("href"));
@@ -135,17 +134,12 @@ public class Spankwire extends GenericQueryExtractor{
        String thumb = "";
         if(page.toString().contains("playerData.poster")) 
             thumb = "https:" + CommonUtils.getLink(page.toString(),page.toString().indexOf("'//",page.toString().indexOf("playerData.poster"))+1, '\'');
-        else {
-            Elements meta = page.select("meta");
-            for(Element m: meta)
-                if (m.attr("property").equals("og:image")) {
-                    thumb = m.attr("content"); break;
-                }
-        }
+        else
+            thumb = getMetaImage(page);
         
-        if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,skip))) //if file not already in cache download it
-            CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,skip),MainApp.imageCache);
-        return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,skip));
+        if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
+            CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache);
+        return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,SKIP));
     }
     
     @Override protected void setExtractorName() {
@@ -185,19 +179,19 @@ public class Spankwire extends GenericQueryExtractor{
 	for(int i = 0; i < searchResults.size(); i++)  {
             if (!CommonUtils.testPage("https://spankwire.com"+searchResults.get(i).select("a").get(0).attr("href"))) continue; //test to avoid error 404
             String thumbLink = "https:"+searchResults.get(i).select("img").attr("data-original");
-            if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,skip))) //if file not already in cache download it
-                if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,skip),MainApp.imageCache) != -2)
+            if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,SKIP))) //if file not already in cache download it
+                if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,SKIP),MainApp.imageCache) != -2)
                     throw new IOException("Failed to completely download page");
             String link = "https://spankwire.com"+searchResults.get(i).select("a").get(0).attr("href");
             long size = -1; try { size = getSize(link); } catch (GenericDownloaderException | IOException e) {continue;}
-            v = new video("https://spankwire.com"+searchResults.get(i).select("a").get(0).attr("href"),Jsoup.parse(searchResults.get(i).select("div.video_thumb_wrapper__thumb-wrapper__title_video").select("a").toString()).body().text(),new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,skip)),size);
+            v = new video("https://spankwire.com"+searchResults.get(i).select("a").get(0).attr("href"),Jsoup.parse(searchResults.get(i).select("div.video_thumb_wrapper__thumb-wrapper__title_video").select("a").toString()).body().text(),new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)),size);
             break; //if u made it this far u already have a vaild video
 	}
         return v;
     }
     
     private static long getSize(String link) throws IOException, GenericDownloaderException{
-        Document page = Jsoup.parse(Jsoup.connect(link).userAgent(CommonUtils.PCCLIENT).get().html());
+        Document page = getPage(link,false,true);
 	/*Map<String,String> quality = getQualities(page.toString());
         String video = null;
         if (quality.containsKey("720"))

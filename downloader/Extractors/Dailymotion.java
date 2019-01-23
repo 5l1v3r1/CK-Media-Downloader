@@ -27,13 +27,13 @@ import org.jsoup.Jsoup;
 import org.jsoup.UncheckedIOException;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
 /**
  *
  * @author christopher
  */
 public class Dailymotion extends GenericExtractor{
+    private static int SKIP = 1;
     
     public Dailymotion() { //this contructor is used for when you jus want to search
         
@@ -70,8 +70,7 @@ public class Dailymotion extends GenericExtractor{
     }
     
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException{
-        
-        Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
+        Document page = getPage(url,false,true);
         verify(page); String link = null;
         for(Element i:page.select("meta")) {
             if (i.attr("property").equals("og:video:url")) {
@@ -80,7 +79,7 @@ public class Dailymotion extends GenericExtractor{
         }
         if (link == null) throw new PageNotFoundException("Couldnt get video");
         else {
-            page = Jsoup.parse(Jsoup.connect(link).userAgent(CommonUtils.PCCLIENT).get().html());
+            page = getPage(link,false,true);
             Map<String, String> qualities = getQualities(page.toString().substring(page.toString().indexOf("var config = {")+13, page.toString().indexOf("};")+1));
         
             MediaDefinition media = new MediaDefinition(); //all the qualities will have the same name
@@ -103,12 +102,7 @@ public class Dailymotion extends GenericExtractor{
     private static String downloadVideoName(String url) throws IOException , SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
         Document page = getPage(url,false);
          verify(page);
-         Elements meta = page.select("meta"); String title = null;
-         for(int i = 0; i < meta.size(); i++) {
-             if (meta.get(i).attr("property").equals("og:title")) {
-                 title = meta.get(i).attr("content"); break;
-             }
-         }
+         String title = getTitle(page);
          if (title != null) {
         	 if (title.toLowerCase().contains("- video dailymotion"))
         		 return title.substring(0,title.length() - 20);
@@ -118,18 +112,13 @@ public class Dailymotion extends GenericExtractor{
 	
     //getVideo thumbnail
     private static File downloadThumb(String url) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception {
-       Document page = getPage(url,false);
+        Document page = getPage(url,false);
         verify(page);
-        Elements meta = page.select("meta"); String thumb = null;
-         for(int i = 0; i < meta.size(); i++) {
-             if (meta.get(i).attr("property").equals("og:image")) {
-                 thumb = meta.get(i).attr("content"); break;
-             }
-         }
+        String thumb = getMetaImage(page);
         
-        if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,1))) //if file not already in cache download it
-            CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,1),MainApp.imageCache);
-        return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,1));
+        if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
+            CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache);
+        return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,SKIP));
     }
 
     @Override protected void setExtractorName() {
@@ -167,7 +156,7 @@ public class Dailymotion extends GenericExtractor{
     }
 
     @Override public long getSize() throws IOException, GenericDownloaderException {
-       Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
+       Document page = getPage(url,false,true);
         verify(page); String link = null;
         for(Element i:page.select("meta")) {
             if (i.attr("property").equals("og:video:url")) {
@@ -176,7 +165,7 @@ public class Dailymotion extends GenericExtractor{
         }
         if (link == null) throw new PageNotFoundException("Couldnt get video");
         else {
-            page = Jsoup.parse(Jsoup.connect(link).userAgent(CommonUtils.PCCLIENT).get().html());
+            page = getPage(link,false,true);
             Map<String, String> qualities = getQualities(page.toString().substring(page.toString().indexOf("var config = {")+13, page.toString().indexOf("};")+1));
         
             int max = 144;

@@ -10,8 +10,6 @@ import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
 import downloader.Exceptions.PageParseException;
-import static downloader.Extractors.GenericExtractor.configureUrl;
-import static downloader.Extractors.GenericExtractor.getPage;
 import downloaderProject.MainApp;
 import java.io.File;
 import java.io.IOException;
@@ -24,7 +22,6 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import org.jsoup.Jsoup;
 import org.jsoup.UncheckedIOException;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -35,7 +32,7 @@ import org.jsoup.select.Elements;
  * @author christopher
  */
 public class Porn extends GenericExtractor{
-    private static final int skip = 6;
+    private static final int SKIP = 6;
     
     public Porn() { //this contructor is used for when you jus want to search
         
@@ -72,7 +69,7 @@ public class Porn extends GenericExtractor{
     }
 
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
-        Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
+        Document page = getPage(url,false,true);
      
         Map<String,String> qualities = getQualities(page.toString().substring(page.toString().indexOf("streams:[")+8,page.toString().indexOf("}]",page.toString().indexOf("streams:["))+2));
 
@@ -95,9 +92,9 @@ public class Porn extends GenericExtractor{
 	String postThumb = CommonUtils.getLink(page.toString(),page.toString().indexOf("poster",page.toString().indexOf("thumbCDN")+10)+8,'\"');
         thumbLink = preThumb + postThumb;
          
-        if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,skip))) //if file not already in cache download it
-            CommonUtils.saveFile(thumbLink,CommonUtils.getThumbName(thumbLink,skip),MainApp.imageCache);
-        return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumbLink,skip));
+        if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,SKIP))) //if file not already in cache download it
+            CommonUtils.saveFile(thumbLink,CommonUtils.getThumbName(thumbLink,SKIP),MainApp.imageCache);
+        return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumbLink,SKIP));
     }
     
     @Override protected void setExtractorName() {
@@ -117,9 +114,9 @@ public class Porn extends GenericExtractor{
             String link = "https://www.porn.com" + divs.get(i).select("div.thumb").select("a").attr("href");
             String title = divs.get(i).select("div.thumb").select("a").attr("title");
             String thumb = divs.get(i).select("div.thumb").select("img").attr("src");
-            if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,skip))) //if file not already in cache download it
-                CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,skip),MainApp.imageCache);
-            File thumbFile = new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,skip));
+            if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
+                CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache);
+            File thumbFile = new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,SKIP));
             try {v = new video(link,title,thumbFile,getSize(link)); } catch(GenericDownloaderException | IOException e) {continue;}
             break;
         }
@@ -128,16 +125,16 @@ public class Porn extends GenericExtractor{
 
     @Override public video search(String str) throws IOException {
         String searchUrl = "https://www.porn.com/videos/search?q="+str.replaceAll(" ", "+");
-	Document page = Jsoup.parse(Jsoup.connect(searchUrl).userAgent(CommonUtils.PCCLIENT).get().html());
+	Document page = getPage(searchUrl,false);
 
         Elements divs = page.select("section.thumb-list.videos").select("div.item.rollable"); video v = null;
 	for(Element div: divs) {
             String link = "https://www.porn.com" + div.select("div.thumb").select("a").attr("href");
             if (!CommonUtils.testPage(link)) continue; //test to avoid error 404
             String thumb = div.select("div.thumb").select("img").attr("src");
-            if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,skip))) //if file not already in cache download it
-                CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,skip),MainApp.imageCache);
-            File thumbFile = new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,skip));
+            if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
+                CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache);
+            File thumbFile = new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,SKIP));
             try { v = new video(link,div.select("div.thumb").select("a").attr("title"),thumbFile,getSize(link)); } catch (GenericDownloaderException | IOException e) {continue;}
             break; //if u made it this far u already have a vaild video
 	}
@@ -145,7 +142,7 @@ public class Porn extends GenericExtractor{
     }
     
     public long getSize(String url) throws IOException, GenericDownloaderException {
-        Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
+        Document page = getPage(url,false,true);
      
         Map<String,String> qualities = getQualities(page.toString().substring(page.toString().indexOf("streams:[")+8,page.toString().indexOf("}]",page.toString().indexOf("streams:["))+2));
         return CommonUtils.getContentSize(qualities.get(qualities.keySet().iterator().next()));

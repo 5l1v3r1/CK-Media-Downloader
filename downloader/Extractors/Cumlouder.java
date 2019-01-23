@@ -16,7 +16,6 @@ import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -26,7 +25,7 @@ import org.jsoup.select.Elements;
  * @author christopher
  */
 public class Cumlouder extends GenericExtractor {
-    private static final int skip = 4;
+    private static final int SKIP = 4;
     
     public Cumlouder() { //this contructor is used for when you jus want to search
         
@@ -45,12 +44,8 @@ public class Cumlouder extends GenericExtractor {
     }
 
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException {
-        
-        Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
-        String video = "";
-        if (page.select("video").select("source") != null)
-            video = "https:"+page.select("video").select("source").attr("src");
-        else video = "https:"+page.select("video").attr("src");
+        Document page = getPage(url,false,true);
+        String video = "https:"+ getDefaultVideo(page);
         
         Map<String,String> qualities = new HashMap<>();
         qualities.put("single",video); MediaDefinition media = new MediaDefinition();
@@ -72,9 +67,9 @@ public class Cumlouder extends GenericExtractor {
         
         String thumb = page.select("video").get(0).attr("poster");
         
-        if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,skip))) //if file not already in cache download it
-            CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,skip),MainApp.imageCache);
-        return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,skip));
+        if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
+            CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache);
+        return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,SKIP));
     }
     
     @Override protected void setExtractorName() {
@@ -94,15 +89,12 @@ public class Cumlouder extends GenericExtractor {
         	String link = "https://www.cumlouder.com" + li.get(i).attr("href");
             String thumb = li.get(i).select("img.thumb").attr("src");
             String title = li.get(i).select("img.thumb").attr("title");
-            if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,skip))) //if file not already in cache download it
-            	if (CommonUtils.saveFile(thumb, CommonUtils.getThumbName(thumb,skip),MainApp.imageCache) != -2)
+            if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
+            	if (CommonUtils.saveFile(thumb, CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache) != -2)
             		continue;//throw new IOException("Failed to completely download page");
-                Document linkPage = Jsoup.parse(Jsoup.connect(link).userAgent(CommonUtils.PCCLIENT).get().html());
-                String video = "";
-                if (linkPage.select("video").select("source") != null)
-                    video = "https:"+linkPage.select("video").select("source").attr("src");
-                else video = "https:"+linkPage.select("video").attr("src");
-                v = new video(link,title,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumb,skip)),CommonUtils.getContentSize(video));
+                Document linkPage = getPage(link,false);
+                String video = getDefaultVideo(linkPage);
+                v = new video(link,title,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumb,SKIP)),CommonUtils.getContentSize(video));
                 break;
             }
         return v;
@@ -119,18 +111,15 @@ public class Cumlouder extends GenericExtractor {
         
         for(int i = 0; i < li.size(); i++) {
         	String thumbLink = li.get(i).select("img.thumb").attr("src"); 
-        	if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,skip))) //if file not already in cache download it
-                    if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,skip),MainApp.imageCache) != -2)
+        	if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,SKIP))) //if file not already in cache download it
+                    if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,SKIP),MainApp.imageCache) != -2)
                         throw new IOException("Failed to completely download page");
         	String link = "https://www.cumlouder.com" + li.get(i).select("a").attr("href");
         	String name = li.get(i).select("img.thumb").attr("title");
         	if (link.isEmpty() || name.isEmpty()) continue;
-                 Document linkPage = Jsoup.parse(Jsoup.connect(link).userAgent(CommonUtils.PCCLIENT).get().html());
-                String video = "";
-                if (linkPage.select("video").select("source") != null)
-                    video = "https:"+linkPage.select("video").select("source").attr("src");
-                else video = "https:"+linkPage.select("video").attr("src");
-        	v = new video(link,name,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,skip)),CommonUtils.getContentSize(video));
+                 Document linkPage = getPage(link,false);
+                String video = "https:" + getDefaultVideo(linkPage);
+        	v = new video(link,name,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)),CommonUtils.getContentSize(video));
         	break;
         }
         

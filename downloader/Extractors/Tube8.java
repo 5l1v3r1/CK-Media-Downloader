@@ -34,7 +34,7 @@ import org.jsoup.select.Elements;
  * @author christopher
  */
 public class Tube8 extends GenericQueryExtractor{
-	private static final int skip = 4;
+    private static final int SKIP = 4;
     
     public Tube8() { //this contructor is used for when you jus want to query
         
@@ -69,10 +69,10 @@ public class Tube8 extends GenericQueryExtractor{
             String thumb = searchResults.get(i).select("div.videoThumbsWrapper").select("img").attr("data-thumb");
             System.out.println("thumb: "+thumb);
             thequery.addLink(link);
-            if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,skip))) //if file not already in cache download it
-                if (CommonUtils.saveFile(thumb, CommonUtils.getThumbName(thumb,skip),MainApp.imageCache) != -2)
+            if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
+                if (CommonUtils.saveFile(thumb, CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache) != -2)
                     throw new IOException("Failed to completely download page");
-            thequery.addThumbnail(new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,skip)));
+            thequery.addThumbnail(new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,SKIP)));
             thequery.addPreview(parse(link));
             thequery.addName(title);
             long size; try { size = getSize(link); } catch (GenericDownloaderException | IOException e) {size = -1;}
@@ -83,7 +83,7 @@ public class Tube8 extends GenericQueryExtractor{
 
     @Override
     protected Vector<File> parse(String url) throws IOException, SocketTimeoutException, UncheckedIOException {
-        Vector<File> thumbs = new Vector<File>();
+        Vector<File> thumbs = new Vector<>();
         
         Document page = getPage(url,false);
         
@@ -93,9 +93,9 @@ public class Tube8 extends GenericQueryExtractor{
         
         for(int i = 0; i <= max; i++) {
             String link = CommonUtils.replaceIndex(mainLink,i,String.valueOf(max));
-            if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(link,skip+1)))
-                CommonUtils.saveFile(link, CommonUtils.getThumbName(link,skip+1), MainApp.imageCache);
-            File grid = new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(link,skip+1));
+            if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(link,SKIP+1)))
+                CommonUtils.saveFile(link, CommonUtils.getThumbName(link,SKIP+1), MainApp.imageCache);
+            File grid = new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(link,SKIP+1));
             Vector<File> split = CommonUtils.splitImage(grid, 5, 5, 0, 0);
             for(int j = 0; j < split.size(); j++)
                 thumbs.add(split.get(j));
@@ -119,7 +119,7 @@ public class Tube8 extends GenericQueryExtractor{
     }
 
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
-        Document page = Jsoup.parse(Jsoup.connect(url).get().html());
+        Document page = getPage(url,false,true);
         Map<String, String> quality = getQualities(page.toString().substring(page.toString().indexOf("mediaDefinition")+17));
        
         MediaDefinition media = new MediaDefinition();
@@ -140,9 +140,9 @@ public class Tube8 extends GenericQueryExtractor{
         
         String thumb = CommonUtils.eraseChar(CommonUtils.getLink(page.toString(), page.toString().indexOf("image_url",page.toString().indexOf("var flashvars")) + 12,'\"'), '\\');
         
-        if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,skip))) //if file not already in cache download it
-            CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,skip),MainApp.imageCache);
-        return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,skip));
+        if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
+            CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache);
+        return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,SKIP));
     }  
     
     @Override protected void setExtractorName() {
@@ -180,17 +180,17 @@ public class Tube8 extends GenericQueryExtractor{
             String link = searchResults.get(i).select("p.video_title").select("a").attr("href");
             String title = searchResults.get(i).select("p.video_title").select("a").attr("title");
             String thumb = searchResults.get(i).select("div.videoThumbsWrapper").select("img").attr("data-thumb");
-            if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,skip))) //if file not already in cache download it
-                if (CommonUtils.saveFile(thumb, CommonUtils.getThumbName(thumb,skip),MainApp.imageCache) != -2)
+            if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
+                if (CommonUtils.saveFile(thumb, CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache) != -2)
                     throw new IOException("Failed to completely download page");
-            try { v = new video(link,title,new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,skip)),getSize(link)); } catch (GenericDownloaderException | IOException e) {}
+            try { v = new video(link,title,new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,SKIP)),getSize(link)); } catch (GenericDownloaderException | IOException e) {}
             break; //if u made it this far u already have a vaild video
 	}
         return v;
     }
 
     private static long getSize(String link) throws IOException, GenericDownloaderException {
-        Document page = Jsoup.parse(Jsoup.connect(link).get().html());
+        Document page = getPage(link,false,true);
         
         Map<String, String> quality = getQualities(page.toString().substring(page.toString().indexOf("mediaDefinition")+17));
         String video;

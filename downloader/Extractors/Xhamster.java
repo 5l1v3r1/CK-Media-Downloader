@@ -25,8 +25,8 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-
 import org.jsoup.Jsoup;
+
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -36,7 +36,7 @@ import org.jsoup.select.Elements;
  * @author christopher
  */
 public class Xhamster extends GenericQueryExtractor{
-	private static final int skip = 5;
+	private static final int SKIP = 5;
     
     public Xhamster() { //this contructor is used for when you jus want to query
         
@@ -75,8 +75,7 @@ public class Xhamster extends GenericQueryExtractor{
     }
     
     @Override public MediaDefinition getVideo() throws IOException,SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
-        
-        Document page = Jsoup.parse(Jsoup.connect(url).get().html());
+        Document page = getPage(url,false,true);
         Map<String,String> qualities =  getQualities(page.toString().substring(page.toString().indexOf("mp4\":[")+5));
  
 	//String video = page.select("a.player-container__no-player.xplayer.xplayer-fallback-image.xh-helper-hidden").attr("href");
@@ -100,13 +99,13 @@ public class Xhamster extends GenericQueryExtractor{
             if (!CommonUtils.testPage(searchResults.get(i).select("a").attr("href"))) continue; //test to avoid error 404
             thequery.addLink(searchResults.get(i).select("a").attr("href"));
             String thumbLink = searchResults.get(i).select("a").select("img").attr("src");
-            if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,skip))) //if file not already in cache download it
-                if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,skip),MainApp.imageCache) != -2)
+            if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,SKIP))) //if file not already in cache download it
+                if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,SKIP),MainApp.imageCache) != -2)
                     throw new IOException("Failed to completely download page");
-            thequery.addThumbnail(new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,skip)));
+            thequery.addThumbnail(new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)));
             thequery.addPreview(parse(thequery.getLink(i)));
             thequery.addName(Jsoup.parse(searchResults.get(i).select("div.video-thumb-info").select("a").toString()).body().text());
-            Document linkPage = Jsoup.parse(Jsoup.connect(searchResults.get(i).select("a").attr("href")).get().html());
+            Document linkPage = getPage(searchResults.get(i).select("a").attr("href"),false);
             String video = linkPage.select("a.player-container__no-player.xplayer.xplayer-fallback-image.xh-helper-hidden").attr("href");
             thequery.addSize(CommonUtils.getContentSize(video));
 	}
@@ -115,8 +114,7 @@ public class Xhamster extends GenericQueryExtractor{
     
      //get preview thumbnails
     @Override protected Vector<File> parse(String url) throws IOException, SocketTimeoutException {
-        Vector<File> thumbs = new Vector<File>();
-        
+        Vector<File> thumbs = new Vector<>();
         Document page = getPage(url,true);
         
         Elements previewImg = page.select("div.item").select("img"); //div containing imgs tags
@@ -124,9 +122,9 @@ public class Xhamster extends GenericQueryExtractor{
         Iterator<Element> img = previewImg.iterator();
         while(img.hasNext()) { //loop through all img tags
             String thumb = img.next().attr("src");
-            if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,skip))) //if file not already in cache download it
-                CommonUtils.saveFile(thumb, CommonUtils.getThumbName(thumb,skip),MainApp.imageCache);
-            thumbs.add(new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,skip)));
+            if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
+                CommonUtils.saveFile(thumb, CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache);
+            thumbs.add(new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,SKIP)));
         }
         return thumbs;
     }
@@ -143,9 +141,9 @@ public class Xhamster extends GenericQueryExtractor{
         
 	String thumb = page.select("header").select("img").attr("src");
         
-        if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,skip))) //if file not already in cache download it
-            CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,skip),MainApp.imageCache);
-        return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,skip));
+        if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
+            CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache);
+        return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,SKIP));
     }
     
     private static String convertUrl(String url) {
@@ -172,13 +170,13 @@ public class Xhamster extends GenericQueryExtractor{
         	String link = li.get(i).select("a").get(0).attr("href");
             String thumb = li.get(i).select("img").attr("src");
             String title = li.get(i).select("a.video-thumb-info__name").text();
-            if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,skip))) //if file not already in cache download it
-            	if (CommonUtils.saveFile(thumb, CommonUtils.getThumbName(thumb,skip),MainApp.imageCache) != -2)
+            if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
+            	if (CommonUtils.saveFile(thumb, CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache) != -2)
             		continue;//throw new IOException("Failed to completely download page");
-                Document linkPage = Jsoup.parse(Jsoup.connect(url).get().html());
+                Document linkPage = getPage(link,false);
  
                 String video = linkPage.select("a.player-container__no-player.xplayer.xplayer-fallback-image.xh-helper-hidden").attr("href");
-                v = new video(link,title,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumb,skip)),CommonUtils.getContentSize(video));
+                v = new video(link,title,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumb,SKIP)),CommonUtils.getContentSize(video));
                 break;
             }
         return v;
@@ -195,20 +193,20 @@ public class Xhamster extends GenericQueryExtractor{
 	for(int i = 0; i < searchResults.size(); i++)  {
             if (!CommonUtils.testPage(searchResults.get(i).select("a").attr("href"))) continue; //test to avoid error 404
             String thumbLink = searchResults.get(i).select("a").select("img").attr("src");
-            if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,skip))) //if file not already in cache download it
-                if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,skip),MainApp.imageCache) != -2)
+            if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,SKIP))) //if file not already in cache download it
+                if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,SKIP),MainApp.imageCache) != -2)
                     throw new IOException("Failed to completely download page");
-            Document linkPage = Jsoup.parse(Jsoup.connect(url).get().html());
+            Document linkPage = getPage(searchResults.get(i).select("a").attr("href"),false);
  
-                String video = linkPage.select("a.player-container__no-player.xplayer.xplayer-fallback-image.xh-helper-hidden").attr("href");
-            v = new video(searchResults.get(i).select("a").attr("href"),Jsoup.parse(searchResults.get(i).select("div.video-thumb-info").select("a").toString()).body().text(),new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,skip)),CommonUtils.getContentSize(video));
+            String video = linkPage.select("a.player-container__no-player.xplayer.xplayer-fallback-image.xh-helper-hidden").attr("href");
+            v = new video(searchResults.get(i).select("a").attr("href"),Jsoup.parse(searchResults.get(i).select("div.video-thumb-info").select("a").toString()).body().text(),new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)),CommonUtils.getContentSize(video));
             break; //if u made it this far u already have a vaild video
 	}
         return v;
     }
 
     @Override public long getSize() throws IOException, GenericDownloaderException {
-        Document page = Jsoup.parse(Jsoup.connect(url).get().html());
+        Document page = getPage(url,false,true);
         Map<String,String> quality =  getQualities(page.toString().substring(page.toString().indexOf("mp4\":[")+5));
         String video;
         

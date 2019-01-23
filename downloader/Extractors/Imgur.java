@@ -23,7 +23,6 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -54,14 +53,14 @@ public class Imgur extends GenericExtractor {
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException{
         
         if (url.matches("https://imgur.com/gallery/[\\S]*"))
-            return getImgurGallery(url);
-	else return getImgurSingle(url);
+            return getImgurGallery();
+	else return getImgurSingle();
     }
     
     private static String downloadVideoName(String url) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
     	Document page = getPage(url,false);
-		String data = page.toString().substring(page.toString().indexOf("image               : {")+22,page.toString().indexOf("},\n",page.toString().indexOf("image               : {"))+1);
-		JSONObject details = (JSONObject)new JSONParser().parse(data);
+        String data = page.toString().substring(page.toString().indexOf("image               : {")+22,page.toString().indexOf("},\n",page.toString().indexOf("image               : {"))+1);
+	JSONObject details = (JSONObject)new JSONParser().parse(data);
         return ((String)details.get("title")).length() < 1 ? url.substring(url.lastIndexOf("/")+1) : (String)details.get("title");
     } 
 	
@@ -71,21 +70,14 @@ public class Imgur extends GenericExtractor {
         
         String thumb = null;
         Elements metas = page.select("meta");
-		for(Element meta : metas) {
-			if(meta.attr("property").equals("twitter:image")) {
-				thumb = meta.attr("content");
-				break;	
-			}
-		}
-		if ((thumb == null) || (thumb.length() < 1)) {
-			for(Element meta : metas) {
-				if(meta.attr("property").equals("og:image")) {
-					thumb = meta.attr("content");
-					break;	
-				}
-			}
-		}
-	        
+	for(Element meta : metas) {
+            if(meta.attr("property").equals("twitter:image")) {
+                thumb = meta.attr("content");
+		break;	
+            }
+	}
+	if ((thumb == null) || (thumb.length() < 1)) thumb = getMetaImage(page);
+
         if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,skip))) //if file not already in cache download it
             CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,skip),MainApp.imageCache);
         return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,skip));
@@ -95,9 +87,9 @@ public class Imgur extends GenericExtractor {
     	return s.charAt(s.length()-1) == '/' ? s.substring(0,s.length()-1) : s;    		
     }
     
-    private MediaDefinition getImgurGallery(String url) throws IOException, GenericDownloaderException {
+    private MediaDefinition getImgurGallery() throws IOException, GenericDownloaderException {
         try {
-            Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
+            Document page = getPage(url,false,true);
             String data = page.toString().substring(page.toString().indexOf("image               : {")+22,page.toString().indexOf("},\n",page.toString().indexOf("image               : {"))+1);
             JSONObject details = (JSONObject)new JSONParser().parse(data);
             if (details.get("album_images") == null)
@@ -131,9 +123,9 @@ public class Imgur extends GenericExtractor {
         return media;
     }
 	
-    private MediaDefinition getImgurSingle(String url) throws IOException, GenericDownloaderException{
+    private MediaDefinition getImgurSingle() throws IOException, GenericDownloaderException{
         try {
-            Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
+            Document page = getPage(url,false,true);
             String data = page.toString().substring(page.toString().indexOf("image               : {")+22,page.toString().indexOf("},\n",page.toString().indexOf("image               : {"))+1);
             JSONObject details = (JSONObject)new JSONParser().parse(data);
             return getSingle(details);
@@ -154,7 +146,7 @@ public class Imgur extends GenericExtractor {
     private long getCollectSize() throws IOException {
         long total = 0;
         try {
-            Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
+            Document page = getPage(url,false,true);
             String data = page.toString().substring(page.toString().indexOf("image               : {")+22,page.toString().indexOf("},\n",page.toString().indexOf("image               : {"))+1);
             JSONObject details = (JSONObject)new JSONParser().parse(data);
             if (details.get("album_images") == null)
@@ -173,7 +165,7 @@ public class Imgur extends GenericExtractor {
     
     private long getSingleSize() throws IOException {
         try {
-            Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
+            Document page = getPage(url,false,true);
             String data = page.toString().substring(page.toString().indexOf("image               : {")+22,page.toString().indexOf("},\n",page.toString().indexOf("image               : {"))+1);
             JSONObject details = (JSONObject)new JSONParser().parse(data);
             return getSingleSize(details);

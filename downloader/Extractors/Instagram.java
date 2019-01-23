@@ -12,12 +12,12 @@ import downloader.Exceptions.GenericDownloaderException;
 import downloaderProject.MainApp;
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import org.jsoup.UncheckedIOException;
 import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
@@ -26,6 +26,7 @@ import org.jsoup.select.Elements;
  * @author christopher
  */
 public class Instagram extends GenericExtractor{
+    private Document html;
     
     public Instagram(String url)throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
         this(url,downloadThumb(configureUrl(url)),downloadVideoName(configureUrl(url)));
@@ -38,9 +39,31 @@ public class Instagram extends GenericExtractor{
     public Instagram(String url, File thumb, String videoName) {
         super(url,thumb,videoName);
     }
+    
+    public Instagram(Document page) throws MalformedURLException {
+        /*for(Element meta :page.select("meta"))
+            if (meta.attr("property").equals("og:url"))
+                this.url = meta.attr("content");*/
+        this.url = null;
+        String thumbLink = getMetaImage(page);
+        if(!CommonUtils.checkImageCache(CommonUtils.parseName(thumbLink,".jpg"))) //if file not already in cache download it
+            CommonUtils.saveFile(thumbLink,CommonUtils.parseName(thumbLink,".jpg"),MainApp.imageCache);
+        this.videoThumb = new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.parseName(thumbLink,".jpg"));
+        if (isVideo(page)) {
+            String videoLink = null;
+            Elements metas = page.select("meta");
+            for(int i = 0; i < metas.size(); i++) {
+                if(metas.get(i).attr("property").equals("og:video"))
+                    videoLink = metas.get(i).attr("content");
+            }
+            this.videoName = CommonUtils.parseName(videoLink, ".mp4");
+        } else this.videoName = videoThumb.getName();
+    }
 
     @Override public MediaDefinition getVideo() throws IOException,SocketTimeoutException, UncheckedIOException{
-        Document page = Jsoup.parse(Jsoup.connect(url).get().html()); MediaDefinition media = new MediaDefinition();
+        Document page;
+        if (url == null) page = this.html;
+        else page = getPage(url,false,true); MediaDefinition media = new MediaDefinition();
         
 	if (isVideo(page)) { //download video
             String videoLink = null;
@@ -52,11 +75,7 @@ public class Instagram extends GenericExtractor{
             media.addThread(qualities,CommonUtils.parseName(videoLink,".mp4"));
             return media;
         } else if(isProfilePage(page)) { //download profile pic
-           String picLink = null;
-            Elements metas = page.select("meta");
-            for(int i = 0; i < metas.size(); i++)
-                if(metas.get(i).attr("property").equals("og:image"))
-                    picLink = metas.get(i).attr("content");
+            String picLink = getMetaImage(page);
             Map<String,String> qualities = new HashMap<>(); qualities.put("single",picLink);
             media.addThread(qualities,CommonUtils.parseName(picLink,".jpg"));
             return media;
@@ -70,21 +89,17 @@ public class Instagram extends GenericExtractor{
                if (link.contains(".mp4"))
                     media.addThread(qualities, CommonUtils.parseName(link,".mp4"));
                else media.addThread(qualities, CommonUtils.parseName(link,".jpg"));
-           } if (count < 1) { //if there really was jus one
-               occur = page.toString().indexOf("display_resources",0);
-               if(occur != -1) {
+            } if (count < 1) { //if there really was jus one
+                occur = page.toString().indexOf("display_resources",0);
+                if(occur != -1) {
                     String brack = CommonUtils.getSBracket(page.toString(),occur); String link = parseBracket(brack);
                     Map<String,String> qualities = new HashMap<>(); qualities.put("single",link);
                     media.addThread(qualities, CommonUtils.parseName(link,".jpg"));
-               } else  {
-                   String picLink = null;
-                    Elements metas = page.select("meta");
-                    for(int i = 0; i < metas.size(); i++)
-                        if(metas.get(i).attr("property").equals("og:image"))
-                            picLink = metas.get(i).attr("content");
+                } else  {
+                    String picLink = getMetaImage(page);
                     Map<String,String> qualities = new HashMap<>(); qualities.put("single",picLink);
                     media.addThread(qualities, CommonUtils.parseName(picLink,".jpg"));
-               }
+                }
            }
            return media;
         }
@@ -120,14 +135,7 @@ public class Instagram extends GenericExtractor{
     }
     
     private static String downloadVideoName(String url) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
-        Document page;
-         if (CommonUtils.checkPageCache(CommonUtils.getCacheName(url,false))) //check to see if page was downloaded previous
-            page = Jsoup.parse(CommonUtils.loadPage(MainApp.pageCache.getAbsolutePath()+File.separator+CommonUtils.getCacheName(url,false)));
-         else {
-             String html = Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html();
-             page = Jsoup.parse(html);
-            CommonUtils.savePage(html, url, false);
-         }
+        Document page = getPage(url,false);
         if (isVideo(page)) {
             String videoLink = null;
             Elements metas = page.select("meta");
@@ -141,21 +149,9 @@ public class Instagram extends GenericExtractor{
     
     //getVideo thumbnail
     private static File downloadThumb(String url) throws IOException, SocketTimeoutException, UncheckedIOException, Exception {
-        Document page;//https://www.instagram.com/p/Bky0zJyA4kY-2nbW7RQ6oN71vNFEu-2lawigG00/
-         if (CommonUtils.checkPageCache(CommonUtils.getCacheName(url,false))) //check to see if page was downloaded previous
-            page = Jsoup.parse(CommonUtils.loadPage(MainApp.pageCache.getAbsolutePath()+File.separator+CommonUtils.getCacheName(url,false)));
-         else {
-             String html = Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html();
-             page = Jsoup.parse(html);
-            CommonUtils.savePage(html, url, false);
-         }
+        Document page = getPage(url,false);// https://www.instagram.com/p/Bky0zJyA4kY-2nbW7RQ6oN71vNFEu-2lawigG00/
         
-        String thumbLink = null;
-        Elements metas = page.select("meta");
-        for(int i = 0; i < metas.size(); i++) {
-            if(metas.get(i).attr("property").equals("og:image"))
-                thumbLink = metas.get(i).attr("content");
-        }
+        String thumbLink = getMetaImage(page);
         if(!CommonUtils.checkImageCache(CommonUtils.parseName(thumbLink,".jpg"))) //if file not already in cache download it
             CommonUtils.saveFile(thumbLink,CommonUtils.parseName(thumbLink,".jpg"),MainApp.imageCache);
         return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.parseName(thumbLink,".jpg"));
@@ -174,19 +170,16 @@ public class Instagram extends GenericExtractor{
     }
 
     @Override public long getSize() throws IOException, GenericDownloaderException {
-        Document page = Jsoup.parse(Jsoup.connect(url).get().html());
+        Document page = getPage(url,false,true);
         String videoLink = null; long total = 0;
         if (isVideo(page)) { //download video
             Elements metas = page.select("meta");
             for(int i = 0; i < metas.size(); i++)
                 if(metas.get(i).attr("property").equals("og:video"))
                     videoLink = metas.get(i).attr("content");
-        } else if(isProfilePage(page)) { //download profile pic
-            Elements metas = page.select("meta");
-            for(int i = 0; i < metas.size(); i++)
-                if(metas.get(i).attr("property").equals("og:image"))
-                    videoLink = metas.get(i).attr("content");
-        } else { //download pic/s
+        } else if(isProfilePage(page)) //download profile pic
+            videoLink = getMetaImage(page);
+        else { //download pic/s
            int occur, from = 0; boolean first = true; int count = 0;
            while((occur = page.toString().indexOf("display_resources",from)) != -1) {
                if (first) {first = false; from = occur + 1; continue;}
@@ -198,12 +191,8 @@ public class Instagram extends GenericExtractor{
                if(occur != -1) {
                     String brack = CommonUtils.getSBracket(page.toString(),occur);
                     total += CommonUtils.getContentSize(parseBracket(brack));
-               } else  {
-                    Elements metas = page.select("meta");
-                    for(int i = 0; i < metas.size(); i++)
-                        if(metas.get(i).attr("property").equals("og:image"))
-                            total += CommonUtils.getContentSize(metas.get(i).attr("content"));
-               }
+               } else
+                    total += CommonUtils.getContentSize(getMetaImage(page));
            }
            return total;
         }

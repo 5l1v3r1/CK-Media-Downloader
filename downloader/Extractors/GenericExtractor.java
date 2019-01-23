@@ -17,6 +17,7 @@ import org.jsoup.UncheckedIOException;
 import java.net.SocketTimeoutException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 
 /**
  *
@@ -26,7 +27,6 @@ public abstract class GenericExtractor {
     protected File videoThumb;
     protected String videoName, url;
     protected String extractorName;
-    //protected Map<String,String> cookieJar;
 
     GenericExtractor(String url, File thumb, String videoName) {
        this();
@@ -45,10 +45,14 @@ public abstract class GenericExtractor {
     
     protected abstract void setExtractorName();
     
-    protected static Document getPage(String url, boolean mobile) throws FileNotFoundException, IOException {
+    protected static Document getPage(String url, boolean mobile) throws IOException {
+        return getPage(url,mobile,false);
+    }
+    
+    protected static Document getPage(String url, boolean mobile, boolean force) throws FileNotFoundException, IOException {
         Document page;
-        if (CommonUtils.checkPageCache(CommonUtils.getCacheName(url,mobile))) //check to see if page was downloaded previous
-            page = Jsoup.parse(CommonUtils.loadPage(MainApp.pageCache.getAbsolutePath()+File.separator+CommonUtils.getCacheName(url,mobile)));
+        if (CommonUtils.checkPageCache(CommonUtils.getCacheName(url,mobile)) && !force) //check to see if page was downloaded previous 
+            page = Jsoup.parse(CommonUtils.loadPage(MainApp.pageCache.getAbsolutePath()+File.separator+CommonUtils.getCacheName(url,mobile))); //load if not force redownload
         else { String html;
              if (mobile)
                 html = Jsoup.connect(url).userAgent(CommonUtils.MOBILECLIENT).get().html();
@@ -57,6 +61,34 @@ public abstract class GenericExtractor {
             CommonUtils.savePage(html, url, mobile);
         } //if not found in cache download it
         return page;
+    }
+    
+    protected static String getMetaImage(Document page) {
+        String thumbLink = null; 
+	for(Element meta :page.select("meta"))
+            if (meta.attr("property").equals("og:image"))
+                thumbLink = meta.attr("content");
+        if (thumbLink == null)
+            for(Element meta :page.select("meta"))
+                if (meta.attr("itemprop").equals("og:image"))
+                    thumbLink = meta.attr("content");
+        return thumbLink;
+    }
+    
+    protected static String getTitle(Document page) {
+        String title = null;
+        //title = page.select("title").text();
+        if (title.length() < 1)
+            for(Element meta :page.select("meta"))
+                if(meta.attr("property").equals("og:title"))
+                    title = meta.attr("content");
+        return title;
+    }
+    
+    protected String getDefaultVideo(Document page) {
+        if (page.select("video").select("source").isEmpty())
+            return page.select("video").attr("src");
+        else return page.select("video").select("source").attr("src");
     }
     
     public abstract MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException;

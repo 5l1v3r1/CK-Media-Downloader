@@ -9,8 +9,6 @@ import downloader.CommonUtils;
 import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
-import static downloader.Extractors.GenericExtractor.configureUrl;
-import static downloader.Extractors.GenericExtractor.getPage;
 import downloaderProject.MainApp;
 import java.io.File;
 import java.io.IOException;
@@ -18,7 +16,6 @@ import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-import org.jsoup.Jsoup;
 import org.jsoup.UncheckedIOException;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -29,7 +26,7 @@ import org.jsoup.select.Elements;
  * @author christopher
  */
 public class Homemoviestube extends GenericExtractor{
-    private static final int skip = 5;
+    private static final int SKIP = 5;
     
     public Homemoviestube() { //this contructor is used for when you jus want to search
         
@@ -50,12 +47,10 @@ public class Homemoviestube extends GenericExtractor{
     }
 
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
-        Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
+        Document page = getPage(url,false,true);
      
         Map<String,String> qualities = new HashMap<>();
-        String video = page.select("video").select("source").attr("src");
-	
-        qualities.put("single",video);
+        qualities.put("single",getDefaultVideo(page));
         MediaDefinition media = new MediaDefinition();
         media.addThread(qualities,videoName);
 
@@ -69,15 +64,11 @@ public class Homemoviestube extends GenericExtractor{
     //getVideo thumbnail
     private static File downloadThumb(String url) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
         Document page = getPage(url,false);
-        String thumbLink = null; 
-	for(Element meta :page.select("meta")) {
-            if (meta.attr("property").equals("og:image"))
-                thumbLink = meta.attr("content");
-	}
+        String thumbLink = getMetaImage(page);
          
-        if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,skip))) //if file not already in cache download it
-            CommonUtils.saveFile(thumbLink,CommonUtils.getThumbName(thumbLink,skip),MainApp.imageCache);
-        return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumbLink,skip));
+        if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,SKIP))) //if file not already in cache download it
+            CommonUtils.saveFile(thumbLink,CommonUtils.getThumbName(thumbLink,SKIP),MainApp.imageCache);
+        return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumbLink,SKIP));
     }
     
     @Override protected void setExtractorName() {
@@ -94,7 +85,7 @@ public class Homemoviestube extends GenericExtractor{
         while(!got) {
         	if (count > li.size()) break;
         	int i = randomNum.nextInt(li.size()); count++;
-        	String link = li.select("a").get(0).attr("href");
+        	String link = li.get(i).select("a").get(0).attr("href");
                 if (link.matches("http://www.homemoviestube.com/videos/[\\d]+/[\\S]+.html"))
                     try {v = new video(link,downloadVideoName(link),downloadThumb(link),getSize(link)); } catch(Exception e) {continue;}
                 else continue;
@@ -105,7 +96,7 @@ public class Homemoviestube extends GenericExtractor{
 
     @Override public video search(String str) throws IOException {
         String searchUrl = "http://www.homemoviestube.com/search/"+str.replaceAll(" ", "-")+"/page1.html";
-	Document page = Jsoup.parse(Jsoup.connect(searchUrl).userAgent(CommonUtils.PCCLIENT).get().html());
+	Document page = getPage(searchUrl,false);
 
 	Elements divs = page.select("div.film-item.col-lg-4.col-md-75.col-sm-10.col-xs-10"); video v = null;
 	for(Element div: divs) {
@@ -119,11 +110,8 @@ public class Homemoviestube extends GenericExtractor{
         return v;
     }
     
-    public long getSize(String url) throws IOException, GenericDownloaderException {
-        Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
-     
-        String video = page.select("video").select("source").attr("src");
-        return CommonUtils.getContentSize(video);
+    public long getSize(String link) throws IOException, GenericDownloaderException {
+        return CommonUtils.getContentSize(getDefaultVideo(getPage(link,false,true)));
     }
 
     @Override public long getSize() throws IOException, GenericDownloaderException {

@@ -32,7 +32,7 @@ import org.jsoup.select.Elements;
  * @author christopher
  */
 public class Ghettotube extends GenericExtractor{
-	private static final int skip = 3;
+	private static final int SKIP = 3;
     
     public Ghettotube() { //this contructor is used for when you jus want to search
         
@@ -67,7 +67,7 @@ public class Ghettotube extends GenericExtractor{
     }
 
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
-        Document page =  Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
+        Document page = getPage(url,false,true);
         Map<String,String> qualities = getQualities(page.toString().substring(page.toString().indexOf("playerInstance.setup({")));
         
         MediaDefinition media = new MediaDefinition();
@@ -90,9 +90,9 @@ public class Ghettotube extends GenericExtractor{
         Elements scripts = page.select("div.play").select("script");
         String thumb = CommonUtils.getLink(scripts.get(scripts.size()-1).toString(), scripts.get(scripts.size()-1).toString().indexOf("image:")+8, '\'');
         
-        if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,skip))) //if file not already in cache download it
-            CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,skip),MainApp.imageCache);
-        return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,skip));
+        if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
+            CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache);
+        return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,SKIP));
     }
 
     @Override protected void setExtractorName() {
@@ -134,8 +134,8 @@ public class Ghettotube extends GenericExtractor{
         
         for(int i = 0; i < li.size(); i++) {
         	String thumbLink = li.get(i).select("img").attr("src"); 
-        	if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,skip))) //if file not already in cache download it
-                    if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,skip),MainApp.imageCache) != -2)
+        	if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,SKIP))) //if file not already in cache download it
+                    if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,SKIP),MainApp.imageCache) != -2)
                         throw new IOException("Failed to completely download page");
         	String link = li.get(i).select("a").attr("href");
         	String name = li.get(i).select("h2").select("a").text();
@@ -143,14 +143,14 @@ public class Ghettotube extends GenericExtractor{
                 Document linkPage =  Jsoup.parse(Jsoup.connect(link).userAgent(CommonUtils.PCCLIENT).get().html());
                  Elements scripts = linkPage.select("div.play").select("script");
                 String video = CommonUtils.getLink(scripts.get(scripts.size()-1).toString(), scripts.get(scripts.size()-1).toString().indexOf("file:")+7, '\"');
-        	v = new video(link,name,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,skip)),CommonUtils.getContentSize(video));
+        	v = new video(link,name,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)),CommonUtils.getContentSize(video));
         	break;
         }
         return v;
     }
 
     @Override public long getSize() throws IOException, GenericDownloaderException {
-        Document page =  Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
+        Document page = getPage(url,false,true);
         Elements scripts = page.select("div.play").select("script");
         String video = CommonUtils.getLink(scripts.get(scripts.size()-1).toString(), scripts.get(scripts.size()-1).toString().indexOf("file:")+7, '\"');
         return CommonUtils.getContentSize(video);

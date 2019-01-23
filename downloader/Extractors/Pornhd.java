@@ -18,7 +18,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
@@ -27,7 +26,7 @@ import org.jsoup.select.Elements;
  * @author christopher
  */
 public class Pornhd extends GenericExtractor{
-	private static final int skip = 3;
+    private static final int SKIP = 3;
     
     public Pornhd() { //this contructor is used for when you jus want to search
         
@@ -46,10 +45,7 @@ public class Pornhd extends GenericExtractor{
     }
 
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException{
-        Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
-        
-	String title = page.select("div.section-title").select("h1").toString();
-	title = title.substring(4, title.indexOf("<",4)-1);
+        Document page = getPage(url,false,true);
 	
 	Elements temp = page.getElementById("mainPlayerContainer").select("script");
 	String[] rawData = CommonUtils.getBracket(temp.toString(), temp.toString().indexOf("sources:")).split("\"");
@@ -75,9 +71,9 @@ public class Pornhd extends GenericExtractor{
         Document page = getPage(url,false);
         String thumb = page.select("video.video-js.vjs-big-play-centered").attr("poster").replace(".webp", ".jpg");
         
-        if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,skip))) //if file not already in cache download it
-            CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,skip),MainApp.imageCache);
-        return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,skip));
+        if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
+            CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache);
+        return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,SKIP));
     }
     
     @Override protected void setExtractorName() {
@@ -111,7 +107,7 @@ public class Pornhd extends GenericExtractor{
     }
     
     private static long getSize(String link) throws IOException, GenericDownloaderException {
-        Document page = Jsoup.parse(Jsoup.connect(link).userAgent(CommonUtils.PCCLIENT).get().html());
+        Document page = getPage(link,false,true);
 	
 	Elements temp = page.getElementById("mainPlayerContainer").select("script");
 	String[] rawData = CommonUtils.getBracket(temp.toString(), temp.toString().indexOf("sources:")).split("\"");

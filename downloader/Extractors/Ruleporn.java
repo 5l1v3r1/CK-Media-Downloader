@@ -20,7 +20,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.Vector;
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
@@ -47,9 +46,8 @@ public class Ruleporn extends GenericQueryExtractor{
     }
 
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException{
-        
-        Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
-        String video = page.select("video").select("source").attr("src");
+        Document page = getPage(url,false,true);
+        String video = getDefaultVideo(page);
         
         Map<String,String> qualities = new HashMap<>();
         qualities.put("single",video); MediaDefinition media = new MediaDefinition();
@@ -71,15 +69,7 @@ public class Ruleporn extends GenericQueryExtractor{
         String searchUrl = "https://ruleporn.com/search/"+search+"/";
         
         GenericQuery thequery = new GenericQuery();
-        Document page;
-                
-        if (CommonUtils.checkPageCache(CommonUtils.getCacheName(searchUrl,false))) //check to see if page was downloaded previous
-            page = Jsoup.parse(CommonUtils.loadPage(MainApp.pageCache.getAbsolutePath()+File.separator+CommonUtils.getCacheName(searchUrl,false)));
-        else {
-            String html = Jsoup.connect(searchUrl).userAgent(CommonUtils.PCCLIENT).get().html();
-            page = Jsoup.parse(html);
-            CommonUtils.savePage(html, searchUrl, false);
-        } //if not found in cache download it
+        Document page = getPage(searchUrl,false);
         
 	Elements searchResults = page.select("div.row").select("div.item-inner-col.inner-col");
 	for(int i = 0; i < searchResults.size(); i++)  {
@@ -93,8 +83,8 @@ public class Ruleporn extends GenericQueryExtractor{
             thequery.addThumbnail(new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink)));
             thequery.addPreview(parse(thequery.getLink(i)));
             thequery.addName(searchResults.get(i).select("span.title").text());
-            Document linkPage = Jsoup.parse(Jsoup.connect(searchResults.get(i).select("a").get(0).attr("href")).userAgent(CommonUtils.PCCLIENT).get().html());
-             String video = linkPage.select("video").select("source").attr("src");
+            Document linkPage = getPage(searchResults.get(i).select("a").get(0).attr("href"),false);
+             String video = getDefaultVideo(linkPage);
              thequery.addSize(CommonUtils.getContentSize(video));
 	}
         return thequery;
@@ -105,15 +95,8 @@ public class Ruleporn extends GenericQueryExtractor{
         Vector<File> thumbs = new Vector<>();
         
         try {
-            String html;
-            if (CommonUtils.checkPageCache(CommonUtils.getCacheName(url,true))) //check to see if page was downloaded previous 
-                html = CommonUtils.loadPage(MainApp.pageCache.getAbsolutePath()+File.separator+CommonUtils.getCacheName(url,true));
-            else {
-                html = Jsoup.connect(url).followRedirects(true).userAgent(CommonUtils.MOBILECLIENT).get().html(); //not found so download it
-                CommonUtils.savePage(html, url, true);
-            }
-            Document page = Jsoup.parse(html);
-           String base = page.select("video").attr("poster");
+            Document page = getPage(url,true,false);
+            String base = page.select("video").attr("poster");
             for(int i = 0; i < 11; i++) {
                 String thumb = base.substring(0,base.indexOf("-")+1) + String.valueOf(i) + base.substring(base.indexOf("-")+2);
                 if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb))) //if file not already in cache download it
@@ -127,14 +110,7 @@ public class Ruleporn extends GenericQueryExtractor{
     }
     
     private static String downloadVideoName(String url) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
-        Document page;
-        if (CommonUtils.checkPageCache(CommonUtils.getCacheName(url,false))) //check to see if page was downloaded previous
-            page = Jsoup.parse(CommonUtils.loadPage(MainApp.pageCache.getAbsolutePath()+File.separator+CommonUtils.getCacheName(url,false)));
-        else {
-            String html = Jsoup.connect(url).get().html();
-            page = Jsoup.parse(html);
-            CommonUtils.savePage(html, url, false);
-        } //if not found in cache download it
+        Document page = getPage(url,false);
         
         return page.select("div.item-tr-inner-col.inner-col").get(0).select("h1").text();
     } 
@@ -171,8 +147,8 @@ public class Ruleporn extends GenericQueryExtractor{
             if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb))) //if file not already in cache download it
             	if (CommonUtils.saveFile(thumb, CommonUtils.getThumbName(thumb),MainApp.imageCache) != -2)
             		continue;//throw new IOException("Failed to completely download page");
-            Document linkPage = Jsoup.parse(Jsoup.connect(link).userAgent(CommonUtils.PCCLIENT).get().html());
-             String video = linkPage.select("video").select("source").attr("src");
+            Document linkPage = getPage(link,false);
+             String video = getDefaultVideo(linkPage);
                 v = new video(link,title,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumb)),CommonUtils.getContentSize(video));
                 break;
             }
@@ -195,7 +171,7 @@ public class Ruleporn extends GenericQueryExtractor{
                 if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink),MainApp.imageCache) != -2)
                     throw new IOException("Failed to completely download page");
             String link = searchResults.get(i).select("a").get(0).attr("href");
-            Document linkPage = Jsoup.parse(Jsoup.connect(link).userAgent(CommonUtils.PCCLIENT).get().html());
+            Document linkPage = getPage(link,false);
              String video = linkPage.select("video").select("source").attr("src");
             v = new video(link,searchResults.get(i).select("span.title").text(),new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink)),CommonUtils.getContentSize(video));
             break; //if u made it this far u already have a vaild video

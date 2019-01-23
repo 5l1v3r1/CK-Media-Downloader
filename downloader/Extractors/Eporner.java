@@ -18,7 +18,6 @@ import java.util.Map;
 import org.jsoup.Jsoup;
 import org.jsoup.UncheckedIOException;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 /**
@@ -26,7 +25,7 @@ import org.jsoup.select.Elements;
  * @author christopher
  */
 public class Eporner extends GenericExtractor{
-    private static final int skip = 6;
+    private static final int SKIP = 6;
     
     public Eporner() { //this contructor is used for when you jus want to search
         //https://eporner.com/hd-porn/IF2uT0kcojN/Blonde-Lass-Delicate-Hands/
@@ -70,15 +69,10 @@ public class Eporner extends GenericExtractor{
     
     private static File downloadThumb(String url) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception {
         Document page = getPage(url,false);
-        String thumb = null;
-        Elements metas = page.select("meta");
-        for(Element meta: metas) {
-            if (meta.attr("property").equals("og:image"))
-                thumb = meta.attr("content");
-        }
-        if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,skip))) //if file not already in cache download it
-            CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,skip),MainApp.imageCache);
-        return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,skip));
+        String thumb = getMetaImage(page);
+        if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
+            CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache);
+        return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,SKIP));
     }
 
     @Override

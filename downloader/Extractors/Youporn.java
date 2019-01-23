@@ -66,7 +66,7 @@ public class Youporn extends GenericQueryExtractor{
     }
 
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {        
-        Document page = Jsoup.parse(Jsoup.connect(url).get().html());
+        Document page = getPage(url,false,true);
         //String video = page.getElementById("player-html5").attr("src");
         
         Map<String,String> qualities = getQualities(page.toString().substring(page.toString().indexOf("mediaDefinition = [{")+18));
@@ -96,7 +96,7 @@ public class Youporn extends GenericQueryExtractor{
             thequery.addPreview(parse("https://www.youporn.com"+searchResults.get(i).select("a").attr("href")));
             String title = Jsoup.parse(searchResults.get(i).select("div.video-box-title").toString()).body().text();
             thequery.addName(title);
-            Document linkPage = Jsoup.parse(Jsoup.connect(url).get().html());
+            Document linkPage = getPage("https://www.youporn.com"+searchResults.get(i).select("a").attr("href"),false);
             String video = linkPage.getElementById("player-html5").attr("src");
             thequery.addSize(CommonUtils.getContentSize(video));
 	}
@@ -161,7 +161,7 @@ public class Youporn extends GenericQueryExtractor{
             if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb))) //if file not already in cache download it
                 if (CommonUtils.saveFile(thumb, CommonUtils.getThumbName(thumb),MainApp.imageCache) != -2)
                     throw new IOException("Failed to completely download page");
-            Document linkPage = Jsoup.parse(Jsoup.connect(url).get().html());
+            Document linkPage = getPage("https://www.youporn.com"+searchResults.get(i).select("a").attr("href"),false);
             String video = linkPage.getElementById("player-html5").attr("src");
             v = new video("https://www.youporn.com"+searchResults.get(i).select("a").attr("href"),Jsoup.parse(searchResults.get(i).select("div.video-box-title").toString()).body().text(),new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumb)),CommonUtils.getContentSize(video));
             break; //if u made it this far u already have a vaild video
@@ -170,7 +170,7 @@ public class Youporn extends GenericQueryExtractor{
     }
 
     @Override public long getSize() throws IOException, GenericDownloaderException {
-        Document page = getPage(url,false);
+        Document page = getPage(url,false,true);
         Map<String,String> qualities = getQualities(page.toString().substring(page.toString().indexOf("mediaDefinition = [{")+18));
         return CommonUtils.getContentSize(qualities.values().iterator().next());
     }
