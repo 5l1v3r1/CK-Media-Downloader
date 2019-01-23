@@ -247,6 +247,6 @@ public class Spankbang extends GenericQueryExtractor implements Playlist{
     }
 
     @Override public long getSize() throws IOException, GenericDownloaderException {
-        return CommonUtils.getContentSize(getDefaultVideo(getPage(url,false)));
+        return CommonUtils.getContentSize(getDefaultVideo(getPage(url,false,true)));
     }
 }

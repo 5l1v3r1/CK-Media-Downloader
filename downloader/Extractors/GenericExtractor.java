@@ -78,7 +78,7 @@ public abstract class GenericExtractor {
     protected static String getTitle(Document page) {
         String title = null;
         //title = page.select("title").text();
-        if (title.length() < 1)
+        //if (title.length() < 1)
             for(Element meta :page.select("meta"))
                 if(meta.attr("property").equals("og:title"))
                     title = meta.attr("content");

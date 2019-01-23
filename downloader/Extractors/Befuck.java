@@ -104,7 +104,7 @@ public class Befuck extends GenericExtractor{
     }
 
     @Override public long getSize() throws IOException {
-        Document page = getPage(url,false);
+        Document page = getPage(url,false,true);
         return CommonUtils.getContentSize(getDefaultVideo(page));
     }
 }

@@ -507,7 +507,7 @@ public class Pornhub extends GenericQueryExtractor implements Playlist{
     }
     
     private static long getSize(String link) throws IOException, GenericDownloaderException{
-        Document page = getPage(link,false);
+        Document page = getPage(link,false,true);
         while(page.toString().contains("RNKEY"))
             page = Jsoup.parse(Jsoup.connect(link).cookie("RNKEY", getRNKEY(page.toString())).userAgent(CommonUtils.PCCLIENT).get().html());
         verify(page);
