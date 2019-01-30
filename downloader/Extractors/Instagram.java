@@ -41,10 +41,8 @@ public class Instagram extends GenericExtractor{
     }
     
     public Instagram(Document page) throws MalformedURLException {
-        /*for(Element meta :page.select("meta"))
-            if (meta.attr("property").equals("og:url"))
-                this.url = meta.attr("content");*/
-        this.url = null;
+        html = page;
+        this.url = getCanonicalLink(page);
         String thumbLink = getMetaImage(page);
         if(!CommonUtils.checkImageCache(CommonUtils.parseName(thumbLink,".jpg"))) //if file not already in cache download it
             CommonUtils.saveFile(thumbLink,CommonUtils.parseName(thumbLink,".jpg"),MainApp.imageCache);
@@ -62,7 +60,7 @@ public class Instagram extends GenericExtractor{
 
     @Override public MediaDefinition getVideo() throws IOException,SocketTimeoutException, UncheckedIOException{
         Document page;
-        if (url == null) page = this.html;
+        if (html != null) page = this.html;
         else page = getPage(url,false,true); MediaDefinition media = new MediaDefinition();
         
 	if (isVideo(page)) { //download video
@@ -170,7 +168,10 @@ public class Instagram extends GenericExtractor{
     }
 
     @Override public long getSize() throws IOException, GenericDownloaderException {
-        Document page = getPage(url,false,true);
+        Document page;
+        if (html != null)
+            page = html;
+        else page = getPage(url,false,true);
         String videoLink = null; long total = 0;
         if (isVideo(page)) { //download video
             Elements metas = page.select("meta");

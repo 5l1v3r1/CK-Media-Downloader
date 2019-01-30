@@ -63,15 +63,26 @@ public abstract class GenericExtractor {
         return page;
     }
     
+    protected static String getCanonicalLink(Document page) {
+        for(Element link: page.select("link"))
+            if(link.attr("rel").equals("canonical"))
+                return link.attr("href");
+        return null;
+    }
+    
     protected static String getMetaImage(Document page) {
         String thumbLink = null; 
 	for(Element meta :page.select("meta"))
-            if (meta.attr("property").equals("og:image"))
+            if (meta.attr("property").equals("og:image") && !meta.attr("content").contains("static"))
                 thumbLink = meta.attr("content");
         if (thumbLink == null)
             for(Element meta :page.select("meta"))
                 if (meta.attr("itemprop").equals("og:image"))
                     thumbLink = meta.attr("content");
+        if (thumbLink == null)
+            for(Element meta :page.select("link"))
+                if (meta.attr("rel").equals("image_src"))
+                    thumbLink = meta.attr("href");
         return thumbLink;
     }
     
@@ -79,10 +90,18 @@ public abstract class GenericExtractor {
         String title = null;
         //title = page.select("title").text();
         //if (title.length() < 1)
+        for(Element meta :page.select("meta"))
+            if(meta.attr("property").equals("og:title"))
+                title = meta.attr("content");
+        if (title == null)
             for(Element meta :page.select("meta"))
-                if(meta.attr("property").equals("og:title"))
+                if(meta.attr("itemprop").equals("name"))
                     title = meta.attr("content");
         return title;
+    }
+    
+    protected static String getH1Title(Document page) {
+        return Jsoup.parse(page.select("h1").toString()).body().text();
     }
     
     protected String getDefaultVideo(Document page) {

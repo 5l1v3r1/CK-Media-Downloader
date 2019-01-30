@@ -51,7 +51,6 @@ public class Befuck extends GenericExtractor{
         media.addThread(qualities,videoName);
         
         return media;
-        //super.downloadVideo(video,title,s);
     }
    
     private static String downloadVideoName(String url) throws IOException , SocketTimeoutException, UncheckedIOException, Exception{

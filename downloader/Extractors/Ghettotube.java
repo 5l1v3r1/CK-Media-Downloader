@@ -32,7 +32,7 @@ import org.jsoup.select.Elements;
  * @author christopher
  */
 public class Ghettotube extends GenericExtractor{
-	private static final int SKIP = 3;
+    private static final int SKIP = 3;
     
     public Ghettotube() { //this contructor is used for when you jus want to search
         
@@ -74,13 +74,10 @@ public class Ghettotube extends GenericExtractor{
         media.addThread(qualities,videoName);
         
         return media;
-        //super.downloadVideo(video,title,s);
     }
     
     private static String downloadVideoName(String url) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
-        Document page = getPage(url,false);
-        
-	return Jsoup.parse(page.select("h1").toString()).body().text();
+	return getH1Title(getPage(url,false));
     } 
 	
     //getVideo thumbnail
