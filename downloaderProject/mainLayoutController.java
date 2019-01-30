@@ -13,6 +13,7 @@ import downloader.DataStructures.Device;
 import downloader.DataStructures.video;
 import downloader.DownloaderItem;
 import downloader.Site;
+import downloader.Site.Page;
 import java.awt.HeadlessException;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -60,12 +61,22 @@ public class mainLayoutController implements Initializable, Reactable{
     
     
     public void determineSite(String link) {
-        determineSite(link,null);
+        DownloaderItem download = new DownloaderItem();
+        download.setLink(link); download.setType(Site.getUrlSite(link)); download.setVideo(null);
+        //add item to downloadManager for display
+        MainApp.dm.addDownload(download);
     }
     
     public void determineSite(String link, video v) {
         DownloaderItem download = new DownloaderItem();
         download.setLink(link); download.setType(Site.getUrlSite(link)); download.setVideo(v);
+        //add item to downloadManager for display
+        MainApp.dm.addDownload(download);
+    }
+    
+    public void determineSite(String page, Page type) {
+        DownloaderItem download = new DownloaderItem();
+        download.setPage(page); download.setPageType(type);
         //add item to downloadManager for display
         MainApp.dm.addDownload(download);
     }
@@ -87,11 +98,30 @@ public class mainLayoutController implements Initializable, Reactable{
                 }
             }
         } catch(UnsupportedFlavorException e) {
-            System.out.println("Unsupported clipboard entry");
+            System.out.println("Unsupported clipboard entry "+e.getMessage());
         }catch (HeadlessException | IOException e) {
             System.out.println(e.getMessage());
             //MainApp.createMessageDialog(e.getMessage());
             //e.printStackTrace();
+        }
+    }
+    
+    public void getDownloadPage() {
+        try { 
+            Toolkit tool = Toolkit.getDefaultToolkit();
+            Clipboard clip = tool.getSystemClipboard();
+            if (clip.getData(DataFlavor.stringFlavor) != null) {
+                String clipText = (String)clip.getData(DataFlavor.stringFlavor);
+                clipText = clipText.trim(); //trim off any white space that may be on the string
+                if (Site.getPageSite(clipText) == Site.Page.none) 
+                    System.out.println("Was none"); //invalid link
+                else
+                    determineSite(clipText, Site.getPageSite(clipText));
+            }
+        } catch(UnsupportedFlavorException e) {
+            System.out.println("Unsupported clipboard entry: "+e.getMessage());
+        }catch (HeadlessException | IOException e) {
+            System.out.println(e.getMessage());
         }
     }
     

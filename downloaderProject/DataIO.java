@@ -18,6 +18,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.Arrays;
 import java.util.Scanner;
 import java.util.Vector;
 
@@ -318,27 +319,30 @@ public class DataIO {
         out.flush(); out.close();
     }
     
-    public static boolean exempt(File f) {
-         Vector<video> videos = loadVideos();
-         if(videos != null) {
+    public static File[] getExempt() {
+        Vector<File> files = new Vector<>();
+        Vector<video> videos = loadVideos();
+        
+        //get thumbs from saved videos to exempt
+        if(videos != null) {
              for(video v:videos) {
-                 if (f.getAbsolutePath().equals(v.getThumbnail().getAbsolutePath())) return true;
+                 files.add(v.getThumbnail());
                  for(int i = 0; i < v.getPreviewCount(); i++)
-                     if (f.getAbsolutePath().equals(v.getPreview(i).getAbsolutePath())) return true;
+                     files.add(v.getPreview(i));
              }
-         }
-         Vector<File> list =  DataIO.loadCollectedData().getExempt();
-         if(list != null) {
-             for(File file:list)
-                 if (f.getAbsolutePath().equals(file.getAbsolutePath())) return true;
-         }
-         Vector<downloadedMedia> media = loadDownloaded();
-         if (media == null) return false;
-         else {
-            for(downloadedMedia m: media)
-                if(m.getThumb().getAbsolutePath().equals(f.getAbsolutePath())) return true;
         }
-        return false; //made it this far ... u not exempt
+        
+        //get thumbs from suggested videos to exempt
+        files.addAll(DataIO.loadCollectedData().getExempt());
+        
+        //get thumbs from download history to exempt
+        Vector<downloadedMedia> media = loadDownloaded();
+        if (media != null)
+            for(downloadedMedia m: media)
+                files.add(m.getThumb());
+        File[] f = new File[files.size()];
+        files.toArray(f); Arrays.parallelSort(f);
+        return f;
     }
     
     public static void clearCache() {
@@ -346,8 +350,10 @@ public class DataIO {
         File[] files2 = MainApp.pageCache.listFiles();
         File historyFile = new File(MainApp.saveDir.getAbsolutePath()+File.separator+"history.dat");
         
+        File[] exemptFiles = getExempt();
+        
         for(File f:files)
-            if (!exempt(f))
+            if (Arrays.binarySearch(exemptFiles, f) < 0)
                 f.delete();
         
         for(File f:files2)
