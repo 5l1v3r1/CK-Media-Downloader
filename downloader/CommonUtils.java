@@ -44,7 +44,7 @@ public class CommonUtils {
         
         try {
             BufferedImage originImage = ImageIO.read(origin);
-            int width = originImage.getWidth(), height = originImage.getHeight(), y = 0, x = 0;
+            int width = originImage.getWidth(), height = originImage.getHeight(), y, x = 0;
             int eWidth = width / col, eHeight = height / row;
             
             for(int i = 0; i < row; i++) {
@@ -94,9 +94,7 @@ public class CommonUtils {
     }
     
     public static boolean isImage(String name) {
-        if (hasExtension(name,"gif") || hasExtension(name,"png") || hasExtension(name,"jpg"))
-            return true;
-        else return false;
+        return (hasExtension(name,"gif") || hasExtension(name,"png") || hasExtension(name,"jpg"));
     }
     
     public static String getPicName(String link) {
@@ -390,7 +388,6 @@ public class CommonUtils {
 	try {
             URLConnection connection = new URL(link).openConnection();
             connection.setRequestProperty("User-Agent", PCCLIENT);
-            connection.connect();
             int response = ((HttpURLConnection)connection).getResponseCode();
             //if redirect
             if ((response == HttpURLConnection.HTTP_SEE_OTHER) || (response == HttpURLConnection.HTTP_MOVED_TEMP) || (response == HttpURLConnection.HTTP_MOVED_PERM)) {
@@ -398,6 +395,8 @@ public class CommonUtils {
                 if (location.startsWith("/")) 
                     location = "https://"+location;
                 connection = new URL(location).openConnection();
+                String cookies = connection.getHeaderField("Set-Cookie");
+                connection.setRequestProperty("Cookie", cookies);
                 connection.setRequestProperty("User-Agent", PCCLIENT);
                 connection.connect();
             }
@@ -424,7 +423,6 @@ public class CommonUtils {
             if (s != null) s.addProgress("Downloading");
             stopWatch timer = new stopWatch(); timer.start();
             while((count = in.read(buffer,0,BUFFSIZE)) != -1) {
-                //in.reset();
                 if(!MainApp.active)
                     return -2;//application was closed
 		out.write(buffer, 0, count);

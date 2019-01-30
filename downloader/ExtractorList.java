@@ -8,7 +8,9 @@ import downloader.Exceptions.GenericDownloaderException;
 import downloader.Extractors.*;
 import downloader.Site.Type;
 import java.io.File;
+import java.net.MalformedURLException;
 import org.jsoup.UncheckedIOException;
+import org.jsoup.nodes.Document;
 
 /**
  *
@@ -53,6 +55,8 @@ public class ExtractorList {
             case homemoviestube: return new Homemoviestube(url);
             case anysex: return new Anysex(url);
             case porn: return new Porn(url);
+            case gotporn: return new Gotporn(url);
+            case drtuber: return new Drtuber(url);
             default:
                 return null;
         }
@@ -95,6 +99,16 @@ public class ExtractorList {
             case homemoviestube: return new Homemoviestube(url,thumb,name);
             case anysex: return new Anysex(url,thumb,name);
             case porn: return new Porn(url,thumb,name);
+            case gotporn: return new Gotporn(url,thumb,name);
+            case drtuber: return new Drtuber(url,thumb,name);
+            default:
+                return null;
+        }
+    }
+    
+    public static GenericExtractor getExtractor(Site.Page type, Document page) throws MalformedURLException {
+        switch (type) {
+            case instagram: return new Instagram(page);
             default:
                 return null;
         }

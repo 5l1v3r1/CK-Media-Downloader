@@ -55,6 +55,7 @@ import javafx.scene.control.ProgressBar;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javax.imageio.ImageIO;
+import org.jsoup.Jsoup;
 
 /**
  *
@@ -65,11 +66,13 @@ public class DownloaderItem {
     private Pane root;
     private GenericExtractor extractor;
     private Site.Type type;
+    private Site.Page pageType;
     private video v = null;
     private File thumbFile;
     private boolean loaded;
     private Vector<String> downloadLinks, downloadNames;
-    private String albumName;
+    private String albumName, page;
+    private long size = -1;
     
     public void release() {
         root = null;
@@ -77,6 +80,8 @@ public class DownloaderItem {
         thumbFile = null;
         v = null;
         downloadLinks = null;
+        page = null;
+        albumName = null;
     }
     
     public String getName() {
@@ -98,11 +103,13 @@ public class DownloaderItem {
     }
     
     private GenericExtractor getExtractor(video v) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
-    	if (null == type)
+    	if ((null == type) && (null == pageType))
             return null;
-        else if (v == null)
-            return ExtractorList.getExtractor(type,url);
-        else return ExtractorList.getExtractor(type,url,v.getThumbnail(),v.getName());
+        else if (v == null) {
+            if (page != null)
+                return ExtractorList.getExtractor(pageType,Jsoup.parse(page));
+            else return ExtractorList.getExtractor(type,url);
+        } else return ExtractorList.getExtractor(type,url,v.getThumbnail(),v.getName());
     }
     
     private GenericExtractor getExtractor() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
@@ -211,8 +218,7 @@ public class DownloaderItem {
         Button btn = (Button)root.lookup("#save");
         btn.setOnAction(event -> {
             try {
-                long size;
-                try {if (extractor == null) extractor = getExtractor(); size = extractor.getSize();}catch(Exception e){size = -1;}
+                if (size == -1) {try {if (extractor == null) extractor = getExtractor(); size = extractor.getSize();}catch(Exception e){size = -1;}}
                 DataIO.saveVideo(new video(url,extractor.getVideoName(),extractor.getThumb(),size));
                 MainApp.createMessageDialog("Media saved");
                 MainApp.settings.videoUpdate();
@@ -226,7 +232,7 @@ public class DownloaderItem {
        try { 
            setIndeteminate(true);
            if (v == null) {
-        	   loaded = false;
+               loaded = false;
                extractor = getExtractor(); if (extractor == null) throw new Exception("couldnt get extractor"); //unsupported link
                videoName = extractor.getVideoName();
                setSize();
@@ -269,6 +275,14 @@ public class DownloaderItem {
     
     public boolean wasLoaded() {
     	return loaded;
+    }
+    
+    public void setPage(String p) {
+        this.page = p;
+    }
+    
+    public void setPageType(Site.Page type) {
+        this.pageType = type;
     }
     
     public void setType(Site.Type type) {
@@ -562,7 +576,7 @@ public class DownloaderItem {
     }
     
     private void setSize() {
-        long size = 0;
+        size = 0;
         try {size = extractor.getSize();}catch(IOException | GenericDownloaderException e) {size = -1;}
         final long s = size;
         Platform.runLater(new Runnable() {

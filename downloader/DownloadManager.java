@@ -76,11 +76,15 @@ public class DownloadManager {
         });
     }
     
+    private boolean similar(String s, String s2) {
+        String temp = s.replace("https://", "").replace("http://", "").replace("www.","");
+        return temp.equals(s2.replace("https://", "").replace("http://", "").replace("www.",""));
+    }
+    
     private boolean isDup(DownloaderItem d) {
-        for(int i = 0; i < downloadItems.size(); i++) {
-            if (downloadItems.get(i).getLink().equals(d.getLink()))
+        for(int i = 0; i < downloadItems.size(); i++)
+            if (similar(downloadItems.get(i).getLink(),d.getLink()))
                 return true;
-        }
         return false;
     }
     
@@ -103,14 +107,14 @@ public class DownloadManager {
         Platform.runLater(new Runnable() {
             @Override public void run() {
             	if (downloadItems != null) {
-	                int i = downloadItems.indexOf(which);
-	                if (i != -1) {
-		                downloadItems.get(i).setDone();
-		                downloadItems.remove(i);
-		                downloads.remove(i);
-		                ObservableList<Pane> list = FXCollections.observableList(downloads);
-		                MainApp.downloads.setItems(null); MainApp.downloads.setItems(list);
-	                }
+	            int i = downloadItems.indexOf(which);
+	            if (i != -1) {
+		        downloadItems.get(i).setDone();
+		        downloadItems.remove(i);
+		        downloads.remove(i);
+		        ObservableList<Pane> list = FXCollections.observableList(downloads);
+		        MainApp.downloads.setItems(null); MainApp.downloads.setItems(list);
+	            }
             	}
             }
         });
@@ -164,7 +168,7 @@ public class DownloadManager {
                         MainApp.log(d.getSide());
                     }
                 }
-            } catch (GenericDownloaderException e) {
+            } catch (GenericDownloaderException | IOException e) {
                 MainApp.createMessageDialog(e.getMessage()+ " "+ d.getLink());
                 removeDownload(d);
             } catch (Exception e) {
