@@ -253,7 +253,7 @@ public class DataCollection implements Externalizable{
             if (type.equals("Redtube")) return new Redtube();
             if (type.equals("Thumbzilla")) return new Thumbzilla();
             if (type.equals("Shesfreaky")) return new Shesfreaky();
-            if (type.equals("Yourporn")) return new Yourporn(); //not implemented //complex
+            if (type.equals("Yourporn")) return new Yourporn();
             if (type.equals("Bigtits")) return new Bigtits();
             if (type.equals("Pornhd")) return new Pornhd(); //not implemented //complex
             if (type.equals("Vporn")) return new Vporn();
