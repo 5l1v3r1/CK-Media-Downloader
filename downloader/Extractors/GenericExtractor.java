@@ -15,6 +15,10 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import org.jsoup.UncheckedIOException;
 import java.net.SocketTimeoutException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -27,12 +31,14 @@ public abstract class GenericExtractor {
     protected File videoThumb;
     protected String videoName, url;
     protected String extractorName;
+    protected Map<String,String> cookieJar;
 
     GenericExtractor(String url, File thumb, String videoName) {
        this();
        this.videoThumb = thumb;
        this.videoName = videoName;
        this.url = configureUrl(url);
+       this.cookieJar = new HashMap<String,String>();
     }
     
     GenericExtractor() { //this contructor is used for when you jus want to query / search
@@ -62,6 +68,33 @@ public abstract class GenericExtractor {
         } //if not found in cache download it
         return page;
     }
+    
+    protected Document getPageCookie(String url, boolean mobile) throws IOException {
+        return getPage(url,mobile,false);
+    }
+    
+    protected Document getPageCookie(String url, boolean mobile, boolean force) throws FileNotFoundException, IOException {
+        Document page;
+        if (CommonUtils.checkPageCache(CommonUtils.getCacheName(url,mobile)) && !force) //check to see if page was downloaded previous 
+            page = Jsoup.parse(CommonUtils.loadPage(MainApp.pageCache.getAbsolutePath()+File.separator+CommonUtils.getCacheName(url,mobile))); //load if not force redownload
+        else { String html;
+             if (mobile)
+                html = addCookies(Jsoup.connect(url)).followRedirects(true).userAgent(CommonUtils.MOBILECLIENT).get().html();
+             else html = addCookies(Jsoup.connect(url)).followRedirects(true).userAgent(CommonUtils.PCCLIENT).get().html();
+            page = Jsoup.parse(html);
+            CommonUtils.savePage(html, url, mobile);
+        } //if not found in cache download it
+        return page;
+    }
+    
+    private Connection addCookies(Connection c) {
+        Iterator<String> i = cookieJar.keySet().iterator();
+        while(i.hasNext()) {
+            String cookie = i.next();
+            c = c.cookie(cookie, cookieJar.get(cookie));
+        }
+        return c;
+    } 
     
     protected static String getCanonicalLink(Document page) {
         for(Element link: page.select("link"))
@@ -122,6 +155,14 @@ public abstract class GenericExtractor {
     
     public String getUrl() {
         return this.url;
+    }
+    
+    protected void addCookie(String cookieName, String cookie) {
+        cookieJar.put(cookieName, cookie);
+    }
+    
+    protected void clearCookies() {
+        cookieJar.clear();
     }
     
     public abstract video similar() throws IOException; //get a video from the related items list

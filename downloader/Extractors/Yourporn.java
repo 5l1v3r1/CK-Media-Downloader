@@ -88,16 +88,15 @@ public class Yourporn extends GenericExtractor{
             //String video = "https://www.yourporn.sexy"+page.select("video.player_el").attr("src");
             Map<String,String> qualities = new HashMap<>();
             //idk wtf them keep changind the cdn
-            String test = video.replace("cdn", "cdn3").replace("s12-1", "s12");
+            String test = video.replace("cdn", "cdn4").replace("s12-1", "s12");
             if (CommonUtils.getContentSize(test) < 1)
-              test = test.replace("cdn3", "cdn2");
+              test = test.replace("cdn4", "cdn3");
             if (CommonUtils.getContentSize(test) < 1)
-                test = test.replace("cdn2", "cdn4");
+                test = test.replace("cdn3", "cdn2");
             System.out.println("What was test "+test);
             qualities.put("single",test);
             media.addThread(qualities,videoName);
 
-            //super.downloadVideo(video.replace("cdn", "cdn3").replace("s12-1", "s12"),title,s);
             return media;
         }
     }
@@ -150,19 +149,50 @@ public class Yourporn extends GenericExtractor{
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override public video search(String str) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    @Override public video search(String str) throws IOException {
+        String searchUrl = "https://yourporn.sexy/"+str.trim().replaceAll(" ", "+")+".html";
+        Document page = getPage(searchUrl,false); video v = null;
+        
+        Elements searchResults = page.select("div.search_results").select("div.post_el_small");
+        //get first valid video
+	for(int i = 0; i < searchResults.size(); i++)  {
+            String link = "https://yourporn.sexy" + searchResults.get(i).select("div.post_control").select("a").attr("href");
+            if (!CommonUtils.testPage(link)) continue; //test to avoid error 404
+            try {verify(getPage(link,false)); } catch (GenericDownloaderException e) {continue;}
+            try {
+                v = new video(link,downloadVideoName(link),downloadThumb(link),getSize(link));
+            } catch (Exception e) {
+                v = null; continue;
+            }
+            break; //if u made it this far u already have a vaild video
+	}
+        return v;
+    }
+    
+    private long getSize(String link) throws IOException, GenericDownloaderException {
+        Document page = getPage(link,false,true);
+        verify(page);
+     
+        if (isAlbum(link)) {
+            long total = 0;
+            Vector<String> links = getImages(link);
+            for(int i = 0; i < links.size(); i++)
+                total += CommonUtils.getContentSize(links.get(i));
+            return total;
+        } else {
+            String video = "https://www.yourporn.sexy"+CommonUtils.eraseChar(page.select("span.vidsnfo").attr("data-vnfo").split("\"")[3],'\\');
+            //idk wtf them keep changind the cdn
+            String test = video.replace("cdn", "cdn4").replace("s12-1", "s12");
+            if (CommonUtils.getContentSize(test) < 1)
+              test = test.replace("cdn4", "cdn3");
+            if (CommonUtils.getContentSize(test) < 1)
+                test = test.replace("cdn3", "cdn2");
+            System.out.println("What was test "+test);
+            return CommonUtils.getContentSize(test);
+        }
     }
 
     @Override public long getSize() throws IOException, GenericDownloaderException {
-        if (isAlbum(url)) {
-            long total = 0;
-            MediaDefinition m = getVideo();
-            Iterator<Map<String,String>> q = m.iterator();
-            while(q.hasNext()) {
-                Map<String,String> temp = q.next();
-                total += CommonUtils.getContentSize(temp.get(temp.keySet().iterator().next()));
-            } return total;
-        } else return CommonUtils.getContentSize(getVideo().iterator().next().get("single"));
+       return getSize(url);
     }
 }
