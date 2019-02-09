@@ -27,6 +27,7 @@ import org.jsoup.select.Elements;
  */
 public class Instagram extends GenericExtractor{
     private Document html;
+    //https://www.instagram.com/p/BQ0eAlwhDrw
     
     public Instagram(String url)throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
         this(url,downloadThumb(configureUrl(url)),downloadVideoName(configureUrl(url)));
@@ -79,26 +80,37 @@ public class Instagram extends GenericExtractor{
             return media;
         } else { //download pic/s
            int occur, from = 0; boolean first = true; int count = 0;
-           while((occur = page.toString().indexOf("display_resources",from)) != -1) {
-               if (first) {first = false; from = occur + 1; continue;}
-               from = occur + 1; count++; 
-               String brack = CommonUtils.getSBracket(page.toString(),occur); String link = parseBracket(brack);
-               Map<String,String> qualities = new HashMap<>(); qualities.put("single",link);
-               if (link.contains(".mp4"))
-                    media.addThread(qualities, CommonUtils.parseName(link,".mp4"));
-               else media.addThread(qualities, CommonUtils.parseName(link,".jpg"));
-            } if (count < 1) { //if there really was jus one
-                occur = page.toString().indexOf("display_resources",0);
-                if(occur != -1) {
+            if (page.toString().contains("\"is_video\":true")) {
+               while((occur = page.toString().indexOf("video_url",from)) != -1) {
+                    from = occur + 1; count++; 
+                    String link = CommonUtils.getLink(page.toString(), occur+12, '\"');
+                    Map<String,String> qualities = new HashMap<>(); qualities.put("single",link);
+                    if (link.contains(".mp4"))
+                         media.addThread(qualities, CommonUtils.parseName(link,".mp4"));
+                    else media.addThread(qualities, CommonUtils.parseName(link,".jpg"));
+                } 
+            } else {
+                while((occur = page.toString().indexOf("display_resources",from)) != -1) {
+                    if (first) {first = false; from = occur + 1; continue;}
+                    from = occur + 1; count++; 
                     String brack = CommonUtils.getSBracket(page.toString(),occur); String link = parseBracket(brack);
                     Map<String,String> qualities = new HashMap<>(); qualities.put("single",link);
-                    media.addThread(qualities, CommonUtils.parseName(link,".jpg"));
-                } else  {
-                    String picLink = getMetaImage(page);
-                    Map<String,String> qualities = new HashMap<>(); qualities.put("single",picLink);
-                    media.addThread(qualities, CommonUtils.parseName(picLink,".jpg"));
+                    if (link.contains(".mp4"))
+                         media.addThread(qualities, CommonUtils.parseName(link,".mp4"));
+                    else media.addThread(qualities, CommonUtils.parseName(link,".jpg"));
+                } if (count < 1) { //if there really was jus one
+                     occur = page.toString().indexOf("display_resources",0);
+                     if(occur != -1) {
+                         String brack = CommonUtils.getSBracket(page.toString(),occur); String link = parseBracket(brack);
+                         Map<String,String> qualities = new HashMap<>(); qualities.put("single",link);
+                         media.addThread(qualities, CommonUtils.parseName(link,".jpg"));
+                     } else  {
+                         String picLink = getMetaImage(page);
+                         Map<String,String> qualities = new HashMap<>(); qualities.put("single",picLink);
+                         media.addThread(qualities, CommonUtils.parseName(picLink,".jpg"));
+                    }
                 }
-           }
+            }
            return media;
         }
     }
@@ -142,7 +154,11 @@ public class Instagram extends GenericExtractor{
                     videoLink = metas.get(i).attr("content");
             }
             return CommonUtils.parseName(videoLink, ".mp4");
-        } else return downloadThumb(url).getName();
+        } else if (page.toString().contains("\"is_video\":true")) {
+            int occur = page.toString().indexOf("video_url");
+            String link = CommonUtils.getLink(page.toString(), occur+12, '\"');
+            return CommonUtils.parseName(link,".mp4");
+        }  else return downloadThumb(url).getName();
     }
     
     //getVideo thumbnail
@@ -181,21 +197,30 @@ public class Instagram extends GenericExtractor{
         } else if(isProfilePage(page)) //download profile pic
             videoLink = getMetaImage(page);
         else { //download pic/s
-           int occur, from = 0; boolean first = true; int count = 0;
-           while((occur = page.toString().indexOf("display_resources",from)) != -1) {
-               if (first) {first = false; from = occur + 1; continue;}
-               from = occur + 1; count++;
-               String brack = CommonUtils.getSBracket(page.toString(),occur);
-               total += CommonUtils.getContentSize(parseBracket(brack));
-           } if (count < 1) { //if there really was jus one
-               occur = page.toString().indexOf("display_resources",0);
-               if(occur != -1) {
+            int occur, from = 0; boolean first = true; int count = 0;
+            if (page.toString().contains("\"is_video\":true")) { 
+                while((occur = page.toString().indexOf("video_url",from)) != -1) {
+                    from = occur + 1; count++; 
+                    String link = CommonUtils.getLink(page.toString(), occur+12, '\"');
+                    total += CommonUtils.getContentSize(link);
+                }
+                return total;
+            } else {
+                while((occur = page.toString().indexOf("display_resources",from)) != -1) {
+                    if (first) {first = false; from = occur + 1; continue;}
+                    from = occur + 1; count++;
                     String brack = CommonUtils.getSBracket(page.toString(),occur);
                     total += CommonUtils.getContentSize(parseBracket(brack));
-               } else
-                    total += CommonUtils.getContentSize(getMetaImage(page));
-           }
-           return total;
+                } if (count < 1) { //if there really was jus one
+                    occur = page.toString().indexOf("display_resources",0);
+                    if(occur != -1) {
+                         String brack = CommonUtils.getSBracket(page.toString(),occur);
+                         total += CommonUtils.getContentSize(parseBracket(brack));
+                    } else
+                         total += CommonUtils.getContentSize(getMetaImage(page));
+                }
+                return total;
+            }
         }
         if (videoLink == null) return -1;
         else return CommonUtils.getContentSize(videoLink);
