@@ -16,7 +16,6 @@ import java.io.IOException;
 import org.jsoup.UncheckedIOException;
 import java.net.SocketTimeoutException;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Vector;
 import org.jsoup.nodes.Document;
@@ -88,11 +87,11 @@ public class Yourporn extends GenericExtractor{
             //String video = "https://www.yourporn.sexy"+page.select("video.player_el").attr("src");
             Map<String,String> qualities = new HashMap<>();
             //idk wtf them keep changind the cdn
-            String test = video.replace("cdn", "cdn4").replace("s12-1", "s12");
-            if (CommonUtils.getContentSize(test) < 1)
+            String test = video.replace("cdn", "cdn4").replaceAll("s12-1", "s12");
+            /*if (CommonUtils.getContentSize(test) < 1)
               test = test.replace("cdn4", "cdn3");
             if (CommonUtils.getContentSize(test) < 1)
-                test = test.replace("cdn3", "cdn2");
+                test = test.replace("cdn3", "cdn2");*/
             System.out.println("What was test "+test);
             qualities.put("single",test);
             media.addThread(qualities,videoName);
@@ -183,10 +182,10 @@ public class Yourporn extends GenericExtractor{
             String video = "https://www.yourporn.sexy"+CommonUtils.eraseChar(page.select("span.vidsnfo").attr("data-vnfo").split("\"")[3],'\\');
             //idk wtf them keep changind the cdn
             String test = video.replace("cdn", "cdn4").replace("s12-1", "s12");
-            if (CommonUtils.getContentSize(test) < 1)
+            /*if (CommonUtils.getContentSize(test) < 1)
               test = test.replace("cdn4", "cdn3");
             if (CommonUtils.getContentSize(test) < 1)
-                test = test.replace("cdn3", "cdn2");
+                test = test.replace("cdn3", "cdn2");*/
             System.out.println("What was test "+test);
             return CommonUtils.getContentSize(test);
         }
