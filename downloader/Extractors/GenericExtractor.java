@@ -38,10 +38,10 @@ public abstract class GenericExtractor {
        this.videoThumb = thumb;
        this.videoName = videoName;
        this.url = configureUrl(url);
-       this.cookieJar = new HashMap<String,String>();
     }
     
     GenericExtractor() { //this contructor is used for when you jus want to query / search
+        this.cookieJar = new HashMap<>();
         setExtractorName();
     }
     
