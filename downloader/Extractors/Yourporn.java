@@ -18,6 +18,8 @@ import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -87,7 +89,10 @@ public class Yourporn extends GenericExtractor{
             //String video = "https://www.yourporn.sexy"+page.select("video.player_el").attr("src");
             Map<String,String> qualities = new HashMap<>();
             //idk wtf them keep changind the cdn
-            String test = video.replace("cdn", "cdn4").replaceAll("s12-1", "s12");
+            String test = video.replace("cdn", "cdn4");//.replaceAll("s12-1", "s12");
+            Pattern p = Pattern.compile("(.+/)s(\\d+)-1(/.+)");
+            Matcher m = p.matcher(test);
+            test = m.replaceAll("$1s$2$3");
             /*if (CommonUtils.getContentSize(test) < 1)
               test = test.replace("cdn4", "cdn3");
             if (CommonUtils.getContentSize(test) < 1)
@@ -181,7 +186,10 @@ public class Yourporn extends GenericExtractor{
         } else {
             String video = "https://www.yourporn.sexy"+CommonUtils.eraseChar(page.select("span.vidsnfo").attr("data-vnfo").split("\"")[3],'\\');
             //idk wtf them keep changind the cdn
-            String test = video.replace("cdn", "cdn4").replace("s12-1", "s12");
+            String test = video.replace("cdn", "cdn4");
+            Pattern p = Pattern.compile("(.+/)s(\\d+)-1(/.+)");
+            Matcher m = p.matcher(test);
+            test = m.replaceAll("$1s$2$3");
             /*if (CommonUtils.getContentSize(test) < 1)
               test = test.replace("cdn4", "cdn3");
             if (CommonUtils.getContentSize(test) < 1)

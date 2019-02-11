@@ -46,13 +46,12 @@ public class Pornhd extends GenericExtractor{
 
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException{
         Document page = getPage(url,false,true);
-	
-	Elements temp = page.getElementById("mainPlayerContainer").select("script");
-	String[] rawData = CommonUtils.getBracket(temp.toString(), temp.toString().indexOf("sources:")).split("\"");
+
+	String[] rawData = CommonUtils.getBracket(page.toString(), page.toString().indexOf("sources: {")).split("\"");
 	Map<String,String> qualities = new HashMap<>(); MediaDefinition media = new MediaDefinition();
 	for(int i = 0; i < rawData.length; i++) {
             if (i == 0) continue;
-            qualities.put(rawData[i], CommonUtils.eraseChar(rawData[i+2],'\\'));
+            qualities.put(rawData[i], "https://pornhd.com"+CommonUtils.eraseChar(rawData[i+2],'\\'));
             i+=3;
 	}
         media.addThread(qualities, videoName);
@@ -108,13 +107,12 @@ public class Pornhd extends GenericExtractor{
     
     private static long getSize(String link) throws IOException, GenericDownloaderException {
         Document page = getPage(link,false,true);
-	
-	Elements temp = page.getElementById("mainPlayerContainer").select("script");
-	String[] rawData = CommonUtils.getBracket(temp.toString(), temp.toString().indexOf("sources:")).split("\"");
+        
+	String[] rawData = CommonUtils.getBracket(page.toString(), page.toString().indexOf("sources: {")).split("\"");
 	Map<String,String> qualities = new HashMap<>();
 	for(int i = 0; i < rawData.length; i++) {
             if (i == 0) continue;
-            qualities.put(rawData[i], CommonUtils.eraseChar(rawData[i+2],'\\'));
+            qualities.put(rawData[i], "https://www.pornhd.com"+CommonUtils.eraseChar(rawData[i+2], '\\'));
             i+=3;
 	}
         
@@ -128,6 +126,7 @@ public class Pornhd extends GenericExtractor{
         else if (qualities.containsKey("240p"))
             video = qualities.get("240p");
         else video = qualities.get((String)qualities.values().toArray()[0]);
+        
         if (video == null) return -1;
         else return CommonUtils.getContentSize(video);
     }

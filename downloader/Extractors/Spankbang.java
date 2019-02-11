@@ -214,7 +214,7 @@ public class Spankbang extends GenericQueryExtractor implements Playlist{
                 if (CommonUtils.saveFile(thumbLink, CommonUtils.parseName(thumbLink,".jpg"),MainApp.imageCache) != -2)
                     throw new IOException("Failed to completely download page");
             try {
-                Document linkPage = getPage("https://spankbang.com"+searchResults.get(i).select("a.thumb").attr("href"),false);
+                Document linkPage = getPage("https://spankbang.com"+searchResults.get(i).select("a.thumb").attr("href"),false,true);
                 String video = getDefaultVideo(linkPage);
                 v = new video("https://spankbang.com"+searchResults.get(i).select("a.thumb").attr("href"),downloadVideoName("https://spankbang.com"+searchResults.get(i).select("a.thumb").attr("href")),new File(MainApp.imageCache+File.separator+CommonUtils.parseName(thumbLink,".jpg")),CommonUtils.getContentSize(video));
             } catch (Exception e) {
