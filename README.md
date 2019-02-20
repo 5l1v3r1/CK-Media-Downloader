@@ -3,7 +3,7 @@ GUI application for downloading videos and images from sites over http
 
 # Screenshots
 
-<img src="scrshots/downloads2.1.png" width=70%>
+<img src="scrshots/downloads.png" width=70%>
 
 <img src="scrshots/history.png" width=70%>
 
