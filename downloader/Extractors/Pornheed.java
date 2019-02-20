@@ -13,8 +13,6 @@ import downloaderProject.MainApp;
 import java.io.File;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
-import java.util.HashMap;
-import java.util.Map;
 import org.jsoup.UncheckedIOException;
 import org.jsoup.nodes.Document;
 
@@ -48,11 +46,9 @@ public class Pornheed extends GenericExtractor{
      
         String embed = page.getElementById("first").select("iframe").attr("src");
         page = getPage(embed,false,true);
-
-        Map<String,String> qualities = new HashMap<>();
-        qualities.put("single",getDefaultVideo(page));
+        
         MediaDefinition media = new MediaDefinition();
-        media.addThread(qualities,videoName);
+        media.addThread(getDefaultVideo(page),videoName);
         return media;
     }
     

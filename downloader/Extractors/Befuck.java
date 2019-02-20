@@ -12,7 +12,6 @@ import downloaderProject.MainApp;
 import java.io.File;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
-import java.util.HashMap;
 import java.util.Map;
 import org.jsoup.Jsoup;
 import org.jsoup.UncheckedIOException;
@@ -45,23 +44,21 @@ public class Befuck extends GenericExtractor{
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException{
         Document page = getPage(url,false,true);
         
-        String video = getDefaultVideo(page);
-        Map<String,String> qualities = new HashMap<>();
-        qualities.put("single",video); MediaDefinition media = new MediaDefinition();
-        media.addThread(qualities,videoName);
+        MediaDefinition media = new MediaDefinition();
+        media.addThread(getDefaultVideo(page),videoName);
         
         return media;
     }
    
     private static String downloadVideoName(String url) throws IOException , SocketTimeoutException, UncheckedIOException, Exception{
-         Document page = getPage(url,false);
+        Document page = getPage(url,false);
 	
 	return Jsoup.parse(page.select("div.desc").select("span").get(0).toString()).body().text();
     } 
 	
     //getVideo thumbnail
     private static File downloadThumb(String url) throws IOException, SocketTimeoutException, UncheckedIOException, Exception {
-       Document page = getPage(url,false);
+        Document page = getPage(url,false);
         String thumb = page.select("video").attr("poster");
         if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
             CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache);
@@ -93,17 +90,20 @@ public class Befuck extends GenericExtractor{
         	String link = li.get(i).select("a").attr("href");
         	String name = li.get(i).select("figcaption").text();
         	if (link.isEmpty() || name.isEmpty()) continue;
-                Document linkPage = getPage(link,false);
-                String video = getDefaultVideo(linkPage);
-        	v = new video(link,name,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)),CommonUtils.getContentSize(video));
+        	v = new video(link,name,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)),getSize(link));
         	break;
         }
         
         return v;
     }
+    
+    private long getSize(String link) throws IOException {
+        Document page = getPage(link,false,true);
+        Map<String,String> q = getDefaultVideo(page);
+        return CommonUtils.getContentSize(q.get(q.keySet().iterator().next()));
+    }
 
     @Override public long getSize() throws IOException {
-        Document page = getPage(url,false,true);
-        return CommonUtils.getContentSize(getDefaultVideo(page));
+        return getSize(url);
     }
 }

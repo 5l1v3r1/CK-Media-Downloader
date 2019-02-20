@@ -9,7 +9,6 @@ import downloader.CommonUtils;
 import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
-import static downloader.Extractors.GenericExtractor.configureUrl;
 import downloaderProject.MainApp;
 import java.io.File;
 import java.io.IOException;
@@ -86,7 +85,9 @@ public class Gotporn extends GenericExtractor{
 
     @Override
     public long getSize() throws IOException, GenericDownloaderException {
-        return CommonUtils.getContentSize(getDefaultVideo(getPage(url,false,true)));
+        Document page = getPage(url,false,true);
+        Map<String,String> q = getDefaultVideo(page);
+        return CommonUtils.getContentSize(q.get(q.keySet().iterator().next()));
     }
     
 }

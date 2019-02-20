@@ -16,7 +16,6 @@ import java.io.File;
 import java.io.IOException;
 import org.jsoup.UncheckedIOException;
 import java.net.SocketTimeoutException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.Vector;
@@ -47,11 +46,8 @@ public class Ruleporn extends GenericQueryExtractor{
 
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException{
         Document page = getPage(url,false,true);
-        String video = getDefaultVideo(page);
-        
-        Map<String,String> qualities = new HashMap<>();
-        qualities.put("single",video); MediaDefinition media = new MediaDefinition();
-        media.addThread(qualities,videoName);
+        MediaDefinition media = new MediaDefinition();
+        media.addThread(getDefaultVideo(page),videoName);
         
         return media;
     }
@@ -83,9 +79,7 @@ public class Ruleporn extends GenericQueryExtractor{
             thequery.addThumbnail(new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink)));
             thequery.addPreview(parse(thequery.getLink(i)));
             thequery.addName(searchResults.get(i).select("span.title").text());
-            Document linkPage = getPage(searchResults.get(i).select("a").get(0).attr("href"),false);
-             String video = getDefaultVideo(linkPage);
-             thequery.addSize(CommonUtils.getContentSize(video));
+            thequery.addSize(getSize(searchResults.get(i).select("a").get(0).attr("href")));
 	}
         return thequery;
     }
@@ -147,9 +141,7 @@ public class Ruleporn extends GenericQueryExtractor{
             if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb))) //if file not already in cache download it
             	if (CommonUtils.saveFile(thumb, CommonUtils.getThumbName(thumb),MainApp.imageCache) != -2)
             		continue;//throw new IOException("Failed to completely download page");
-            Document linkPage = getPage(link,false);
-             String video = getDefaultVideo(linkPage);
-                v = new video(link,title,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumb)),CommonUtils.getContentSize(video));
+                v = new video(link,title,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumb)),getSize(link));
                 break;
             }
         return v;
@@ -171,15 +163,19 @@ public class Ruleporn extends GenericQueryExtractor{
                 if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink),MainApp.imageCache) != -2)
                     throw new IOException("Failed to completely download page");
             String link = searchResults.get(i).select("a").get(0).attr("href");
-            Document linkPage = getPage(link,false);
-             String video = linkPage.select("video").select("source").attr("src");
-            v = new video(link,searchResults.get(i).select("span.title").text(),new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink)),CommonUtils.getContentSize(video));
+            v = new video(link,searchResults.get(i).select("span.title").text(),new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink)),getSize(link));
             break; //if u made it this far u already have a vaild video
 	}
         return v;
     }
+    
+    private long getSize(String link) throws IOException {
+        Document page = getPage(link,false,true);
+        Map<String,String> q = getDefaultVideo(page);
+        return CommonUtils.getContentSize(q.get(q.keySet().iterator().next()));
+    }
 
-    @Override public long getSize() throws IOException, GenericDownloaderException {
-        return CommonUtils.getContentSize(getVideo().iterator().next().get("single"));
+    @Override public long getSize() throws IOException {
+        return getSize(url);
     }
 }

@@ -46,15 +46,16 @@ public class Justporno extends GenericExtractor{
     
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException {        
         Document page = getPage(url,false,true);
-        String video;
+        
+        MediaDefinition media = new MediaDefinition();
         if (!page.select("video").isEmpty())
-            video = getDefaultVideo(page);
-        else video = CommonUtils.getLink(page.toString(),page.toString().indexOf("video_url: '")+12,'\'');
-        
-        Map<String,String> qualities = new HashMap<>();
-        qualities.put("single",video); MediaDefinition media = new MediaDefinition();
-        media.addThread(qualities,videoName);
-        
+            media.addThread(getDefaultVideo(page),videoName);
+        else {
+            String video = CommonUtils.getLink(page.toString(),page.toString().indexOf("video_url: '")+12,'\'');
+            Map<String,String> qualities = new HashMap<>();
+            qualities.put("single",video); 
+            media.addThread(qualities,videoName);
+        }
         return media;
         //super.downloadVideo(video,title,s);
     }
@@ -100,11 +101,7 @@ public class Justporno extends GenericExtractor{
             if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
             	if (CommonUtils.saveFile(thumb, CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache) != -2)
             		continue;//throw new IOException("Failed to completely download page");
-                Document linkPage = getPage(link,false); String video;
-                if (!linkPage.select("video").isEmpty())
-                    video = getDefaultVideo(linkPage);
-                else video = CommonUtils.getLink(linkPage.toString(),linkPage.toString().indexOf("video_url: '")+12,'\'');
-                v = new video(link,title,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumb,SKIP)),CommonUtils.getContentSize(video));
+                v = new video(link,title,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumb,SKIP)),getSize(link));
                 break;
             }
         return v;
@@ -128,18 +125,28 @@ public class Justporno extends GenericExtractor{
         	String link = li.get(i).select("a").attr("href");
         	String name = li.get(i).select("a").attr("title");
         	if (link.isEmpty() || name.isEmpty()) continue;
-                Document linkPage = getPage(link,false); String video;
-                if (!linkPage.select("video").isEmpty())
-                    video = getDefaultVideo(linkPage);
-                else video = CommonUtils.getLink(linkPage.toString(),linkPage.toString().indexOf("video_url: '")+12,'\'');
-        	v = new video(link,name,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)),CommonUtils.getContentSize(video));
+        	v = new video(link,name,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)),getSize(link));
         	break;
         }
         
         return v;
     }
+    
+    private long getSize(String link) throws IOException {
+        Document page = getPage(link,false,true);
+        Map<String, String> q;
+        
+        if (!page.select("video").isEmpty())
+            q = getDefaultVideo(page);
+        else {
+            String video = CommonUtils.getLink(page.toString(),page.toString().indexOf("video_url: '")+12,'\'');
+            q = new HashMap<>();
+            q.put("single",video); 
+        }
+        return CommonUtils.getContentSize(q.get(q.keySet().iterator().next()));
+    }
 
     @Override public long getSize() throws IOException, GenericDownloaderException {
-        return CommonUtils.getContentSize(getVideo().iterator().next().get("single"));
+        return getSize(url);
     }
 }

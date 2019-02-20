@@ -13,7 +13,6 @@ import java.io.File;
 import java.io.IOException;
 import org.jsoup.UncheckedIOException;
 import java.net.SocketTimeoutException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import org.jsoup.Jsoup;
@@ -45,11 +44,9 @@ public class Cumlouder extends GenericExtractor {
 
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException {
         Document page = getPage(url,false,true);
-        String video = "https:"+ getDefaultVideo(page);
         
-        Map<String,String> qualities = new HashMap<>();
-        qualities.put("single",video); MediaDefinition media = new MediaDefinition();
-        media.addThread(qualities,videoName);
+        MediaDefinition media = new MediaDefinition();
+        media.addThread(getDefaultVideo(page),videoName);
         
         return media;
         //super.downloadVideo(video,this.videoName,s);
@@ -92,9 +89,7 @@ public class Cumlouder extends GenericExtractor {
             if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
             	if (CommonUtils.saveFile(thumb, CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache) != -2)
             		continue;//throw new IOException("Failed to completely download page");
-                Document linkPage = getPage(link,false);
-                String video = getDefaultVideo(linkPage);
-                v = new video(link,title,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumb,SKIP)),CommonUtils.getContentSize(video));
+                v = new video(link,title,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumb,SKIP)),getSize(link));
                 break;
             }
         return v;
@@ -116,17 +111,20 @@ public class Cumlouder extends GenericExtractor {
                         throw new IOException("Failed to completely download page");
         	String link = "https://www.cumlouder.com" + li.get(i).select("a").attr("href");
         	String name = li.get(i).select("img.thumb").attr("title");
-        	if (link.isEmpty() || name.isEmpty()) continue;
-                 Document linkPage = getPage(link,false);
-                String video = "https:" + getDefaultVideo(linkPage);
-        	v = new video(link,name,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)),CommonUtils.getContentSize(video));
+        	if (link.isEmpty() || name.isEmpty()) continue;;
+        	v = new video(link,name,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)),getSize(link));
         	break;
         }
         
         return v;
     }
-
+    
+    private long getSize(String link) throws IOException {
+        Document page = getPage(link,false,true);
+        Map<String,String> q = getDefaultVideo(page);
+        return CommonUtils.getContentSize(q.get(q.keySet().iterator().next()));
+    }
     @Override public long getSize() throws IOException {
-        return CommonUtils.getContentSize(getVideo().iterator().next().get("single"));
+        return getSize(url);
     }
 }

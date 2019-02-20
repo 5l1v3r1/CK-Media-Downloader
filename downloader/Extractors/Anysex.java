@@ -13,7 +13,6 @@ import downloaderProject.MainApp;
 import java.io.File;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
-import java.util.HashMap;
 import java.util.Map;
 import org.jsoup.UncheckedIOException;
 import org.jsoup.nodes.Document;
@@ -46,12 +45,8 @@ public class Anysex extends GenericExtractor{
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
         Document page = getPage(url,false,true);
      
-        Map<String,String> qualities = new HashMap<>();
-        String video = getDefaultVideo(page);
-	
-        qualities.put("single",video);
         MediaDefinition media = new MediaDefinition();
-        media.addThread(qualities,videoName);
+        media.addThread(getDefaultVideo(page),videoName);
 
         return media;
     }
@@ -87,19 +82,19 @@ public class Anysex extends GenericExtractor{
             if (li.select("a").isEmpty()) continue;
             if (!CommonUtils.testPage(li.select("a").attr("href"))) continue; //test to avoid error 404
             String link = "https://anysex.com" + li.select("a").attr("href");
-            String video = getDefaultVideo(getPage(link,false,true));
-            try { v = new video(link,downloadVideoName(link),downloadThumb(link),getSize(video)); } catch (Exception e) {continue;}
+            try { v = new video(link,downloadVideoName(link),downloadThumb(link),getSize(link)); } catch (Exception e) {continue;}
             break; //if u made it this far u already have a vaild video
 	}
         return v;
     }
     
-    public long getSize(String link) throws IOException, GenericDownloaderException {
+    private long getSize(String link) throws IOException, GenericDownloaderException {
         Document page = getPage(link,false,true);
-        return CommonUtils.getContentSize(getDefaultVideo(page));
+        Map<String,String> q = getDefaultVideo(page);
+        return CommonUtils.getContentSize(q.get(q.keySet().iterator().next()));
     }
 
     @Override public long getSize() throws IOException, GenericDownloaderException {
-        return CommonUtils.getContentSize(getVideo().iterator().next().get("single"));
+        return CommonUtils.getContentSize(url);
     }
 }

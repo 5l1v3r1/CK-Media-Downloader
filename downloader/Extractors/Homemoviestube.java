@@ -13,7 +13,6 @@ import downloaderProject.MainApp;
 import java.io.File;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import org.jsoup.UncheckedIOException;
@@ -49,10 +48,8 @@ public class Homemoviestube extends GenericExtractor{
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
         Document page = getPage(url,false,true);
      
-        Map<String,String> qualities = new HashMap<>();
-        qualities.put("single",getDefaultVideo(page));
         MediaDefinition media = new MediaDefinition();
-        media.addThread(qualities,videoName);
+        media.addThread(getDefaultVideo(page),videoName);
 
         return media;
     }
@@ -110,11 +107,13 @@ public class Homemoviestube extends GenericExtractor{
         return v;
     }
     
-    public long getSize(String link) throws IOException, GenericDownloaderException {
-        return CommonUtils.getContentSize(getDefaultVideo(getPage(link,false,true)));
+    private long getSize(String link) throws IOException, GenericDownloaderException {
+        Document page = getPage(link,false,true);
+        Map<String,String> q = getDefaultVideo(page);
+        return CommonUtils.getContentSize(q.get(q.keySet().iterator().next()));
     }
 
     @Override public long getSize() throws IOException, GenericDownloaderException {
-        return CommonUtils.getContentSize(getVideo().iterator().next().get("single"));
+        return getSize(url);
     }
 }

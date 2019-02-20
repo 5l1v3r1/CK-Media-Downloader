@@ -214,9 +214,8 @@ public class Spankbang extends GenericQueryExtractor implements Playlist{
                 if (CommonUtils.saveFile(thumbLink, CommonUtils.parseName(thumbLink,".jpg"),MainApp.imageCache) != -2)
                     throw new IOException("Failed to completely download page");
             try {
-                Document linkPage = getPage("https://spankbang.com"+searchResults.get(i).select("a.thumb").attr("href"),false,true);
-                String video = getDefaultVideo(linkPage);
-                v = new video("https://spankbang.com"+searchResults.get(i).select("a.thumb").attr("href"),downloadVideoName("https://spankbang.com"+searchResults.get(i).select("a.thumb").attr("href")),new File(MainApp.imageCache+File.separator+CommonUtils.parseName(thumbLink,".jpg")),CommonUtils.getContentSize(video));
+                long size = getSize("https://spankbang.com"+searchResults.get(i).select("a.thumb").attr("href"));
+                v = new video("https://spankbang.com"+searchResults.get(i).select("a.thumb").attr("href"),downloadVideoName("https://spankbang.com"+searchResults.get(i).select("a.thumb").attr("href")),new File(MainApp.imageCache+File.separator+CommonUtils.parseName(thumbLink,".jpg")),size);
             } catch (Exception e) {
                 v = null; continue;
             }
@@ -245,8 +244,14 @@ public class Spankbang extends GenericQueryExtractor implements Playlist{
             list.add("https://spankbang.com" + div.get(i).select("a").get(0).attr("href"));
         return list;
     }
+    
+    private long getSize(String link) throws IOException {
+        Document page = getPage(link,false,true);
+        Map<String,String> q = getDefaultVideo(page);
+        return CommonUtils.getContentSize(q.get(q.keySet().iterator().next()));
+    }
 
     @Override public long getSize() throws IOException, GenericDownloaderException {
-        return CommonUtils.getContentSize(getDefaultVideo(getPage(url,false,true)));
+        return getSize(url);
     }
 }

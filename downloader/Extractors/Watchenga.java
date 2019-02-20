@@ -9,12 +9,12 @@ import downloader.CommonUtils;
 import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
+import static downloader.Extractors.GenericExtractor.getPage;
 import downloaderProject.MainApp;
 import java.io.File;
 import java.io.IOException;
 import org.jsoup.UncheckedIOException;
 import java.net.SocketTimeoutException;
-import java.util.HashMap;
 import java.util.Map;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -40,9 +40,8 @@ public class Watchenga extends GenericExtractor{
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException{        
         Document page = getPage(url,false,true);
 
-        Map<String,String> qualities = new HashMap<>();
-        qualities.put("single",getDefaultVideo(page)); MediaDefinition media = new MediaDefinition();
-        media.addThread(qualities,videoName);
+        MediaDefinition media = new MediaDefinition();
+        media.addThread(getDefaultVideo(page),videoName);
         
         return media;
     }
@@ -77,6 +76,8 @@ public class Watchenga extends GenericExtractor{
     }
 
     @Override public long getSize() throws IOException, GenericDownloaderException {
-        return CommonUtils.getContentSize(getVideo().iterator().next().get("single"));
+        Document page = getPage(url,false,true);
+        Map<String,String> q = getDefaultVideo(page);
+        return CommonUtils.getContentSize(q.get(q.keySet().iterator().next()));
     }
 }

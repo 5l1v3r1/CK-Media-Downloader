@@ -17,7 +17,6 @@ import java.io.File;
 import java.io.IOException;
 import org.jsoup.UncheckedIOException;
 import java.net.SocketTimeoutException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.Vector;
@@ -52,9 +51,8 @@ public class Shesfreaky extends GenericQueryExtractor{
         Document page = getPage(url,false,true);
         verify(page);
         
-        Map<String,String> qualities = new HashMap<>();
-        qualities.put("single",getDefaultVideo(page)); MediaDefinition media = new MediaDefinition();
-        media.addThread(qualities,videoName);
+        MediaDefinition media = new MediaDefinition();
+        media.addThread(getDefaultVideo(page),videoName);
         
         return media;
     }
@@ -88,11 +86,10 @@ public class Shesfreaky extends GenericQueryExtractor{
             if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
                 if (CommonUtils.saveFile(thumb, CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache) != -2)
                     throw new IOException("Failed to completely download page");
-            String video = getDefaultVideo(getPage(link,false));
             thequery.addThumbnail(new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,SKIP)));
             thequery.addPreview(parse(link));
             thequery.addName(title);
-            thequery.addSize(CommonUtils.getContentSize(video));
+            thequery.addSize(getSize(link));
          }
          return thequery;
     }
@@ -168,8 +165,7 @@ public class Shesfreaky extends GenericQueryExtractor{
             String link = li.get(i).select("a").attr("href");
             try {verify(getPage(url,false)); } catch(GenericDownloaderException e) {continue;}
             String title = li.get(i).select("em").attr("title");
-            String video = getDefaultVideo(getPage(link,false));
-            try {v = new video(link,title,downloadThumb(link),CommonUtils.getContentSize(video));} catch(Exception e) {continue;}
+            try {v = new video(link,title,downloadThumb(link),getSize(link));} catch(Exception e) {continue;}
             break;
         }
         return v;
@@ -194,14 +190,19 @@ public class Shesfreaky extends GenericQueryExtractor{
             if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
                 if (CommonUtils.saveFile(thumb, CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache) != -2)
                     throw new IOException("Failed to completely download page");
-            String video = getDefaultVideo(getPage(link,false));
-            v = new video(link,title,new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,SKIP)),CommonUtils.getContentSize(video));
+            v = new video(link,title,new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,SKIP)),getSize(link));
             break; //if u made it this far u already have a vaild video
          }
          return v;
     }
+    
+    private long getSize(String link) throws IOException {
+        Document page = getPage(link,false,true);
+        Map<String,String> q = getDefaultVideo(page);
+        return CommonUtils.getContentSize(q.get(q.keySet().iterator().next()));
+    }
 
     @Override  public long getSize() throws IOException, GenericDownloaderException {
-        return CommonUtils.getContentSize(getVideo().iterator().next().get("single"));
+        return getSize(url);
     }
 }

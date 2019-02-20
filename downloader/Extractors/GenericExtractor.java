@@ -137,10 +137,30 @@ public abstract class GenericExtractor {
         return Jsoup.parse(page.select("h1").toString()).body().text();
     }
     
-    protected String getDefaultVideo(Document page) {
-        if (page.select("video").select("source").isEmpty())
-            return page.select("video").attr("src");
-        else return page.select("video").select("source").attr("src");
+    protected Map<String,String> getDefaultVideo(Document page) {
+        Map<String,String> q = new HashMap<>();
+        if (page.select("video").select("source").isEmpty())    
+            q.put("single",page.select("video").attr("src"));
+        else  {
+            if (page.select("video").select("source").size() > 1) {
+                for(Element source: page.select("video").select("source")) {
+                    String format = ""; int i = 0;
+                    format = source.attr("title");
+                    if(format.length() == 0)
+                        format = source.attr("id");
+                    if(format.length() == 0)
+                        format = String.valueOf(i++);
+                    String src = source.attr("src");
+                    if (src.startsWith("//"))
+                        src = "http:" + src;
+                    else if (!src.startsWith("https") || !src.startsWith("http"))
+                        src = "http://" + src;
+                    q.put(format,src);
+                }
+            } else
+                q.put("single",page.select("video").select("source").attr("src"));
+        }
+        return q;
     }
     
     public abstract MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException;
