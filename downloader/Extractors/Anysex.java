@@ -95,6 +95,6 @@ public class Anysex extends GenericExtractor{
     }
 
     @Override public long getSize() throws IOException, GenericDownloaderException {
-        return CommonUtils.getContentSize(url);
+        return getSize(url);
     }
 }
