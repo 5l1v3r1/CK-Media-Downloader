@@ -310,18 +310,27 @@ public class CommonUtils {
     }
     
     public static long getContentSize(String url) {
-        if (url == null) return -1;
+        if (url == null) return -5;
         try {
             URLConnection connection = new URL(url).openConnection();
+            /*String temp = url.split("/")[url.split("/").length-1];
+            String pure = temp.substring(temp.indexOf(".")).replace(".","");
+            System.out.println("url "+pure);
+            connection.addRequestProperty("Cookie", "amplitude_idpornhd.com:="+pure);
             connection.setRequestProperty("User-Agent", PCCLIENT);
             connection.connect();
+            int response = ((HttpURLConnection)connection).getResponseCode();
+            System.out.println("response "+response);*/
             return connection.getContentLengthLong();
         } catch (SocketException e){
-            return -1;
-        } catch (IOException e) {
+            System.out.println(e.getMessage());
             return -2;
-        } catch (Exception e) {
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
             return -3;
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return -4;
         }
     }
     
@@ -385,9 +394,12 @@ public class CommonUtils {
         if (!dir.exists()) 
             dir.mkdirs();
 	
-	try {
+	try { //https://spankbang.com/2lidc/video/slutty+latin+girl+showing+nice+tits+in+cam+chat
             URLConnection connection = new URL(link).openConnection();
+            File save = new File(path+File.separator+saveName);
+            how = save.exists() ? save.length() : 0;
             connection.setRequestProperty("User-Agent", PCCLIENT);
+            connection.setRequestProperty("Range","bytes="+how+"-");
             int response = ((HttpURLConnection)connection).getResponseCode();
             //if redirect
             if ((response == HttpURLConnection.HTTP_SEE_OTHER) || (response == HttpURLConnection.HTTP_MOVED_TEMP) || (response == HttpURLConnection.HTTP_MOVED_PERM)) {
@@ -401,58 +413,55 @@ public class CommonUtils {
                 connection.connect();
             }
             if (s != null) s.addProgress("Connected to Page for");
-            in = new BufferedInputStream(connection.getInputStream());
             long fileSize = connection.getContentLengthLong();
-            //MainApp.createMessageDialog(fileSize);
-            File save = new File(path+File.separator+saveName);
-            out = new FileOutputStream(save,true);
-            byte[] buffer = new byte[BUFFSIZE];
-            how = checkProgress(link);
-            if (save.length() < how)
-                how = save.length();//in.skip(save.length());
-            else;//in.skip(how);
-            long skipped, left = how;
-            do {
-                if ((s != null) && (left != 0)) s.addProgress("Skipping "+left+" bytes");
-                skipped = in.skip(left);
-                left -= skipped;
-                if (s != null) s.addProgress(String.format("%.0f",(float)skipped/fileSize*100)+"% Complete");
-            }while(left != 0);
-            
-            int count;
-            if (s != null) s.addProgress("Downloading");
-            stopWatch timer = new stopWatch(); timer.start();
-            while((count = in.read(buffer,0,BUFFSIZE)) != -1) {
-                if(!MainApp.active)
-                    return -2;//application was closed
-		out.write(buffer, 0, count);
-                how+=count;
-                saveProgress(link,how);
+            if (how >= fileSize) {
                 if (s != null) s.addProgress(String.format("%.0f",(float)how/fileSize*100)+"% Complete");
-                timer.stop();
-                double secs = timer.getTime().convertToSecs();
-                double speed = (how / secs) / 1024D;
-                long remain = (fileSize - how) / 1024;
-                GameTime g = new GameTime(); g.addSec((long)(remain / speed));
-                if (speed == Double.POSITIVE_INFINITY) {
-                    if (s != null) s.addProgress(String.format("%s%d","^^",0));
-                } else {
-                    if(s != null) s.addProgress(String.format("%s%f","^^",speed));
-                } if(s != null) s.addProgress(String.format("%s","**"+g));
+                return -2;
+            } else {
+                in = new BufferedInputStream(connection.getInputStream());
+                out = how == 0 ? new FileOutputStream(save) : new FileOutputStream(save,true);
+                byte[] buffer = new byte[BUFFSIZE];
+
+                int count;
+                if (s != null) s.addProgress("Downloading");
+                stopWatch timer = new stopWatch(); timer.start();
+                while((count = in.read(buffer,0,BUFFSIZE)) != -1) {
+                    if(!MainApp.active)
+                        return -2;//application was closed
+                    out.write(buffer, 0, count);
+                    how+=count;
+                    //saveProgress(link,how);
+                    if (s != null) s.addProgress(String.format("%.0f",(float)how/fileSize*100)+"% Complete");
+                    timer.stop();
+                    double secs = timer.getTime().convertToSecs();
+                    double speed = (how / secs) / 1024D;
+                    long remain = (fileSize - how) / 1024;
+                    GameTime g = new GameTime(); g.addSec((long)(remain / speed));
+                    if (speed == Double.POSITIVE_INFINITY) {
+                        if (s != null) s.addProgress(String.format("%s%d","^^",0));
+                    } else {
+                        if(s != null) s.addProgress(String.format("%s%f","^^",speed));
+                    } if(s != null) s.addProgress(String.format("%s","**"+g));
+                }
+                in.close();
+                out.flush();
+                out.close();
             }
-            in.close();
-            out.flush();
-            out.close();
         } catch (UncheckedIOException | SocketException e) {
             e.printStackTrace();
             System.out.println("link "+link);
             if (s != null) s.addProgress("Lost Connection: "+e.getMessage());
             return how; //return kb stopped at
         } catch(IOException e){
-            e.printStackTrace();
-            System.out.println("link "+link);
-            if (s != null) s.addProgress("An IO error occurred: "+e.getMessage());
-            return how; //return kb stopped at
+             if (e.getMessage().contains("Server returned HTTP response code: 416")) {
+                System.out.println("Bad range");
+                return -2;
+            } else {
+                e.printStackTrace();
+                System.out.println("link "+link);
+                if (s != null) s.addProgress("An IO error occurred: "+e.getMessage());
+                return how; //return kb stopped at
+            }
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("link "+link);
@@ -461,8 +470,8 @@ public class CommonUtils {
         }
         MainApp.settings.cacheUpdate();
         if (s != null) s.addProgress("Finished downloading");
-        File progressFile = new File(MainApp.progressCache.getAbsolutePath()+File.separator+getShortName(clean(link)));
-        progressFile.delete();
+        //File progressFile = new File(MainApp.progressCache.getAbsolutePath()+File.separator+getShortName(clean(link)));
+        //progressFile.delete();
         return -2;//if sucessful this will -2
     }
 }
