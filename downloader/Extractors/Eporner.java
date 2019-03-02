@@ -54,8 +54,11 @@ public class Eporner extends GenericExtractor{
         Elements tr = page.getElementById("hd-porn-dload").select("table").select("tr");
         Map<String,String> qualities = new HashMap<>();
         
-        for(int i = 0; i < tr.size(); i++)
-            qualities.put(tr.get(i).select("td").select("span").text().replace(":",""), "https://s13-n5-nl-cdn.eporner.com/142123122312/5c42773c13880" + tr.get(i).select("td").select("a").attr("href"));
+        for(int i = 0; i < tr.size(); i++) {
+            qualities.put(tr.get(i).select("td").select("strong").text().replace(":",""), "https://www.eporner.com" + tr.get(i).select("td").select("a").attr("href"));
+            System.out.println("https://www.eporner.com/" + tr.get(i).select("td").select("a").attr("href"));
+        }
+            //qualities.put(tr.get(i).select("td").select("span").text().replace(":",""), "https://s13-n5-nl-cdn.eporner.com/142123122312/5c42773c13880" + tr.get(i).select("td").select("a").attr("href"));
         
         MediaDefinition media = new MediaDefinition();
         media.addThread(qualities,videoName);
@@ -69,7 +72,7 @@ public class Eporner extends GenericExtractor{
     
     private static File downloadThumb(String url) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception {
         Document page = getPage(url,false);
-        String thumb = getMetaImage(page);
+        String thumb = getMetaImage(page, true);
         if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
             CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache);
         return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,SKIP));

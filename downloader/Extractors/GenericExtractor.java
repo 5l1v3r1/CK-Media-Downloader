@@ -104,10 +104,17 @@ public abstract class GenericExtractor {
     }
     
     protected static String getMetaImage(Document page) {
+        return getMetaImage(page,false);
+    }
+     
+    protected static String getMetaImage(Document page, boolean ignore) {
         String thumbLink = null; 
 	for(Element meta :page.select("meta"))
-            if (meta.attr("property").equals("og:image") && !meta.attr("content").contains("static"))
-                thumbLink = meta.attr("content");
+            if (meta.attr("property").equals("og:image"))
+                if (!meta.attr("content").contains("static"))
+                    thumbLink = meta.attr("content");
+                else if(ignore) //if contains static but we are ignoring
+                    thumbLink = meta.attr("content");
         if (thumbLink == null)
             for(Element meta :page.select("meta"))
                 if (meta.attr("itemprop").equals("og:image"))
@@ -149,11 +156,16 @@ public abstract class GenericExtractor {
                     if(format.length() == 0)
                         format = source.attr("id");
                     if(format.length() == 0)
+                        format = source.attr("label");
+                    if(format.length() == 0)
+                        format = source.attr("res");
+                    if(format.length() == 0)
                         format = String.valueOf(i++);
                     String src = source.attr("src");
+                    src = (src == null || src.length() < 1) ? page.select("video").attr("id") : src;
                     if (src.startsWith("//"))
                         src = "http:" + src;
-                    else if (!src.startsWith("https") || !src.startsWith("http"))
+                    else if (!src.startsWith("https") && !src.startsWith("http"))
                         src = "http://" + src;
                     q.put(format,src);
                 }

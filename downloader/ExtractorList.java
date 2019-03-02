@@ -57,6 +57,9 @@ public class ExtractorList {
             case porn: return new Porn(url);
             case gotporn: return new Gotporn(url);
             case drtuber: return new Drtuber(url);
+            case myfreeblack: return new Myfreeblack(url);
+            case vidoza: return new Vidoza(url);
+            case hoodamateurs: return new Hoodamateurs(url);
             default:
                 return null;
         }
@@ -101,6 +104,9 @@ public class ExtractorList {
             case porn: return new Porn(url,thumb,name);
             case gotporn: return new Gotporn(url,thumb,name);
             case drtuber: return new Drtuber(url,thumb,name);
+            case myfreeblack: return new Myfreeblack(url,thumb,name);
+            case vidoza: return new Vidoza(url,thumb,name);
+            case hoodamateurs: return new Hoodamateurs(url,thumb,name);
             default:
                 return null;
         }

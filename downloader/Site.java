@@ -11,7 +11,7 @@ package downloader;
  */
 
 public class Site {
-    public enum Type {none, spankbang, pornhub, xhamster, xvideos, xnxx, youporn, redtube, thumbzilla, shesfreaky, instagram, yourporn, bigtits, pornhd, vporn, ghettotube, tube8, watchenga, youjizz, xtube, spankwire, vodlocker, justporno, bigbootytube, befuck, dailymotion, vimeo, cumlouder, ruleporn, imgur, pornpics, bigboobsalert, eporner, pornheed, homemoviestube, anysex, porn, gotporn, drtuber};
+    public enum Type {none, spankbang, pornhub, xhamster, xvideos, xnxx, youporn, redtube, thumbzilla, shesfreaky, instagram, yourporn, bigtits, pornhd, vporn, ghettotube, tube8, watchenga, youjizz, xtube, spankwire, vodlocker, justporno, bigbootytube, befuck, dailymotion, vimeo, cumlouder, ruleporn, imgur, pornpics, bigboobsalert, eporner, pornheed, homemoviestube, anysex, porn, gotporn, drtuber, myfreeblack, vidoza, hoodamateurs};
     public static String[] QueryType = {Type.spankbang.name(), Type.pornhub.name(), Type.xhamster.name(), Type.xvideos.name(), Type.youporn.name(), Type.redtube.name(), Type.thumbzilla.name(), Type.shesfreaky.name(), Type.tube8.name(), Type.spankwire.name(), Type.bigbootytube.name(), Type.ruleporn.name()};
     public enum Page {none, instagram};
 	
@@ -84,7 +84,7 @@ public class Site {
             //return Type.bigboobsalert;
             return Type.none;
         else if(url.matches("https://(www.)?eporner.com/hd-porn/[\\S]+/[\\S]+/"))
-                return Type.none;
+                return Type.eporner;
         else if(url.matches("https://(www.)?pornheed.com/video/[\\d]+/[\\S]+"))
             return Type.pornheed;
         else if(url.matches("https://(www.)?homemoviestube.com/videos/[\\d]+/[\\S]+.html"))
@@ -94,9 +94,15 @@ public class Site {
         else if(url.matches("https://(www.)?porn.com/videos/([\\S]+[-])+[\\d]+"))
             return Type.porn;
         else if(url.matches("https://(www.)?gotporn.com/[\\S]+/video-[\\d]+"))
-            return Type.none;//return Type.gotporn;
-        else if (url.matches("https?://(?:(www|m).)?drtuber.com/video/([\\d]+)/[\\S]+"))
+            return Type.none; //return Type.gotporn;
+        else if (url.matches("https://(?:(www|m).)?drtuber.com/video/([\\d]+)/[\\S]+"))
             return Type.drtuber;
+        else if (url.matches("https://(www.)?myfreeblack.com/porn/([\\d]+)(/[\\S]+)?"))
+            return Type.myfreeblack;
+        else if (url.matches("https://(www.)?vidoza.net/[\\S]+.html"))
+            return Type.vidoza;
+        else if (url.matches("https://(www.)?hoodamateurs.com/([\\d]+)(/[\\S]+)?/?"))
+            return Type.hoodamateurs;
         else return Type.none;
     }
     
