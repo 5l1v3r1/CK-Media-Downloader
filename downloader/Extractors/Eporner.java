@@ -54,10 +54,8 @@ public class Eporner extends GenericExtractor{
         Elements tr = page.getElementById("hd-porn-dload").select("table").select("tr");
         Map<String,String> qualities = new HashMap<>();
         
-        for(int i = 0; i < tr.size(); i++) {
+        for(int i = 0; i < tr.size(); i++)
             qualities.put(tr.get(i).select("td").select("strong").text().replace(":",""), "https://www.eporner.com" + tr.get(i).select("td").select("a").attr("href"));
-            System.out.println("https://www.eporner.com/" + tr.get(i).select("td").select("a").attr("href"));
-        }
             //qualities.put(tr.get(i).select("td").select("span").text().replace(":",""), "https://s13-n5-nl-cdn.eporner.com/142123122312/5c42773c13880" + tr.get(i).select("td").select("a").attr("href"));
         
         MediaDefinition media = new MediaDefinition();
