@@ -19,6 +19,7 @@ import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -183,7 +184,8 @@ public class Dailymotion extends GenericExtractor{
     
     public String getId(String link) {
         Pattern p = Pattern.compile("https://(www.)?dailymotion.com/video/([\\S]+)");
-        return p.matcher(link).group(2);
+        Matcher m = p.matcher(link);
+        return m.find() ? m.group(2) : "";
     }
 
     @Override public String getId() {

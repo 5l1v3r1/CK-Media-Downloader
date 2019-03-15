@@ -21,6 +21,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 import java.util.Vector;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -218,7 +219,8 @@ public class Tube8 extends GenericQueryExtractor{
     
     public String getId(String link) {
         Pattern p = Pattern.compile("https://(www.)?tube8.com/[\\S]+/[\\S]+/([\\d]+)/");
-        return p.matcher(link).group(2);
+        Matcher m = p.matcher(link);
+        return m.find() ? m.group(2) : "";
     }
 
     @Override public String getId() {

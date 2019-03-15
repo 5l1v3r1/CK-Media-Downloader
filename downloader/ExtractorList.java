@@ -121,6 +121,10 @@ public class ExtractorList {
     }
     
     public static boolean similar(String s, String s2) {
+        if ((!s.startsWith("https://")) && (!s.startsWith("http://"))) s = "https://" + s;
+        if (s.startsWith("http://")) s = s.replace("http://", "https://"); //so it doesnt matter if link is http / https
+        if ((!s2.startsWith("https://")) && (!s2.startsWith("http://"))) s2 = "https://" + s2;
+        if (s2.startsWith("http://")) s2 = s2.replace("http://", "https://"); //so it doesnt matter if link is http / https
         if(Site.getUrlSite(s) == Site.getUrlSite(s2))
             switch(Site.getUrlSite(s)) {
                 case spankbang: return new Spankbang().getId(s).equals(new Spankbang().getId(s2));

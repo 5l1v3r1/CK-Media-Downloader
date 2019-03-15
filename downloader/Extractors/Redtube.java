@@ -21,6 +21,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 import java.util.Vector;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -208,7 +209,8 @@ public class Redtube extends GenericQueryExtractor{
     
     public String getId(String link) {
         Pattern p = Pattern.compile("https://(www.)?redtube.com/([\\S]+)");
-        return p.matcher(link).group(2);
+        Matcher m = p.matcher(link);
+        return m.find() ? m.group(2) : "";
     }
 
     @Override public String getId() {

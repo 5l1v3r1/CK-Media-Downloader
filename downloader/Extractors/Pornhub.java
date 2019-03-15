@@ -24,6 +24,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 import java.util.Vector;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
@@ -576,7 +577,8 @@ public class Pornhub extends GenericQueryExtractor implements Playlist{
         if (link.matches("https://(www.)?pornhub.com/view_video.php[?]viewkey=[\\S]*"))
             p = Pattern.compile("https://(www.)?pornhub.com/view_video.php[?]viewkey=(?<id>[\\S]*)");
         else p = Pattern.compile("https://(www.)?pornhub.com/(photo|album|gif|playlist)/(?<id>[\\S]*)");
-        return p.matcher(link).group("id");
+        Matcher m = p.matcher(link);
+        return m.find() ? m.group("id") : "";
     }
 
     @Override public String getId() {

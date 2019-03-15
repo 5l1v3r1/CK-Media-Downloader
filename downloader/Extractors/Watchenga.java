@@ -15,6 +15,7 @@ import java.io.IOException;
 import org.jsoup.UncheckedIOException;
 import java.net.SocketTimeoutException;
 import java.util.Map;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -87,7 +88,8 @@ public class Watchenga extends GenericExtractor{
     
     public String getId(String link) {
         Pattern p = Pattern.compile("https://(www.)?watcheng[a]?.tv/en/show/(?<id>[\\S]+)/(season-[\\d]+/episode-[\\d]+/)?");
-        return p.matcher(link).group("id");
+        Matcher m = p.matcher(link);
+        return m.find() ? m.group("id") : "";
     }
 
     @Override public String getId() {

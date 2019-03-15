@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.Vector;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -287,7 +288,8 @@ public class Xvideos extends GenericQueryExtractor{
         if(link.matches("https://(www.)?xnxx.com/video-[\\S]+/[\\S]+"))
             p = Pattern.compile("https://(www.)?xnxx.com/video-([\\S]+)/[\\S]+");
         else p = Pattern.compile("https://(www.)?xvideos.com/video([\\S]+)/[\\S]+");
-        return p.matcher(link).group(2);
+        Matcher m = p.matcher(link);
+        return m.find() ? m.group(2) : "";
     }
 
     @Override public String getId() {

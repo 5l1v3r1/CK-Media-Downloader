@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.Map;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.jsoup.UncheckedIOException;
 import org.jsoup.nodes.Document;
@@ -88,7 +89,8 @@ public class Myfreeblack extends GenericExtractor {
     
     public String getId(String link) {
         Pattern p = Pattern.compile("https://(www.)?myfreeblack.com/porn/([\\d]+)(/[\\S]+)?");
-        return p.matcher(link).group(2);
+        Matcher m = p.matcher(link);
+        return m.find() ? m.group(2) : "";
     }
 
     @Override public String getId() {

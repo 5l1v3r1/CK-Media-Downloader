@@ -17,6 +17,7 @@ import org.jsoup.UncheckedIOException;
 import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.json.simple.JSONArray;
@@ -195,7 +196,8 @@ public class Imgur extends GenericExtractor {
         if (link.matches("https://(www.)?imgur.com/gallery/[\\S]+"))
             p = Pattern.compile("https://(www.)?imgur.com/gallery/([\\S]+)");
         else p = Pattern.compile("https://(www.)?imgur.com/([\\S])+");
-        return p.matcher(link).group(2);
+        Matcher m = p.matcher(link);
+        return m.find() ? m.group(2) : "";
     }
 
     @Override public String getId() {

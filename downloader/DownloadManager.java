@@ -77,15 +77,10 @@ public class DownloadManager {
     }
     
     private boolean isDup(DownloaderItem d) {
-        try {
-            for(int i = 0; i < downloadItems.size(); i++)
-                if (ExtractorList.similar(downloadItems.get(i).getLink(),d.getLink()))
-                    return true;
-            return false;
-        } catch (IllegalStateException e) {
-            //fix for now
-            return false;
-        }
+        for(int i = 0; i < downloadItems.size(); i++)
+            if (ExtractorList.similar(downloadItems.get(i).getLink(),d.getLink()))
+                return true;
+        return false;
     }
     
     private void display(DownloaderItem d) {

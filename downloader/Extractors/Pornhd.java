@@ -17,6 +17,7 @@ import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.jsoup.nodes.Document;
@@ -134,7 +135,8 @@ public class Pornhd extends GenericExtractor{
     
     public String getId(String link) {
         Pattern p = Pattern.compile("https://(www.)?pornhd.com/videos/([\\d]+)/[\\S]+");
-        return p.matcher(link).group(2);
+        Matcher m = p.matcher(link);
+        return m.find() ? m.group(2) : "";
     }
 
     @Override public String getId() {

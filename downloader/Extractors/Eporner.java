@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.jsoup.Jsoup;
 import org.jsoup.UncheckedIOException;
@@ -89,7 +90,8 @@ public class Eporner extends GenericExtractor{
     
     public String getId(String link) {
         Pattern p = Pattern.compile("https://(www.)?eporner.com/hd-porn/([\\S]+)/[\\S]+/");
-        return p.matcher(link).group(2);
+        Matcher m = p.matcher(link);
+        return m.find() ? m.group(2) : "";
     }
 
     @Override public String getId() {
