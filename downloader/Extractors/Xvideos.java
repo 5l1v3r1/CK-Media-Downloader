@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.Vector;
+import java.util.regex.Pattern;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -279,5 +280,13 @@ public class Xvideos extends GenericQueryExtractor{
 
     @Override public long getSize() throws IOException, GenericDownloaderException {
        return getSize(url);
+    }
+    
+    @Override public String getId() {
+        Pattern p;
+        if(url.matches("https://(www.)?xnxx.com/video-[\\S]+/[\\S]+"))
+            p = Pattern.compile("https://(www.)?xnxx.com/video-([\\S]+)/[\\S]+");
+        else p = Pattern.compile("https://(www.)?xvideos.com/video([\\S]+)/[\\S]+");
+        return p.matcher(url).group(2);
     }
 }

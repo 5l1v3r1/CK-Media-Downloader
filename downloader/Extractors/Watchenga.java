@@ -9,13 +9,13 @@ import downloader.CommonUtils;
 import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
-import static downloader.Extractors.GenericExtractor.getPage;
 import downloaderProject.MainApp;
 import java.io.File;
 import java.io.IOException;
 import org.jsoup.UncheckedIOException;
 import java.net.SocketTimeoutException;
 import java.util.Map;
+import java.util.regex.Pattern;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
@@ -79,5 +79,10 @@ public class Watchenga extends GenericExtractor{
         Document page = getPage(url,false,true);
         Map<String,String> q = getDefaultVideo(page);
         return CommonUtils.getContentSize(q.get(q.keySet().iterator().next()));
+    }
+    
+    @Override public String getId() {
+        Pattern p = Pattern.compile("https://(www.)?watcheng[a]?.tv/en/show/(?<id>[\\S]+)/(season-[\\d]+/episode-[\\d]+/)?");
+        return p.matcher(url).group("id");
     }
 }

@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 import org.jsoup.UncheckedIOException;
 import org.jsoup.nodes.Document;
 
@@ -91,4 +92,8 @@ public class Gotporn extends GenericExtractor{
         return CommonUtils.getContentSize(q.get(q.keySet().iterator().next()));
     }
     
+    @Override public String getId() {
+        Pattern p = Pattern.compile("https://(www.)?gotporn.com/[\\S]+/video-([\\d]+)");
+        return p.matcher(url).group(2);
+    }    
 }

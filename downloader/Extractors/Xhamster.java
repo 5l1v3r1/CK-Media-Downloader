@@ -21,6 +21,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 import java.util.Vector;
+import java.util.regex.Pattern;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -222,5 +223,17 @@ public class Xhamster extends GenericQueryExtractor{
             video = quality.get((String)quality.keySet().toArray()[0]);
         
         return CommonUtils.getContentSize(video);
+    }
+    
+    @Override public String getId() {
+        Pattern p;
+        if (url.matches("https://(((www)|m).)?xhamster.com/movies/[\\d]+/.html"))
+            p = Pattern.compile("https://(((www)|m).)?xhamster.com/movies/(?<id>[\\d]+)/.html");
+        else if(url.matches("https://([\\S]+.)?m.xhamster.com/videos/[\\S]+")) 
+            p = Pattern.compile("https://([\\S]+.)?m.xhamster.com/videos/(?<id>[\\S]+)");
+        else if (url.matches("https://([\\S]+.)?xhamster.com/videos/[\\S]+"))
+            p = Pattern.compile("https://([\\S]+.)?xhamster.com/videos/(?<id>[\\S]+)");
+        else p = Pattern.compile("https://((www|m).)?xhamster.com/videos/(?<id>[\\S]+)");
+        return p.matcher(url).group("id");
     }
 }

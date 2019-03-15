@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -102,4 +103,8 @@ public class Vidoza extends GenericExtractor {
         return CommonUtils.getContentSize(m.get(m.keySet().iterator().next()));
     }
     
+    @Override public String getId() {
+        Pattern p = Pattern.compile("https://(www.)?vidoza.net/([\\S]+).html");
+        return p.matcher(url).group(2);
+    }
 }

@@ -13,6 +13,7 @@ import downloaderProject.MainApp;
 import java.io.File;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
+import java.util.regex.Pattern;
 import org.jsoup.UncheckedIOException;
 import org.jsoup.nodes.Document;
 
@@ -86,4 +87,8 @@ public class Pornheed extends GenericExtractor{
         return CommonUtils.getContentSize(getVideo().iterator().next().get("single"));
     }
     
+    @Override public String getId() {
+        Pattern p = Pattern.compile("https://(www.)?pornheed.com/video/([\\d]+)/[\\S]+");
+        return p.matcher(url).group(2);
+    }
 }

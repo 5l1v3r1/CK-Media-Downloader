@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 import org.jsoup.Jsoup;
 import org.jsoup.UncheckedIOException;
 import org.jsoup.nodes.Document;
@@ -43,13 +44,11 @@ public class Eporner extends GenericExtractor{
         super(url,thumb,videoName); 
     }
     
-    @Override
-    protected void setExtractorName() {
+    @Override protected void setExtractorName() {
         extractorName = "Eporner";
     }
 
-    @Override
-    public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
+    @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
         Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
         Elements tr = page.getElementById("hd-porn-dload").select("table").select("tr");
         Map<String,String> qualities = new HashMap<>();
@@ -76,19 +75,20 @@ public class Eporner extends GenericExtractor{
         return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,SKIP));
     }
 
-    @Override
-    public video similar() throws IOException {
+    @Override public video similar() throws IOException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override
-    public video search(String str) throws IOException {
+    @Override public video search(String str) throws IOException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override
-    public long getSize() throws IOException, GenericDownloaderException {
+    @Override public long getSize() throws IOException, GenericDownloaderException {
         return CommonUtils.getContentSize(getVideo().iterator().next().values().iterator().next());
     }
     
+    @Override public String getId() {
+        Pattern p = Pattern.compile("https://(www.)?eporner.com/hd-porn/([\\S]+)/[\\S]+/");
+        return p.matcher(url).group(2);
+    }
 }

@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.Map;
+import java.util.regex.Pattern;
 import org.jsoup.UncheckedIOException;
 import org.jsoup.nodes.Document;
 
@@ -81,4 +82,8 @@ public class Vodlocker extends GenericExtractor{
         return CommonUtils.getContentSize(q.get(q.keySet().iterator().next()));
     }
     
+    @Override public String getId() {
+        Pattern p = Pattern.compile("https://(www.)?vodlocker.nl/([\\S]+).html");
+        return p.matcher(url).group(2);
+    }
 }

@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.Map;
+import java.util.regex.Pattern;
 import org.jsoup.UncheckedIOException;
 import org.jsoup.nodes.Document;
 
@@ -84,4 +85,9 @@ public class Myfreeblack extends GenericExtractor {
     @Override public long getSize() throws IOException, GenericDownloaderException {
         return getSize(url);
     }  
+    
+    @Override public String getId() {
+        Pattern p = Pattern.compile("https://(www.)?myfreeblack.com/porn/([\\d]+)(/[\\S]+)?");
+        return p.matcher(url).group(2);
+    }
 }

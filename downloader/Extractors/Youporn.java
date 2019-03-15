@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Vector;
+import java.util.regex.Pattern;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -173,5 +174,10 @@ public class Youporn extends GenericQueryExtractor{
         Document page = getPage(url,false,true);
         Map<String,String> qualities = getQualities(page.toString().substring(page.toString().indexOf("mediaDefinition = [{")+18));
         return CommonUtils.getContentSize(qualities.values().iterator().next());
+    }
+    
+    @Override public String getId() {
+        Pattern p = Pattern.compile("https://(www.)?youporn.com/watch/([\\d]+)/[\\S]+/");
+        return p.matcher(url).group(2);
     }
 }

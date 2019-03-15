@@ -18,6 +18,7 @@ import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.regex.Pattern;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -165,5 +166,13 @@ public class Vimeo extends GenericExtractor{
         
 	String video = qualities.get(String.valueOf(max)+"p");
         return CommonUtils.getContentSize(video);
+    }
+    
+    @Override public String getId() {
+        Pattern p;
+        if (url.matches("https://(www.)?vimeo.com/[\\d]+"))
+            p = Pattern.compile("https://(www.)?vimeo.com/([\\d]+)");
+        else p = Pattern.compile("https://player.vimeo.com/video/([\\d]+)");
+        return p.matcher(url).group(2);
     }
 }

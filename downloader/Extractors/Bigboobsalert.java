@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 import org.jsoup.UncheckedIOException;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -99,5 +100,10 @@ public class Bigboobsalert extends GenericExtractor{
             total += CommonUtils.getContentSize("http://www.bigboobsalert.com/" + link.attr("href"));
         } 
         return total;
+    }
+    
+    @Override public String getId() {
+        Pattern p = Pattern.compile("https://(www.)?bigboobsalert.com/([\\S]+)[.]php");
+        return p.matcher(url).group(2);
     }
 }

@@ -17,6 +17,7 @@ import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.regex.Pattern;
 import org.jsoup.Jsoup;
 
 import org.jsoup.nodes.Document;
@@ -149,5 +150,10 @@ public class Vporn extends GenericExtractor{
 
     @Override public long getSize() throws IOException, GenericDownloaderException {
         return getSize(url);
+    }
+    
+    @Override public String getId() {
+        Pattern p = Pattern.compile("https://(www.)?vporn.com/[\\S]+/[\\S]+/([\\d]+)/");
+        return p.matcher(url).group(2);
     }
 }

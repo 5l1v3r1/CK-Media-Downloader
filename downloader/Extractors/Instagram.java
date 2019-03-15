@@ -18,6 +18,7 @@ import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
+import java.util.regex.Pattern;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
@@ -224,5 +225,13 @@ public class Instagram extends GenericExtractor{
         }
         if (videoLink == null) return -1;
         else return CommonUtils.getContentSize(videoLink);
+    }
+    
+    @Override public String getId() {
+        Pattern p;
+        if (url.matches("https://(www.)?instagram.com/p/[\\S]+(/[?]taken-by=[\\S]*)?"))
+            p = Pattern.compile("https://(www.)?instagram.com/p/([\\S]+)(/[?]taken-by=[\\S]*)?");
+        else p = Pattern.compile("https://(www.)?instagram.com/([\\S]+)/");
+        return p.matcher(url).group(2);
     }
 }

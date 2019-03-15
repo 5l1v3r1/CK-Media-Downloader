@@ -209,4 +209,12 @@ public class Yourporn extends GenericExtractor{
     @Override public long getSize() throws IOException, GenericDownloaderException {
        return getSize(url);
     }
+    
+    @Override public String getId() {
+        Pattern p;
+        if (url.matches("http://pics.vc/watch[?]g=[\\S]+"))
+            p = Pattern.compile("http://pics.vc/watch[?]g=(?<id>[\\S]+)");
+        else p = Pattern.compile("https://(www.)?yourporn.sexy/post/(?<id>[\\S]+).html([?][\\S]*)?");
+        return p.matcher(url).group("id");
+    }
 }

@@ -24,6 +24,7 @@ import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 import org.jsoup.Connection.Response;
 import org.jsoup.Jsoup;
 
@@ -282,5 +283,10 @@ public class Spankbang extends GenericQueryExtractor implements Playlist{
 
     @Override public long getSize() throws IOException, GenericDownloaderException {
         return getSize(url);
+    }
+    
+    @Override public String getId() {
+        Pattern p = Pattern.compile("https://(((www)|([mt])).)?spankbang.com/(?<id>[\\S]+)/(video|playlist)/[\\S]+");
+        return p.matcher(url).group("id");
     }
 }

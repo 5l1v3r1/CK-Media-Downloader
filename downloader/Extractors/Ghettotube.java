@@ -18,6 +18,7 @@ import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.regex.Pattern;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -151,5 +152,10 @@ public class Ghettotube extends GenericExtractor{
         Elements scripts = page.select("div.play").select("script");
         String video = CommonUtils.getLink(scripts.get(scripts.size()-1).toString(), scripts.get(scripts.size()-1).toString().indexOf("file:")+7, '\"');
         return CommonUtils.getContentSize(video);
+    }
+    
+    @Override public String getId() {
+        Pattern p = Pattern.compile("https://(www.)?ghettotube.com/video/([\\S]+).html");
+        return p.matcher(url).group(2);
     }
 }

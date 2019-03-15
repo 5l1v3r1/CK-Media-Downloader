@@ -18,6 +18,7 @@ import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
+import java.util.regex.Pattern;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -209,5 +210,10 @@ public class Spankwire extends GenericQueryExtractor{
     
     @Override public long getSize() throws IOException, GenericDownloaderException {
         return getSize(url);
+    }
+    
+    @Override public String getId() {
+        Pattern p = Pattern.compile("https://(www.)?spankwire.com/[\\S]+/video([\\d]+)/([\\d]+)?");
+        return p.matcher(url).group(2);
     }
 }

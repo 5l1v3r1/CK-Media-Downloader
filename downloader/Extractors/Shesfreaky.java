@@ -14,14 +14,13 @@ import downloader.Exceptions.PageNotFoundException;
 import downloader.Exceptions.PrivateVideoException;
 import downloaderProject.MainApp;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import org.jsoup.UncheckedIOException;
 import java.net.SocketTimeoutException;
 import java.util.Map;
 import java.util.Random;
 import java.util.Vector;
-import org.jsoup.HttpStatusException;
+import java.util.regex.Pattern;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -207,5 +206,10 @@ public class Shesfreaky extends GenericQueryExtractor{
 
     @Override  public long getSize() throws IOException, GenericDownloaderException {
         return getSize(url);
+    }
+    
+    @Override public String getId() {
+        Pattern p = Pattern.compile("https://(www.)?shesfreaky.com/video/([\\S]+).html");
+        return p.matcher(url).group(2);
     }
 }

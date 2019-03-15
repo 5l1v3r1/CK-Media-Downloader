@@ -17,6 +17,7 @@ import org.jsoup.UncheckedIOException;
 import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -187,5 +188,13 @@ public class Imgur extends GenericExtractor {
 
     @Override public video search(String str) throws IOException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+    @Override public String getId() {
+        Pattern p;
+        if (url.matches("https://(www.)?imgur.com/gallery/[\\S]+"))
+            p = Pattern.compile("https://(www.)?imgur.com/gallery/([\\S]+)");
+        else p = Pattern.compile("https://(www.)?imgur.com/([\\S])+");
+        return p.matcher(url).group(2);
     }
 }

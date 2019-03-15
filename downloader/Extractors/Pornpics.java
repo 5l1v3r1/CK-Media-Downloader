@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 import org.jsoup.UncheckedIOException;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -87,5 +88,10 @@ public class Pornpics extends GenericExtractor{
         for(Element item :a)
             total += CommonUtils.getContentSize(item.attr("href"));
         return total;
+    }
+    
+    @Override public String getId() {
+        Pattern p = Pattern.compile("https://(www.)?pornpics.com/galleries/([\\S]+)/");
+        return p.matcher(url).group(2);
     }
 }

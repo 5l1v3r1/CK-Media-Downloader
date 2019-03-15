@@ -21,6 +21,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 import java.util.Vector;
+import java.util.regex.Pattern;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -203,5 +204,10 @@ public class Redtube extends GenericQueryExtractor{
 
     @Override public long getSize() throws IOException, GenericDownloaderException {
         return getSize(url);
+    }
+    
+    @Override public String getId() {
+        Pattern p = Pattern.compile("https://(www.)?redtube.com/([\\S]+)");
+        return p.matcher(url).group(2);
     }
 }

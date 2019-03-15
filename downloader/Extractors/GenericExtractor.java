@@ -190,8 +190,6 @@ public abstract class GenericExtractor {
         return q;
     }
     
-    public abstract MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException;
-    
     public String getVideoName() {
         return this.videoName;
     }
@@ -212,9 +210,12 @@ public abstract class GenericExtractor {
         cookieJar.clear();
     }
     
+    public abstract MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException;
     public abstract video similar() throws IOException, GenericDownloaderException; //get a video from the related items list
     public abstract video search(String str) throws IOException, GenericDownloaderException; //search (similar to query except no img preview and only 1 result) 
     public abstract long getSize() throws IOException, GenericDownloaderException;
+    public abstract String getId();
+    
     
     protected static String configureUrl(String link) {
         if (!link.matches("http(s)?://[\\S]+")) return "https://" + link;
