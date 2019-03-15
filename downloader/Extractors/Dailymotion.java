@@ -182,7 +182,7 @@ public class Dailymotion extends GenericExtractor{
         }
     }
     
-    public String getId(String link) {
+    @Override public String getId(String link) {
         Pattern p = Pattern.compile("https://(www.)?dailymotion.com/video/([\\S]+)");
         Matcher m = p.matcher(link);
         return m.find() ? m.group(2) : "";

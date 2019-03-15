@@ -132,7 +132,7 @@ public class Ruleporn extends GenericQueryExtractor{
         video v = null;
         Document page = getPage(url,false);
         Elements li = page.select("div.row").select("div.item-col.col");
-        Random randomNum = new Random(); int count = 0; boolean got = false; if (li.size() == 0) got = true;
+        Random randomNum = new Random(); int count = 0; boolean got = false; if (li.isEmpty()) got = true;
         while(!got) {
         	if (count > li.size()) break;
         	int i = randomNum.nextInt(li.size()); count++;
@@ -181,7 +181,7 @@ public class Ruleporn extends GenericQueryExtractor{
         return getSize(url);
     }
     
-    public String getId(String link) {
+    @Override public String getId(String link) {
         Pattern p = Pattern.compile("https://(www.)?ruleporn.com/([\\S]+)/");
         Matcher m = p.matcher(link);
         return m.find() ? m.group(2) : "";

@@ -91,17 +91,19 @@ public class Thumbzilla extends GenericQueryExtractor{
         
 	Elements searchResults = page.select("a.js-thumb");
 	for(int i = 0; i < searchResults.size(); i++)  {
-            if (!CommonUtils.testPage("https://www.thumbzilla.com"+searchResults.get(i).attr("href"))) continue; //test to avoid error 404
-            try {verify(getPage("https://www.thumbzilla.com"+searchResults.get(i).attr("href"),false,true));} catch (GenericDownloaderException e) {continue;}
-            thequery.addLink("https://www.thumbzilla.com"+searchResults.get(i).attr("href"));
+            String link = "https://www.thumbzilla.com"+searchResults.get(i).attr("href");
+            if (!link.matches("https://(www.)?thumbzilla.com/video/([\\S]+)/[\\S]+")) continue;
+            if (!CommonUtils.testPage(link)) continue; //test to avoid error 404
+            try {verify(getPage(link,false,true));} catch (GenericDownloaderException e) {continue;}
+            thequery.addLink(link);
             String thumbLink = searchResults.get(i).select("img").attr("data-src");
             if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,SKIP))) //if file not already in cache download it
                 if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,SKIP),MainApp.imageCache) != -2)
                     throw new IOException("Failed to completely download page");
             thequery.addThumbnail(new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)));
-            thequery.addPreview(parse("https://www.thumbzilla.com"+searchResults.get(i).attr("href")));
+            thequery.addPreview(parse(link));
             thequery.addName(Jsoup.parse(searchResults.get(i).select("span.title").toString()).body().text());
-            long size; try {size = getSize("https://www.thumbzilla.com"+searchResults.get(i).attr("href")); } catch (GenericDownloaderException | IOException e) { size = -1;}
+            long size; try {size = getSize(link); } catch (GenericDownloaderException | IOException e) { size = -1;}
             thequery.addSize(size);
 	}
         return thequery;
@@ -157,6 +159,7 @@ public class Thumbzilla extends GenericQueryExtractor{
         	if (count > li.size()) break;
         	int i = randomNum.nextInt(li.size()); count++;
         	String link = "https://www.thumbzilla.com" + li.get(i).select("a").attr("href");
+                if (!link.matches("https://(www.)?thumbzilla.com/video/([\\S]+)/[\\S]+")) continue;
                 String title = li.get(i).select("span.info").select("span.title").text();
                 try {v = new video(link,title,downloadThumb(link),getSize(link)); } catch(Exception e) {continue;}
                 break;
@@ -173,14 +176,15 @@ public class Thumbzilla extends GenericQueryExtractor{
         
 	Elements searchResults = page.select("a.js-thumb");
 	for(int i = 0; i < searchResults.size(); i++)  {
-            if (!CommonUtils.testPage("https://www.thumbzilla.com"+searchResults.get(i).attr("href"))) continue; //test to avoid error 404
+            String link = "https://www.thumbzilla.com"+searchResults.get(i).attr("href");
+            if (!link.matches("https://(www.)?thumbzilla.com/video/([\\S]+)/[\\S]+")) continue;
+            if (!CommonUtils.testPage(link)) continue; //test to avoid error 404
             try { verify(getPage("https://www.thumbzilla.com"+searchResults.get(i).attr("href"), false, true)); } catch (GenericDownloaderException e) {continue;}
             String thumbLink = searchResults.get(i).select("img").attr("data-src");
             if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,SKIP))) //if file not already in cache download it
                 if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,SKIP),MainApp.imageCache) != -2)
                     throw new IOException("Failed to completely download page");
-            String link = "https://www.thumbzilla.com"+searchResults.get(i).attr("href");
-            try { v = new video("https://www.thumbzilla.com"+searchResults.get(i).attr("href"),Jsoup.parse(searchResults.get(i).select("span.title").toString()).body().text(),new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)),getSize(link)); } catch (GenericDownloaderException | IOException e) {}
+            try { v = new video(link,Jsoup.parse(searchResults.get(i).select("span.title").toString()).body().text(),new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)),getSize(link)); } catch (GenericDownloaderException | IOException e) {}
             break; //if u made it this far u already have a vaild video
 	}
         return v;

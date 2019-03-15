@@ -152,7 +152,7 @@ public class Justporno extends GenericExtractor{
         return getSize(url);
     }
     
-    public String getId(String link) {
+    @Override public String getId(String link) {
         Pattern p = Pattern.compile("https://(xxx.)?justporno.(tv|es)?/[\\S]+/([\\d]+)/[\\S]+");
         Matcher m = p.matcher(link);
         return m.find() ? m.group(2) : "";

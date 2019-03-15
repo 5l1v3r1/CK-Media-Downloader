@@ -154,7 +154,7 @@ public class Porn extends GenericExtractor{
         return getSize(url);
     }
     
-    public String getId(String link) {
+    @Override public String getId(String link) {
         Pattern p = Pattern.compile("https://(www.)?pornpics.com/galleries/([\\S]+)/");
         Matcher m = p.matcher(link);
         return m.find() ? m.group(2) : "";

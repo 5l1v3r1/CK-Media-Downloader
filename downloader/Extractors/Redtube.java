@@ -109,7 +109,7 @@ public class Redtube extends GenericQueryExtractor{
     }
     
     @Override protected Vector<File> parse(String url) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
-        Vector<File> thumbs = new Vector<File>();
+        Vector<File> thumbs = new Vector<>();
         Document page = getPage(url,false);
         
 	int thumbIndex = page.toString().indexOf("thumbs:");
@@ -207,7 +207,7 @@ public class Redtube extends GenericQueryExtractor{
         return getSize(url);
     }
     
-    public String getId(String link) {
+    @Override public String getId(String link) {
         Pattern p = Pattern.compile("https://(www.)?redtube.com/([\\S]+)");
         Matcher m = p.matcher(link);
         return m.find() ? m.group(2) : "";

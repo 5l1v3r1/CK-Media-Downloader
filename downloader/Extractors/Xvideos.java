@@ -90,25 +90,27 @@ public class Xvideos extends GenericQueryExtractor{
         
 	Elements searchResults = page.select("div.mozaique").select("div.thumb-block");
 	for(int i = 0; i < searchResults.size(); i++)  {
-            //if has /models/ it is link to model page
+            /*//if has /models/ it is link to model page
             if (searchResults.get(i).select("div.thumb").select("a").attr("href").contains("/models/")) continue;
             if (searchResults.get(i).select("div.thumb").select("a").attr("href").contains("/pornstars/")) continue;
             //if  has /channels/ it is a link to channel page
             if (searchResults.get(i).select("div.thumb").select("a").attr("href").contains("/channels/")) continue;
             if (searchResults.get(i).select("div.thumb").select("a").attr("href").contains("/verified/videos")) continue;
-            if (searchResults.get(i).select("div.thumb").select("a").attr("href").contains("/pornstar-channels/")) continue;
-            if (!CommonUtils.testPage("https://xvideos.com"+searchResults.get(i).select("div.thumb").select("a").attr("href"))) continue; //test to avoid error 404
+            if (searchResults.get(i).select("div.thumb").select("a").attr("href").contains("/pornstar-channels/")) continue;*/
+            String link = "https://xvideos.com"+searchResults.get(i).select("div.thumb").select("a").attr("href");;
+            if (!link.matches("https://(www.)?xnxx.com/video-[\\S]+/[\\S]+") || !link.matches("https://(www.)?xvideos.com/video([\\S]+)/[\\S]+")) continue;
+            if (!CommonUtils.testPage(link)) continue; //test to avoid error 404
             try {verify(page);} catch (GenericDownloaderException e) { continue;}
             String thumbLink = searchResults.get(i).select("div.thumb").select("a").select("img").attr("data-src");
             if (thumbLink.contains("THUMBNUM")) continue;
-            thequery.addLink("https://xvideos.com"+searchResults.get(i).select("div.thumb").select("a").attr("href"));
+            thequery.addLink(link);
             if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,skip))) //if file not already in cache download it
                 if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,skip),MainApp.imageCache) != -2)
                     throw new IOException("Error downloading file");
             thequery.addThumbnail(new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,skip)));
             thequery.addPreview(parse("https://xvideos.com"+searchResults.get(i).select("div.thumb").select("a").attr("href")));
             thequery.addName(downloadVideoName("https://xvideos.com"+searchResults.get(i).select("div.thumb").select("a").attr("href")));
-            long size; try { size = getSize("https://xvideos.com"+searchResults.get(i).select("div.thumb").select("a").attr("href")); } catch (GenericDownloaderException | IOException e) {size = -1;}
+            long size; try { size = getSize(link); } catch (GenericDownloaderException | IOException e) {size = -1;}
             thequery.addSize(size);
 	}
         return thequery;
@@ -221,6 +223,7 @@ public class Xvideos extends GenericQueryExtractor{
                 JSONObject item = (JSONObject)j.get(i);
                 String thumb = (String)item.get("i");
                 String link = "https://xvideos.com" + (String)item.get("u");
+                if (!link.matches("https://(www.)?xnxx.com/video-[\\S]+/[\\S]+") || !link.matches("https://(www.)?xvideos.com/video([\\S]+)/[\\S]+")) continue;
                 String title = CommonUtils.getThumbName(link).replaceAll("_", " ");
                 if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,skip))) //if file not already in cache download it
                     if (CommonUtils.saveFile(thumb, CommonUtils.getThumbName(thumb,skip),MainApp.imageCache) != -2)
@@ -243,13 +246,15 @@ public class Xvideos extends GenericQueryExtractor{
         
 	Elements searchResults = page.select("div.mozaique").select("div.thumb-block");
 	for(int i = 0; i < searchResults.size(); i++)  {
-            //if has /models/ it is link to model page
+            /*//if has /models/ it is link to model page
             if (searchResults.get(i).select("div.thumb").select("a").attr("href").contains("/models/")) continue;
             //if  has /channels/ it is a link to channel page
             if (searchResults.get(i).select("div.thumb").select("a").attr("href").contains("/channels/")) continue;
             if (searchResults.get(i).select("div.thumb").select("a").attr("href").contains("/verified/videos")) continue;
-            if (searchResults.get(i).select("div.thumb").select("a").attr("href").contains("/pornstar-channels/")) continue;
-            if (!CommonUtils.testPage("https://xvideos.com"+searchResults.get(i).select("div.thumb").select("a").attr("href"))) continue; //test to avoid error 404
+            if (searchResults.get(i).select("div.thumb").select("a").attr("href").contains("/pornstar-channels/")) continue;*/
+            String link = "https://xvideos.com"+searchResults.get(i).select("div.thumb").select("a").attr("href");
+            if (!link.matches("https://(www.)?xnxx.com/video-[\\S]+/[\\S]+") || !link.matches("https://(www.)?xvideos.com/video([\\S]+)/[\\S]+")) continue;
+            if (!CommonUtils.testPage(link)) continue; //test to avoid error 404
             try {verify(page);} catch (GenericDownloaderException e) { continue;}
             String thumbLink = searchResults.get(i).select("div.thumb").select("a").select("img").attr("data-src");
             if (thumbLink.contains("THUMBNUM")) continue;
@@ -258,7 +263,7 @@ public class Xvideos extends GenericQueryExtractor{
                 if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,skip),MainApp.imageCache) != -2)
                     throw new IOException("Error downloading file");
             try {
-                v = new video("https://xvideos.com"+searchResults.get(i).select("div.thumb").select("a").attr("href"),downloadVideoName("https://xvideos.com"+searchResults.get(i).select("div.thumb").select("a").attr("href")),new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,skip)),getSize("https://xvideos.com"+searchResults.get(i).select("div.thumb").select("a").attr("href")));
+                v = new video(link,downloadVideoName("https://xvideos.com"+searchResults.get(i).select("div.thumb").select("a").attr("href")),new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,skip)),getSize("https://xvideos.com"+searchResults.get(i).select("div.thumb").select("a").attr("href")));
             } catch(Exception e) { v = null; continue;}
             break; //if u made it this far u already have a vaild video
 	}

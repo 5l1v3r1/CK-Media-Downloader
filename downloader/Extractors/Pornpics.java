@@ -49,10 +49,11 @@ public class Pornpics extends GenericExtractor{
         Document page = getPage(url,false,true);
         Elements a = page.select("a.rel-link");
         MediaDefinition media = new MediaDefinition();
-        for(Element item :a) {
+        a.forEach((item) -> {
             Map<String,String> qualities = new HashMap<>(); qualities.put("single",item.attr("href"));
             media.addThread(qualities, CommonUtils.getThumbName(item.attr("href"),SKIP));
-        } return media;
+        });
+        return media;
     }
     
     private static String downloadVideoName(String url) throws IOException , SocketTimeoutException, UncheckedIOException, GenericDownloaderException,Exception{
@@ -91,7 +92,7 @@ public class Pornpics extends GenericExtractor{
         return total;
     }
     
-    public String getId(String link) {
+    @Override public String getId(String link) {
         Pattern p = Pattern.compile("https://(www.)?pornpics.com/galleries/([\\S]+)/");
         Matcher m = p.matcher(link);
         return m.find() ? m.group(2) : "";

@@ -30,7 +30,7 @@ import org.jsoup.select.Elements;
  * @author christopher
  */
 public class Youjizz extends GenericExtractor{
-	private static final int skip = 3;
+	private static final int SKIP = 3;
 	
     public Youjizz() { //this contructor is used for when you jus want to search
         
@@ -82,9 +82,9 @@ public class Youjizz extends GenericExtractor{
         
         String thumb = "https://"+CommonUtils.getLink(page.toString(),page.toString().indexOf("posterImage: '//") + 16, '\'');
         
-        if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,skip))) //if file not already in cache download it
-            CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,skip),MainApp.imageCache);
-        return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,skip));
+        if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
+            CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache);
+        return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,SKIP));
     }
     
     @Override protected void setExtractorName() {
@@ -97,7 +97,7 @@ public class Youjizz extends GenericExtractor{
         video v = null;
         Document page = getPage(url,false);
         Elements li = page.getElementById("related").select("div.video-thumb");
-        Random randomNum = new Random(); int count = 0; boolean got = false; if (li.size() == 0) got = true;
+        Random randomNum = new Random(); int count = 0; boolean got = false; if (li.isEmpty()) got = true;
         while(!got) {
         	if (count > li.size()) break;
         	int i = randomNum.nextInt(li.size()); count++;
@@ -106,10 +106,10 @@ public class Youjizz extends GenericExtractor{
             if (thumb.length() < 1) thumb = li.get(i).select("a").get(0).select("img").attr("data-original");
             thumb = "https:" + thumb;
             String title = li.get(i).select("div.video-title").select("a").text();
-            if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,skip))) //if file not already in cache download it
-            	if (CommonUtils.saveFile(thumb, CommonUtils.getThumbName(thumb,skip),MainApp.imageCache) != -2)
+            if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
+            	if (CommonUtils.saveFile(thumb, CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache) != -2)
             		continue;//throw new IOException("Failed to completely download page");
-                try {v = new video(link,title,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumb,skip)),getSize(link)); } catch (GenericDownloaderException | IOException e) {};
+                try {v = new video(link,title,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumb,SKIP)),getSize(link)); } catch (GenericDownloaderException | IOException e) {}
                 break;
             }
         return v;
@@ -126,13 +126,13 @@ public class Youjizz extends GenericExtractor{
         
         for(int i = 0; i < li.size(); i++) {
         	String thumbLink = "https:"+li.get(i).select("img").get(0).attr("src"); 
-        	if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,skip))) //if file not already in cache download it
-                    if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,skip),MainApp.imageCache) != -2)
+        	if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,SKIP))) //if file not already in cache download it
+                    if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,SKIP),MainApp.imageCache) != -2)
                         throw new IOException("Failed to completely download page");
         	String link = "https://youjizz.com"+li.get(i).select("a").get(0).attr("href");
         	String name = li.get(i).select("div.video-title").select("a").text();
         	if (link.isEmpty() || name.isEmpty()) continue;
-        	try {v = new video(link,name,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,skip)),getSize(link)); } catch(GenericDownloaderException | IOException e) {}
+        	try {v = new video(link,name,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)),getSize(link)); } catch(GenericDownloaderException | IOException e) {}
         	break;
         }
         return v;
@@ -162,7 +162,7 @@ public class Youjizz extends GenericExtractor{
         return getSize(url);
     }
     
-    public String getId(String link) {
+    @Override public String getId(String link) {
         Pattern p = Pattern.compile("https://(www.)?youjizz.com/videos/([\\S]+).html");
         Matcher m = p.matcher(link);
         return m.find() ? m.group(2) : "";

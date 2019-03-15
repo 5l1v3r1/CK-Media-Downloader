@@ -137,7 +137,7 @@ public class Yourporn extends GenericExtractor{
         Document page = getPage(url,false);
         verify(page);
         
-        String thumbLink = null;
+        String thumbLink;
         if (!isAlbum(url))
             try {
                 thumbLink = "https:"+page.getElementById("player_el").attr("poster");
@@ -210,7 +210,7 @@ public class Yourporn extends GenericExtractor{
        return getSize(url);
     }
     
-    public String getId(String link) {
+    @Override public String getId(String link) {
         Pattern p;
         if (link.matches("http://pics.vc/watch[?]g=[\\S]+"))
             p = Pattern.compile("http://pics.vc/watch[?]g=(?<id>[\\S]+)");

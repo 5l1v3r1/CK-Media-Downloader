@@ -53,14 +53,14 @@ public class Xtube extends GenericExtractor{
         String[] pair = CommonUtils.getBracket(src,src.indexOf(from)).split(",");
         
         Map<String, String> qualities = new HashMap<>();
-        for(int i = 0; i < pair.length; i++) {
-            String[] temp = pair[i].split(":\"");
+        for (String p : pair) {
+            String[] temp = p.split(":\"");
             qualities.put(CommonUtils.getPureDigit(temp[0]), CommonUtils.eraseChar(temp[1], '\\').replace("\"","").replace("}",""));
         }
         return qualities;
     }
     
-    public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException{        
+    @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException{        
         Document page = getPage(url,false,true);
 	Map<String,String> quality = getQualities(page.toString());
         
@@ -150,7 +150,7 @@ public class Xtube extends GenericExtractor{
         
 	Map<String,String> quality = getQualities(page.toString());
         
-        String video = null;
+        String video;
         if (quality.containsKey("720"))
             video = quality.get("720");
         else if(quality.containsKey("480"))
@@ -167,7 +167,7 @@ public class Xtube extends GenericExtractor{
         return getSize(url);
     }
     
-    public String getId(String link) {
+    @Override public String getId(String link) {
         Pattern p = Pattern.compile("https://(www.)?xtube.com/video-watch/([\\S]+)");
         Matcher m = p.matcher(link);
         return m.find() ? m.group(2) : "";

@@ -134,7 +134,7 @@ public class Bigtits extends GenericExtractor{
         return CommonUtils.getContentSize(getVideo().iterator().next().get("single"));
     }
     
-    public String getId(String link) {
+    @Override public String getId(String link) {
         Pattern p = Pattern.compile("https://(www.)?bigtits.com/videos/watch/[\\S]+/([\\d]+)");
         Matcher m = p.matcher(link);
         return m.find() ? m.group(2) : "";

@@ -101,7 +101,7 @@ public class Shesfreaky extends GenericQueryExtractor{
         Vector<File> thumbs = new Vector<>();
          page = getPage(url,false);
          
-         Elements thumbLinks = null;
+         Elements thumbLinks;
          try {
             thumbLinks = page.getElementById("vidSeek").select("div.vidSeekThumb");
          } catch (NullPointerException e) { //different config
@@ -134,7 +134,7 @@ public class Shesfreaky extends GenericQueryExtractor{
         verify(page);
         String thumbLink = "https:"+page.select("video").attr("poster");
         if (thumbLink.equals("https:")) {
-            Elements thumbLinks = null;
+            Elements thumbLinks;
             try {
                thumbLinks = page.getElementById("vidSeek").select("div.vidSeekThumb");
             } catch (NullPointerException e) { //different config
@@ -161,7 +161,7 @@ public class Shesfreaky extends GenericQueryExtractor{
         video v = null;
         Document page = getPage(url,false);
         Elements li = page.select("div.relatedSection").get(0).select("div.blockItem.blockItemBox");
-        Random randomNum = new Random(); int count = 0; boolean got = false; if (li.size() == 0) got = true;
+        Random randomNum = new Random(); int count = 0; boolean got = false; if (li.isEmpty()) got = true;
         while(!got) {
             if (count > li.size()) break;
             int i = randomNum.nextInt(li.size()); count++;
@@ -209,7 +209,7 @@ public class Shesfreaky extends GenericQueryExtractor{
         return getSize(url);
     }
     
-    public String getId(String link) {
+    @Override public String getId(String link) {
         Pattern p = Pattern.compile("https://(www.)?shesfreaky.com/video/([\\S]+).html");
         Matcher m = p.matcher(link);
         return m.find() ? m.group(2) : "";

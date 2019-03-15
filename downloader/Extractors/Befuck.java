@@ -110,7 +110,7 @@ public class Befuck extends GenericExtractor{
         return getSize(url);
     }
     
-    public String getId(String link) {
+    @Override public String getId(String link) {
         Pattern p = Pattern.compile("https://(www.)?befuck.com/videos/([\\d]+)/[\\S]+");
         Matcher m = p.matcher(link);
         return m.find() ? m.group(2) : "";

@@ -118,7 +118,7 @@ public class Pornhd extends GenericExtractor{
             i+=3;
 	}
         
-        String video = null;
+        String video;
         if (qualities.containsKey("720p"))
             video = qualities.get("720p");
         else if(qualities.containsKey("480p"))
@@ -133,7 +133,7 @@ public class Pornhd extends GenericExtractor{
         else return CommonUtils.getContentSize(video);
     }
     
-    public String getId(String link) {
+    @Override public String getId(String link) {
         Pattern p = Pattern.compile("https://(www.)?pornhd.com/videos/([\\d]+)/[\\S]+");
         Matcher m = p.matcher(link);
         return m.find() ? m.group(2) : "";

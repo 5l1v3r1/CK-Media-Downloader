@@ -88,7 +88,7 @@ public class Vporn extends GenericExtractor{
         video v = null;
         Document page = getPage(url,false);
         Elements li = page.select("div.thumblist.videos").select("div.video");
-        Random randomNum = new Random(); int count = 0; boolean got = false; if (li.size() == 0) got = true;
+        Random randomNum = new Random(); int count = 0; boolean got = false; if (li.isEmpty()) got = true;
         while(!got) {
         	if (count > li.size()) break;
         	int i = randomNum.nextInt(li.size()); count++;
@@ -153,7 +153,7 @@ public class Vporn extends GenericExtractor{
         return getSize(url);
     }
     
-    public String getId(String link) {
+    @Override public String getId(String link) {
         Pattern p = Pattern.compile("https://(www.)?vporn.com/[\\S]+/[\\S]+/([\\d]+)/");
         Matcher m = p.matcher(link);
         return m.find() ? m.group(2) : "";

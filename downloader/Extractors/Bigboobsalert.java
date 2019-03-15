@@ -103,7 +103,7 @@ public class Bigboobsalert extends GenericExtractor{
         return total;
     }
     
-    public String getId(String link) {
+    @Override public String getId(String link) {
         Pattern p = Pattern.compile("https://(www.)?bigboobsalert.com/([\\S]+)[.]php");
         Matcher m = p.matcher(link);
         return m.find() ? m.group(2) : "";

@@ -232,7 +232,7 @@ public class Instagram extends GenericExtractor{
         else return CommonUtils.getContentSize(videoLink);
     }
     
-    public String getId(String link) {
+    @Override public String getId(String link) {
         Pattern p;
         if (link.matches("https://(www.)?instagram.com/p/[\\S]+(/[?]taken-by=[\\S]*)?"))
             p = Pattern.compile("https://(www.)?instagram.com/p/([\\S]+)(/[?]taken-by=[\\S]*)?");

@@ -396,6 +396,7 @@ public class Pornhub extends GenericQueryExtractor implements Playlist{
             for(int i = 0; i < li.size(); i++) {
                 String link = "http://pornhub.com" + li.get(i).select("div.phimage").select("a.img").attr("href"); try {verify(getPage(link,false));} catch (GenericDownloaderException e) {continue;}
                 //if (!link.startsWith("http://pornhub.com") || !link.startsWith("https://pornhub.com")) link = "http://pornhub.com" + link;
+                if (!link.matches("https?://pornhub.com/view_video.php[?]viewkey=[\\S]+")) continue;
                 String thumb = li.get(i).select("div.phimage").select("a.img").select("img").attr("src");
                 if (thumb.length() < 1) li.get(i).select("div.phimage").select("a.img").select("img").attr("data-thumb_url");
                 String title = li.get(i).select("div.phimage").select("a.img").attr("data-title");
@@ -432,6 +433,7 @@ public class Pornhub extends GenericQueryExtractor implements Playlist{
             for(int i = 0; i < li.size(); i++) {
                 String link = "https://www.pornhub.com" + li.select("div.phimage").select("a.img").attr("href"); try {verify(getPageCookie(link,false));} catch (GenericDownloaderException e) {continue;}
                 //if (!link.startsWith("http://pornhub.com") || !link.startsWith("https://pornhub.com")) link = "http://pornhub.com" + link;
+                if (!link.matches("https?://pornhub.com/view_video.php[?]viewkey=[\\S]+")) continue;
                 String thumb = li.select("div.phimage").select("a.img").select("img").attr("src");
                 if (thumb.length() < 1) li.select("div.phimage").select("a.img").select("img").attr("data-thumb_url");
                 String title = li.select("div.phimage").select("a.img").attr("data-title");
@@ -572,7 +574,7 @@ public class Pornhub extends GenericQueryExtractor implements Playlist{
         }
     }
     
-    public String getId(String link) {
+    @Override public String getId(String link) {
         Pattern p;
         if (link.matches("https://(www.)?pornhub.com/view_video.php[?]viewkey=[\\S]*"))
             p = Pattern.compile("https://(www.)?pornhub.com/view_video.php[?]viewkey=(?<id>[\\S]*)");

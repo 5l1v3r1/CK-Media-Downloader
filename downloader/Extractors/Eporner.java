@@ -88,7 +88,7 @@ public class Eporner extends GenericExtractor{
         return CommonUtils.getContentSize(getVideo().iterator().next().values().iterator().next());
     }
     
-    public String getId(String link) {
+    @Override public String getId(String link) {
         Pattern p = Pattern.compile("https://(www.)?eporner.com/hd-porn/([\\S]+)/[\\S]+/");
         Matcher m = p.matcher(link);
         return m.find() ? m.group(2) : "";

@@ -34,7 +34,7 @@ import org.jsoup.select.Elements;
  * @author christopher
  */
 public class Imgur extends GenericExtractor {
-    private static final int skip = 1;
+    private static final int SKIP = 1;
     
     public Imgur() { //this contructor is used for when you jus want to search
         
@@ -80,9 +80,9 @@ public class Imgur extends GenericExtractor {
 	}
 	if ((thumb == null) || (thumb.length() < 1)) thumb = getMetaImage(page);
 
-        if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,skip))) //if file not already in cache download it
-            CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,skip),MainApp.imageCache);
-        return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,skip));
+        if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
+            CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache);
+        return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,SKIP));
     }
     
     private static String chop(String s) {
@@ -191,7 +191,7 @@ public class Imgur extends GenericExtractor {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
-    public String getId(String link) {
+    @Override public String getId(String link) {
         Pattern p;
         if (link.matches("https://(www.)?imgur.com/gallery/[\\S]+"))
             p = Pattern.compile("https://(www.)?imgur.com/gallery/([\\S]+)");

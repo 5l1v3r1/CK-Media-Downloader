@@ -93,7 +93,7 @@ public class Gotporn extends GenericExtractor{
         return CommonUtils.getContentSize(q.get(q.keySet().iterator().next()));
     }
     
-    public String getId(String link) {
+    @Override public String getId(String link) {
         Pattern p = Pattern.compile("https://(www.)?gotporn.com/[\\S]+/video-([\\d]+)");
         Matcher m = p.matcher(link);
         return m.find() ? m.group(2) : "";

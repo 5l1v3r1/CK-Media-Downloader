@@ -75,7 +75,7 @@ public class Spankwire extends GenericQueryExtractor{
 
     @Override
     protected Vector<File> parse(String url) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
-         Vector<File> thumbs = new Vector<File>();
+         Vector<File> thumbs = new Vector<>();
         
         Document page = getPage(url,false);
         
@@ -133,7 +133,7 @@ public class Spankwire extends GenericQueryExtractor{
     //getVideo thumbnail
     private static File downloadThumb(String url) throws IOException, SocketTimeoutException, UncheckedIOException, Exception {
        Document page = getPage(url,false);
-       String thumb = "";
+       String thumb;
         if(page.toString().contains("playerData.poster")) 
             thumb = "https:" + CommonUtils.getLink(page.toString(),page.toString().indexOf("'//",page.toString().indexOf("playerData.poster"))+1, '\'');
         else
@@ -213,7 +213,7 @@ public class Spankwire extends GenericQueryExtractor{
         return getSize(url);
     }
     
-    public String getId(String link) {
+    @Override public String getId(String link) {
         Pattern p = Pattern.compile("https://(www.)?spankwire.com/[\\S]+/video([\\d]+)/([\\d]+)?");
         Matcher m = p.matcher(link);
         return m.find() ? m.group(2) : "";
