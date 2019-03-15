@@ -106,7 +106,7 @@ public class Redtube extends GenericQueryExtractor{
         return thequery;
     }
     
-    @Override protected Vector<File> parse(String url) throws IOException, SocketTimeoutException, UncheckedIOException {
+    @Override protected Vector<File> parse(String url) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
         Vector<File> thumbs = new Vector<File>();
         Document page = getPage(url,false);
         
@@ -152,7 +152,7 @@ public class Redtube extends GenericQueryExtractor{
         extractorName = "Redtube";
     }
 
-    @Override public video similar() throws IOException {
+    @Override public video similar() throws IOException, GenericDownloaderException {
     	if (url == null) return null;
         
         video v = null;
@@ -170,7 +170,7 @@ public class Redtube extends GenericQueryExtractor{
         return v;
     }
 
-    @Override public video search(String str) throws IOException {
+    @Override public video search(String str) throws IOException, GenericDownloaderException {
         str = str.trim(); 
         str = str.replaceAll(" ", "+");
         String searchUrl = "https://www.redtube.com/?search=/"+str+"/";

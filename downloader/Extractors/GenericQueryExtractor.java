@@ -6,6 +6,7 @@
 package downloader.Extractors;
 
 import downloader.DataStructures.GenericQuery;
+import downloader.Exceptions.GenericDownloaderException;
 import java.io.File;
 import java.io.IOException;
 import org.jsoup.UncheckedIOException;
@@ -28,5 +29,5 @@ public abstract class GenericQueryExtractor extends GenericExtractor{
     
     public abstract GenericQuery query(String search) throws IOException, SocketTimeoutException, UncheckedIOException, Exception;
     
-    protected abstract Vector<File> parse(String url) throws IOException, SocketTimeoutException, UncheckedIOException;
+    protected abstract Vector<File> parse(String url) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException;
 }

@@ -46,7 +46,7 @@ public class Vporn extends GenericExtractor{
     }
 
 
-    @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException{
+    @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException{
         Document page = getPage(url,false,true);
 	Elements rawQualities = page.getElementById("vporn-video-player").select("source");
 	Map<String,String> qualities = new HashMap<>();
@@ -60,14 +60,14 @@ public class Vporn extends GenericExtractor{
         return media;
     }
     
-     private static String downloadVideoName(String url) throws IOException, SocketTimeoutException, UncheckedIOException {
+     private static String downloadVideoName(String url) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
         Document page = getPage(url,false);
         
         return Jsoup.parse(page.select("h1").toString()).body().text();
     } 
 	
     //getVideo thumbnail
-    private static File downloadThumb(String url) throws IOException, SocketTimeoutException, UncheckedIOException {
+    private static File downloadThumb(String url) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
         Document page = getPage(url,false);
         
         String thumb = page.getElementById("vporn-video-player").attr("poster");
@@ -81,7 +81,7 @@ public class Vporn extends GenericExtractor{
         extractorName = "Vporn";
     }
 
-    @Override public video similar() throws IOException {
+    @Override public video similar() throws IOException, GenericDownloaderException {
     	if (url == null) return null;
         video v = null;
         Document page = getPage(url,false);
@@ -102,7 +102,7 @@ public class Vporn extends GenericExtractor{
         return v;
     }
 
-    @Override public video search(String str) throws IOException {
+    @Override public video search(String str) throws IOException, GenericDownloaderException {
     	str = str.trim(); str = str.replaceAll(" ", "+");
     	String searchUrl = "https://www.vporn.com/search?q="+str;
     	

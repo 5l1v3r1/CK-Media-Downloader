@@ -72,7 +72,7 @@ public class Homemoviestube extends GenericExtractor{
         extractorName = "Homemoivestube";
     }
 
-    @Override public video similar() throws IOException {
+    @Override public video similar() throws IOException, GenericDownloaderException {
         if (url == null) return null;
         
         video v = null;
@@ -91,7 +91,7 @@ public class Homemoviestube extends GenericExtractor{
         return v;
     }
 
-    @Override public video search(String str) throws IOException {
+    @Override public video search(String str) throws IOException, GenericDownloaderException {
         String searchUrl = "http://www.homemoviestube.com/search/"+str.replaceAll(" ", "-")+"/page1.html";
 	Document page = getPage(searchUrl,false);
 

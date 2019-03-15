@@ -14,12 +14,14 @@ import downloader.Exceptions.PageNotFoundException;
 import downloader.Exceptions.PrivateVideoException;
 import downloaderProject.MainApp;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import org.jsoup.UncheckedIOException;
 import java.net.SocketTimeoutException;
 import java.util.Map;
 import java.util.Random;
 import java.util.Vector;
+import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -94,7 +96,7 @@ public class Shesfreaky extends GenericQueryExtractor{
          return thequery;
     }
 
-    @Override protected Vector<File> parse(String url) throws IOException, SocketTimeoutException, UncheckedIOException {
+    @Override protected Vector<File> parse(String url) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
         Document page; 
         Vector<File> thumbs = new Vector<>();
          page = getPage(url,false);
@@ -127,7 +129,8 @@ public class Shesfreaky extends GenericQueryExtractor{
 	
     //getVideo thumbnail
     private static File downloadThumb(String url) throws IOException, SocketTimeoutException, UncheckedIOException, Exception {
-        Document page = getPage(url,false);
+        Document page;
+        page = getPage(url,false);
         verify(page);
         String thumbLink = "https:"+page.select("video").attr("poster");
         if (thumbLink.equals("https:")) {
@@ -152,7 +155,7 @@ public class Shesfreaky extends GenericQueryExtractor{
         extractorName = "Shesfreaky";
     }
 
-    @Override public video similar() throws IOException {
+    @Override public video similar() throws IOException, GenericDownloaderException {
     	if (url == null) return null;
         
         video v = null;
@@ -171,7 +174,7 @@ public class Shesfreaky extends GenericQueryExtractor{
         return v;
     }
 
-    @Override public video search(String str) throws IOException {
+    @Override public video search(String str) throws IOException, GenericDownloaderException {
         str = str.trim(); 
         str = str.replaceAll(" ", "-");
         String searchUrl = "https://www.shesfreaky.com/search/videos/"+str+"/page1.html";
@@ -196,7 +199,7 @@ public class Shesfreaky extends GenericQueryExtractor{
          return v;
     }
     
-    private long getSize(String link) throws IOException {
+    private long getSize(String link) throws IOException, GenericDownloaderException {
         Document page = getPage(link,false,true);
         Map<String,String> q = getDefaultVideo(page);
         return CommonUtils.getContentSize(q.get(q.keySet().iterator().next()));

@@ -8,6 +8,7 @@ package downloader.Extractors;
 import downloader.CommonUtils;
 import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
+import downloader.Exceptions.GenericDownloaderException;
 import downloaderProject.MainApp;
 import java.io.File;
 import java.io.IOException;
@@ -42,7 +43,7 @@ public class Cumlouder extends GenericExtractor {
         super(url,thumb,videoName);
     }
 
-    @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException {
+    @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
         Document page = getPage(url,false,true);
         
         MediaDefinition media = new MediaDefinition();
@@ -73,7 +74,7 @@ public class Cumlouder extends GenericExtractor {
         extractorName = "Cumlouder";
     }
 
-    @Override public video similar() throws IOException{
+    @Override public video similar() throws IOException, GenericDownloaderException{
     	if (url == null) return null;
         
         video v = null;
@@ -95,7 +96,7 @@ public class Cumlouder extends GenericExtractor {
         return v;
     }
 
-    @Override public video search(String str) throws IOException {
+    @Override public video search(String str) throws IOException, GenericDownloaderException {
     	str = str.trim(); str = str.replaceAll(" ", "%20");
     	String searchUrl = "https://www.cumlouder.com/search?q="+str;
     	
@@ -111,7 +112,7 @@ public class Cumlouder extends GenericExtractor {
                         throw new IOException("Failed to completely download page");
         	String link = "https://www.cumlouder.com" + li.get(i).select("a").attr("href");
         	String name = li.get(i).select("img.thumb").attr("title");
-        	if (link.isEmpty() || name.isEmpty()) continue;;
+        	if (link.isEmpty() || name.isEmpty()) continue;
         	v = new video(link,name,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)),getSize(link));
         	break;
         }
@@ -119,12 +120,12 @@ public class Cumlouder extends GenericExtractor {
         return v;
     }
     
-    private long getSize(String link) throws IOException {
+    private long getSize(String link) throws IOException, GenericDownloaderException {
         Document page = getPage(link,false,true);
         Map<String,String> q = getDefaultVideo(page);
         return CommonUtils.getContentSize(q.get(q.keySet().iterator().next()));
     }
-    @Override public long getSize() throws IOException {
+    @Override public long getSize() throws IOException, GenericDownloaderException {
         return getSize(url);
     }
 }

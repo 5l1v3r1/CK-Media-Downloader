@@ -8,6 +8,7 @@ package downloader.Extractors;
 import downloader.CommonUtils;
 import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
+import downloader.Exceptions.GenericDownloaderException;
 import downloaderProject.MainApp;
 import java.io.File;
 import java.io.IOException;
@@ -43,7 +44,7 @@ public class Bigboobsalert extends GenericExtractor{
         this.url = changeHttp(this.url);
     }
 
-    @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException {
+    @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
         Document page = getPage(url,false,true);
         
         Elements links = page.select("table.bg5").select("a"); MediaDefinition media = new MediaDefinition();
@@ -63,7 +64,7 @@ public class Bigboobsalert extends GenericExtractor{
     } 
 	
     //getVideo thumbnail
-    private static File downloadThumb(String url) throws IOException, SocketTimeoutException, UncheckedIOException {
+    private static File downloadThumb(String url) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
         Document page = getPage(url,false);
         
         String thumbLink = "http://www.bigboobsalert.com/";
@@ -89,7 +90,7 @@ public class Bigboobsalert extends GenericExtractor{
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override public long getSize() throws IOException {
+    @Override public long getSize() throws IOException, GenericDownloaderException {
         Document page = getPage(url,false); long total = 0;
         
         Elements links = page.select("table.bg5").select("a");

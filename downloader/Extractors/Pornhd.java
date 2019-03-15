@@ -44,7 +44,7 @@ public class Pornhd extends GenericExtractor{
         super(url,thumb,videoName);
     }
 
-    @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException{
+    @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException{
         Document page = getPage(url,false,true);
 
 	String[] rawData = CommonUtils.getBracket(page.toString(), page.toString().indexOf("sources: {")).split("\"");
@@ -79,7 +79,7 @@ public class Pornhd extends GenericExtractor{
         extractorName = "Pornhd";
     }
 
-    @Override public video similar() throws IOException {
+    @Override public video similar() throws IOException, GenericDownloaderException {
     	if (url == null) return null;
         
         video v = null;

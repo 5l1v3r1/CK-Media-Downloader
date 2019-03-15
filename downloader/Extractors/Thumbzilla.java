@@ -10,6 +10,7 @@ import downloader.DataStructures.GenericQuery;
 import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
+import downloader.Exceptions.VideoDeletedException;
 import downloaderProject.MainApp;
 import java.io.File;
 import java.io.IOException;
@@ -46,8 +47,10 @@ public class Thumbzilla extends GenericQueryExtractor{
         super(url,thumb,videoName);
     }
     
-    @Override public MediaDefinition getVideo() throws IOException,SocketTimeoutException, UncheckedIOException{
+    @Override public MediaDefinition getVideo() throws IOException,SocketTimeoutException, UncheckedIOException , GenericDownloaderException{
         Document page = getPage(url,false,true);
+        
+        verify(page);
         
 	Elements qualities = page.select("a.qualityButton");
         Map<String,String> quality = new HashMap<>();
@@ -63,6 +66,19 @@ public class Thumbzilla extends GenericQueryExtractor{
         return media;
     }
     
+    private static void verify(Document page) throws GenericDownloaderException {
+        try {
+            Elements section = page.select("section.sectionVideoWrapper");
+            if(!section.hasClass("videoInfoBottom"))
+                if(!section.select("div.notice").isEmpty())
+                    if(section.select("div.notice").text().isEmpty())
+                        throw new VideoDeletedException("Video removed");
+                    else throw new VideoDeletedException(section.select("div.notice").get(0).text());
+        } catch (NullPointerException e) {
+            
+        }
+    }
+    
     @Override public GenericQuery query(String search) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
         search = search.trim(); 
         search = search.replaceAll(" ", "+");
@@ -74,6 +90,7 @@ public class Thumbzilla extends GenericQueryExtractor{
 	Elements searchResults = page.select("a.js-thumb");
 	for(int i = 0; i < searchResults.size(); i++)  {
             if (!CommonUtils.testPage("https://www.thumbzilla.com"+searchResults.get(i).attr("href"))) continue; //test to avoid error 404
+            try {verify(getPage("https://www.thumbzilla.com"+searchResults.get(i).attr("href"),false,true));} catch (GenericDownloaderException e) {continue;}
             thequery.addLink("https://www.thumbzilla.com"+searchResults.get(i).attr("href"));
             String thumbLink = searchResults.get(i).select("img").attr("data-src");
             if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,SKIP))) //if file not already in cache download it
@@ -88,7 +105,7 @@ public class Thumbzilla extends GenericQueryExtractor{
         return thequery;
     }
 
-    @Override protected Vector<File> parse(String url) throws IOException, SocketTimeoutException, UncheckedIOException {
+    @Override protected Vector<File> parse(String url) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
         Document page = getPage(url,false);
         
         String thumb = page.select("img.mainImage.playVideo.removeWhenPlaying").attr("src");
@@ -105,6 +122,7 @@ public class Thumbzilla extends GenericQueryExtractor{
     
     private static String downloadVideoName(String url) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
         Document page = getPage(url,false);
+        verify(page);
         
 	return Jsoup.parse(page.select("h1.videoTitle").toString()).body().text();
     } 
@@ -112,6 +130,8 @@ public class Thumbzilla extends GenericQueryExtractor{
     //getVideo thumbnail
     private static File downloadThumb(String url) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
         Document page = getPage(url,false);
+        
+        verify(page);
         
         String thumb = page.select("img.mainImage.playVideo.removeWhenPlaying").attr("src");
         
@@ -124,7 +144,7 @@ public class Thumbzilla extends GenericQueryExtractor{
         extractorName = "Thumbzilla";
     }
 
-    @Override public video similar() throws IOException {
+    @Override public video similar() throws IOException, GenericDownloaderException{
     	if (url == null) return null;
         
         video v = null;
@@ -135,14 +155,14 @@ public class Thumbzilla extends GenericQueryExtractor{
         	if (count > li.size()) break;
         	int i = randomNum.nextInt(li.size()); count++;
         	String link = "https://www.thumbzilla.com" + li.get(i).select("a").attr("href");
-            String title = li.get(i).select("span.info").select("span.title").text();
+                String title = li.get(i).select("span.info").select("span.title").text();
                 try {v = new video(link,title,downloadThumb(link),getSize(link)); } catch(Exception e) {continue;}
                 break;
             }
         return v;
     }
 
-    @Override public video search(String str) throws IOException {
+    @Override public video search(String str) throws IOException, GenericDownloaderException {
         str = str.trim(); 
         str = str.replaceAll(" ", "+");
         String searchUrl = "https://www.thumbzilla.com/video/search?q="+str;
@@ -152,6 +172,7 @@ public class Thumbzilla extends GenericQueryExtractor{
 	Elements searchResults = page.select("a.js-thumb");
 	for(int i = 0; i < searchResults.size(); i++)  {
             if (!CommonUtils.testPage("https://www.thumbzilla.com"+searchResults.get(i).attr("href"))) continue; //test to avoid error 404
+            try { verify(getPage("https://www.thumbzilla.com"+searchResults.get(i).attr("href"), false, true)); } catch (GenericDownloaderException e) {continue;}
             String thumbLink = searchResults.get(i).select("img").attr("data-src");
             if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,SKIP))) //if file not already in cache download it
                 if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,SKIP),MainApp.imageCache) != -2)

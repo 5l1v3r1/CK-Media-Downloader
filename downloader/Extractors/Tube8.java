@@ -82,7 +82,7 @@ public class Tube8 extends GenericQueryExtractor{
     }
 
     @Override
-    protected Vector<File> parse(String url) throws IOException, SocketTimeoutException, UncheckedIOException {
+    protected Vector<File> parse(String url) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
         Vector<File> thumbs = new Vector<>();
         
         Document page = getPage(url,false);
@@ -149,7 +149,7 @@ public class Tube8 extends GenericQueryExtractor{
         extractorName = "Tube8";
     }
 
-    @Override public video similar() throws IOException {
+    @Override public video similar() throws IOException, GenericDownloaderException {
     	if (url == null) return null;
         
         video v = null;
@@ -167,7 +167,7 @@ public class Tube8 extends GenericQueryExtractor{
         return v;
     }
 
-    @Override public video search(String str) throws IOException {
+    @Override public video search(String str) throws IOException, GenericDownloaderException {
         str = str.trim(); 
         str = str.replaceAll(" ", "+");
         String searchUrl = "https://www.tube8.com/searches.html?q=/"+str+"/";

@@ -9,6 +9,7 @@ import downloader.CommonUtils;
 import downloader.DataStructures.GenericQuery;
 import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
+import downloader.Exceptions.GenericDownloaderException;
 import downloaderProject.MainApp;
 import java.io.File;
 import java.io.IOException;
@@ -45,7 +46,7 @@ public class Bigbootytube extends GenericQueryExtractor{
         super(url,thumb,videoName);
     }
     
-    @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException{
+    @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException{
         Document page = getPage(url,false,true);
         String video = CommonUtils.getLink(page.toString(),page.toString().indexOf("video_url:")+12,'\'');
         Map<String,String> qualities = new HashMap<>(); qualities.put("single",video);
@@ -115,7 +116,7 @@ public class Bigbootytube extends GenericQueryExtractor{
         extractorName = "Bigbootytube";
     }
 
-    @Override public video similar() throws IOException {
+    @Override public video similar() throws IOException, GenericDownloaderException {
     	if (url == null) return null;
         
         video v = null;
@@ -139,7 +140,7 @@ public class Bigbootytube extends GenericQueryExtractor{
         return v;
     }
 
-    @Override public video search(String str) throws IOException {
+    @Override public video search(String str) throws IOException, GenericDownloaderException{
         str = str.trim(); 
         str = str.replaceAll(" ", "+");
         String searchUrl = "http://www.bigbootytube.xxx/search/?q="+str;
@@ -160,7 +161,7 @@ public class Bigbootytube extends GenericQueryExtractor{
         return v;        
     }
 
-    @Override public long getSize() throws IOException {
+    @Override public long getSize() throws IOException, GenericDownloaderException {
         Document page = getPage(url,false,true);
         String video = CommonUtils.getLink(page.toString(),page.toString().indexOf("video_url:")+12,'\'');
         return CommonUtils.getContentSize(video);

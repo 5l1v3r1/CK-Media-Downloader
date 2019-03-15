@@ -6,9 +6,10 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.Pane?>
+<?import javafx.scene.text.Font?>
 
 <Pane minHeight="0.0" minWidth="0.0" prefHeight="550.0" prefWidth="695.0" styleClass="header" stylesheets="@darkPane.css" xmlns:fx="http://javafx.com/fxml/1" fx:controller="downloaderProject.mainLayoutController">
-    <Button id="pasteBtn" layoutX="3.0" layoutY="5.0" maxHeight="43.0" maxWidth="123.0" minHeight="43.0" minWidth="123.0" mnemonicParsing="false" onAction="#getDownloadLink" prefHeight="43.0" prefWidth="123.0" text="Paste Url">
+    <Button id="pasteBtn" layoutX="3.0" layoutY="7.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#getDownloadLink" prefHeight="40.0" prefWidth="108.0" text="Paste Url">
       <graphic>
          <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
             <image>
@@ -19,7 +20,7 @@
       <tooltip><Tooltip text="Paste url from clipboard" /></tooltip>
     </Button>
     <ListView id="downloadList" fx:id="downloadList" layoutY="55.0" prefHeight="495.0" prefWidth="695.0" styleClass="background" />
-      <Button layoutX="566.0" layoutY="5.0" maxHeight="43.0" maxWidth="127.0" minHeight="43.0" minWidth="127.0" mnemonicParsing="false" onAction="#importLinks" prefHeight="43.0" prefWidth="127.0" text="Import Links">
+      <Button layoutX="565.0" layoutY="7.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#importLinks" prefHeight="40.0" prefWidth="127.0" text="Import Links">
       <graphic>
          <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
             <image>
@@ -29,7 +30,7 @@
       </graphic>
       <tooltip><Tooltip text="Add links from a file" /></tooltip>
       </Button>
-      <Button id="loadSaved" layoutX="395.0" layoutY="5.0" maxHeight="43.0" maxWidth="167.0" minHeight="43.0" minWidth="167.0" mnemonicParsing="false" onAction="#loadSavedVideos" prefHeight="43.0" prefWidth="167.0" text="Load Saved Media">
+      <Button id="loadSaved" layoutX="397.0" layoutY="7.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#loadSavedVideos" prefHeight="40.0" prefWidth="165.0" text="Load Saved Media">
       <graphic>
          <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
             <image>
@@ -39,4 +40,19 @@
       </graphic>
       <tooltip><Tooltip text="Add previously saved media to list" /></tooltip>
       </Button>
+   <Button id="pastePageBtn" layoutX="114.0" layoutY="7.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#getDownloadPage" prefHeight="40.0" prefWidth="115.0" text="Paste Page">
+      <graphic>
+         <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+            <image>
+               <Image url="@../../icons/icons8-paste-48.png" />
+            </image>
+         </ImageView>
+      </graphic>
+      <tooltip>
+         <Tooltip text="Paste page from clipboard" />
+      </tooltip>
+      <font>
+         <Font size="12.0" />
+      </font>
+   </Button>
 </Pane>

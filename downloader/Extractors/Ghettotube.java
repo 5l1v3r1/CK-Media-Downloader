@@ -120,7 +120,7 @@ public class Ghettotube extends GenericExtractor{
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override public video search(String str) throws IOException {
+    @Override public video search(String str) throws IOException, GenericDownloaderException {
     	str = str.trim(); str = str.replaceAll(" ", "+");
     	String searchUrl = "https://www.ghettotube.com/search/video/"+str;
     	

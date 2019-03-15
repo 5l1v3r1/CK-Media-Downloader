@@ -24,6 +24,8 @@ import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
+import org.jsoup.Connection.Response;
+import org.jsoup.Jsoup;
 
 /**
  *
@@ -68,17 +70,44 @@ public class Spankbang extends GenericQueryExtractor implements Playlist{
     }
     
     @Override public MediaDefinition getVideo() throws MalformedURLException, IOException,SocketTimeoutException, UncheckedIOException, GenericDownloaderException{        
-        Document page = getPage(url,false,true);
+        Response r = getPageResponse(url, false);
+        Document page = r.parse();
         verify(page);
                 
 	//Elements video = page.select("video").select("source");
         Map<String,String> qualities = new HashMap<>();
-        qualities.put("240P",getQuality(page.toString().substring(page.toString().indexOf("var stream_url_240p")+24)));
+        /*qualities.put("240P",getQuality(page.toString().substring(page.toString().indexOf("var stream_url_240p")+24)));
         qualities.put("320P",getQuality(page.toString().substring(page.toString().indexOf("var stream_url_320p")+24)));
         qualities.put("480P",getQuality(page.toString().substring(page.toString().indexOf("var stream_url_480p")+24)));
         qualities.put("720P",getQuality(page.toString().substring(page.toString().indexOf("var stream_url_720p")+24)));
         qualities.put("1080P",getQuality(page.toString().substring(page.toString().indexOf("var stream_url_1080p")+25)));
-        qualities.put("4K",getQuality(page.toString().substring(page.toString().indexOf("var stream_url_4k")+22)));
+        qualities.put("4K",getQuality(page.toString().substring(page.toString().indexOf("var stream_url_4k")+22)));*/
+        String streamKey = page.getElementById("video").attr("data-streamkey");
+        String cookie = r.cookie("sb_csrf_session");
+        
+        System.out.println("key "+streamKey);
+        Map<String,String> headers = new HashMap<>(), params = new HashMap<>(), cookies = new HashMap<>();
+        headers.put("X-CSRFToken",cookie); headers.put("Referer",url); headers.put("Cookie","Country=US;");
+        params.put("id",streamKey); params.put("data", "0"); params.put("sb_csrf_session",cookie);
+        cookies.putAll(r.cookies()); headers.putAll(r.headers());
+        try {
+            System.out.println(Jsoup.connect("https://spankbang.com/api/videos/stream").headers(headers).data(params).cookies(cookies).ignoreContentType(true).execute());
+            /*URLConnection connection = new URL("https://spankbang.com/api/videos/stream?data=0&id="+streamKey+"&sb_csrf_session="+cookie).openConnection();
+            //connection.setRequestProperty("User-Agent", PCCLIENT);'
+            connection.setDoInput(true);
+            connection.setDoOutput(true);
+            connection.setRequestProperty("Referer",url);
+            connection.setRequestProperty("X-CSRFToken",cookie);
+            connection.setRequestProperty("Cookie", "sb_csrf_session="+cookie+";Country=US");
+            
+            int response = ((HttpURLConnection)connection).getResponseCode();
+            System.out.println(connection.getContent());
+            System.out.println(response);*/
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        //https://spankbang.com/1y4qi/video/vanessa+del+red+dress
+        
         MediaDefinition media = new MediaDefinition();
         media.addThread(qualities,videoName);
         
@@ -119,7 +148,7 @@ public class Spankbang extends GenericQueryExtractor implements Playlist{
     }
     
     //get preview thumbnails
-    @Override protected Vector<File> parse(String url) throws IOException, SocketTimeoutException, UncheckedIOException {
+    @Override protected Vector<File> parse(String url) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
         Vector<File> thumbs = new Vector<>();
         try {
             Document page = getPage(url,false);
@@ -178,7 +207,7 @@ public class Spankbang extends GenericQueryExtractor implements Playlist{
         extractorName = "Spankbang";
     }
 
-    @Override public video similar() throws IOException{
+    @Override public video similar() throws IOException, GenericDownloaderException{
     	if (url == null) return null;
         
         video v = null;
@@ -197,7 +226,7 @@ public class Spankbang extends GenericQueryExtractor implements Playlist{
         return v;
     }
 
-    @Override public video search(String str) throws IOException {
+    @Override public video search(String str) throws IOException, GenericDownloaderException {
         str = str.trim(); 
         str = str.replaceAll(" ", "+");
         String searchUrl = "https://spankbang.com/s/"+str+"/";
@@ -224,7 +253,7 @@ public class Spankbang extends GenericQueryExtractor implements Playlist{
         return v;
     }
     
-    private static String getFirstUrl(String url) throws IOException {
+    private static String getFirstUrl(String url) throws IOException, GenericDownloaderException {
         Document page = getPage(url,false);
         Elements div = page.select("div.results").select("div.video-item");
         return "https://spankbang.com" + div.get(0).select("a").get(0).attr("href");
@@ -245,7 +274,7 @@ public class Spankbang extends GenericQueryExtractor implements Playlist{
         return list;
     }
     
-    private long getSize(String link) throws IOException {
+    private long getSize(String link) throws IOException, GenericDownloaderException {
         Document page = getPage(link,false,true);
         Map<String,String> q = getDefaultVideo(page);
         return CommonUtils.getContentSize(q.get(q.keySet().iterator().next()));

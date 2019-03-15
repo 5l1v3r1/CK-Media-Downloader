@@ -103,7 +103,7 @@ public class Youporn extends GenericQueryExtractor{
         return thequery;
     }
     
-    @Override protected Vector<File> parse(String url) throws IOException, SocketTimeoutException, UncheckedIOException {
+    @Override protected Vector<File> parse(String url) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
         Vector<File> thumb = new Vector<>();
          Document page = getPage(url,true);
 		
@@ -147,7 +147,7 @@ public class Youporn extends GenericQueryExtractor{
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override  public video search(String str) throws IOException {
+    @Override  public video search(String str) throws IOException, GenericDownloaderException {
         str = str.trim(); 
         str = str.replaceAll(" ", "+");
         String searchUrl = "https://www.youporn.com/search?query="+str;

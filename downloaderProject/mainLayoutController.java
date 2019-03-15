@@ -92,9 +92,8 @@ public class mainLayoutController implements Initializable, Reactable{
                 for(String s:token) {
                     System.out.println(s);  //this is jus a debugging output
                     if (Site.getUrlSite(s) == Site.Type.none) 
-                        System.out.println("Was none"); //invalid link
-                    else
-                        determineSite(s);
+                        System.out.println("Couldn't determine"); //invalid link
+                    else determineSite(s);
                 }
             }
         } catch(UnsupportedFlavorException e) {

@@ -59,7 +59,7 @@ public class Instagram extends GenericExtractor{
         } else this.videoName = videoThumb.getName();
     }
 
-    @Override public MediaDefinition getVideo() throws IOException,SocketTimeoutException, UncheckedIOException{
+    @Override public MediaDefinition getVideo() throws IOException,SocketTimeoutException, UncheckedIOException, GenericDownloaderException{
         Document page;
         if (html != null) page = this.html;
         else page = getPage(url,false,true); MediaDefinition media = new MediaDefinition();

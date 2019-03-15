@@ -8,6 +8,7 @@ package downloader.Extractors;
 import downloader.CommonUtils;
 import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
+import downloader.Exceptions.GenericDownloaderException;
 import downloaderProject.MainApp;
 import java.io.File;
 import java.io.IOException;
@@ -41,7 +42,7 @@ public class Befuck extends GenericExtractor{
         super(url,thumb,videoName);
     }
     
-    @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException{
+    @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException{
         Document page = getPage(url,false,true);
         
         MediaDefinition media = new MediaDefinition();
@@ -73,7 +74,7 @@ public class Befuck extends GenericExtractor{
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override public video search(String str) throws IOException {
+    @Override public video search(String str) throws IOException, GenericDownloaderException {
     	str = str.trim(); str = str.replaceAll(" ", "+");
     	String searchUrl = "https://befuck.com/search/"+str;
     	
@@ -97,13 +98,13 @@ public class Befuck extends GenericExtractor{
         return v;
     }
     
-    private long getSize(String link) throws IOException {
+    private long getSize(String link) throws IOException, GenericDownloaderException {
         Document page = getPage(link,false,true);
         Map<String,String> q = getDefaultVideo(page);
         return CommonUtils.getContentSize(q.get(q.keySet().iterator().next()));
     }
 
-    @Override public long getSize() throws IOException {
+    @Override public long getSize() throws IOException, GenericDownloaderException {
         return getSize(url);
     }
 }

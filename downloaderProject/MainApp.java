@@ -15,6 +15,7 @@ import downloader.DataStructures.GenericQuery;
 import downloader.DataStructures.video;
 import downloader.DownloadManager;
 import downloader.DownloaderItem;
+import downloader.Exceptions.GenericDownloaderException;
 import downloader.Site;
 import java.awt.SplashScreen;
 import java.io.File;
@@ -494,7 +495,7 @@ public class MainApp extends Application {
         x.shutdown();
     }
     
-    public static void log(String mediaName, String site) {
+    public static void log(String mediaName, String site) throws GenericDownloaderException {
         if (habits != null) habits.add(mediaName, site);
         try {DataIO.saveCollectedData(habits);} catch(IOException e) {System.out.println("Failed to save habits");}
     }

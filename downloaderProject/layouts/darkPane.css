@@ -1,4 +1,4 @@
-.text-field, .lighter{
+.text-field, .lighter, .qualityList .list-cell:selected, .qualityList .list-cell {
 	-fx-background-color:  #B0B0B0;  
 }
 

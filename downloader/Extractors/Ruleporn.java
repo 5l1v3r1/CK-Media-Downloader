@@ -44,7 +44,7 @@ public class Ruleporn extends GenericQueryExtractor{
         super(url,thumb,videoName);
     }
 
-    @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException{
+    @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException{
         Document page = getPage(url,false,true);
         MediaDefinition media = new MediaDefinition();
         media.addThread(getDefaultVideo(page),videoName);
@@ -85,7 +85,7 @@ public class Ruleporn extends GenericQueryExtractor{
     }
     
     //get preview thumbnails
-    @Override protected Vector<File> parse(String url) throws IOException, SocketTimeoutException, UncheckedIOException{ 
+    @Override protected Vector<File> parse(String url) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException{ 
         Vector<File> thumbs = new Vector<>();
         
         try {
@@ -124,7 +124,7 @@ public class Ruleporn extends GenericQueryExtractor{
         extractorName = "Ruleporn";
     }
 
-    @Override public video similar() throws IOException {
+    @Override public video similar() throws IOException, GenericDownloaderException {
     	if (url == null) return null;
         
         video v = null;
@@ -147,7 +147,7 @@ public class Ruleporn extends GenericQueryExtractor{
         return v;
     }
 
-    @Override public video search(String str) throws IOException {
+    @Override public video search(String str) throws IOException, GenericDownloaderException {
         str = str.trim(); 
         str = str.replaceAll(" ", "-");
         String searchUrl = "https://ruleporn.com/search/"+str+"/";
@@ -169,13 +169,13 @@ public class Ruleporn extends GenericQueryExtractor{
         return v;
     }
     
-    private long getSize(String link) throws IOException {
+    private long getSize(String link) throws IOException, GenericDownloaderException{
         Document page = getPage(link,false,true);
         Map<String,String> q = getDefaultVideo(page);
         return CommonUtils.getContentSize(q.get(q.keySet().iterator().next()));
     }
 
-    @Override public long getSize() throws IOException {
+    @Override public long getSize() throws IOException, GenericDownloaderException{
         return getSize(url);
     }
 }

@@ -32,7 +32,6 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.image.BufferedImage;
 import java.io.FileNotFoundException;
-import static java.lang.Thread.sleep;
 import java.net.MalformedURLException;
 import java.net.SocketException;
 import org.jsoup.UncheckedIOException;
@@ -94,7 +93,7 @@ public class DownloaderItem {
         else return null;
     }
     
-    public video getSide() {
+    public video getSide() throws GenericDownloaderException {
         try {
             if (extractor != null)
                 return extractor.similar();
@@ -554,7 +553,7 @@ public class DownloaderItem {
                 stop = CommonUtils.saveFile(link,CommonUtils.clean(name),folder+File.separator+albumName,s);
             else stop = CommonUtils.saveFile(link,CommonUtils.clean(name),folder,s);
             try {
-                sleep(4000);
+                Thread.sleep(4000);
             } catch (InterruptedException ex) {
                 System.out.println("Failed to pause");
             }

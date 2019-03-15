@@ -17,7 +17,6 @@ import downloaderProject.MainApp;
 import java.io.File;
 import java.io.IOException;
 import org.jsoup.UncheckedIOException;
-import static java.lang.Thread.sleep;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.util.HashMap;
@@ -77,7 +76,7 @@ public class Pornhub extends GenericQueryExtractor implements Playlist{
         else return s;
     }
     
-    private String getPic(String link) throws MalformedURLException, IOException {
+    private String getPic(String link) throws MalformedURLException, IOException, GenericDownloaderException {
         Document page = getPage(link,false);
         while(page.toString().contains("RNKEY")) {
             addCookie("RNKEY",getRNKEY(page.toString()));
@@ -210,7 +209,7 @@ public class Pornhub extends GenericQueryExtractor implements Playlist{
     }
     
     //get preview thumbnails
-    @Override protected Vector<File> parse(String url) throws IOException, SocketTimeoutException, UncheckedIOException{ 
+    @Override protected Vector<File> parse(String url) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException{ 
         Vector<File> thumbs = new Vector<>();
         Document page;
         
@@ -364,7 +363,7 @@ public class Pornhub extends GenericQueryExtractor implements Playlist{
         extractorName = "Pornhub";
     }
 
-    @Override public video similar() throws IOException{
+    @Override public video similar() throws IOException, GenericDownloaderException{
         if (url == null) return null;
         if(isAlbum(url) || isPhoto(url)) {
             return null;
@@ -376,11 +375,11 @@ public class Pornhub extends GenericQueryExtractor implements Playlist{
         }
     }
     
-    private video getRelated() throws IOException {
+    private video getRelated() throws IOException, GenericDownloaderException{
         return getRelated(0);
     }
     
-    private video getRelated(int tries) throws IOException {
+    private video getRelated(int tries) throws IOException, GenericDownloaderException{
         System.out.println("chose related");
         if (url == null) return null;
         
@@ -412,11 +411,11 @@ public class Pornhub extends GenericQueryExtractor implements Playlist{
         return v;
     }
     
-    private video getRecommended() throws IOException {
+    private video getRecommended() throws IOException, GenericDownloaderException {
         return getRecommended(0);
     }
     
-    private video getRecommended(int tries) throws IOException {
+    private video getRecommended(int tries) throws IOException, GenericDownloaderException{
         System.out.println("chose recommeded");
         if (url == null) return null;
         
@@ -447,7 +446,7 @@ public class Pornhub extends GenericQueryExtractor implements Playlist{
         return v;
     }
 
-    @Override public video search(String str) throws IOException {
+    @Override public video search(String str) throws IOException, GenericDownloaderException {
         str = str.trim(); str = str.replaceAll(" ", "+");
         String searchUrl = "https://pornhub.com/video/search?search="+str;
         
@@ -493,7 +492,7 @@ public class Pornhub extends GenericQueryExtractor implements Playlist{
         return img;
     }
     
-    private static String getFirstUrl(String url) throws IOException, PageNotFoundException {
+    private static String getFirstUrl(String url) throws IOException, PageNotFoundException, GenericDownloaderException {
         Document page = getPage(url,false);
         while(page.toString().contains("RNKEY"))
             page = Jsoup.parse(Jsoup.connect(url).cookie("RNKEY", getRNKEY(page.toString())).userAgent(CommonUtils.PCCLIENT).get().html());
@@ -510,7 +509,7 @@ public class Pornhub extends GenericQueryExtractor implements Playlist{
         return playlistUrl != null;
     }
     
-    @Override public Vector<String> getItems() throws IOException, PageNotFoundException {
+    @Override public Vector<String> getItems() throws IOException, PageNotFoundException, GenericDownloaderException {
         Document page = getPage(playlistUrl,false);
         while(page.toString().contains("RNKEY")) {
             addCookie("RNKEY",getRNKEY(page.toString()));
@@ -552,7 +551,7 @@ public class Pornhub extends GenericQueryExtractor implements Playlist{
                         CommonUtils.savePage(subPage.toString(), subLink, false);
                     }
                     total += CommonUtils.getContentSize(getSingle(subPage));
-                } catch(UncheckedIOException | NullPointerException e) {i--; try {sleep(1000);}catch(InterruptedException e1){}/*retry link*/}
+                } catch(UncheckedIOException | NullPointerException e) {i--; try {Thread.sleep(1000);}catch(InterruptedException e1){}/*retry link*/}
             }
             return total;
         } else {

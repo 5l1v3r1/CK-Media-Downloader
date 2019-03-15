@@ -58,7 +58,7 @@ public class Yourporn extends GenericExtractor{
         return links;
     }
 	
-    private static Vector<String> getImages(String url) throws IOException {
+    private static Vector<String> getImages(String url) throws IOException, GenericDownloaderException{
         Document page = getPage(url,false,true);
 	//thumb == first image
         
@@ -112,9 +112,12 @@ public class Yourporn extends GenericExtractor{
     private static void verify(Document page) throws GenericDownloaderException {
         if (page.getElementById("center_control") != null) return;
         if (page.getElementById("player_el") == null) {
-            if (page.select("span.page_message") != null || !page.select("span.page_message").isEmpty())
+            if (!page.select("span.page_message").isEmpty())
                 throw new VideoDeletedException(page.select("span.page_message").text());
-            else throw new VideoDeletedException();
+            else {
+                if(page.select("span.vidsnfo").isEmpty())
+                    throw new VideoDeletedException("Video could not be found");
+            }
         }
     }
     
@@ -136,7 +139,11 @@ public class Yourporn extends GenericExtractor{
         
         String thumbLink = null;
         if (!isAlbum(url))
-            thumbLink = "https:"+page.getElementById("player_el").attr("poster");
+            try {
+                thumbLink = "https:"+page.getElementById("player_el").attr("poster");
+            } catch (NullPointerException e) {
+                thumbLink = "https:"+getMetaImage(page);
+            }
         else
             thumbLink = getImages(url).get(0);
         
@@ -153,7 +160,7 @@ public class Yourporn extends GenericExtractor{
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override public video search(String str) throws IOException {
+    @Override public video search(String str) throws IOException, GenericDownloaderException{
         String searchUrl = "https://yourporn.sexy/"+str.trim().replaceAll(" ", "+")+".html";
         Document page = getPage(searchUrl,false); video v = null;
         

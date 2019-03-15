@@ -8,6 +8,7 @@ package downloader.Extractors;
 import downloader.CommonUtils;
 import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
+import downloader.Exceptions.GenericDownloaderException;
 import downloaderProject.MainApp;
 import java.io.File;
 import java.io.IOException;
@@ -43,7 +44,7 @@ public class Bigtits extends GenericExtractor{
         super(url,thumb,videoName);
     }
 
-    @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException {
+    @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
         Document page = getPage(url,false,true);
         Element div = page.getElementById("playerCont");
 	String video = CommonUtils.getLink(div.toString(), div.toString().indexOf("<source src=")+13, '\"');
@@ -100,7 +101,7 @@ public class Bigtits extends GenericExtractor{
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override public video search(String str) throws IOException {
+    @Override public video search(String str) throws IOException, GenericDownloaderException {
     	str = str.trim(); str = str.replaceAll(" ", "+");
     	String searchUrl = "http://www.bigtits.com/search?q="+str;
     	
@@ -127,7 +128,7 @@ public class Bigtits extends GenericExtractor{
         return v;
     }
 
-    @Override public long getSize() throws IOException {
+    @Override public long getSize() throws IOException, GenericDownloaderException {
         return CommonUtils.getContentSize(getVideo().iterator().next().get("single"));
     }
 }

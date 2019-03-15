@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -76,9 +78,20 @@ public class DownloadManager {
         });
     }
     
+    private String getId(String s, String regex) {
+        Matcher m = Pattern.compile(regex).matcher(s);
+        return m.find() ? m.group("id") : "";
+    }
+    
     private boolean similar(String s, String s2) {
-        String temp = s.replace("https://", "").replace("http://", "").replace("www.","");
-        return temp.equals(s2.replace("https://", "").replace("http://", "").replace("www.",""));
+        String spankRegex = "https://(((www)|([mt])).)?spankbang.com/(?<id>[\\S]+)/(video|playlist)/[\\S]+";
+        if (Site.getUrlSite(s) == Site.Type.spankbang)
+            if (!(Site.getUrlSite(s2) == Site.Type.spankbang)) return false;
+            else return getId(s,spankRegex).equals(getId(s2,spankRegex));
+        else {
+            String temp = s.replace("https://", "").replace("http://", "").replace("www.","");
+            return temp.equals(s2.replace("https://", "").replace("http://", "").replace("www.",""));
+        }
     }
     
     private boolean isDup(DownloaderItem d) {
@@ -163,9 +176,16 @@ public class DownloadManager {
                     removeDownload(d);
                 } else { 
                     //wasnt loaded
-                    if (!d.wasLoaded()) {
-                        MainApp.log(d.getName(),d.getSite());
-                        MainApp.log(d.getSide());
+                    try {
+                        if (!d.wasLoaded()) {
+                            MainApp.log(d.getName(),d.getSite());
+                            MainApp.log(d.getSide());
+                        }
+                    } catch (GenericDownloaderException e) {
+                        System.out.println("Couldnt load side &&|| search");
+                    } catch (Exception e) {
+                        System.out.println(e.getMessage());
+                        //dont remove download if it has it only because of search || side
                     }
                 }
             } catch (GenericDownloaderException | IOException e) {

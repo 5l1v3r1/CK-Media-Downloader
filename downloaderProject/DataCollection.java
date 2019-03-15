@@ -16,6 +16,7 @@ import java.util.Vector;
 import java.util.stream.Collectors;
 import ChrisPackage.Star;
 import downloader.DataStructures.video;
+import downloader.Exceptions.GenericDownloaderException;
 import downloader.Extractors.*;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -78,7 +79,7 @@ public class DataCollection implements Externalizable{
             	if (!videoQueue.contains(v)) videoQueue.add(v);
 	}
 	
-	public void add(String mediaName, String site) {
+	public void add(String mediaName, String site) throws GenericDownloaderException {
             //if (keywords == null) init();
             Vector<String> words = new Vector<>(); loadLibs();
             words = searchStars(mediaName.split(" ")); addSite(site);
@@ -167,7 +168,7 @@ public class DataCollection implements Externalizable{
 		frequentSites.put(site, 1);
 	}
 	
-	private void generateSuggestion() {
+	private void generateSuggestion() throws GenericDownloaderException {
             final Map<String, Integer> keywordChart = keywords.entrySet().stream().sorted(Map.Entry.<String, Integer>comparingByValue().reversed()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
             final Map<String, Integer> StarChart = frequentStars.entrySet().stream().sorted(Map.Entry.<String, Integer>comparingByValue().reversed()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
             Iterator<String> i = keywordChart.keySet().iterator();
@@ -199,7 +200,7 @@ public class DataCollection implements Externalizable{
             }
 	}
 	
-	private void generateSearch(Map<String,Integer> kwords, Map<String,Integer> stars) {
+	private void generateSearch(Map<String,Integer> kwords, Map<String,Integer> stars) throws GenericDownloaderException {
             Random randomNum = new Random();
             int max = randomNum.nextInt(8); //generate 1 - 8 words
             int starIndex = randomNum.nextInt(5); //generate from top 5 stars
@@ -222,7 +223,7 @@ public class DataCollection implements Externalizable{
             search(star+words.toString()); //search top star with random number of available keywords
 	}
         
-        private void generateSearch(Map<String,Integer> kwords) {
+        private void generateSearch(Map<String,Integer> kwords) throws GenericDownloaderException {
             Random randomNum = new Random();
             int max = randomNum.nextInt(8); //generate 0 - 7
             System.out.println("key size: "+kwords.keySet().size());
@@ -236,7 +237,7 @@ public class DataCollection implements Externalizable{
             search(words.toString().trim()); //search with random number of available keywords
         }
         
-	private void search(String searchStr) {
+	private void search(String searchStr) throws GenericDownloaderException {
             final Map<String, Integer> siteChart = frequentSites.entrySet().stream().sorted(Map.Entry.<String, Integer>comparingByValue().reversed()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
             GenericExtractor x = getExtractor(siteChart.keySet().iterator().next());
             System.out.println("search: "+searchStr);

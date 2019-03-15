@@ -58,7 +58,7 @@ public class Xtube extends GenericExtractor{
         return qualities;
     }
     
-    public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException{        
+    public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException{        
         Document page = getPage(url,false,true);
 	Map<String,String> quality = getQualities(page.toString());
         
@@ -98,7 +98,7 @@ public class Xtube extends GenericExtractor{
         extractorName = "Xtube";
     }
 
-    @Override public video similar() throws IOException {
+    @Override public video similar() throws IOException, GenericDownloaderException {
     	if (url == null) return null;
         
         video v = null;
@@ -118,7 +118,7 @@ public class Xtube extends GenericExtractor{
         return v;
     }
 
-    @Override public video search(String str) throws IOException{
+    @Override public video search(String str) throws IOException, GenericDownloaderException{
     	str = str.trim(); str = str.replaceAll(" ", "-");
     	String searchUrl = "https://www.xtube.com/search/video/"+str;
     	

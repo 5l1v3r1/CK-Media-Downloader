@@ -72,7 +72,7 @@ public class Spankwire extends GenericQueryExtractor{
     }
 
     @Override
-    protected Vector<File> parse(String url) throws IOException, SocketTimeoutException, UncheckedIOException {
+    protected Vector<File> parse(String url) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
          Vector<File> thumbs = new Vector<File>();
         
         Document page = getPage(url,false);
@@ -111,7 +111,7 @@ public class Spankwire extends GenericQueryExtractor{
         return qualities;
     }
 
-    @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException {
+    @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException{
         Document page = getPage(url,false,true);
 	//Map<String,String> qualities = getQualities(page.toString());
         Map<String,String> qualities = new HashMap<>();
@@ -168,7 +168,7 @@ public class Spankwire extends GenericQueryExtractor{
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override public video search(String str) throws IOException {
+    @Override public video search(String str) throws IOException, GenericDownloaderException{
         str = str.trim(); 
         str = str.replaceAll(" ", "%2B");
         String searchUrl = "https://spankwire.com/search/straight/keyword/"+str;

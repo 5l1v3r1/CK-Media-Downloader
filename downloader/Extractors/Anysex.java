@@ -73,7 +73,7 @@ public class Anysex extends GenericExtractor{
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override public video search(String str) throws IOException {
+    @Override public video search(String str) throws IOException, GenericDownloaderException {
         String searchUrl = "https://anysex.com/search/?q="+str.replaceAll(" ", "+");
 	Document page = getPage(searchUrl,false);
 

@@ -54,8 +54,9 @@ public class QualityDialog {
         Stage s = new Stage();
         
         s.initModality(Modality.APPLICATION_MODAL);
+        s.setMaxHeight(HEIGHT); s.setMaxWidth(WIDTH);
         s.setMinHeight(HEIGHT); s.setMinWidth(WIDTH);
-        s.resizableProperty().setValue(false);
+        s.setResizable(false);
         
         return s;
     }
@@ -77,7 +78,8 @@ public class QualityDialog {
             Label text = (Label)pane.lookup("#mediaName"); text.setText(mediaName);
             Button ok = (Button)pane.lookup("#downloadButton");
             Button cancel = (Button)pane.lookup("#cancelButton");
-            ListView<Pane> qualityList = (ListView<Pane>)pane.lookup("#qualities");
+            ListView<Pane> qualityList = (ListView<Pane>)pane.lookup("#qualities"); 
+            qualityList.getStyleClass().clear(); qualityList.getStyleClass().add("qualityList");
             List<Pane> items = new ArrayList<>();
             Iterator<String> i = qualities.keySet().iterator();
             while(i.hasNext()) {

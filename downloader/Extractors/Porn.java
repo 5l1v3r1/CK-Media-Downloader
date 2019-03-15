@@ -101,7 +101,7 @@ public class Porn extends GenericExtractor{
         extractorName = "Anysex";
     }
 
-    @Override public video similar() throws IOException {
+    @Override public video similar() throws IOException, GenericDownloaderException {
         if (url == null) return null;
         
         video v = null;
@@ -123,7 +123,7 @@ public class Porn extends GenericExtractor{
         return v;
     }
 
-    @Override public video search(String str) throws IOException {
+    @Override public video search(String str) throws IOException, GenericDownloaderException {
         String searchUrl = "https://www.porn.com/videos/search?q="+str.replaceAll(" ", "+");
 	Document page = getPage(searchUrl,false);
 

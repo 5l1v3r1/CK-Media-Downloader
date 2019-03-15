@@ -9,6 +9,7 @@ import downloader.CommonUtils;
 import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
+import downloader.Exceptions.PageNotFoundException;
 import downloaderProject.MainApp;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -19,6 +20,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import org.jsoup.Connection;
+import org.jsoup.Connection.Response;
+import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -51,38 +54,50 @@ public abstract class GenericExtractor {
     
     protected abstract void setExtractorName();
     
-    protected static Document getPage(String url, boolean mobile) throws IOException {
+    protected static Response getPageResponse(String url, boolean mobile) throws IOException {
+        return mobile ? Jsoup.connect(url).userAgent(CommonUtils.MOBILECLIENT).header("Cookie","Country=US").execute() : Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).header("Cookie","Country=US").execute();
+    }
+    
+    protected static Document getPage(String url, boolean mobile) throws IOException, GenericDownloaderException {
         return getPage(url,mobile,false);
     }
     
-    protected static Document getPage(String url, boolean mobile, boolean force) throws FileNotFoundException, IOException {
+    protected static Document getPage(String url, boolean mobile, boolean force) throws FileNotFoundException, IOException, GenericDownloaderException {
         Document page;
         if (CommonUtils.checkPageCache(CommonUtils.getCacheName(url,mobile)) && !force) //check to see if page was downloaded previous 
             page = Jsoup.parse(CommonUtils.loadPage(MainApp.pageCache.getAbsolutePath()+File.separator+CommonUtils.getCacheName(url,mobile))); //load if not force redownload
         else { String html;
-             if (mobile)
-                html = Jsoup.connect(url).userAgent(CommonUtils.MOBILECLIENT).get().html();
-             else html = Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html();
-            page = Jsoup.parse(html);
-            CommonUtils.savePage(html, url, mobile);
+            try {
+                if (mobile)
+                   html = Jsoup.connect(url).userAgent(CommonUtils.MOBILECLIENT).get().html();
+                else html = Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html();
+               page = Jsoup.parse(html);
+               CommonUtils.savePage(html, url, mobile);
+            } catch (HttpStatusException e) {
+                throw new PageNotFoundException(e.getMessage());
+            }
         } //if not found in cache download it
         return page;
     }
     
-    protected Document getPageCookie(String url, boolean mobile) throws IOException {
+    protected Document getPageCookie(String url, boolean mobile) throws IOException, FileNotFoundException, GenericDownloaderException {
         return getPage(url,mobile,false);
     }
     
-    protected Document getPageCookie(String url, boolean mobile, boolean force) throws FileNotFoundException, IOException {
+    protected Document getPageCookie(String url, boolean mobile, boolean force) throws FileNotFoundException, IOException, GenericDownloaderException {
         Document page;
         if (CommonUtils.checkPageCache(CommonUtils.getCacheName(url,mobile)) && !force) //check to see if page was downloaded previous 
             page = Jsoup.parse(CommonUtils.loadPage(MainApp.pageCache.getAbsolutePath()+File.separator+CommonUtils.getCacheName(url,mobile))); //load if not force redownload
         else { String html;
-             if (mobile)
-                html = addCookies(Jsoup.connect(url)).followRedirects(true).userAgent(CommonUtils.MOBILECLIENT).get().html();
-             else html = addCookies(Jsoup.connect(url)).followRedirects(true).userAgent(CommonUtils.PCCLIENT).get().html();
-            page = Jsoup.parse(html);
-            CommonUtils.savePage(html, url, mobile);
+            try {
+                if (mobile)
+                   html = addCookies(Jsoup.connect(url)).followRedirects(true).userAgent(CommonUtils.MOBILECLIENT).get().html();
+                else html = addCookies(Jsoup.connect(url)).followRedirects(true).userAgent(CommonUtils.PCCLIENT).get().html();
+               page = Jsoup.parse(html);
+               CommonUtils.savePage(html, url, mobile);
+            } catch (HttpStatusException e) {
+                throw new PageNotFoundException(e.getMessage());
+            }
         } //if not found in cache download it
         return page;
     }
@@ -197,8 +212,8 @@ public abstract class GenericExtractor {
         cookieJar.clear();
     }
     
-    public abstract video similar() throws IOException; //get a video from the related items list
-    public abstract video search(String str) throws IOException; //search (similar to query except no img preview and only 1 result) 
+    public abstract video similar() throws IOException, GenericDownloaderException; //get a video from the related items list
+    public abstract video search(String str) throws IOException, GenericDownloaderException; //search (similar to query except no img preview and only 1 result) 
     public abstract long getSize() throws IOException, GenericDownloaderException;
     
     protected static String configureUrl(String link) {

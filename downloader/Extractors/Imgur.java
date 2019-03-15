@@ -143,7 +143,7 @@ public class Imgur extends GenericExtractor {
         return CommonUtils.getContentSize(link);
     }
     
-    private long getCollectSize() throws IOException {
+    private long getCollectSize() throws IOException, GenericDownloaderException {
         long total = 0;
         try {
             Document page = getPage(url,false,true);
@@ -163,7 +163,7 @@ public class Imgur extends GenericExtractor {
         return total;
     }
     
-    private long getSingleSize() throws IOException {
+    private long getSingleSize() throws IOException, GenericDownloaderException{
         try {
             Document page = getPage(url,false,true);
             String data = page.toString().substring(page.toString().indexOf("image               : {")+22,page.toString().indexOf("},\n",page.toString().indexOf("image               : {"))+1);
@@ -175,7 +175,7 @@ public class Imgur extends GenericExtractor {
         return -1;
     }
 
-    @Override public long getSize() throws IOException {
+    @Override public long getSize() throws IOException, GenericDownloaderException {
         if (url.matches("https://imgur.com/gallery/[\\S]*"))
             return getCollectSize();
 	else return getSingleSize();

@@ -37,7 +37,7 @@ public class Watchenga extends GenericExtractor{
         super(url,thumb,videoName);
     }
 
-    @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException{        
+    @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException{        
         Document page = getPage(url,false,true);
 
         MediaDefinition media = new MediaDefinition();
