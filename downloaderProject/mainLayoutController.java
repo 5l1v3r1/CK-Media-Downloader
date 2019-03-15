@@ -50,8 +50,7 @@ public class mainLayoutController implements Initializable, Reactable{
      * Initializes the controller class.
      */
     
-    @Override
-    public void initialize(URL url, ResourceBundle rb) {
+    @Override public void initialize(URL url, ResourceBundle rb) {
         MainApp.mainController = this;
     }
     

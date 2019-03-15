@@ -215,6 +215,7 @@ public abstract class GenericExtractor {
     public abstract video search(String str) throws IOException, GenericDownloaderException; //search (similar to query except no img preview and only 1 result) 
     public abstract long getSize() throws IOException, GenericDownloaderException;
     public abstract String getId();
+    public abstract String getId(String url);
     
     
     protected static String configureUrl(String link) {

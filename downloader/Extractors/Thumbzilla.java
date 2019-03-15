@@ -206,13 +206,16 @@ public class Thumbzilla extends GenericQueryExtractor{
         return CommonUtils.getContentSize(video);
     }
     
-    @Override
-    public long getSize() throws IOException, GenericDownloaderException {
+    @Override public long getSize() throws IOException, GenericDownloaderException {
         return getSize(url);
     }
     
-    @Override public String getId() {
+    public String getId(String link) {
         Pattern p = Pattern.compile("https://(www.)?thumbzilla.com/video/([\\S]+)/[\\S]+");
-        return p.matcher(url).group(2);
+        return p.matcher(link).group(2);
+    }
+
+    @Override public String getId() {
+        return getId(url);
     }
 }

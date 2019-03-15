@@ -118,8 +118,12 @@ public class Homemoviestube extends GenericExtractor{
         return getSize(url);
     }
     
+    public String getId(String link) {
+         Pattern p = Pattern.compile("https://(www.)?homemoviestube.com/videos/([\\d]+)/[\\S]+.html");
+        return p.matcher(link).group(2);
+    }
+
     @Override public String getId() {
-        Pattern p = Pattern.compile("https://(www.)?homemoviestube.com/videos/([\\d]+)/[\\S]+.html");
-        return p.matcher(url).group(2);
-    } 
+        return getId(url);
+    }
 }

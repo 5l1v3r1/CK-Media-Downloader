@@ -103,8 +103,12 @@ public class Vidoza extends GenericExtractor {
         return CommonUtils.getContentSize(m.get(m.keySet().iterator().next()));
     }
     
-    @Override public String getId() {
+    public String getId(String link) {
         Pattern p = Pattern.compile("https://(www.)?vidoza.net/([\\S]+).html");
-        return p.matcher(url).group(2);
+        return p.matcher(link).group(2);
+    }
+
+    @Override public String getId() {
+        return getId(url);
     }
 }

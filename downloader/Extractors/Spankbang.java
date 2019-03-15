@@ -285,8 +285,12 @@ public class Spankbang extends GenericQueryExtractor implements Playlist{
         return getSize(url);
     }
     
-    @Override public String getId() {
+    public String getId(String link) {
         Pattern p = Pattern.compile("https://(((www)|([mt])).)?spankbang.com/(?<id>[\\S]+)/(video|playlist)/[\\S]+");
-        return p.matcher(url).group("id");
+        return p.matcher(link).group("id");
+    }
+
+    @Override public String getId() {
+        return getId(url);
     }
 }

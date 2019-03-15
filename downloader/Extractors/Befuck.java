@@ -108,9 +108,13 @@ public class Befuck extends GenericExtractor{
     @Override public long getSize() throws IOException, GenericDownloaderException {
         return getSize(url);
     }
+    
+    public String getId(String link) {
+        Pattern p = Pattern.compile("https://(www.)?befuck.com/videos/([\\d]+)/[\\S]+");
+        return p.matcher(link).group(2);
+    }
 
     @Override public String getId() {
-        Pattern p = Pattern.compile("https://(www.)?befuck.com/videos/([\\d]+)/[\\S]+");
-        return p.matcher(url).group(2);
+        return getId(url);
     }
 }

@@ -190,11 +190,15 @@ public class Imgur extends GenericExtractor {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
-    @Override public String getId() {
+    public String getId(String link) {
         Pattern p;
-        if (url.matches("https://(www.)?imgur.com/gallery/[\\S]+"))
+        if (link.matches("https://(www.)?imgur.com/gallery/[\\S]+"))
             p = Pattern.compile("https://(www.)?imgur.com/gallery/([\\S]+)");
         else p = Pattern.compile("https://(www.)?imgur.com/([\\S])+");
-        return p.matcher(url).group(2);
+        return p.matcher(link).group(2);
+    }
+
+    @Override public String getId() {
+        return getId(url);
     }
 }

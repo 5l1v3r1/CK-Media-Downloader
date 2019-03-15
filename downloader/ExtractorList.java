@@ -119,4 +119,52 @@ public class ExtractorList {
                 return null;
         }
     }
+    
+    public static boolean similar(String s, String s2) {
+        if(Site.getUrlSite(s) == Site.getUrlSite(s2))
+            switch(Site.getUrlSite(s)) {
+                case spankbang: return new Spankbang().getId(s).equals(new Spankbang().getId(s2));
+                case pornhub: return new Pornhub().getId(s).equals(new Pornhub().getId(s2));
+                case xhamster: return new Xhamster().getId(s).equals(new Xhamster().getId(s2));
+                case xvideos: return new Xvideos().getId(s).equals(new Xvideos().getId(s2));
+                case xnxx: return new Xvideos().getId(s).equals(new Xvideos().getId(s2));
+                case youporn: return new Youporn().getId(s).equals(new Youporn().getId(s2));
+                case redtube: return new Redtube().getId(s).equals(new Redtube().getId(s2));
+                case thumbzilla: return new Thumbzilla().getId(s).equals(new Thumbzilla().getId(s2));
+                case shesfreaky: return new Shesfreaky().getId(s).equals(new Shesfreaky().getId(s2));
+                case instagram: return new Instagram().getId(s).equals(new Instagram().getId(s2));
+                case yourporn: return new Yourporn().getId(s).equals(new Yourporn().getId(s2));
+                case bigtits: return new Bigtits().getId(s).equals(new Bigtits().getId(s2));
+                case pornhd: return new Pornhd().getId(s).equals(new Pornhd().getId(s2));
+                case vporn: return new Vporn().getId(s).equals(new Vporn().getId(s2));
+                case ghettotube: return new Ghettotube().getId(s).equals(new Ghettotube().getId(s2));
+                case tube8: return new Tube8().getId(s).equals(new Tube8().getId(s2));
+                case watchenga: return new Watchenga().getId(s).equals(new Watchenga().getId(s2));
+                case youjizz: return new Youjizz().getId(s).equals(new Youjizz().getId(s2));
+                case xtube: return new Xtube().getId(s).equals(new Xtube().getId(s2));
+                case spankwire: return new Spankwire().getId(s).equals(new Spankwire().getId(s2));
+                case justporno: return new Justporno().getId(s).equals(new Justporno().getId(s2));
+                case bigbootytube: return new Bigbootytube().getId(s).equals(new Bigbootytube().getId(s2));
+                case befuck: return new Befuck().getId(s).equals(new Befuck().getId(s2));
+                case dailymotion: return new Dailymotion().getId(s).equals(new Dailymotion().getId(s2));
+                case vimeo: return new Vimeo().getId(s).equals(new Vimeo().getId(s2));
+                case cumlouder: return new Cumlouder().getId(s).equals(new Cumlouder().getId(s2));
+                case ruleporn: return new Ruleporn().getId(s).equals(new Ruleporn().getId(s2));
+                case imgur: return new Imgur().getId(s).equals(new Imgur().getId(s2));
+                case pornpics: return new Pornpics().getId(s).equals(new Pornpics().getId(s2));
+                case bigboobsalert: return new Bigboobsalert().getId(s).equals(new Bigboobsalert().getId(s2));
+                case eporner: return new Eporner().getId(s).equals(new Eporner().getId(s2));
+                case pornheed: return new Pornheed().getId(s).equals(new Pornheed().getId(s2));
+                case homemoviestube: return new Homemoviestube().getId(s).equals(new Homemoviestube().getId(s2));
+                case anysex: return new Anysex().getId(s).equals(new Anysex().getId(s2));
+                case porn: return new Porn().getId(s).equals(new Porn().getId(s2));
+                case gotporn: return new Gotporn().getId(s).equals(new Gotporn().getId(s2));
+                case drtuber: return new Drtuber().getId(s).equals(new Drtuber().getId(s2));
+                case myfreeblack: return new Myfreeblack().getId(s).equals(new Myfreeblack().getId(s2));
+                case vidoza: return new Vidoza().getId(s).equals(new Vidoza().getId(s2));
+                case hoodamateurs: return new Hoodamateurs().getId(s).equals(new Hoodamateurs().getId(s2));
+                default: return false;
+            }
+        else return false;
+    }
 }

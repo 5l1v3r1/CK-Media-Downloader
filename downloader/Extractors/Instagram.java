@@ -30,6 +30,10 @@ public class Instagram extends GenericExtractor{
     private Document html;
     //https://www.instagram.com/p/BQ0eAlwhDrw
     
+    public Instagram() {
+        
+    }
+    
     public Instagram(String url)throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
         this(url,downloadThumb(configureUrl(url)),downloadVideoName(configureUrl(url)));
     }
@@ -227,11 +231,15 @@ public class Instagram extends GenericExtractor{
         else return CommonUtils.getContentSize(videoLink);
     }
     
-    @Override public String getId() {
+    public String getId(String link) {
         Pattern p;
-        if (url.matches("https://(www.)?instagram.com/p/[\\S]+(/[?]taken-by=[\\S]*)?"))
+        if (link.matches("https://(www.)?instagram.com/p/[\\S]+(/[?]taken-by=[\\S]*)?"))
             p = Pattern.compile("https://(www.)?instagram.com/p/([\\S]+)(/[?]taken-by=[\\S]*)?");
         else p = Pattern.compile("https://(www.)?instagram.com/([\\S]+)/");
-        return p.matcher(url).group(2);
+        return p.matcher(link).group(2);
+    }
+
+    @Override public String getId() {
+        return getId(url);
     }
 }

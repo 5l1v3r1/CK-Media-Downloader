@@ -166,8 +166,12 @@ public class Xtube extends GenericExtractor{
         return getSize(url);
     }
     
-    @Override public String getId() {
+    public String getId(String link) {
         Pattern p = Pattern.compile("https://(www.)?xtube.com/video-watch/([\\S]+)");
-        return p.matcher(url).group(2);
+        return p.matcher(link).group(2);
+    }
+
+    @Override public String getId() {
+        return getId(url);
     }
 }

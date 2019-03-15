@@ -90,8 +90,12 @@ public class Pornpics extends GenericExtractor{
         return total;
     }
     
-    @Override public String getId() {
+    public String getId(String link) {
         Pattern p = Pattern.compile("https://(www.)?pornpics.com/galleries/([\\S]+)/");
-        return p.matcher(url).group(2);
+        return p.matcher(link).group(2);
+    }
+
+    @Override public String getId() {
+        return getId(url);
     }
 }

@@ -14,7 +14,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.Map;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.jsoup.UncheckedIOException;
 import org.jsoup.nodes.Document;
@@ -99,9 +98,13 @@ public class Anysex extends GenericExtractor{
     @Override public long getSize() throws IOException, GenericDownloaderException {
         return getSize(url);
     }
+    
+    public String getId(String link) {
+        Pattern p = Pattern.compile("https://(www.)?anysex.com/([\\d]+)/");
+        return p.matcher(link).group(2);
+    }
 
     @Override public String getId() {
-        Pattern p = Pattern.compile("https://(www.)?anysex.com/([\\d]+)/");
-        return p.matcher(url).group(2);
+        return getId(url);
     }
 }

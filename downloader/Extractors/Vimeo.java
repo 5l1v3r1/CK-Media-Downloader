@@ -168,11 +168,15 @@ public class Vimeo extends GenericExtractor{
         return CommonUtils.getContentSize(video);
     }
     
-    @Override public String getId() {
+    public String getId(String link) {
         Pattern p;
-        if (url.matches("https://(www.)?vimeo.com/[\\d]+"))
+        if (link.matches("https://(www.)?vimeo.com/[\\d]+"))
             p = Pattern.compile("https://(www.)?vimeo.com/([\\d]+)");
         else p = Pattern.compile("https://player.vimeo.com/video/([\\d]+)");
-        return p.matcher(url).group(2);
+        return p.matcher(link).group(2);
+    }
+
+    @Override public String getId() {
+        return getId(url);
     }
 }

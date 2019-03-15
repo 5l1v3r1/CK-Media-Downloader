@@ -16,8 +16,6 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -78,27 +76,16 @@ public class DownloadManager {
         });
     }
     
-    private String getId(String s, String regex) {
-        Matcher m = Pattern.compile(regex).matcher(s);
-        return m.find() ? m.group("id") : "";
-    }
-    
-    private boolean similar(String s, String s2) {
-        String spankRegex = "https://(((www)|([mt])).)?spankbang.com/(?<id>[\\S]+)/(video|playlist)/[\\S]+";
-        if (Site.getUrlSite(s) == Site.Type.spankbang)
-            if (!(Site.getUrlSite(s2) == Site.Type.spankbang)) return false;
-            else return getId(s,spankRegex).equals(getId(s2,spankRegex));
-        else {
-            String temp = s.replace("https://", "").replace("http://", "").replace("www.","");
-            return temp.equals(s2.replace("https://", "").replace("http://", "").replace("www.",""));
-        }
-    }
-    
     private boolean isDup(DownloaderItem d) {
-        for(int i = 0; i < downloadItems.size(); i++)
-            if (similar(downloadItems.get(i).getLink(),d.getLink()))
-                return true;
-        return false;
+        try {
+            for(int i = 0; i < downloadItems.size(); i++)
+                if (ExtractorList.similar(downloadItems.get(i).getLink(),d.getLink()))
+                    return true;
+            return false;
+        } catch (IllegalStateException e) {
+            //fix for now
+            return false;
+        }
     }
     
     private void display(DownloaderItem d) {

@@ -25,6 +25,10 @@ import org.jsoup.nodes.Document;
  */
 public class Watchenga extends GenericExtractor{
     
+    public Watchenga() {
+        
+    }
+    
     public Watchenga(String url) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
         this(url,downloadThumb(configureUrl(url)),downloadVideoName(configureUrl(url)));
     }
@@ -81,8 +85,12 @@ public class Watchenga extends GenericExtractor{
         return CommonUtils.getContentSize(q.get(q.keySet().iterator().next()));
     }
     
-    @Override public String getId() {
+    public String getId(String link) {
         Pattern p = Pattern.compile("https://(www.)?watcheng[a]?.tv/en/show/(?<id>[\\S]+)/(season-[\\d]+/episode-[\\d]+/)?");
-        return p.matcher(url).group("id");
+        return p.matcher(link).group("id");
+    }
+
+    @Override public String getId() {
+        return getId(url);
     }
 }

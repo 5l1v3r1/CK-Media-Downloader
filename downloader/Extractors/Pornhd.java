@@ -132,8 +132,12 @@ public class Pornhd extends GenericExtractor{
         else return CommonUtils.getContentSize(video);
     }
     
-    @Override public String getId() {
+    public String getId(String link) {
         Pattern p = Pattern.compile("https://(www.)?pornhd.com/videos/([\\d]+)/[\\S]+");
-        return p.matcher(url).group(2);
+        return p.matcher(link).group(2);
+    }
+
+    @Override public String getId() {
+        return getId(url);
     }
 }

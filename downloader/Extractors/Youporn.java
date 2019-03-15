@@ -176,8 +176,12 @@ public class Youporn extends GenericQueryExtractor{
         return CommonUtils.getContentSize(qualities.values().iterator().next());
     }
     
-    @Override public String getId() {
+    public String getId(String link) {
         Pattern p = Pattern.compile("https://(www.)?youporn.com/watch/([\\d]+)/[\\S]+/");
-        return p.matcher(url).group(2);
+        return p.matcher(link).group(2);
+    }
+
+    @Override public String getId() {
+        return getId(url);
     }
 }
