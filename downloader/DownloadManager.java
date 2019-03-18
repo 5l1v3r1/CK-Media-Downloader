@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Formatter;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -160,8 +161,11 @@ public class DownloadManager {
                     //wasnt loaded
                     try {
                         if (!d.wasLoaded()) {
-                            MainApp.log(d.getName(),d.getSite());
-                            MainApp.log(d.getSide());
+                            int stop = new Random().nextInt(3) + 1;
+                            for(int i = 0; i < stop; i++) {
+                                MainApp.log(d.getName(),d.getSite());
+                                MainApp.log(d.getSide());
+                            }
                         }
                     } catch (GenericDownloaderException e) {
                         System.out.println("Couldnt load side &&|| search");

@@ -11,6 +11,7 @@ import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
 import downloader.Exceptions.PageNotFoundException;
+import downloader.Exceptions.PageParseException;
 import downloader.Exceptions.PrivateVideoException;
 import downloader.Exceptions.VideoDeletedException;
 import downloaderProject.MainApp;
@@ -30,6 +31,10 @@ import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -92,8 +97,8 @@ public class Pornhub extends GenericQueryExtractor implements Playlist{
         return img;
     }
     
-    private static Map<String,String> getQualities(String src) {
-        int from = 0, occur = 0;
+    private static Map<String,String> getQualities(String src) throws PageParseException {
+        /*int from = 0, occur = 0;
         
         Map<String,String> qualities = new HashMap<>();
         while((occur = src.indexOf("quality",from)) != -1) {
@@ -101,9 +106,17 @@ public class Pornhub extends GenericQueryExtractor implements Playlist{
             if (qualities.get(CommonUtils.getLink(src, occur+10, '\"')).length() == 0)
                 qualities.remove(qualities.get(CommonUtils.getLink(src, occur+10, '\"')));
             from = occur + 1;
+        }*/
+        Map<String, String> links = new HashMap<>();
+        try {
+            JSONArray json = (JSONArray)new JSONParser().parse(src);
+            for(int i = 0; i < json.size(); i++)
+                if(((String)((JSONObject)json.get(i)).get("format")).equalsIgnoreCase("mp4"))
+                    links.put((String)((JSONObject)json.get(i)).get("quality"), CommonUtils.eraseChar((String)((JSONObject)json.get(i)).get("videoUrl"), '\\'));
+        } catch (ParseException e) {
+            throw new PageParseException(e.getMessage());
         }
-        
-        return qualities;
+        return links;
     }
     
     @Override public MediaDefinition getVideo() throws IOException,SocketTimeoutException,UncheckedIOException, GenericDownloaderException {
@@ -137,7 +150,8 @@ public class Pornhub extends GenericQueryExtractor implements Playlist{
             }
             verify(page);
             //Element video = page.getElementById("videoShow"); video.attr("data-default");
-            String rawQualities = CommonUtils.getLink(page.toString(), page.toString().indexOf(":",page.toString().indexOf("mediaDefinitions")) + 4, ']');
+            int start = page.toString().indexOf("mediaDefinitions") + 2;
+            String rawQualities = page.toString().substring(page.toString().indexOf(":", start) + 1, page.toString().indexOf("],",start)+1);
             Map<String,String> quality = getQualities(rawQualities);
             
             media.addThread(quality,videoName);
@@ -340,7 +354,7 @@ public class Pornhub extends GenericQueryExtractor implements Playlist{
                 CommonUtils.saveFile(img,CommonUtils.getThumbName(img,SKIP),MainApp.imageCache);
             return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(img,SKIP));
         } else if (isPhoto(url)) {
-            String img = "";
+            String img;
             Element div = page.getElementById("photoImageSection");
             if (div == null) { div = page.getElementById("gifImageSection"); img = div.select("div.centerImage").attr("data-gif"); }
             else img = div.select("div.centerImage").select("a").select("img").attr("src");
@@ -560,9 +574,10 @@ public class Pornhub extends GenericQueryExtractor implements Playlist{
             return total;
         } else {
             //Element video = page.getElementById("videoShow"); video.attr("data-default");
-            String rawQualities = CommonUtils.getLink(page.toString(), page.toString().indexOf(":",page.toString().indexOf("mediaDefinitions")) + 4, ']');
+            int start = page.toString().indexOf("mediaDefinitions") + 2;
+            String rawQualities = page.toString().substring(page.toString().indexOf(":", start) + 1, page.toString().indexOf("],",start)+1);
             Map<String,String> quality = getQualities(rawQualities);
-            String video = null;
+            String video;
             if(quality.containsKey("720"))
                 video = quality.get("720");
             else if (quality.containsKey("480"))

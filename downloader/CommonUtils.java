@@ -152,7 +152,7 @@ public class CommonUtils {
     public static String getLink(String src, int where, char terminate) {
 	StringBuilder pure = new StringBuilder();
 		
-	for(int i = where; src.charAt(i) != terminate; i++)
+	for(int i = where; src.charAt(i) != terminate && i < src.length(); i++)
             pure.append(src.charAt(i));
 	return pure.toString();
     }
@@ -244,6 +244,34 @@ public class CommonUtils {
         pure.append(index);
         pure.append(".jpg");
         return pure.toString();
+    }
+    
+    public static int getFormatWeight(String format) {
+        StringBuilder s = new StringBuilder();
+        if(format.equalsIgnoreCase("4k"))
+            return 2160;
+        else 
+            for(int i = 0; i < format.length(); i++) 
+                if (Character.isDigit(format.charAt(i)))
+                    s.append(format.charAt(i));
+                else break;
+        return Integer.parseInt(s.toString());
+    }
+    
+    public static String addAttr(String attr, String value) {
+        return "\""+attr+"\":\""+value+"\"";
+    }
+    
+    public static String addAttr(String attr, int value) {
+        return addAttr(attr,String.valueOf(value));
+    }
+    
+    public static String addAttr(String attr, long value) {
+        return addAttr(attr,String.valueOf(value));
+    }
+    
+    public static String addAttr(String attr, Object value) {
+        return addAttr(attr,value instanceof String ? (String)value : value.toString());
     }
     
     public static boolean checkImageCache(String name) {

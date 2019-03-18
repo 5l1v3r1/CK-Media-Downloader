@@ -19,10 +19,12 @@ import downloader.Exceptions.GenericDownloaderException;
 import downloader.Site;
 import java.awt.SplashScreen;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Formatter;
 import java.util.Vector;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -72,7 +74,7 @@ public class MainApp extends Application {
     public static ProgressBar progress;
     public static TextArea log;
     public static Actions act;
-    private static final String TITLE = "Video Downloader build 27.2";
+    private static final String TITLE = "Video Downloader build 27.3";
     public static DownloadHistory downloadHistoryList;
     public static StackPane root;
     public static DataCollection habits;
@@ -498,11 +500,23 @@ public class MainApp extends Application {
     public static void log(String mediaName, String site) throws GenericDownloaderException {
         if (habits != null) habits.add(mediaName, site);
         try {DataIO.saveCollectedData(habits);} catch(IOException e) {System.out.println("Failed to save habits");}
+        writeJson();
     }
     
     public static void log (video v) {
         if (habits != null) habits.addSuggestion(v);
         try {DataIO.saveCollectedData(habits);} catch(IOException e) {System.out.println("Failed to save habits");}
+        writeJson();
+    }
+    
+    private static void writeJson() {
+        try {
+            Formatter f = new Formatter(saveDir+File.separator+"habits.json");
+            f.format("%s", habits.toJson());
+            f.flush(); f.close();
+        } catch (FileNotFoundException e) {
+            System.out.println(e.getMessage());
+        }
     }
     
     private void loadSuggestions() {
@@ -520,6 +534,7 @@ public class MainApp extends Application {
                 else System.out.println("no suggestions");
             }
             try {DataIO.saveCollectedData(habits);} catch(IOException e) {System.out.println("Failed to save habits");}
+            writeJson();
         } else {habits = new DataCollection(true);}
     }
     

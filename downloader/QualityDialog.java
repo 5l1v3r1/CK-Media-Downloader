@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -81,19 +82,17 @@ public class QualityDialog {
             ListView<Pane> qualityList = (ListView<Pane>)pane.lookup("#qualities"); 
             qualityList.getStyleClass().clear(); qualityList.getStyleClass().add("qualityList");
             List<Pane> items = new ArrayList<>();
-            Iterator<String> i = qualities.keySet().iterator();
-            while(i.hasNext()) {
-                String temp = i.next();
-                if (qualities.get(temp) != null)
-                    if (qualities.get(temp).length() > 0)
-                        items.add(createItem(temp,qualities.get(temp)));
-            }
+            List<String> q = getSortedFormats(qualities.keySet());
+            for(String s: q)
+                if (qualities.get(s) != null)
+                    if (qualities.get(s).length() > 0)
+                        items.add(createItem(s,qualities.get(s)));
             qualityList.getItems().addAll(items);
             ok.setOnAction(e -> dialog.close());
             cancel.setOnAction(new EventHandler<ActionEvent>() {
                 @Override public void handle(ActionEvent event) {
-                    if (group.getSelectedToggle() != null)
-                        group.getSelectedToggle().setSelected(false); 
+                        if (group.getSelectedToggle() != null)
+                            group.getSelectedToggle().setSelected(false); 
                         dialog.close(); 
                     }
                 });
@@ -122,5 +121,23 @@ public class QualityDialog {
         ((Label)p.lookup("#qualityName")).setText(quality);
         ((Label)p.lookup("#size")).setText(MainApp.getSizeText(CommonUtils.getContentSize(link)));
         return p;
+    }
+    
+    private List<String> getSortedFormats(Set<String> list) {
+        Iterator<String> i = list.iterator(); List<String> q = new ArrayList<>();
+        while(i.hasNext())
+            q.add(i.next());
+        for(int j = 0; j < q.size() -1; j++) { //selection sort
+            int min = j;
+            for(int k = j+1; k < q.size(); k++)
+                if(CommonUtils.getFormatWeight(q.get(k)) > CommonUtils.getFormatWeight(q.get(min)))
+                    min = k;
+            if(min != j) { //swap
+                String temp = q.get(min);
+                q.set(min,q.get(j)); 
+                q.set(j,temp);
+            }
+        }
+        return q;
     }
 }

@@ -15,6 +15,7 @@ import java.util.Random;
 import java.util.Vector;
 import java.util.stream.Collectors;
 import ChrisPackage.Star;
+import downloader.CommonUtils;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
 import downloader.Extractors.*;
@@ -239,9 +240,14 @@ public class DataCollection implements Externalizable{
         
 	private void search(String searchStr) throws GenericDownloaderException {
             final Map<String, Integer> siteChart = frequentSites.entrySet().stream().sorted(Map.Entry.<String, Integer>comparingByValue().reversed()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
-            GenericExtractor x = getExtractor(siteChart.keySet().iterator().next());
+            GenericExtractor x; Iterator<String> i = siteChart.keySet().iterator();
+            do {
+                x = getExtractor(i.next());
+            }while(x == null && i.hasNext());
+            
+            System.out.println("Searching: "+x.name());
             System.out.println("search: "+searchStr);
-            try {if (x != null) addSuggestion(x.search(searchStr));}catch(IOException e) {} catch(UnsupportedOperationException e){}
+            try {addSuggestion(x.search(searchStr));}catch(IOException | UnsupportedOperationException e) {}
 	}
         
         private GenericExtractor getExtractor(String type) {
@@ -295,6 +301,35 @@ public class DataCollection implements Externalizable{
                 if (count == str.length()) return false; //all characters were either numbers or non alphabet chars
             }
             return true; //you made it this far ... valid
+        }
+        
+        private String getMap(Map<String,Integer> m) {
+            StringBuilder s = new StringBuilder();
+            Iterator<String> i = m.entrySet().stream().sorted(Map.Entry.<String, Integer>comparingByValue().reversed()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new)).keySet().iterator();
+            boolean first = true;
+            while(i.hasNext()) {
+                String temp = i.next();
+                if (!first)
+                    s.append(",{");
+                else {
+                    s.append("{");
+                    first = false;
+                }
+                s.append(CommonUtils.addAttr(temp,m.get(temp))+"}");
+            }
+            return s.toString();
+        }
+        
+        public String toJson() {
+            StringBuilder json = new StringBuilder();
+            json.append("{"+CommonUtils.addAttr("Version",VERSION)+","+CommonUtils.addAttr("videoQueue",videoQueue.size())+",\"Keywords\":[");
+            json.append(getMap(keywords));
+            json.append("],\"FrequentStars\":[");
+            json.append(getMap(frequentStars));
+            json.append("],\"FrequentSites\":[");
+            json.append(getMap(frequentSites));
+            json.append("]}");
+            return json.toString();
         }
 
 	@Override public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {

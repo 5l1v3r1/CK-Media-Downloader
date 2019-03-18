@@ -263,9 +263,9 @@ public class DownloaderItem {
        if (!getThumbnail()) {release(); return false;} //either link not supported or network error
        
        setButton();
-       setCloseBtn();
        setSaveBtn();
        setName();
+       setCloseBtn();
        
        System.out.println("Found");
        setIndeteminate(false);
