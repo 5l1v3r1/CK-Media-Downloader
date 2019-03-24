@@ -9,6 +9,7 @@ import ChrisPackage.GameTime;
 import ChrisPackage.stopWatch;
 import downloaderProject.DataIO;
 import downloaderProject.MainApp;
+import static downloaderProject.MainApp.BYTE;
 import downloaderProject.OperationStream;
 import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
@@ -37,7 +38,7 @@ import org.jsoup.Jsoup;
 public class CommonUtils {
     public static final String PCCLIENT = "Mozilla/5.0 (X11; Linux x86_64; rv:59.0) Gecko/20100101 Firefox/59.0", 
     MOBILECLIENT = "Mozilla/5.0 (Linux; Android 4.4.4; Nexus 5 Build/KTU84P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.57 Mobile Safari/537.36";
-    static final int BUFFSIZE = 1024 * 600; //1 x 600kb
+    static final int BUFFSIZE = BYTE * 600; //1 x 600kb
     
     public static Vector<File> splitImage(File origin, int row, int col, int yOffset, int widthOffset) {
         Vector<File> splits = new Vector<>();
@@ -250,12 +251,19 @@ public class CommonUtils {
         StringBuilder s = new StringBuilder();
         if(format.equalsIgnoreCase("4k"))
             return 2160;
-        else 
+        else if(format.equals("high"))
+            return 2;
+        else if(format.equals("low") || format.equals("single"))
+            return 1;
+        else  {
+            boolean started = false;
             for(int i = 0; i < format.length(); i++) 
-                if (Character.isDigit(format.charAt(i)))
-                    s.append(format.charAt(i));
-                else break;
-        return Integer.parseInt(s.toString());
+                if (Character.isDigit(format.charAt(i))) {
+                    s.append(format.charAt(i)); started = true;
+                } else if (started)
+                    break;
+        }
+        return s.toString().isEmpty() ? 1 : Integer.parseInt(s.toString());
     }
     
     public static String addAttr(String attr, String value) {
@@ -341,14 +349,21 @@ public class CommonUtils {
         if (url == null) return -5;
         try {
             URLConnection connection = new URL(url).openConnection();
-            /*String temp = url.split("/")[url.split("/").length-1];
-            String pure = temp.substring(temp.indexOf(".")).replace(".","");
-            System.out.println("url "+pure);
-            connection.addRequestProperty("Cookie", "amplitude_idpornhd.com:="+pure);
             connection.setRequestProperty("User-Agent", PCCLIENT);
-            connection.connect();
             int response = ((HttpURLConnection)connection).getResponseCode();
-            System.out.println("response "+response);*/
+            System.out.println("[CommonUtils] response: "+response);
+            //if redirect
+            if ((response == HttpURLConnection.HTTP_SEE_OTHER) || (response == HttpURLConnection.HTTP_MOVED_TEMP) || (response == HttpURLConnection.HTTP_MOVED_PERM) || response == 403) {
+                String location = connection.getHeaderField("Location");
+                if (location.startsWith("/")) 
+                    location = "https://"+location;
+                connection = new URL(location).openConnection();
+                String cookies = connection.getHeaderField("Set-Cookie");
+                connection.setRequestProperty("Cookie", cookies);
+                connection.setRequestProperty("User-Agent", PCCLIENT);
+                connection.connect();
+                System.out.println("[CommonUtils] "+location);
+            }
             return connection.getContentLengthLong();
         } catch (SocketException e){
             System.out.println(e.getMessage());
@@ -430,7 +445,7 @@ public class CommonUtils {
             connection.setRequestProperty("Range","bytes="+how+"-");
             int response = ((HttpURLConnection)connection).getResponseCode();
             //if redirect
-            if ((response == HttpURLConnection.HTTP_SEE_OTHER) || (response == HttpURLConnection.HTTP_MOVED_TEMP) || (response == HttpURLConnection.HTTP_MOVED_PERM)) {
+            if ((response == HttpURLConnection.HTTP_SEE_OTHER) || (response == HttpURLConnection.HTTP_MOVED_TEMP) || (response == HttpURLConnection.HTTP_MOVED_PERM) || response == 403) {
                 String location = connection.getHeaderField("Location");
                 if (location.startsWith("/")) 
                     location = "https://"+location;
@@ -462,8 +477,8 @@ public class CommonUtils {
                     if (s != null) s.addProgress(String.format("%.0f",(float)how/fileSize*100)+"% Complete");
                     timer.stop();
                     double secs = timer.getTime().convertToSecs();
-                    double speed = (how / secs) / 1024D;
-                    long remain = (fileSize - how) / 1024;
+                    double speed = (how / secs) / BYTE;
+                    long remain = (fileSize - how) / BYTE;
                     GameTime g = new GameTime(); g.addSec((long)(remain / speed));
                     if (speed == Double.POSITIVE_INFINITY) {
                         if (s != null) s.addProgress(String.format("%s%d","^^",0));

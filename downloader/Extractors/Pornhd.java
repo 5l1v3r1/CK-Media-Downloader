@@ -54,6 +54,7 @@ public class Pornhd extends GenericExtractor{
 	for(int i = 0; i < rawData.length; i++) {
             if (i == 0) continue;
             qualities.put(rawData[i], "https://pornhd.com"+CommonUtils.eraseChar(rawData[i+2],'\\'));
+            System.out.println("https://pornhd.com"+CommonUtils.eraseChar(rawData[i+2],'\\'));
             i+=3;
 	}
         media.addThread(qualities, videoName);
@@ -69,8 +70,7 @@ public class Pornhd extends GenericExtractor{
 	
     //getVideo thumbnail
     private static File downloadThumb(String url) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
-        Document page = getPage(url,false);
-        String thumb = page.select("video.video-js.vjs-big-play-centered").attr("poster").replace(".webp", ".jpg");
+        String thumb = getMetaImage(getPage(url,false));//String thumb = page.select("video.video-js.vjs-big-play-centered").attr("poster").replace(".webp", ".jpg");
         
         if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
             CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache);

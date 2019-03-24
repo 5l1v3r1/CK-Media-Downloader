@@ -169,6 +169,7 @@ public class DownloadManager {
                         }
                     } catch (GenericDownloaderException e) {
                         System.out.println("Couldnt load side &&|| search");
+                        System.out.println(e.getMessage());
                     } catch (Exception e) {
                         System.out.println(e.getMessage());
                         //dont remove download if it has it only because of search || side

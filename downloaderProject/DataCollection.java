@@ -124,7 +124,7 @@ public class DataCollection implements Externalizable{
             }
             for(int i = 0; i < words.length; i++)
                 if (words[i] != null)
-                pure.add(words[i]);
+                    pure.add(words[i]);
             return pure;
 	}
 	
@@ -156,6 +156,9 @@ public class DataCollection implements Externalizable{
 	}
 	
 	private void addKeyword(String word) {
+            if (word.matches(".+\\d+_n.+")) return;
+            if (word.matches("\\d+")) return;
+            word = word.replaceAll("\\s", "");
             if (keywords.containsKey(word))
                 keywords.put(word, keywords.get(word) + 1);
             else
@@ -244,10 +247,11 @@ public class DataCollection implements Externalizable{
             do {
                 x = getExtractor(i.next());
             }while(x == null && i.hasNext());
-            
-            System.out.println("Searching: "+x.name());
-            System.out.println("search: "+searchStr);
-            try {addSuggestion(x.search(searchStr));}catch(IOException | UnsupportedOperationException e) {}
+	    if (x != null) {
+		System.out.println("Searching: "+x.name());
+	        System.out.println("search: "+searchStr);
+                try {addSuggestion(x.search(searchStr));}catch(IOException | UnsupportedOperationException e) {}
+	    }
 	}
         
         private GenericExtractor getExtractor(String type) {

@@ -10,6 +10,7 @@ import downloader.DataStructures.GenericQuery;
 import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
+import downloader.Exceptions.PageNotFoundException;
 import downloader.Exceptions.VideoDeletedException;
 import downloaderProject.MainApp;
 import java.io.File;
@@ -50,6 +51,7 @@ public class Thumbzilla extends GenericQueryExtractor{
     }
     
     @Override public MediaDefinition getVideo() throws IOException,SocketTimeoutException, UncheckedIOException , GenericDownloaderException{
+        if (!CommonUtils.testPage(url)) throw new PageNotFoundException("Could find video"); //test to avoid error 404
         Document page = getPage(url,false,true);
         
         verify(page);
@@ -125,6 +127,7 @@ public class Thumbzilla extends GenericQueryExtractor{
     }
     
     private static String downloadVideoName(String url) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
+        if (!CommonUtils.testPage(url)) throw new PageNotFoundException("Could find video"); //test to avoid error 404
         Document page = getPage(url,false);
         verify(page);
         
@@ -133,6 +136,7 @@ public class Thumbzilla extends GenericQueryExtractor{
 	
     //getVideo thumbnail
     private static File downloadThumb(String url) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
+        if (!CommonUtils.testPage(url)) throw new PageNotFoundException("Could find video"); //test to avoid error 404
         Document page = getPage(url,false);
         
         verify(page);
@@ -191,6 +195,7 @@ public class Thumbzilla extends GenericQueryExtractor{
     }
 
     private static long getSize(String link) throws IOException, GenericDownloaderException {
+        if (!CommonUtils.testPage(link)) throw new PageNotFoundException("Could find video"); //test to avoid error 404
         Document page = getPage(link,false,true);
         Elements qualities = page.select("a.qualityButton");
         Map<String,String> quality = new HashMap<>();

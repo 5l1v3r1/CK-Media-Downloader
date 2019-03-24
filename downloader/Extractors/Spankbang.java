@@ -9,6 +9,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import downloader.CommonUtils;
+import static downloader.CommonUtils.PCCLIENT;
 import downloader.DataStructures.GenericQuery;
 import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
@@ -19,9 +20,12 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.Vector;
 import downloaderProject.MainApp;
+import java.net.HttpURLConnection;
 import org.jsoup.UncheckedIOException;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -103,6 +107,16 @@ public class Spankbang extends GenericQueryExtractor implements Playlist{
             connection.setRequestProperty("Cookie", "sb_csrf_session="+cookie+";Country=US");
             
             int response = ((HttpURLConnection)connection).getResponseCode();
+            if ((response == HttpURLConnection.HTTP_SEE_OTHER) || (response == HttpURLConnection.HTTP_MOVED_TEMP) || (response == HttpURLConnection.HTTP_MOVED_PERM) || response == 403) {
+                String location = connection.getHeaderField("Location");
+                if (location.startsWith("/")) 
+                    location = "https://"+location;
+                connection = new URL(location).openConnection();
+                String cook = connection.getHeaderField("Set-Cookie");
+                connection.setRequestProperty("Cookie", cook);
+                connection.setRequestProperty("User-Agent", PCCLIENT);
+                connection.connect();
+            }
             System.out.println(connection.getContent());
             System.out.println(response);*/
         } catch (IOException e) {

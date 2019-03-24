@@ -74,7 +74,7 @@ public class MainApp extends Application {
     public static ProgressBar progress;
     public static TextArea log;
     public static Actions act;
-    private static final String TITLE = "Video Downloader build 27.3";
+    private static final String TITLE = "Video Downloader build 27.3.1";
     public static DownloadHistory downloadHistoryList;
     public static StackPane root;
     public static DataCollection habits;
@@ -84,6 +84,7 @@ public class MainApp extends Application {
     public static final int SUPPORTEDSITES = 37, PANES = 6;
     public static Pane[] actionPanes = new Pane[PANES];
     public static final int DOWNLOADPANE = 0, BROWSERPANE = 1, SETTINGSPANE = 2, SHAREPANE = 3, DOWNLOADHISTORYPANE = 4, ACCOUNTPANE = 5;
+    public static int BYTE;
     
     public static ManageSettings settings;
     private ClipboardListener clippy;
@@ -315,16 +316,16 @@ public class MainApp extends Application {
     public static String getSizeText(long size) {
         //ik 1024 is the right unit rather than 1000
         //but dividing by 1000 gave a more accurate result on linux
-        int divide = OS == OsType.Windows ? 1024 : 1000;
+        BYTE = OS == OsType.Windows ? 1024 : 1000;
         if (size < 0) 
             return "----";
-        else if (size < divide)
+        else if (size < BYTE)
             return size + " b";
-        else if((size >= divide) && (size < divide * divide)) //1024b * 1024b = ?kb you do the math
-            return String.format("%.2f",(double)size / divide) + " kb"; 
-        else if ((size >= divide * divide) && (size < divide * divide * divide)) //1024kb * 1024kb = ?mb you do the math
-            return String.format("%.2f",(double)size / divide / divide) + " mb";
-        else return String.format("%.2f",(double)size / divide / divide / divide) + " gb"; //1024mb * 1024mb = ?gb you do the math
+        else if((size >= BYTE) && (size < BYTE * BYTE)) //1024b * 1024b = ?kb you do the math
+            return String.format("%.2f",(double)size / BYTE) + " kb"; 
+        else if ((size >= BYTE * BYTE) && (size < BYTE * BYTE * BYTE)) //1024kb * 1024kb = ?mb you do the math
+            return String.format("%.2f",(double)size / BYTE / BYTE) + " mb";
+        else return String.format("%.2f",(double)size / BYTE / BYTE / BYTE) + " gb"; //1024mb * 1024mb = ?gb you do the math
     }
     
     private String getlocalDeviceName() {

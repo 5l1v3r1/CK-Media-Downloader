@@ -51,7 +51,7 @@ public class DownloadHistory {
         items.clear();
         System.gc();
         if (d != null) 
-            for(int i = 0; i < d.size(); i++)
+            for(int i = d.size()-1; i > -1; i--)
                 items.add(createItem(d.get(i)));
         d = null;
     }
@@ -111,7 +111,6 @@ public class DownloadHistory {
                 if (d.getThumb().length() < 1024 * 1024 * 10) {
                     FileInputStream fis = new FileInputStream(d.getThumb());
                     Image image = new Image(fis);
-                    if (fis != null) fis.close();
                     thumb.setImage(image);
                 } else {
                     BufferedImage b = ImageIO.read(d.getThumb());

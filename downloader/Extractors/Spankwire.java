@@ -10,16 +10,21 @@ import downloader.DataStructures.GenericQuery;
 import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
+import downloader.Exceptions.PageParseException;
 import downloaderProject.MainApp;
 import java.io.File;
 import java.io.IOException;
 import org.jsoup.UncheckedIOException;
 import java.net.SocketTimeoutException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -99,28 +104,30 @@ public class Spankwire extends GenericQueryExtractor{
         return thumbs;
     }
     
-     private static Map<String,String> getQualities(String src) {
-        int happen, from = 0;
-        
+     private static Map<String,String> getQualities(String link) throws IOException, PageParseException {
         Map<String, String> qualities = new HashMap<>();
-        while((happen = src.indexOf("playerData.cdnPath",from)) != -1) {
-            if(src.charAt(src.indexOf('\'',happen)+1) == '\'') {
-                from = happen + 1; continue;
+        String rawJson = Jsoup.connect("http://www.spankwire.com/api/video/"+getVideoId(link)+".json").ignoreContentType(true).execute().body();
+        try {
+            JSONObject json = (JSONObject)new JSONParser().parse(rawJson);
+            JSONObject videos = (JSONObject)json.get("videos");
+            Iterator<String> i = videos.keySet().iterator();
+            while(i.hasNext()) {
+                String qualitiy = i.next();
+                qualities.put(qualitiy.replace("quality_",""), (String)videos.get(qualitiy));
             }
-            qualities.put(CommonUtils.getLink(src, happen+18, ' '), "https:" + CommonUtils.eraseChar(CommonUtils.getLink(src,src.indexOf("'//", happen)+1,'\''), '\\'));
-            from = happen + 1;
+        } catch (ParseException e) {
+               throw new PageParseException(e.getMessage());
         }
         return qualities;
     }
 
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException{
-        Document page = getPage(url,false,true);
+        //Document page = getPage(url,false,true);
 	//Map<String,String> qualities = getQualities(page.toString());
-        Map<String,String> qualities = new HashMap<>();
-        qualities.put("single", page.select("div.shareDownload_container__item__dropdown").select("a").get(0).attr("href"));
+        //qualities.put("single", page.select("div.shareDownload_container__item__dropdown").select("a").get(0).attr("href"));
         
         MediaDefinition media = new MediaDefinition();
-        media.addThread(qualities,videoName);
+        media.addThread(getQualities(url),videoName);
         
         return media;
     }
@@ -148,26 +155,17 @@ public class Spankwire extends GenericQueryExtractor{
         extractorName = "Spankwire";
     }
 
-    @Override public video similar() throws IOException {
-    	/*if (url == null) return null;
-        
-        video v = null;
-        Document page = getPage(url,false);
-        Elements li = page.select("div.sc-eInJlc.hJWEWF").select("div.sc-hmXxxW.fgVpNC");
-        Random randomNum = new Random(); int count = 0; boolean got = false; if (li.isEmpty()) got = true;
-        while(!got) {
-        	try {
-	        	if (count > li.size()) break;
-	        	int i = randomNum.nextInt(li.size()); count++;
-	        	String link = "https://www.spankwire.com" + li.get(i).select("a").get(0).attr("href");
-	            String title = li.get(i).select("a").get(1).select("span").text();
-	            if (title.length() < 1) downloadVideoName(link);
-	                v = new video(link,title,downloadThumb(link));
-	                break;
-        	} catch (UncheckedIOException | Exception e) {continue;} 
+    @Override public video similar() throws IOException, PageParseException {
+    	String rawJson = Jsoup.connect("http://www.spankwire.com/api/video/"+getVideoId(url)+".json").ignoreContentType(true).execute().body();
+        try {
+            JSONObject json = (JSONObject)new JSONParser().parse(rawJson);
+            String link = "http://spankwire.com" + ((JSONObject)json.get("related")).get("url");
+            video v;
+            try {v = new video(link,downloadVideoName(link),downloadThumb(link),getSize(link)); }catch (Exception e) { throw new PageParseException("["+this.name()+"]"+e.getMessage());}
+            return v;
+        } catch (ParseException e) {
+            throw new PageParseException(e.getMessage());
         }
-        return v;*/
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override public video search(String str) throws IOException, GenericDownloaderException{
@@ -185,7 +183,7 @@ public class Spankwire extends GenericQueryExtractor{
                 if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,SKIP),MainApp.imageCache) != -2)
                     throw new IOException("Failed to completely download page");
             String link = "https://spankwire.com"+searchResults.get(i).select("a").get(0).attr("href");
-            long size = -1; try { size = getSize(link); } catch (GenericDownloaderException | IOException e) {continue;}
+            long size; try { size = getSize(link); } catch (GenericDownloaderException | IOException e) {continue;}
             v = new video("https://spankwire.com"+searchResults.get(i).select("a").get(0).attr("href"),Jsoup.parse(searchResults.get(i).select("div.video_thumb_wrapper__thumb-wrapper__title_video").select("a").toString()).body().text(),new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)),size);
             break; //if u made it this far u already have a vaild video
 	}
@@ -194,18 +192,6 @@ public class Spankwire extends GenericQueryExtractor{
     
     private static long getSize(String link) throws IOException, GenericDownloaderException{
         Document page = getPage(link,false,true);
-	/*Map<String,String> quality = getQualities(page.toString());
-        String video = null;
-        if (quality.containsKey("720"))
-            video = quality.get("720");
-        else if(quality.containsKey("480"))
-            video = quality.get("480");
-        else if (quality.containsKey("360"))
-            video = quality.get("360");
-        else if (quality.containsKey("240"))
-            video = quality.get("240");
-        else video = quality.get((String)quality.values().toArray()[0]);
-        return CommonUtils.getContentSize(video);*/
         return CommonUtils.getContentSize(page.select("div.shareDownload_container__item__dropdown").select("a").get(0).attr("href"));
     }
     
@@ -213,10 +199,14 @@ public class Spankwire extends GenericQueryExtractor{
         return getSize(url);
     }
     
-    @Override public String getId(String link) {
+    private static String getVideoId(String link) {
         Pattern p = Pattern.compile("https://(www.)?spankwire.com/[\\S]+/video([\\d]+)/([\\d]+)?");
         Matcher m = p.matcher(link);
         return m.find() ? m.group(2) : "";
+    }
+    
+    @Override public String getId(String link) {
+        return getVideoId(link);
     }
 
     @Override public String getId() {

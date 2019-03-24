@@ -37,7 +37,7 @@ import org.jsoup.select.Elements;
  * @author christopher
  */
 public class Xvideos extends GenericQueryExtractor{
-    private static final int skip = 2;
+    private static final int SKIP = 2;
     
     public Xvideos() { //this contructor is used for when you jus want to query
         
@@ -104,10 +104,10 @@ public class Xvideos extends GenericQueryExtractor{
             String thumbLink = searchResults.get(i).select("div.thumb").select("a").select("img").attr("data-src");
             if (thumbLink.contains("THUMBNUM")) continue;
             thequery.addLink(link);
-            if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,skip))) //if file not already in cache download it
-                if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,skip),MainApp.imageCache) != -2)
+            if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,SKIP))) //if file not already in cache download it
+                if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,SKIP),MainApp.imageCache) != -2)
                     throw new IOException("Error downloading file");
-            thequery.addThumbnail(new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,skip)));
+            thequery.addThumbnail(new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)));
             thequery.addPreview(parse("https://xvideos.com"+searchResults.get(i).select("div.thumb").select("a").attr("href")));
             thequery.addName(downloadVideoName("https://xvideos.com"+searchResults.get(i).select("div.thumb").select("a").attr("href")));
             long size; try { size = getSize(link); } catch (GenericDownloaderException | IOException e) {size = -1;}
@@ -125,10 +125,10 @@ public class Xvideos extends GenericQueryExtractor{
             }
         }
         Vector<String> stats = getStats(page.select("script").get(use).toString());
-        if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(stats.get(5),skip))) //if file not already in cache download it
-            CommonUtils.saveFile(stats.get(5), CommonUtils.getThumbName(stats.get(5),skip),MainApp.imageCache);
+        if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(stats.get(5),SKIP))) //if file not already in cache download it
+            CommonUtils.saveFile(stats.get(5), CommonUtils.getThumbName(stats.get(5),SKIP),MainApp.imageCache);
         
-        File grid = new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(stats.get(5),skip));
+        File grid = new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(stats.get(5),SKIP));
         return CommonUtils.splitImage(grid, 5, 6, 25, 50);
     }
     
@@ -199,9 +199,9 @@ public class Xvideos extends GenericQueryExtractor{
         }
         Vector<String> stats = getStats(page.select("script").get(use).toString());
         
-        if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(stats.get(4),skip))) //if file not already in cache download it
-            CommonUtils.saveFile(stats.get(4),CommonUtils.getThumbName(stats.get(4),skip),MainApp.imageCache);
-        return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(stats.get(4),skip));
+        if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(stats.get(4),SKIP))) //if file not already in cache download it
+            CommonUtils.saveFile(stats.get(4),CommonUtils.getThumbName(stats.get(4),SKIP),MainApp.imageCache);
+        return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(stats.get(4),SKIP));
     }
     
     @Override protected void setExtractorName() {
@@ -225,10 +225,10 @@ public class Xvideos extends GenericQueryExtractor{
                 String link = "https://xvideos.com" + (String)item.get("u");
                 if (!link.matches("https://(www.)?xnxx.com/video-[\\S]+/[\\S]+") || !link.matches("https://(www.)?xvideos.com/video([\\S]+)/[\\S]+")) continue;
                 String title = CommonUtils.getThumbName(link).replaceAll("_", " ");
-                if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,skip))) //if file not already in cache download it
-                    if (CommonUtils.saveFile(thumb, CommonUtils.getThumbName(thumb,skip),MainApp.imageCache) != -2)
+                if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
+                    if (CommonUtils.saveFile(thumb, CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache) != -2)
                         continue;//throw new IOException("Error downloading file");
-                try { v = new video(link,title,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumb,skip)),getSize(link)); } catch(Exception e) {continue;}
+                try { v = new video(link,title,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumb,SKIP)),getSize(link)); } catch(Exception e) {continue;}
                 break;
             }
         } catch (ParseException e) {
@@ -259,11 +259,11 @@ public class Xvideos extends GenericQueryExtractor{
             String thumbLink = searchResults.get(i).select("div.thumb").select("a").select("img").attr("data-src");
             if (thumbLink.contains("THUMBNUM")) continue;
             
-            if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,skip))) //if file not already in cache download it
-                if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,skip),MainApp.imageCache) != -2)
+            if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,SKIP))) //if file not already in cache download it
+                if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,SKIP),MainApp.imageCache) != -2)
                     throw new IOException("Error downloading file");
             try {
-                v = new video(link,downloadVideoName("https://xvideos.com"+searchResults.get(i).select("div.thumb").select("a").attr("href")),new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,skip)),getSize("https://xvideos.com"+searchResults.get(i).select("div.thumb").select("a").attr("href")));
+                v = new video(link,downloadVideoName("https://xvideos.com"+searchResults.get(i).select("div.thumb").select("a").attr("href")),new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)),getSize("https://xvideos.com"+searchResults.get(i).select("div.thumb").select("a").attr("href")));
             } catch(Exception e) { v = null; continue;}
             break; //if u made it this far u already have a vaild video
 	}
