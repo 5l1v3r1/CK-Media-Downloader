@@ -351,7 +351,6 @@ public class CommonUtils {
             URLConnection connection = new URL(url).openConnection();
             connection.setRequestProperty("User-Agent", PCCLIENT);
             int response = ((HttpURLConnection)connection).getResponseCode();
-            System.out.println("[CommonUtils] response: "+response);
             //if redirect
             if ((response == HttpURLConnection.HTTP_SEE_OTHER) || (response == HttpURLConnection.HTTP_MOVED_TEMP) || (response == HttpURLConnection.HTTP_MOVED_PERM) || response == 403) {
                 String location = connection.getHeaderField("Location");
@@ -362,7 +361,6 @@ public class CommonUtils {
                 connection.setRequestProperty("Cookie", cookies);
                 connection.setRequestProperty("User-Agent", PCCLIENT);
                 connection.connect();
-                System.out.println("[CommonUtils] "+location);
             }
             return connection.getContentLengthLong();
         } catch (SocketException e){

@@ -54,7 +54,6 @@ public class Pornhd extends GenericExtractor{
 	for(int i = 0; i < rawData.length; i++) {
             if (i == 0) continue;
             qualities.put(rawData[i], "https://pornhd.com"+CommonUtils.eraseChar(rawData[i+2],'\\'));
-            System.out.println("https://pornhd.com"+CommonUtils.eraseChar(rawData[i+2],'\\'));
             i+=3;
 	}
         media.addThread(qualities, videoName);
