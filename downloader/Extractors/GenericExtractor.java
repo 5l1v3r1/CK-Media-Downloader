@@ -25,6 +25,7 @@ import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 /**
  *
@@ -123,22 +124,28 @@ public abstract class GenericExtractor {
     }
      
     protected static String getMetaImage(Document page, boolean ignore) {
-        String thumbLink = null; 
-	for(Element meta :page.select("meta"))
-            if (meta.attr("property").equals("og:image"))
-                if (!meta.attr("content").contains("static"))
-                    thumbLink = meta.attr("content");
-                else if(ignore) //if contains static but we are ignoring
-                    thumbLink = meta.attr("content");
+        String thumbLink;
+        thumbLink = pullMetaImage(page.select("meta"), ignore, "property");
         if (thumbLink == null)
-            for(Element meta :page.select("meta"))
-                if (meta.attr("itemprop").equals("og:image"))
-                    thumbLink = meta.attr("content");
+            thumbLink = pullMetaImage(page.select("meta"), ignore, "name");
+        if (thumbLink == null)
+            thumbLink = pullMetaImage(page.select("meta"), ignore, "itemprop");
         if (thumbLink == null)
             for(Element meta :page.select("link"))
                 if (meta.attr("rel").equals("image_src"))
                     thumbLink = meta.attr("href");
         return thumbLink;
+    }
+    
+    private static String pullMetaImage(Elements metas, boolean ignore, String attr) {
+        for(Element meta :metas) {
+            if (meta.attr(attr).equals("og:image"))
+                if (!meta.attr("content").contains("static"))
+                    return meta.attr("content");
+                else if(ignore) //if contains static but we are ignoring
+                    return meta.attr("content");
+        }
+        return null;
     }
     
     protected static String getTitle(Document page) {

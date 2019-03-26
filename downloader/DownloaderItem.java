@@ -492,7 +492,7 @@ public class DownloaderItem {
             while(k.hasNext()) { //download threads with chosen qualities
                 String tempLink = k.next();
                 downloadLinks.add(tempLink);
-                downloadNames.add(m.get(tempLink));
+                downloadNames.add(m.get(tempLink)+"-"+extractor.getId());
                 albumName = media.getAlbumName();
             }
         } else {
@@ -507,7 +507,7 @@ public class DownloaderItem {
                 link = m.get(m.keySet().iterator().next());
             if (link != null) {
                 downloadLinks.add(link);
-                downloadNames.add(media.getThreadName(0));
+                downloadNames.add(media.getThreadName(0)+"-"+extractor.getId());
             }
         }
     }

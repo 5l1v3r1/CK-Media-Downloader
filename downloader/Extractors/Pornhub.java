@@ -90,7 +90,7 @@ public class Pornhub extends GenericQueryExtractor implements Playlist{
             page = getPageCookie(link,false,true);
         }
         CommonUtils.savePage(page.toString(), link, false);
-        String img = "";
+        String img;
         Element div = page.getElementById("photoImageSection");
         if (div == null) { div = page.getElementById("gifImageSection"); img = div.select("div.centerImage").attr("data-gif"); }
         else img = div.select("div.centerImage").select("a").select("img").attr("src");

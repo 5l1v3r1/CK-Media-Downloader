@@ -7,9 +7,7 @@ package downloader;
 
 import ChrisPackage.GameTime;
 import ChrisPackage.stopWatch;
-import downloaderProject.DataIO;
 import downloaderProject.MainApp;
-import static downloaderProject.MainApp.BYTE;
 import downloaderProject.OperationStream;
 import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
@@ -38,7 +36,7 @@ import org.jsoup.Jsoup;
 public class CommonUtils {
     public static final String PCCLIENT = "Mozilla/5.0 (X11; Linux x86_64; rv:59.0) Gecko/20100101 Firefox/59.0", 
     MOBILECLIENT = "Mozilla/5.0 (Linux; Android 4.4.4; Nexus 5 Build/KTU84P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.57 Mobile Safari/537.36";
-    static final int BUFFSIZE = BYTE * 600; //1 x 600kb
+    private static final int BUFFSIZE = MainApp.BYTE * 600; //1 x 600kb
     
     public static Vector<File> splitImage(File origin, int row, int col, int yOffset, int widthOffset) {
         Vector<File> splits = new Vector<>();
@@ -308,34 +306,6 @@ public class CommonUtils {
         return false;
     }
     
-    private static long checkProgress(String url) {
-        File progressFile = new File(MainApp.progressCache.getAbsolutePath()+File.separator+getShortName(clean(url)));
-        if (!progressFile.exists()) return 0;
-        else {
-            try {
-                return DataIO.readProgress(progressFile);
-            }catch (FileNotFoundException ex) {
-                System.out.println("Failed to load progress");
-                return 0;
-            } catch(IOException e) {
-                System.out.println("Failed to load progress");
-                return 0;
-            } catch (ClassNotFoundException ex) {
-                System.out.println("Build error");
-                return 0;
-            }
-        }
-    }
-    
-    private static void saveProgress(String url, long bytes) {
-        File progressFile = new File(MainApp.progressCache.getAbsolutePath()+File.separator+getShortName(clean(url)));
-        try {
-            DataIO.writeProgress(progressFile, url, bytes);
-        } catch (IOException ex) {
-            System.out.println("Failed to save progress");
-        }
-    }
-    
     //get cache name from url
     public static String getCacheName(String url, boolean mobile) {
         url = url.replace("/", ".");
@@ -354,13 +324,15 @@ public class CommonUtils {
             //if redirect
             if ((response == HttpURLConnection.HTTP_SEE_OTHER) || (response == HttpURLConnection.HTTP_MOVED_TEMP) || (response == HttpURLConnection.HTTP_MOVED_PERM) || response == 403) {
                 String location = connection.getHeaderField("Location");
-                if (location.startsWith("/")) 
-                    location = "https://"+location;
-                connection = new URL(location).openConnection();
-                String cookies = connection.getHeaderField("Set-Cookie");
-                connection.setRequestProperty("Cookie", cookies);
-                connection.setRequestProperty("User-Agent", PCCLIENT);
-                connection.connect();
+                if (location != null) {
+                    if (location.startsWith("/")) 
+                        location = "https://"+location;
+                    connection = new URL(location).openConnection();
+                    String cookies = connection.getHeaderField("Set-Cookie");
+                    connection.setRequestProperty("Cookie", cookies);
+                    connection.setRequestProperty("User-Agent", PCCLIENT);
+                    connection.connect();
+                }
             }
             return connection.getContentLengthLong();
         } catch (SocketException e){
@@ -428,8 +400,8 @@ public class CommonUtils {
     }
     
     public static long saveFile(String link, String saveName, String path, OperationStream s) throws MalformedURLException{
-	BufferedInputStream in = null;
-	FileOutputStream out = null;
+	BufferedInputStream in;
+	FileOutputStream out;
         File dir = new File(path);
         long how = 0;
         if (!dir.exists()) 
@@ -445,13 +417,15 @@ public class CommonUtils {
             //if redirect
             if ((response == HttpURLConnection.HTTP_SEE_OTHER) || (response == HttpURLConnection.HTTP_MOVED_TEMP) || (response == HttpURLConnection.HTTP_MOVED_PERM) || response == 403) {
                 String location = connection.getHeaderField("Location");
-                if (location.startsWith("/")) 
-                    location = "https://"+location;
-                connection = new URL(location).openConnection();
-                String cookies = connection.getHeaderField("Set-Cookie");
-                connection.setRequestProperty("Cookie", cookies);
-                connection.setRequestProperty("User-Agent", PCCLIENT);
-                connection.connect();
+                if (location != null) {
+                    if (location.startsWith("/")) 
+                        location = "https://"+location;
+                    connection = new URL(location).openConnection();
+                    String cookies = connection.getHeaderField("Set-Cookie");
+                    connection.setRequestProperty("Cookie", cookies);
+                    connection.setRequestProperty("User-Agent", PCCLIENT);
+                    connection.connect();
+                }
             }
             if (s != null) s.addProgress("Connected to Page for");
             long fileSize = connection.getContentLengthLong();
@@ -475,8 +449,8 @@ public class CommonUtils {
                     if (s != null) s.addProgress(String.format("%.0f",(float)how/fileSize*100)+"% Complete");
                     timer.stop();
                     double secs = timer.getTime().convertToSecs();
-                    double speed = (how / secs) / BYTE;
-                    long remain = (fileSize - how) / BYTE;
+                    double speed = (how / secs) / MainApp.BYTE;
+                    long remain = (fileSize - how) / MainApp.BYTE;
                     GameTime g = new GameTime(); g.addSec((long)(remain / speed));
                     if (speed == Double.POSITIVE_INFINITY) {
                         if (s != null) s.addProgress(String.format("%s%d","^^",0));

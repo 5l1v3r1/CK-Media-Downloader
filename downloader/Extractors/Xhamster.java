@@ -63,7 +63,7 @@ public class Xhamster extends GenericQueryExtractor{
     private static Map<String,String> getQualities(String s) throws PageParseException {
         Map<String,String> q = new HashMap<>();
         try {
-            JSONArray json = (JSONArray)new JSONParser().parse(s.substring(0,s.indexOf("}]}")+2));
+            JSONArray json = (JSONArray)new JSONParser().parse(s.substring(0,s.indexOf("}]")+2));
             Iterator<JSONObject> i = json.iterator();
             while(i.hasNext()) {
                 JSONObject quality = i.next();
