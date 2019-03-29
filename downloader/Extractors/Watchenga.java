@@ -66,10 +66,6 @@ public class Watchenga extends GenericExtractor{
         if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,1))) //if file not already in cache download it
             CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,1),MainApp.imageCache);
         return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,1));
-    }  
-    
-    @Override  protected void setExtractorName() {
-        extractorName = "Watchenga";
     }
 
     @Override public video similar() {

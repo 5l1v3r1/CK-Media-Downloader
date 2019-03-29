@@ -272,36 +272,27 @@ public class Pornhub extends GenericQueryExtractor implements Playlist{
     
     private static boolean isAlbum(String url) {
         if (url.startsWith("http://")) url = url.replace("http://", "https://"); //so it doesnt matter if link is http / https
-        if (url.matches("https://(www.)?pornhub.com/album/[\\S]+"))
-            return true;
-        else return false;
+        return (url.matches("https://(www.)?pornhub.com/album/[\\S]+"));
     }
     
     private static boolean isPhoto(String url) {
         if (url.startsWith("http://")) url = url.replace("http://", "https://"); //so it doesnt matter if link is http / https
-        if (url.matches("https://(www.)?pornhub.com/(photo|gif)/[\\S]+"))
-            return true;
-        else return false;
+        return (url.matches("https://(www.)?pornhub.com/(photo|gif)/[\\S]+"));
     }
     
     private static boolean isGif(String url) {
         if (url.startsWith("http://")) url = url.replace("http://", "https://"); //so it doesnt matter if link is http / https
-        if (url.matches("https://(www.)?pornhub.com/gif/[\\S]+"))
-            return true;
-        else return false;
+        return (url.matches("https://(www.)?pornhub.com/gif/[\\S]+"));
     }
     
     private static boolean isPlaylist(String url) {
         if (url.startsWith("http://")) url = url.replace("http://", "https://"); //so it doesnt matter if link is http / https
-        if (url.matches("https://(www.)?pornhub.com/playlist/[\\S]+"))
-            return true;
-        else return false;
+        return (url.matches("https://(www.)?pornhub.com/playlist/[\\S]+"));
     }
     
      private static String downloadVideoName(String url) throws IOException , SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
-        Document page = null;
+        Document page = isAlbum(url) || isPhoto(url) ? getPage(url,false) : getPage(url,true);
         if (isAlbum(url) || isPhoto(url)) {
-            page = getPage(url,false);
             while(page.toString().contains("RNKEY"))
                 page = Jsoup.parse(Jsoup.connect(url).cookie("RNKEY", getRNKEY(page.toString())).userAgent(CommonUtils.PCCLIENT).get().html());
             CommonUtils.savePage(page.toString(), url, false);
@@ -314,17 +305,16 @@ public class Pornhub extends GenericQueryExtractor implements Playlist{
                 return page.select("h1.photoAlbumTitleV2").text().substring(0,page.select("h1.photoAlbumTitleV2").text().indexOf("<"));
             else return page.select("h1.photoAlbumTitleV2").text();
         } else if (isPhoto(url)) {
-            String img = "";
+            String img;
             Element div = page.getElementById("photoImageSection");
             if (div == null) { div = page.getElementById("gifImageSection"); img = div.select("div.centerImage").attr("data-gif"); }
             else img = div.select("div.centerImage").select("a").select("img").attr("src");
             return CommonUtils.getPicName(img);
         } else {
-            page = getPage(url,true);
-                while(page.toString().contains("RNKEY"))
-                    Jsoup.parse(Jsoup.connect(url).cookie("RNKEY", getRNKEY(page.toString())).userAgent(CommonUtils.MOBILECLIENT).get().html());
-                page = Jsoup.parse(page.toString());
-                CommonUtils.savePage(page.toString(), url, true);
+            while(page.toString().contains("RNKEY"))
+                Jsoup.parse(Jsoup.connect(url).cookie("RNKEY", getRNKEY(page.toString())).userAgent(CommonUtils.MOBILECLIENT).get().html());
+            page = Jsoup.parse(page.toString());
+            CommonUtils.savePage(page.toString(), url, true);
             verify(page);
            Elements titleSpan = page.select("span.inlineFree");
            return Jsoup.parse(titleSpan.toString()).body().text(); //pull out text in span
@@ -333,9 +323,8 @@ public class Pornhub extends GenericQueryExtractor implements Playlist{
 	
     //getVideo thumbnail
     private static File downloadThumb(String url) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception {
-        Document page = null;
+        Document page = isAlbum(url) || isPhoto(url) ? getPage(url,false) : getPage(url,true);
         if (isAlbum(url) || isPhoto(url)) {
-            page = getPage(url,false);
             while(page.toString().contains("RNKEY"))
                 page = Jsoup.parse(Jsoup.connect(url).cookie("RNKEY", getRNKEY(page.toString())).userAgent(CommonUtils.PCCLIENT).get().html());
             CommonUtils.savePage(page.toString(), url, false);
@@ -362,10 +351,9 @@ public class Pornhub extends GenericQueryExtractor implements Playlist{
                 CommonUtils.saveFile(img,CommonUtils.getThumbName(img,SKIP),MainApp.imageCache);
             return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(img,SKIP));
         } else {
-                page = getPage(url,true);
-                while(page.toString().contains("RNKEY"))
-                    page = Jsoup.parse(Jsoup.connect(url).cookie("RNKEY", getRNKEY(page.toString())).userAgent(CommonUtils.MOBILECLIENT).get().html());
-                CommonUtils.savePage(page.toString(), url, true);
+            while(page.toString().contains("RNKEY"))
+                page = Jsoup.parse(Jsoup.connect(url).cookie("RNKEY", getRNKEY(page.toString())).userAgent(CommonUtils.MOBILECLIENT).get().html());
+            CommonUtils.savePage(page.toString(), url, true);
             verify(page);
             String thumb = getMetaImage(page);
 
@@ -373,10 +361,6 @@ public class Pornhub extends GenericQueryExtractor implements Playlist{
                 CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,SKIP+1),MainApp.imageCache);
             return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,SKIP+1));
         }
-    }
-    
-    @Override protected void setExtractorName() {
-        extractorName = "Pornhub";
     }
 
     @Override public video similar() throws IOException, GenericDownloaderException{
@@ -503,7 +487,7 @@ public class Pornhub extends GenericQueryExtractor implements Playlist{
     }
     
     private static String getSingle(Document page) {
-        String img = "";
+        String img;
         Element div = page.getElementById("photoImageSection");
         if (div == null) { div = page.getElementById("gifImageSection"); img = div.select("div.centerImage").attr("data-gif"); }
         else img = div.select("div.centerImage").select("a").select("img").attr("src");
@@ -523,7 +507,7 @@ public class Pornhub extends GenericQueryExtractor implements Playlist{
         }
     }
     
-    public boolean isPlaylist() {
+    @Override public boolean isPlaylist() {
         return playlistUrl != null;
     }
     

@@ -89,7 +89,7 @@ public class DownloaderItem {
     
     public String getSite() {
         if (extractor != null)
-            return extractor.name();
+            return extractor.getClass().getSimpleName();
         else return null;
     }
     
@@ -563,7 +563,7 @@ public class DownloaderItem {
         if (albumName != null)
             saved = new File(folder + File.separator + albumName + File.separator + CommonUtils.clean(name));
         else saved = new File(folder + File.separator + CommonUtils.clean(name));
-        MainApp.downloadHistoryList.add(new downloadedMedia(CommonUtils.clean(name),extractor.getThumb(),saved,extractor.name()));
+        MainApp.downloadHistoryList.add(new downloadedMedia(CommonUtils.clean(name),extractor.getThumb(),saved,extractor.getClass().getSimpleName()));
     }
     
     private void setSize(final long size) {

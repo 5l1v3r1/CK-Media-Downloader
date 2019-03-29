@@ -154,10 +154,6 @@ public class Xhamster extends GenericQueryExtractor{
             return url.replaceFirst(".m", "");
         else return url;
     }
-    
-    @Override protected void setExtractorName() {
-        extractorName = "Xhamster";
-    }
 
     @Override public video similar() throws IOException, GenericDownloaderException {
     	if (url == null) return null;

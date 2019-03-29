@@ -58,11 +58,6 @@ public class Gotporn extends GenericExtractor{
     }
 
     @Override
-    protected void setExtractorName() {
-        extractorName = "Gotporn";
-    }
-
-    @Override
     public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
         Document page = getPage(url,false,true);
         

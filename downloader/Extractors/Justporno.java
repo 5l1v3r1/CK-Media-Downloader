@@ -84,10 +84,6 @@ public class Justporno extends GenericExtractor{
         return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,SKIP));
     }
 
-    @Override protected void setExtractorName() {
-        extractorName = "Justporno";
-    }
-
     @Override public video similar() throws IOException, GenericDownloaderException {
     	if (url == null) return null;
         

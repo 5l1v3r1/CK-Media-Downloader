@@ -63,6 +63,12 @@ public class CommonUtils {
         return splits;
     }
     
+    public static void log(Object context, String msg) {
+        if (context == null) 
+            System.out.println(msg);
+        else System.out.println("["+context.getClass().getSimpleName()+"] "+msg);
+    }
+    
     public static String getShortName(String s) {
         StringBuilder pure = new StringBuilder();
         
@@ -316,13 +322,17 @@ public class CommonUtils {
     }
     
     public static long getContentSize(String url) {
+        return getContentSize(url,false);
+    }
+    
+    public static long getContentSize(String url, boolean forbidden) {
         if (url == null) return -5;
         try {
             URLConnection connection = new URL(url).openConnection();
             connection.setRequestProperty("User-Agent", PCCLIENT);
             int response = ((HttpURLConnection)connection).getResponseCode();
             //if redirect
-            if ((response == HttpURLConnection.HTTP_SEE_OTHER) || (response == HttpURLConnection.HTTP_MOVED_TEMP) || (response == HttpURLConnection.HTTP_MOVED_PERM) || response == 403) {
+            if ((response == HttpURLConnection.HTTP_SEE_OTHER) || (response == HttpURLConnection.HTTP_MOVED_TEMP) || (response == HttpURLConnection.HTTP_MOVED_PERM) || (response == 403 && forbidden)) {
                 String location = connection.getHeaderField("Location");
                 if (location != null) {
                     if (location.startsWith("/")) 

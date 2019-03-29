@@ -136,10 +136,6 @@ public class Imgur extends GenericExtractor {
         }
     }
     
-    @Override protected void setExtractorName() {
-        extractorName = "Imgur";
-    }
-    
     private long getSingleSize(JSONObject details) {
         String link = "https://i.imgur.com/"+ details.get("hash")+""+details.get("ext"); 
         return CommonUtils.getContentSize(link);

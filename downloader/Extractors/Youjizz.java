@@ -86,10 +86,6 @@ public class Youjizz extends GenericExtractor{
             CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache);
         return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,SKIP));
     }
-    
-    @Override protected void setExtractorName() {
-        extractorName = "Youjizz";
-    }
 
     @Override public video similar() throws IOException, GenericDownloaderException{
     	if (url == null) return null;

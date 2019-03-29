@@ -46,14 +46,7 @@ public abstract class GenericExtractor {
     
     GenericExtractor() { //this contructor is used for when you jus want to query / search
         this.cookieJar = new HashMap<>();
-        setExtractorName();
     }
-    
-    public String name() {
-       return extractorName; 
-    }
-    
-    protected abstract void setExtractorName();
     
     protected static Response getPageResponse(String url, boolean mobile) throws IOException {
         return mobile ? Jsoup.connect(url).userAgent(CommonUtils.MOBILECLIENT).header("Cookie","Country=US").execute() : Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).header("Cookie","Country=US").execute();

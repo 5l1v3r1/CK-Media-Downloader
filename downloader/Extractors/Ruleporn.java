@@ -121,10 +121,6 @@ public class Ruleporn extends GenericQueryExtractor{
             CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb),MainApp.imageCache);
         return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb));
     }
-    
-    @Override protected void setExtractorName() {
-        extractorName = "Ruleporn";
-    }
 
     @Override public video similar() throws IOException, GenericDownloaderException {
     	if (url == null) return null;

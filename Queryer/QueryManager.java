@@ -10,6 +10,7 @@ import downloader.DataStructures.historyItem;
 import downloader.DataStructures.video;
 import downloader.DownloaderItem;
 import downloader.Extractors.Bigbootytube;
+import downloader.Extractors.GenericExtractor;
 import downloader.Extractors.GenericQueryExtractor;
 import downloader.Extractors.Pornhub;
 import downloader.Extractors.Redtube;
@@ -40,6 +41,8 @@ import javafx.scene.input.MouseEvent;
 import downloaderProject.MainApp;
 import java.awt.Desktop;
 import java.io.InputStream;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import org.jsoup.UncheckedIOException;
 
 import java.net.SocketTimeoutException;
@@ -159,31 +162,15 @@ public class QueryManager {
         
         //this will return the appropriate extractor
         private GenericQueryExtractor getExtractor(String site) {
-            if(site.equals("spankbang"))
-                return new Spankbang();
-            else if (site.equals("pornhub"))
-                return new Pornhub();
-            else if (site.equals("xhamster"))
-                return new Xhamster();
-            else if (site.equals("xvideos"))
-                return new Xvideos();
-            else if (site.equals("youporn"))
-                return new Youporn();
-            else if (site.equals("redtube"))
-                return new Redtube();
-            else if (site.equals("thumbzilla"))
-                return new Thumbzilla();
-            else if (site.equals("shesfreaky"))
-                return new Shesfreaky();
-            else if (site.equals("tube8"))
-                return new Tube8();
-            else if(site.equals("spankwire"))
-                return new Spankwire();
-            else if(site.equals("bigbootytube"))
-                return new Bigbootytube();
-            else if (site.equals("ruleporn"))
-                return new Ruleporn();
-            else return null;
+            try {
+                Class<?> c = Class.forName("downloader.Extractors."+site.toString().substring(0,1).toUpperCase()+site.toString().substring(1));
+                Constructor<?> cons = c.getConstructor();
+                return (GenericQueryExtractor)cons.newInstance();
+            } catch (ClassNotFoundException | NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
+                return null;
+            }
+            //spankbang, pornhub, xhamster, xvideos, youporn, redtube, thumbzilla, shesfreaky, tube8,
+            //spankwire, bigbootytube, ruleporn
         }
         
         //this determines which sites are enabled for querying
@@ -197,7 +184,7 @@ public class QueryManager {
             historyItem history = new historyItem(search);
             for(GenericQueryExtractor e : extractor)
                 if(e != null)
-                    history.addSite(e.name());
+                    history.addSite(e.getClass().getSimpleName());
             history.setSearchResult(results);
             try {
                 DataIO.saveHistory(history);

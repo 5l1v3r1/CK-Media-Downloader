@@ -176,10 +176,6 @@ public class Instagram extends GenericExtractor{
             CommonUtils.saveFile(thumbLink,CommonUtils.parseName(thumbLink,".jpg"),MainApp.imageCache);
         return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.parseName(thumbLink,".jpg"));
     }
-    
-    @Override protected void setExtractorName() {
-        extractorName = "Instagram";
-    }
 
     @Override public video similar() {
         return null;

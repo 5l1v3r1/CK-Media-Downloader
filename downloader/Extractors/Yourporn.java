@@ -29,7 +29,7 @@ import org.jsoup.select.Elements;
  * @author christopher
  */
 public class Yourporn extends GenericExtractor{
-    private static final int skip = 2;
+    private static final int SKIP = 2;
     
     public Yourporn() { //this contructor is used for when you jus want to search
         
@@ -97,7 +97,7 @@ public class Yourporn extends GenericExtractor{
               test = test.replace("cdn4", "cdn3");
             if (CommonUtils.getContentSize(test) < 1)
                 test = test.replace("cdn3", "cdn2");*/
-            System.out.println("What was test "+test);
+            CommonUtils.log(this,"What was test "+test);
             qualities.put("single",test);
             media.addThread(qualities,videoName);
 
@@ -147,13 +147,9 @@ public class Yourporn extends GenericExtractor{
         else
             thumbLink = getImages(url).get(0);
         
-        if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,skip))) //if file not already in cache download it
-            CommonUtils.saveFile(thumbLink,CommonUtils.getThumbName(thumbLink,skip),MainApp.imageCache);
-        return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumbLink,skip));
-    }
-    
-    @Override protected void setExtractorName() {
-        extractorName = "Yourporn";
+        if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,SKIP))) //if file not already in cache download it
+            CommonUtils.saveFile(thumbLink,CommonUtils.getThumbName(thumbLink,SKIP),MainApp.imageCache);
+        return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumbLink,SKIP));
     }
 
     @Override public video similar() {
@@ -201,8 +197,8 @@ public class Yourporn extends GenericExtractor{
               test = test.replace("cdn4", "cdn3");
             if (CommonUtils.getContentSize(test) < 1)
                 test = test.replace("cdn3", "cdn2");*/
-            System.out.println("What was test "+test);
-            return CommonUtils.getContentSize(test);
+            CommonUtils.log(this,"What was test "+test);
+            return CommonUtils.getContentSize(test, true);
         }
     }
 

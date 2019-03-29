@@ -148,10 +148,6 @@ public class Redtube extends GenericQueryExtractor{
         if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP+2))) //if file not already in cache download it
             CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,SKIP+2),MainApp.imageCache);
         return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,SKIP+2));
-    }    
-    
-    @Override protected void setExtractorName() {
-        extractorName = "Redtube";
     }
 
     @Override public video similar() throws IOException, GenericDownloaderException {

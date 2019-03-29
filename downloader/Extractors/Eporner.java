@@ -44,10 +44,6 @@ public class Eporner extends GenericExtractor{
     public Eporner(String url, File thumb, String videoName){
         super(url,thumb,videoName); 
     }
-    
-    @Override protected void setExtractorName() {
-        extractorName = "Eporner";
-    }
 
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
         Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());

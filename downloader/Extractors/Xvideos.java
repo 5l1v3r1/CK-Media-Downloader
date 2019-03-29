@@ -203,10 +203,6 @@ public class Xvideos extends GenericQueryExtractor{
             CommonUtils.saveFile(stats.get(4),CommonUtils.getThumbName(stats.get(4),SKIP),MainApp.imageCache);
         return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(stats.get(4),SKIP));
     }
-    
-    @Override protected void setExtractorName() {
-        extractorName = "Xvideos";
-    }
 
     @Override public video similar() throws IOException, GenericDownloaderException{
         if (url == null) return null;

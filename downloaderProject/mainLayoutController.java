@@ -9,6 +9,7 @@ import ChrisPackage.Reactable;
 import Queryer.QueryManager;
 import com.jfoenix.controls.JFXDialog;
 import com.jfoenix.controls.events.JFXDialogEvent;
+import downloader.CommonUtils;
 import downloader.DataStructures.Device;
 import downloader.DataStructures.video;
 import downloader.DownloaderItem;
@@ -89,16 +90,16 @@ public class mainLayoutController implements Initializable, Reactable{
                 clipText = clipText.trim(); //trim off any white space that may be on the string to leave the raw link
                 String[] token = clipText.split("\n"); //if multiple lines of links on clipboard
                 for(String s:token) {
-                    System.out.println(s);  //this is jus a debugging output
+                    CommonUtils.log(this,s);  //this is jus a debugging output
                     if (Site.getUrlSite(s) == Site.Type.none) 
-                        System.out.println("Couldn't determine"); //invalid link
+                        CommonUtils.log(this,"Couldn't determine"); //invalid link
                     else determineSite(s);
                 }
             }
         } catch(UnsupportedFlavorException e) {
-            System.out.println("Unsupported clipboard entry "+e.getMessage());
+            CommonUtils.log(this,"Unsupported clipboard entry "+e.getMessage());
         }catch (HeadlessException | IOException e) {
-            System.out.println(e.getMessage());
+            CommonUtils.log(this,e.getMessage());
             //MainApp.createMessageDialog(e.getMessage());
             //e.printStackTrace();
         }
@@ -112,14 +113,14 @@ public class mainLayoutController implements Initializable, Reactable{
                 String clipText = (String)clip.getData(DataFlavor.stringFlavor);
                 clipText = clipText.trim(); //trim off any white space that may be on the string
                 if (Site.getPageSite(clipText) == Site.Page.none) 
-                    System.out.println("Was none"); //invalid link
+                    CommonUtils.log(this,"Was none"); //invalid link
                 else
                     determineSite(clipText, Site.getPageSite(clipText));
             }
         } catch(UnsupportedFlavorException e) {
-            System.out.println("Unsupported clipboard entry: "+e.getMessage());
+            CommonUtils.log(this,"Unsupported clipboard entry: "+e.getMessage());
         }catch (HeadlessException | IOException e) {
-            System.out.println(e.getMessage());
+            CommonUtils.log(this,e.getMessage());
         }
     }
     
@@ -186,10 +187,9 @@ public class mainLayoutController implements Initializable, Reactable{
                     MainApp.createMessageDialog("File doesn't exist");
                 }
                 for(int i = 0; i < lines.size(); i++) {
-                    System.out.println(lines.get(i).trim());
-                    if (Site.getUrlSite(lines.get(i).trim()) == Site.Type.none)
-                        continue;
-                    else determineSite(lines.get(i).trim());
+                    CommonUtils.log(this,lines.get(i).trim());
+                    if (Site.getUrlSite(lines.get(i).trim()) != Site.Type.none)
+                        determineSite(lines.get(i).trim());
                 }
                 MainApp.settings.preferences.setImportFolder(selected.getParentFile());
                 MainApp.settings.saveSettings();
@@ -197,7 +197,7 @@ public class mainLayoutController implements Initializable, Reactable{
             choose = null;
         } catch (Exception e) {
             e.printStackTrace();
-            System.out.println(e.getMessage());
+            CommonUtils.log(this,e.getMessage());
         }
     }
     
@@ -313,10 +313,10 @@ public class mainLayoutController implements Initializable, Reactable{
                                 MainApp.updateDevices();
                             } catch (FileNotFoundException e) {
                                 MainApp.createMessageDialog("Failed to save new device");
-                                System.out.println("File not found");
+                                CommonUtils.log(this,"File not found");
                             } catch (IOException e) {
                                 MainApp.createMessageDialog("Failed to save new device");
-                                System.out.println(e.getMessage());
+                                CommonUtils.log(this,e.getMessage());
                             }
                         }
                     });

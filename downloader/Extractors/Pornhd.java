@@ -75,10 +75,6 @@ public class Pornhd extends GenericExtractor{
             CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache);
         return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,SKIP));
     }
-    
-    @Override protected void setExtractorName() {
-        extractorName = "Pornhd";
-    }
 
     @Override public video similar() throws IOException, GenericDownloaderException {
     	if (url == null) return null;
@@ -88,13 +84,13 @@ public class Pornhd extends GenericExtractor{
         Elements li = page.select("ul.thumbs").select("li");
         Random randomNum = new Random(); int count = 0; boolean got = false; if (li.isEmpty()) got = true;
         while(!got) {
-        	if (count > li.size()) break;
-        	int i = randomNum.nextInt(li.size()); count++;
-        	String link = "https://www.pornhd.com" + li.get(i).select("a.thumb.videoThumb.popTrigger").attr("href");
+            if (count > li.size()) break;
+            int i = randomNum.nextInt(li.size()); count++;
+            String link = "https://www.pornhd.com" + li.get(i).select("a.thumb.videoThumb.popTrigger").attr("href");
             String title = li.get(i).select("a.title").text();
-                try {v = new video(link,title,downloadThumb(link),getSize(link)); } catch(Exception e) {continue;}
-                break;
-            }
+            try {v = new video(link,title,downloadThumb(link),getSize(link)); } catch(Exception e) {continue;}
+            break;
+        }
         return v;
     }
 
@@ -129,7 +125,7 @@ public class Pornhd extends GenericExtractor{
         else video = qualities.get((String)qualities.values().toArray()[0]);
         
         if (video == null) return -1;
-        else return CommonUtils.getContentSize(video);
+        else return CommonUtils.getContentSize(video, true);
     }
     
     @Override public String getId(String link) {

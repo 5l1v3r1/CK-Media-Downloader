@@ -44,10 +44,6 @@ public class Hoodamateurs extends GenericExtractor{
         super(url,thumb,videoName);
     }
 
-    @Override protected void setExtractorName() {
-        extractorName = "Hoodamateurs";
-    }
-
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
         Document page = getPage(url,false,true);
      

@@ -75,10 +75,6 @@ public class Bigtits extends GenericExtractor{
         return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,SKIP));
     }
 
-    @Override protected void setExtractorName() {
-        extractorName = "Bigtits";
-    }
-
     @Override public video similar() throws IOException {
     	/*if (url == null) return null;
         

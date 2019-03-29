@@ -66,10 +66,6 @@ public class Anysex extends GenericExtractor{
             CommonUtils.saveFile(thumbLink,CommonUtils.getThumbName(thumbLink,SKIP),MainApp.imageCache);
         return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumbLink,SKIP));
     }
-    
-    @Override protected void setExtractorName() {
-        extractorName = "Anysex";
-    }
 
     @Override public video similar() throws IOException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.

@@ -123,10 +123,6 @@ public class Dailymotion extends GenericExtractor{
         return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,SKIP));
     }
 
-    @Override protected void setExtractorName() {
-        extractorName = "Dailymotion";
-    }
-
     @Override public video similar() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }

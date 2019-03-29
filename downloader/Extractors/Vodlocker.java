@@ -65,10 +65,6 @@ public class Vodlocker extends GenericExtractor{
         return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb));
     }
 
-    @Override protected void setExtractorName() {
-        extractorName = "Vodlocker";
-    }
-
     @Override public video similar() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }

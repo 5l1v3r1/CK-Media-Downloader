@@ -71,10 +71,6 @@ public class Pornheed extends GenericExtractor{
             CommonUtils.saveFile(thumbLink,CommonUtils.getThumbName(thumbLink,SKIP),MainApp.imageCache);
         return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumbLink,SKIP));
     }
-    
-    @Override protected void setExtractorName() {
-        extractorName = "Pornheed";
-    }
 
     @Override public video similar() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.

@@ -218,10 +218,6 @@ public class Spankbang extends GenericQueryExtractor implements Playlist{
             return true;
         else return false;
     }
-    
-    @Override protected void setExtractorName() {
-        extractorName = "Spankbang";
-    }
 
     @Override public video similar() throws IOException, GenericDownloaderException{
     	if (url == null) return null;

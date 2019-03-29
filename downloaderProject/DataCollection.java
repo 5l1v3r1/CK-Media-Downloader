@@ -21,6 +21,8 @@ import downloader.Exceptions.GenericDownloaderException;
 import downloader.Extractors.*;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 
 public class DataCollection implements Externalizable{
 	private static final long serialVersionUID = 1L;
@@ -248,44 +250,25 @@ public class DataCollection implements Externalizable{
                 x = getExtractor(i.next());
             }while(x == null && i.hasNext());
 	    if (x != null) {
-		System.out.println("Searching: "+x.name());
+		CommonUtils.log(this,"Searching: "+x.getClass().getSimpleName());
 	        System.out.println("search: "+searchStr);
                 try {addSuggestion(x.search(searchStr));}catch(IOException | UnsupportedOperationException e) {}
 	    }
 	}
         
         private GenericExtractor getExtractor(String type) {
-            if (type.equals("Spankbang")) return new Spankbang();
-            if (type.equals("Pornhub"))return new Pornhub();
-            if (type.equals("Xhamster")) return new Xhamster(); 
-            if (type.equals("Xvideos")) return new Xvideos();
-            if (type.equals("Xnxx")) return new Xvideos(); //xnxx shares the same setup so they use the extractor
-            if (type.equals("Youporn")) return new Youporn();
-            if (type.equals("Redtube")) return new Redtube();
-            if (type.equals("Thumbzilla")) return new Thumbzilla();
-            if (type.equals("Shesfreaky")) return new Shesfreaky();
-            if (type.equals("Yourporn")) return new Yourporn();
-            if (type.equals("Bigtits")) return new Bigtits();
-            if (type.equals("Pornhd")) return new Pornhd(); //not implemented //complex
-            if (type.equals("Vporn")) return new Vporn();
-            if (type.equals("Ghettotube")) return new Ghettotube();
-            if (type.equals("Tube8")) return new Tube8();
-            if (type.equals("Youjizz")) return new Youjizz();
-            if (type.equals("Xtube")) return new Xtube(); 
-            if (type.equals("Spankwire")) return new Spankwire();
-            if (type.equals("Justporno")) return new Justporno();
-            if (type.equals("Bigbootytube")) return new Bigbootytube();
-            if (type.equals("Befuck")) return new Befuck();
-            if (type.equals("Dailymotion")) return new Dailymotion(); //not implemented
-            if (type.equals("Vimeo")) return new Vimeo(); //not implemented
-            if (type.equals("Cumlouder")) return new Cumlouder();
-            if (type.equals("Ruleporn")) return new Ruleporn();
-            if (type.equals("Homemoviestube")) return new Homemoviestube();
-            if (type.equals("Anysex")) return new Anysex();
-            if (type.equals("Porn")) return new Porn();
-            if (type.equals("Pornheed")) return new Pornheed(); //not implemented
-            if (type.equals("Drtuber")) return new Drtuber(); //not implemented
-            return null;
+            try {
+                Class<?> c = Class.forName("downloader.Extractors."+type);
+                Constructor<?> cons = c.getConstructor();
+                return (GenericExtractor)cons.newInstance();
+            } catch (ClassNotFoundException | NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
+                return null;
+            }
+            /*Pornhd //not implemented //complex
+            Dailymotion //not implemented
+            Vimeo //not implemented
+            Pornheed //not implemented
+            Drtuber //not implemented*/
         }
         
         private static boolean isValid(String str) {

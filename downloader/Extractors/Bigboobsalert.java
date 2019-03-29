@@ -79,10 +79,6 @@ public class Bigboobsalert extends GenericExtractor{
             CommonUtils.saveFile(thumbLink,CommonUtils.getThumbName(thumbLink),MainApp.imageCache);
         return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumbLink));
     }
-    
-    @Override protected void setExtractorName() {
-        extractorName = "Bigboobsalert";
-    }
 
     @Override public video similar() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.

@@ -141,10 +141,6 @@ public class Youporn extends GenericQueryExtractor{
         return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,6));
     }
     
-    @Override protected void setExtractorName() {
-        extractorName = "Youporn";
-    }
-
     @Override public video similar() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }

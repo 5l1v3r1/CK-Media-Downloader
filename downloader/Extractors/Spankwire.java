@@ -150,10 +150,6 @@ public class Spankwire extends GenericQueryExtractor{
             CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache);
         return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,SKIP));
     }
-    
-    @Override protected void setExtractorName() {
-        extractorName = "Spankwire";
-    }
 
     @Override public video similar() throws IOException, PageParseException {
     	String rawJson = Jsoup.connect("http://www.spankwire.com/api/video/"+getVideoId(url)+".json").ignoreContentType(true).execute().body();
@@ -161,7 +157,7 @@ public class Spankwire extends GenericQueryExtractor{
             JSONObject json = (JSONObject)new JSONParser().parse(rawJson);
             String link = "http://spankwire.com" + ((JSONObject)json.get("related")).get("url");
             video v;
-            try {v = new video(link,downloadVideoName(link),downloadThumb(link),getSize(link)); }catch (Exception e) { throw new PageParseException("["+this.name()+"]"+e.getMessage());}
+            try {v = new video(link,downloadVideoName(link),downloadThumb(link),getSize(link)); }catch (Exception e) { throw new PageParseException("["+this.getClass().getSimpleName()+"]"+e.getMessage());}
             return v;
         } catch (ParseException e) {
             throw new PageParseException(e.getMessage());

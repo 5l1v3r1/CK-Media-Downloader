@@ -116,10 +116,6 @@ public class Vimeo extends GenericExtractor{
         return url.replace("player.vimeo.com/video/", "vimeo.com/");
     }
 
-    @Override protected void setExtractorName() {
-        extractorName = "Vimeo";
-    }
-
     @Override public video similar() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }

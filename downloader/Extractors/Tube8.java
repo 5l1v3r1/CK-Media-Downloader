@@ -145,10 +145,6 @@ public class Tube8 extends GenericQueryExtractor{
         if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
             CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache);
         return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,SKIP));
-    }  
-    
-    @Override protected void setExtractorName() {
-        extractorName = "Tube8";
     }
 
     @Override public video similar() throws IOException, GenericDownloaderException {

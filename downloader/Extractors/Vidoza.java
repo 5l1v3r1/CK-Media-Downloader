@@ -47,10 +47,6 @@ public class Vidoza extends GenericExtractor {
     public Vidoza(String url, File thumb, String videoName){
         super(url,thumb,videoName);
     }
-
-    @Override protected void setExtractorName() {
-        extractorName = "Vidoza";
-    }
     
     private Map<String, String> getQualities(String src) throws PageParseException {
         Map<String, String> links = new HashMap<>();

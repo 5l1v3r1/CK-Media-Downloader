@@ -69,10 +69,6 @@ public class Homemoviestube extends GenericExtractor{
             CommonUtils.saveFile(thumbLink,CommonUtils.getThumbName(thumbLink,SKIP),MainApp.imageCache);
         return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumbLink,SKIP));
     }
-    
-    @Override protected void setExtractorName() {
-        extractorName = "Homemoivestube";
-    }
 
     @Override public video similar() throws IOException, GenericDownloaderException {
         if (url == null) return null;
