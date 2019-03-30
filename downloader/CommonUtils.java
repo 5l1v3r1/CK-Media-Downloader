@@ -63,7 +63,15 @@ public class CommonUtils {
         return splits;
     }
     
-    public static void log(Object context, String msg) {
+    public static void log(String msg) {
+        log(msg,"undefined");
+    }
+    
+    public static void log(String msg, String context) {
+        System.out.println("["+context+"] "+msg);
+    }
+    
+    public static void log(String msg, Object context) {
         if (context == null) 
             System.out.println(msg);
         else System.out.println("["+context.getClass().getSimpleName()+"] "+msg);
@@ -291,11 +299,11 @@ public class CommonUtils {
         if (files != null)  {//if cache is not empty
             Arrays.parallelSort(files);
             if (Arrays.binarySearch(files, new File(MainApp.imageCache+File.separator+name)) > -1) {
-                System.out.println("Found in cache: "+name);
+                log("Found in cache: "+name, "CommonUtils");
                 return true;
             }
         }
-        System.out.println("not found in cache: "+name);
+        log("not found in cache: "+name,"CommonUtils");
         return false;
     }
     
@@ -304,11 +312,11 @@ public class CommonUtils {
         if (files != null)  {//if cache is not empty
             Arrays.parallelSort(files);
             if (Arrays.binarySearch(files, new File(MainApp.pageCache+File.separator+name)) > -1) {
-                System.out.println("Found in cache: "+name);
+                log("Found in cache: "+name, "CommonUtils");
                 return true;
             }
         }
-        System.out.println("not found in cache: "+name);
+        log("not found in cache: "+name,"CommonUtils");
         return false;
     }
     
@@ -346,13 +354,13 @@ public class CommonUtils {
             }
             return connection.getContentLengthLong();
         } catch (SocketException e){
-            System.out.println(e.getMessage());
+            log(e.getMessage(),"CommonUtils");
             return -2;
         } catch (IOException e) {
-            System.out.println(e.getMessage());
+            log(e.getMessage(),"CommonUtils");
             return -3;
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            log(e.getMessage(),"CommonUtils");
             return -4;
         }
     }
@@ -388,13 +396,13 @@ public class CommonUtils {
             f.format("%s", page);
             f.flush(); f.close();
         } catch (FileNotFoundException ex) {
-            System.out.println("Failed to save page: "+ex.getMessage());
+            log("Failed to save page: "+ex.getMessage(),"CommonUtils");
         }
         MainApp.settings.cacheUpdate();
     }
     
     public static void erasePage(String name) {
-        System.out.println(new File(MainApp.pageCache.getAbsolutePath()+File.separator+name).delete());
+        log(String.valueOf(new File(MainApp.pageCache.getAbsolutePath()+File.separator+name).delete()),"CommonUtils");
     }
     
     public static long saveFile(String link, String saveName, File path) throws MalformedURLException{
@@ -410,6 +418,10 @@ public class CommonUtils {
     }
     
     public static long saveFile(String link, String saveName, String path, OperationStream s) throws MalformedURLException{
+        return saveFile(link, saveName, path, s, false);
+    }
+    
+    public static long saveFile(String link, String saveName, String path, OperationStream s, boolean forbid) throws MalformedURLException{
 	BufferedInputStream in;
 	FileOutputStream out;
         File dir = new File(path);
@@ -425,7 +437,7 @@ public class CommonUtils {
             connection.setRequestProperty("Range","bytes="+how+"-");
             int response = ((HttpURLConnection)connection).getResponseCode();
             //if redirect
-            if ((response == HttpURLConnection.HTTP_SEE_OTHER) || (response == HttpURLConnection.HTTP_MOVED_TEMP) || (response == HttpURLConnection.HTTP_MOVED_PERM) || response == 403) {
+            if ((response == HttpURLConnection.HTTP_SEE_OTHER) || (response == HttpURLConnection.HTTP_MOVED_TEMP) || (response == HttpURLConnection.HTTP_MOVED_PERM) || (response == 403 && forbid)) {
                 String location = connection.getHeaderField("Location");
                 if (location != null) {
                     if (location.startsWith("/")) 
@@ -474,22 +486,22 @@ public class CommonUtils {
             }
         } catch (UncheckedIOException | SocketException e) {
             e.printStackTrace();
-            System.out.println("link "+link);
+            log("link "+link,"CommonUtils");
             if (s != null) s.addProgress("Lost Connection: "+e.getMessage());
             return how; //return kb stopped at
         } catch(IOException e){
              if (e.getMessage().contains("Server returned HTTP response code: 416")) {
-                System.out.println("Bad range");
+                log("Bad range","CommonUtils");
                 return -2;
             } else {
                 e.printStackTrace();
-                System.out.println("link "+link);
+                log("link "+link,"CommonUtils");
                 if (s != null) s.addProgress("An IO error occurred: "+e.getMessage());
                 return how; //return kb stopped at
             }
         } catch (Exception e) {
             e.printStackTrace();
-            System.out.println("link "+link);
+            log("link "+link,"CommonUtils");
             if (s != null) s.addProgress("An error occurred: "+e.getMessage());
             return how;
         }

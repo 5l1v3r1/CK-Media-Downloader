@@ -47,7 +47,7 @@ public class DownloadManager {
             downloads = null;
             downloadItems = null;
         } catch (InterruptedException ex) {
-            System.out.println("Failed to stop download threads");
+            CommonUtils.log("Failed to stop download threads",this);
         }
     }
     
@@ -152,7 +152,7 @@ public class DownloadManager {
         
         @Override
         public void run() {
-            System.out.println("Searching link");
+            CommonUtils.log("Searching link",this);
             try {
                 if(!d.searchLink()) {
                     //MainApp.createMessageDialog("Error with: "+d.getLink());
@@ -168,10 +168,10 @@ public class DownloadManager {
                             }
                         }
                     } catch (GenericDownloaderException e) {
-                        System.out.println("Couldnt load side &&|| search");
-                        System.out.println(e.getMessage());
+                        CommonUtils.log("Couldnt load side &&|| search",this);
+                        CommonUtils.log(e.getMessage(),this);
                     } catch (Exception e) {
-                        System.out.println(e.getMessage());
+                        CommonUtils.log(e.getMessage(),this);
                         //dont remove download if it has it only because of search || side
                     }
                 }

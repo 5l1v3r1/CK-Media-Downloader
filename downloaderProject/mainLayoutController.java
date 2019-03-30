@@ -90,16 +90,16 @@ public class mainLayoutController implements Initializable, Reactable{
                 clipText = clipText.trim(); //trim off any white space that may be on the string to leave the raw link
                 String[] token = clipText.split("\n"); //if multiple lines of links on clipboard
                 for(String s:token) {
-                    CommonUtils.log(this,s);  //this is jus a debugging output
+                    CommonUtils.log(s,this);  //this is jus a debugging output
                     if (Site.getUrlSite(s) == Site.Type.none) 
-                        CommonUtils.log(this,"Couldn't determine"); //invalid link
+                        CommonUtils.log("Couldn't determine",this); //invalid link
                     else determineSite(s);
                 }
             }
         } catch(UnsupportedFlavorException e) {
-            CommonUtils.log(this,"Unsupported clipboard entry "+e.getMessage());
+            CommonUtils.log("Unsupported clipboard entry "+e.getMessage(),this);
         }catch (HeadlessException | IOException e) {
-            CommonUtils.log(this,e.getMessage());
+            CommonUtils.log(e.getMessage(),this);
             //MainApp.createMessageDialog(e.getMessage());
             //e.printStackTrace();
         }
@@ -113,14 +113,14 @@ public class mainLayoutController implements Initializable, Reactable{
                 String clipText = (String)clip.getData(DataFlavor.stringFlavor);
                 clipText = clipText.trim(); //trim off any white space that may be on the string
                 if (Site.getPageSite(clipText) == Site.Page.none) 
-                    CommonUtils.log(this,"Was none"); //invalid link
+                    CommonUtils.log("Was none",this); //invalid link
                 else
                     determineSite(clipText, Site.getPageSite(clipText));
             }
         } catch(UnsupportedFlavorException e) {
-            CommonUtils.log(this,"Unsupported clipboard entry: "+e.getMessage());
+            CommonUtils.log("Unsupported clipboard entry: "+e.getMessage(),this);
         }catch (HeadlessException | IOException e) {
-            CommonUtils.log(this,e.getMessage());
+            CommonUtils.log(e.getMessage(),this);
         }
     }
     
@@ -187,7 +187,7 @@ public class mainLayoutController implements Initializable, Reactable{
                     MainApp.createMessageDialog("File doesn't exist");
                 }
                 for(int i = 0; i < lines.size(); i++) {
-                    CommonUtils.log(this,lines.get(i).trim());
+                    CommonUtils.log(lines.get(i).trim(),this);
                     if (Site.getUrlSite(lines.get(i).trim()) != Site.Type.none)
                         determineSite(lines.get(i).trim());
                 }
@@ -197,7 +197,7 @@ public class mainLayoutController implements Initializable, Reactable{
             choose = null;
         } catch (Exception e) {
             e.printStackTrace();
-            CommonUtils.log(this,e.getMessage());
+            CommonUtils.log(e.getMessage(),this);
         }
     }
     
@@ -313,10 +313,10 @@ public class mainLayoutController implements Initializable, Reactable{
                                 MainApp.updateDevices();
                             } catch (FileNotFoundException e) {
                                 MainApp.createMessageDialog("Failed to save new device");
-                                CommonUtils.log(this,"File not found");
+                                CommonUtils.log("File not found",this);
                             } catch (IOException e) {
                                 MainApp.createMessageDialog("Failed to save new device");
-                                CommonUtils.log(this,e.getMessage());
+                                CommonUtils.log(e.getMessage(),this);
                             }
                         }
                     });

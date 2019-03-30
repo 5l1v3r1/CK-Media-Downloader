@@ -97,7 +97,7 @@ public class Yourporn extends GenericExtractor{
               test = test.replace("cdn4", "cdn3");
             if (CommonUtils.getContentSize(test) < 1)
                 test = test.replace("cdn3", "cdn2");*/
-            CommonUtils.log(this,"What was test "+test);
+            CommonUtils.log("What was test "+test,this);
             qualities.put("single",test);
             media.addThread(qualities,videoName);
 
@@ -197,7 +197,7 @@ public class Yourporn extends GenericExtractor{
               test = test.replace("cdn4", "cdn3");
             if (CommonUtils.getContentSize(test) < 1)
                 test = test.replace("cdn3", "cdn2");*/
-            CommonUtils.log(this,"What was test "+test);
+            CommonUtils.log("What was test "+test,this);
             return CommonUtils.getContentSize(test, true);
         }
     }

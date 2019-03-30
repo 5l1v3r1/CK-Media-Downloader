@@ -10,6 +10,7 @@ import Queryer.QueryManager;
 import Share.Actions;
 import com.jfoenix.controls.JFXDialog;
 import com.jfoenix.controls.events.JFXDialogEvent;
+import downloader.CommonUtils;
 import downloader.DataStructures.Device;
 import downloader.DataStructures.GenericQuery;
 import downloader.DataStructures.video;
@@ -74,7 +75,7 @@ public class MainApp extends Application {
     public static ProgressBar progress;
     public static TextArea log;
     public static Actions act;
-    private static final String TITLE = "Video Downloader build 28.2";
+    private static final String TITLE = "Video Downloader build 28.3";
     public static DownloadHistory downloadHistoryList;
     public static StackPane root;
     public static DataCollection habits;
@@ -248,7 +249,7 @@ public class MainApp extends Application {
             loader.setLocation(MainApp.class.getResource("layouts/accounts.fxml"));
             actionPanes[ACCOUNTPANE] = loader.load();
         } catch (IOException ex) {
-            System.out.println("Action Panes failed");
+            CommonUtils.log("Action Panes failed",this);
         }
     }
     
@@ -389,7 +390,7 @@ public class MainApp extends Application {
                 try {
                     pane = FXMLLoader.load(new MainApp().getClass().getResource("layouts/messageDialog.fxml"));
                     pane.getStylesheets().clear();
-                    if (settings == null) System.out.println(msg); else{
+                    if (settings == null) CommonUtils.log(msg,this); else{
                     if(settings.preferences.dark())
                         pane.getStylesheets().add(MainApp.class.getResource("layouts/darkPane.css").toExternalForm());
                     else pane.getStylesheets().add(MainApp.class.getResource("layouts/normal.css").toExternalForm());
@@ -456,7 +457,7 @@ public class MainApp extends Application {
             dm.release();
             active = false;
             clippy.stop();
-            System.out.println("Exiting");
+            CommonUtils.log("Exiting",this);
             //System.exit(0);
         });
        window.setScene(scene);
@@ -470,7 +471,7 @@ public class MainApp extends Application {
             if(splash != null)
                  splash.close();
        } catch (IllegalStateException e) {
-           System.out.println("Splash screen error");
+           CommonUtils.log("Splash screen error",this);
        }
        window.show();
        
@@ -500,13 +501,13 @@ public class MainApp extends Application {
     
     public static void log(String mediaName, String site) throws GenericDownloaderException {
         if (habits != null) habits.add(mediaName, site);
-        try {DataIO.saveCollectedData(habits);} catch(IOException e) {System.out.println("Failed to save habits");}
+        try {DataIO.saveCollectedData(habits);} catch(IOException e) {CommonUtils.log("Failed to save habits","MainApp");}
         writeJson();
     }
     
     public static void log (video v) {
         if (habits != null) habits.addSuggestion(v);
-        try {DataIO.saveCollectedData(habits);} catch(IOException e) {System.out.println("Failed to save habits");}
+        try {DataIO.saveCollectedData(habits);} catch(IOException e) {CommonUtils.log("Failed to save habits","MainApp");}
         writeJson();
     }
     
@@ -516,7 +517,7 @@ public class MainApp extends Application {
             f.format("%s", habits.toJson());
             f.flush(); f.close();
         } catch (FileNotFoundException e) {
-            System.out.println(e.getMessage());
+            CommonUtils.log(e.getMessage(),"MainApp");
         }
     }
     
@@ -532,9 +533,9 @@ public class MainApp extends Application {
                 video temp = habits.next(); 
                 if (temp != null)
                     determineSite(temp.getLink(),temp);
-                else System.out.println("no suggestions");
+                else CommonUtils.log("no suggestions",this);
             }
-            try {DataIO.saveCollectedData(habits);} catch(IOException e) {System.out.println("Failed to save habits");}
+            try {DataIO.saveCollectedData(habits);} catch(IOException e) {CommonUtils.log("Failed to save habits",this);}
             writeJson();
         } else {habits = new DataCollection(true);}
     }

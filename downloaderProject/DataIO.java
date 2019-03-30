@@ -5,6 +5,7 @@
  */
 package downloaderProject;
 
+import downloader.CommonUtils;
 import downloader.DataStructures.Device;
 import downloader.DataStructures.Settings;
 import downloader.DataStructures.downloadedMedia;
@@ -41,7 +42,7 @@ public class DataIO {
         } catch (IOException ex) {
             return null;
         } catch (ClassNotFoundException ex) {
-           System.out.println("Class not found");
+           CommonUtils.log("Class not found","DataIO");
            return null;
         }
     }
@@ -85,13 +86,13 @@ public class DataIO {
         } catch (FileNotFoundException e) {
             return null;
         } catch (IOException ex) {
-            System.out.println("IOException: "+ex.getMessage());
+            CommonUtils.log("IOException: "+ex.getMessage(),"DataIO");
             return null;
         } catch (ClassNotFoundException ex) {
-           System.out.println("Class not found");
+           CommonUtils.log("Class not found","DataIO");
            return null;
         } catch (ClassCastException e) {
-           System.out.println(e.getMessage());
+           CommonUtils.log(e.getMessage(),"DataIO");
            return null; 
         }
     }
@@ -124,10 +125,10 @@ public class DataIO {
         } catch (FileNotFoundException e) {
             return null;
         } catch (IOException ex) {
-            System.out.println("IOException: "+ex.getMessage());
+            CommonUtils.log("IOException: "+ex.getMessage(),"DataIO");
             return null;
         } catch (ClassNotFoundException ex) {
-           System.out.println("Class not found");
+           CommonUtils.log("Class not found","DataIO");
            return null;
         }
     }
@@ -160,10 +161,10 @@ public class DataIO {
         } catch (FileNotFoundException e) {
             return null;
         } catch (IOException ex) {
-            System.out.println("IOException: "+ex.getMessage());
+            CommonUtils.log("IOException: "+ex.getMessage(),"DataIO");
             return null;
         } catch (ClassNotFoundException ex) {
-           System.out.println("Class not found");
+           CommonUtils.log("Class not found","DataIO");
            return null;
         }
     }
@@ -184,7 +185,7 @@ public class DataIO {
     }
     
     public synchronized static Vector<downloadedMedia> loadDownloaded() {
-        ObjectInputStream in = null;
+        ObjectInputStream in;
         Vector<downloadedMedia> downloaded;
         File save = new File(MainApp.saveDir.getAbsolutePath()+File.separator+"downloaded.dat");
         
@@ -196,10 +197,10 @@ public class DataIO {
         } catch (FileNotFoundException e) {
             return null;
         } catch (IOException ex) {
-            System.out.println("IOException: "+ex.getMessage());
+            CommonUtils.log("IOException: "+ex.getMessage(),"DataIO");
             return null;
         } catch (ClassNotFoundException ex) {
-           System.out.println("Class not found");
+           CommonUtils.log("Class not found","DataIO");
            return null;
         }
     }
@@ -300,13 +301,13 @@ public class DataIO {
             in.close();
             return dc;
         } catch (FileNotFoundException | ClassNotFoundException e) {
-            System.out.println(e.getMessage());
+            CommonUtils.log(e.getMessage(),"DataIO");
             return new DataCollection(true);
         } catch(IOException e) {
             e.printStackTrace();
             return new DataCollection(true);
         } catch (ClassCastException e) {
-            System.out.println("old verison of data collection couldnt be used");
+            CommonUtils.log("old verison of data collection couldnt be used","DataIO");
             return new DataCollection(true);
         }
     }
@@ -388,13 +389,13 @@ public class DataIO {
             fis.close();
             fos.flush();
             fos.close();
-            System.out.println("Moved "+file.getName());
+            CommonUtils.log("Moved "+file.getName(),"DataIO");
             file.delete();
-            System.out.println("Deleted "+file.getName());
+            CommonUtils.log("Deleted "+file.getName(),"DataIO");
         } catch (FileNotFoundException e) {
-            System.out.println("Didnt find "+file.getName()+" and failed to move");
+            CommonUtils.log("Didnt find "+file.getName()+" and failed to move","DataIO");
         } catch(IOException e) {
-            System.out.println("Error moving "+file.getName()+" "+e.getMessage());
+            CommonUtils.log("Error moving "+file.getName()+" "+e.getMessage(),"DataIO");
         }
     }
 }

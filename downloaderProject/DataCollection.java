@@ -181,9 +181,9 @@ public class DataCollection implements Externalizable{
             Iterator<String> j = StarChart.keySet().iterator();
             if (i.hasNext() && j.hasNext()) {
                 String top = i.next();
-                System.out.println("top: "+keywords.get(top)+" it: "+top);
+                CommonUtils.log("top: "+keywords.get(top)+" it: "+top,this);
                 String topStar = j.next();
-                System.out.println("topstar: "+frequentStars.get(topStar)+" it: "+topStar);
+                CommonUtils.log("topstar: "+frequentStars.get(topStar)+" it: "+topStar,this);
                 if ((keywords.get(top) > 1) && (frequentStars.get(topStar) > 1)) {
                     if (new Random().nextInt(2) == 0)
                         generateSearch(keywordChart,StarChart);
@@ -195,12 +195,12 @@ public class DataCollection implements Externalizable{
                 }
             } else if (i.hasNext()) {
                 String top = i.next(); 
-                System.out.println("top: "+keywords.get(top)+" it: "+top);			
+                CommonUtils.log("top: "+keywords.get(top)+" it: "+top,this);			
                 if (keywords.get(top) > 1)
                     generateSearch(keywordChart);
             } else if(j.hasNext()) {
 		String topStar = j.next();
-                System.out.println("topstar: "+frequentStars.get(topStar)+" it: "+topStar);
+                CommonUtils.log("topstar: "+frequentStars.get(topStar)+" it: "+topStar,this);
                 if (frequentStars.get(topStar) > 1)
                     search(StarChart.keySet().iterator().next()); //search top star
             }
@@ -232,7 +232,7 @@ public class DataCollection implements Externalizable{
         private void generateSearch(Map<String,Integer> kwords) throws GenericDownloaderException {
             Random randomNum = new Random();
             int max = randomNum.nextInt(8); //generate 0 - 7
-            System.out.println("key size: "+kwords.keySet().size());
+            CommonUtils.log("key size: "+kwords.keySet().size(),this);
             int count = 0; Iterator<String> i = kwords.keySet().iterator();
             StringBuilder words = new StringBuilder();
             while(i.hasNext()) {
@@ -250,8 +250,8 @@ public class DataCollection implements Externalizable{
                 x = getExtractor(i.next());
             }while(x == null && i.hasNext());
 	    if (x != null) {
-		CommonUtils.log(this,"Searching: "+x.getClass().getSimpleName());
-	        System.out.println("search: "+searchStr);
+		CommonUtils.log("Searching: "+x.getClass().getSimpleName(),this);
+	        CommonUtils.log("search: "+searchStr,this);
                 try {addSuggestion(x.search(searchStr));}catch(IOException | UnsupportedOperationException e) {}
 	    }
 	}

@@ -124,15 +124,15 @@ public class DownloaderItem {
             view.setImage(image); return true;
         } catch (FileNotFoundException e) {
             MainApp.createMessageDialog("Couldnt find thumbnail to load it may have be deleted\n"+url);
-            System.out.println("Failed to load thumbnail");
+            CommonUtils.log("Failed to load thumbnail",this);
             return false;
         } catch (IOException e) {
             MainApp.createMessageDialog("Failed to load thumbnail\n"+url);
-            System.out.println("Failed to load thumbnail: "+e.getMessage());
+            CommonUtils.log("Failed to load thumbnail: "+e.getMessage(),this);
             return false;
         } catch (Exception e) {
             MainApp.createMessageDialog("Failed to download thumbnail\n"+url+"\n"+e.getMessage());
-            System.out.println("Failed to download thumbnail: "+e.getMessage());
+            CommonUtils.log("Failed to download thumbnail: "+e.getMessage(),this);
             return false;
         }
     }
@@ -146,7 +146,6 @@ public class DownloaderItem {
             if (thumbFile.length() < 1024 * 1024 * 10) { 
                 FileInputStream fis = new FileInputStream(thumbFile);
                 Image image = new Image(fis);
-                if (fis != null) fis.close();
                 view.setImage(image);
             } else { //so read it as a still image (if is gif)
                 BufferedImage b = ImageIO.read(thumbFile);
@@ -155,27 +154,27 @@ public class DownloaderItem {
             return true;
         } catch (FileNotFoundException e) {
             MainApp.createMessageDialog("(2)Couldnt get thumb from link: \n"+url);
-            System.out.println("Failed to load thumbnail code: 2");
+            CommonUtils.log("Failed to load thumbnail code: 2",this);
             return false;
         } catch (UncheckedIOException e) {
             e.printStackTrace();
             MainApp.createMessageDialog("Failed to download thumbnail: "+e.getMessage()+"\n"+url);
-            System.out.println("Failed to download thumbnail (network)");
+            CommonUtils.log("Failed to download thumbnail (network)",this);
             return false;
         }catch(SocketTimeoutException e) {
             e.printStackTrace();
             MainApp.createMessageDialog("Failed to download thumbnail: "+e.getMessage()+"\n"+url);
-            System.out.println("Failed to download thumbnail (connection timeout)");
+            CommonUtils.log("Failed to download thumbnail (connection timeout)",this);
             return false;
         } catch (IOException e) {
             e.printStackTrace();
             MainApp.createMessageDialog("Failed to download thumbnail: "+e.getMessage()+"\n"+url);
-            System.out.println("Failed to download thumbnail (some IO: network)");
+            CommonUtils.log("Failed to download thumbnail (some IO: network)",this);
             return false;
         } catch (Exception e) {
             e.printStackTrace();
             MainApp.createMessageDialog("Failed to download thumbnail: "+e.getMessage()+"\n"+url);
-            System.out.println("Failed to download thumbnail: "+e.getMessage());
+            CommonUtils.log("Failed to download thumbnail: "+e.getMessage(),this);
             return false;
         }
     }
@@ -210,7 +209,7 @@ public class DownloaderItem {
         close.getStyleClass().add("jfx-cancel");
         close.setOnAction(event -> {clearThis();});
         close.setDisable(false);
-        System.out.println("set close");
+        CommonUtils.log("set close",this);
     }
     
     private void setSaveBtn() {
@@ -244,7 +243,7 @@ public class DownloaderItem {
        } catch (Exception e) {
            if (e instanceof GenericDownloaderException) throw (GenericDownloaderException)e;
            e.printStackTrace();
-           System.out.println(e.getMessage()); release();
+           CommonUtils.log(e.getMessage(),this); release();
            return false;
        }
        
@@ -267,7 +266,7 @@ public class DownloaderItem {
        setName();
        setCloseBtn();
        
-       System.out.println("Found");
+       CommonUtils.log("Found",this);
        setIndeteminate(false);
        return true; //if u made it this far process must be successful
     }
@@ -349,7 +348,7 @@ public class DownloaderItem {
                             Desktop desktop = Desktop.getDesktop();
                             desktop.browse(new URI(url));
                         } catch (URISyntaxException ex) {
-                            System.out.println("Bad Uri");
+                            CommonUtils.log("Bad Uri",this);
                         } catch (IOException ex) {
                             MainApp.createMessageDialog("Failed to load");
                         }
@@ -527,11 +526,16 @@ public class DownloaderItem {
                     download(downloadLinks.get(i),downloadNames.get(i),stream,albumName);
                 GameTime took = stream.endOperation();
                 stream.addProgress("Took "+took.getTime()+" to download");
-            } catch(Exception e){
+            } catch(MalformedURLException e){
                 displayStatus(e.getMessage());
+                CommonUtils.log(e.getMessage(),this);
+                e.printStackTrace();
+            } catch (Exception e) {
+                displayStatus(e.getMessage());
+                CommonUtils.log(e.getMessage(), this);
                 e.printStackTrace();
             } finally { 
-                System.out.println("done");
+                CommonUtils.log("done",this);
             }
             setDone();
         }
@@ -546,8 +550,10 @@ public class DownloaderItem {
         if (CommonUtils.isImage(name)) folder = MainApp.settings.preferences.getPictureFolder(); 
         else folder = MainApp.settings.preferences.getVideoFolder();
         
-        long stop = 0;
+        long stop;
+        int retries = 15; //approx a min if fails instant
         do {
+            if (retries < 1) break;
             if (s != null) s.addProgress("Trying "+CommonUtils.clean(name));
             if (albumName != null)
                 stop = CommonUtils.saveFile(link,CommonUtils.clean(name),folder+File.separator+albumName,s);
@@ -555,8 +561,9 @@ public class DownloaderItem {
             try {
                 Thread.sleep(4000);
             } catch (InterruptedException ex) {
-                System.out.println("Failed to pause");
+                CommonUtils.log("Failed to pause",this);
             }
+            retries--;
         }while(stop != -2); //retry download if failed
         MainApp.createNotification("Download Success","Finished Downloading "+name);
         File saved;
@@ -568,7 +575,7 @@ public class DownloaderItem {
     
     private void setSize(final long size) {
         Platform.runLater(new Runnable() {
-           public void run() { 
+           @Override public void run() { 
                 ((Label)root.lookup("#size")).setText(MainApp.getSizeText(size));
            }
         });

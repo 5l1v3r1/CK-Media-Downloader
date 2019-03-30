@@ -58,7 +58,7 @@ public abstract class GenericExtractor {
     
     protected static Document getPage(String url, boolean mobile, boolean force) throws FileNotFoundException, IOException, GenericDownloaderException {
         Document page;
-        if (CommonUtils.checkPageCache(CommonUtils.getCacheName(url,mobile)) && !force) //check to see if page was downloaded previous 
+        if (!force && CommonUtils.checkPageCache(CommonUtils.getCacheName(url,mobile))) //check to see if page was downloaded previous 
             page = Jsoup.parse(CommonUtils.loadPage(MainApp.pageCache.getAbsolutePath()+File.separator+CommonUtils.getCacheName(url,mobile))); //load if not force redownload
         else { String html;
             try {
