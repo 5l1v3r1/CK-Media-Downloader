@@ -5,7 +5,8 @@
  */
 package downloader;
 import downloader.Exceptions.GenericDownloaderException;
-import downloader.Extractors.*;
+import downloader.Extractors.GenericExtractor;
+import downloader.Extractors.Instagram;
 import downloader.Site.Type;
 import java.io.File;
 import java.lang.reflect.Constructor;
@@ -26,7 +27,7 @@ public class ExtractorList {
             Constructor<?> cons = c.getConstructor(String.class);
             return (GenericExtractor)cons.newInstance(url);
         } catch (ClassNotFoundException | NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            System.out.println("sas sda: "+e.getMessage());
+            CommonUtils.log(e.getMessage(),"ExtractorList:getExtractor(type,string)");
             return null;
         }
     }
@@ -37,6 +38,7 @@ public class ExtractorList {
             Constructor<?> cons = c.getConstructor(String.class,File.class,String.class);
             return (GenericExtractor)cons.newInstance(url,thumb,name);
         } catch (ClassNotFoundException | NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
+            CommonUtils.log(e.getMessage(),"ExtractorList:getExtractor(type,string,file,string)");
             return null;
         }
     }
@@ -62,6 +64,7 @@ public class ExtractorList {
                 GenericExtractor x = (GenericExtractor)cons.newInstance();
                 return x.getId(s).equals(x.getId(s2));
             } catch (ClassNotFoundException | NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
+                CommonUtils.log(e.getMessage(),"ExtractorList:similar");
                 return false;
             }
         else return false;

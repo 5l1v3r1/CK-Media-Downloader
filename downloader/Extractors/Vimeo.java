@@ -104,7 +104,7 @@ public class Vimeo extends GenericExtractor{
             JSONObject thumbObject = (JSONObject)new JSONParser().parse(thumbs);
             thumb = (String)thumbObject.get("base");
         } catch (ParseException e) {
-            System.out.println("error parsing for thumb "+url);
+            CommonUtils.log("error parsing for thumb "+url,"Vimeo");
             throw e;
         }
         if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it

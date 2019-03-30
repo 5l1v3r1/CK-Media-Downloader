@@ -5,6 +5,7 @@
  */
 package Share;
 
+import downloader.CommonUtils;
 import downloader.DataStructures.video;
 import downloaderProject.MainApp;
 import downloaderProject.OperationStream;
@@ -203,7 +204,7 @@ public class Upload {
                 soc.close();
             } catch (IOException e) {
                 e.printStackTrace();
-                System.out.println("Failed to close connection successfully");
+                CommonUtils.log("Failed to close connection successfully",this);
             }
         }
     }

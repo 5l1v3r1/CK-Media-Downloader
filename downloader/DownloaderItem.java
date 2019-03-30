@@ -44,6 +44,7 @@ import java.util.Map;
 import java.util.Vector;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
@@ -464,10 +465,11 @@ public class DownloaderItem {
                     updateEta(text.substring(2));
                 else displayStatus(text);
             }
-        } app.shutdownNow();
+        }
+        try { app.awaitTermination(2, TimeUnit.SECONDS); } catch(InterruptedException e) {}
+        app.shutdownNow();
         //displayStatus("Finished Downloading");
         enableButton();
-        app = null;
     }
     
     private void determineLink() throws GenericDownloaderException, UncheckedIOException, Exception {
@@ -546,6 +548,7 @@ public class DownloaderItem {
         if (!CommonUtils.isImage(name))
             if (!CommonUtils.hasExtension(name, "mp4"))
                 name = name + ".mp4"; //assume video
+        name = CommonUtils.addId(name, extractor.getId());
         File folder;
         if (CommonUtils.isImage(name)) folder = MainApp.settings.preferences.getPictureFolder(); 
         else folder = MainApp.settings.preferences.getVideoFolder();

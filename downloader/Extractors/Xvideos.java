@@ -228,7 +228,7 @@ public class Xvideos extends GenericQueryExtractor{
                 break;
             }
         } catch (ParseException e) {
-            System.out.println("parse exception");
+            CommonUtils.log("parse exception: "+e.getMessage(),this);
         }
         return v;
     }

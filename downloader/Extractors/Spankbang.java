@@ -91,13 +91,13 @@ public class Spankbang extends GenericQueryExtractor implements Playlist{
         String streamKey = page.getElementById("video").attr("data-streamkey");
         String cookie = r.cookie("sb_csrf_session");
         
-        System.out.println("key "+streamKey);
+        CommonUtils.log("key "+streamKey,this);
         Map<String,String> headers = new HashMap<>(), params = new HashMap<>(), cookies = new HashMap<>();
         headers.put("X-CSRFToken",cookie); headers.put("Referer",url); headers.put("Cookie","Country=US;");
         params.put("id",streamKey); params.put("data", "0"); params.put("sb_csrf_session",cookie);
         cookies.putAll(r.cookies()); headers.putAll(r.headers());
         try {
-            System.out.println(Jsoup.connect("https://spankbang.com/api/videos/stream").headers(headers).data(params).cookies(cookies).ignoreContentType(true).execute());
+            CommonUtils.log(String.valueOf(Jsoup.connect("https://spankbang.com/api/videos/stream").headers(headers).data(params).cookies(cookies).ignoreContentType(true).execute()),this);
             /*URLConnection connection = new URL("https://spankbang.com/api/videos/stream?data=0&id="+streamKey+"&sb_csrf_session="+cookie).openConnection();
             //connection.setRequestProperty("User-Agent", PCCLIENT);'
             connection.setDoInput(true);

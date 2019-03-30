@@ -52,7 +52,7 @@ public class Vidoza extends GenericExtractor {
         Map<String, String> links = new HashMap<>();
         
         try {
-            System.out.println(src.substring(13,src.indexOf("}],")+2));
+            CommonUtils.log(src.substring(13,src.indexOf("}],")+2),this);
             String s = src.substring(13,src.indexOf("}],")+2).replace(" src", "\"src\"").replace("type", "\"type\"").replace("label", "\"label\"").replace("res", "\"res\"");
             JSONArray qualities = (JSONArray)new JSONParser().parse(s);
             for(int i = 0; i < qualities.size(); i++)

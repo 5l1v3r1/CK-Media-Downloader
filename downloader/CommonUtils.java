@@ -36,7 +36,12 @@ import org.jsoup.Jsoup;
 public class CommonUtils {
     public static final String PCCLIENT = "Mozilla/5.0 (X11; Linux x86_64; rv:59.0) Gecko/20100101 Firefox/59.0", 
     MOBILECLIENT = "Mozilla/5.0 (Linux; Android 4.4.4; Nexus 5 Build/KTU84P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.57 Mobile Safari/537.36";
-    private static final int BUFFSIZE = MainApp.BYTE * 600; //1 x 600kb
+    private static final int BYTE = isWindows() ? 1024 : 1000, BUFFSIZE = BYTE * 600; //1 x 600kb
+    
+    private static boolean isWindows() {
+        String Os = System.getProperty("os.name");
+        return (Os.contains("win") || Os.contains("Win"));
+    }
     
     public static Vector<File> splitImage(File origin, int row, int col, int yOffset, int widthOffset) {
         Vector<File> splits = new Vector<>();
@@ -294,6 +299,14 @@ public class CommonUtils {
         return addAttr(attr,value instanceof String ? (String)value : value.toString());
     }
     
+    public static String addId(String name, String id) {
+        StringBuilder pure = new StringBuilder();
+        pure.append(name.substring(0,name.lastIndexOf(".")));
+        pure.append("-"+id);
+        pure.append(name.substring(name.lastIndexOf(".")));
+        return pure.toString();
+    }
+    
     public static boolean checkImageCache(String name) {
         File[] files = MainApp.imageCache.listFiles();
         if (files != null)  {//if cache is not empty
@@ -467,12 +480,11 @@ public class CommonUtils {
                         return -2;//application was closed
                     out.write(buffer, 0, count);
                     how+=count;
-                    //saveProgress(link,how);
                     if (s != null) s.addProgress(String.format("%.0f",(float)how/fileSize*100)+"% Complete");
                     timer.stop();
                     double secs = timer.getTime().convertToSecs();
-                    double speed = (how / secs) / MainApp.BYTE;
-                    long remain = (fileSize - how) / MainApp.BYTE;
+                    double speed = (how / secs) / (double)BYTE;
+                    long remain = (fileSize - how) / (long)BYTE;
                     GameTime g = new GameTime(); g.addSec((long)(remain / speed));
                     if (speed == Double.POSITIVE_INFINITY) {
                         if (s != null) s.addProgress(String.format("%s%d","^^",0));
@@ -507,8 +519,6 @@ public class CommonUtils {
         }
         MainApp.settings.cacheUpdate();
         if (s != null) s.addProgress("Finished downloading");
-        //File progressFile = new File(MainApp.progressCache.getAbsolutePath()+File.separator+getShortName(clean(link)));
-        //progressFile.delete();
-        return -2;//if sucessful this will -2
+        return -2;//if sucessful return -2
     }
 }

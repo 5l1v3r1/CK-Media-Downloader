@@ -5,6 +5,7 @@
  */
 package downloaderProject;
 
+import downloader.CommonUtils;
 import downloader.DataStructures.downloadedMedia;
 import java.awt.Desktop;
 import java.awt.image.BufferedImage;
@@ -81,9 +82,9 @@ public class DownloadHistory {
             DataIO.saveDownloaded(d);
             refresh();
         } catch (FileNotFoundException e) {
-            System.out.println(e.getMessage()+" failed add to download history");
+            CommonUtils.log(e.getMessage()+" failed add to download history",this);
         } catch (IOException e) {
-            System.out.println(e.getMessage()+" failed add to download history");
+            CommonUtils.log(e.getMessage()+" failed add to download history",this);
         }
         settingsRef.updateDownloadHistory();
         display();

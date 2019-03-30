@@ -267,7 +267,7 @@ public class Pornhub extends GenericQueryExtractor implements Playlist{
             engine.eval(page);
             Invocable inv = (Invocable)engine;
             return ((String)inv.invokeFunction("go")).split(("="))[1];
-        } catch (ScriptException | NoSuchMethodException e) {e.printStackTrace();System.out.println(e.getMessage());return " ";}
+        } catch (ScriptException | NoSuchMethodException e) {e.printStackTrace();CommonUtils.log(e.getMessage(),"Pornhub");return " ";}
     }
     
     private static boolean isAlbum(String url) {
@@ -380,7 +380,7 @@ public class Pornhub extends GenericQueryExtractor implements Playlist{
     }
     
     private video getRelated(int tries) throws IOException, GenericDownloaderException{
-        System.out.println("chose related");
+        CommonUtils.log("chose related",this);
         if (url == null) return null;
         
         video v = null;
@@ -417,7 +417,7 @@ public class Pornhub extends GenericQueryExtractor implements Playlist{
     }
     
     private video getRecommended(int tries) throws IOException, GenericDownloaderException{
-        System.out.println("chose recommeded");
+        CommonUtils.log("chose recommeded",this);
         if (url == null) return null;
         
         video v = null;

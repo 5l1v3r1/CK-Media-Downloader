@@ -62,7 +62,7 @@ public class Gotporn extends GenericExtractor{
         Document page = getPage(url,false,true);
         
         String video = page.select("video").attr("src");//getDefaultVideo(page); 
-        System.out.println("video: "+video);
+        CommonUtils.log("video: "+video,this);
         
         Map<String,String> qualities = new HashMap<>();
         qualities.put("single",video); MediaDefinition media = new MediaDefinition();

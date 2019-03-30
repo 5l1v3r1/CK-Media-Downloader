@@ -69,7 +69,7 @@ public class Tube8 extends GenericQueryExtractor{
             String link = searchResults.get(i).select("p.video_title").select("a").attr("href");
             String title = searchResults.get(i).select("p.video_title").select("a").attr("title");
             String thumb = searchResults.get(i).select("div.videoThumbsWrapper").select("img").attr("data-thumb");
-            System.out.println("thumb: "+thumb);
+            CommonUtils.log("thumb: "+thumb,this);
             thequery.addLink(link);
             if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
                 if (CommonUtils.saveFile(thumb, CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache) != -2)

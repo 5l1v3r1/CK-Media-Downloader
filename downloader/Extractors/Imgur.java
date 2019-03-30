@@ -156,7 +156,7 @@ public class Imgur extends GenericExtractor {
                     total += CommonUtils.getContentSize("https://i.imgur.com/"+ ((JSONObject)images.get(i)).get("hash")+""+((JSONObject)images.get(i)).get("ext"));
             }
 	} catch (ParseException e) {
-            System.out.println(e.getMessage());
+            CommonUtils.log(e.getMessage(),this);
 	}
         return total;
     }
@@ -168,7 +168,7 @@ public class Imgur extends GenericExtractor {
             JSONObject details = (JSONObject)new JSONParser().parse(data);
             return getSingleSize(details);
         } catch (ParseException e) {
-            System.out.println(e.getMessage());
+            CommonUtils.log(e.getMessage(),this);
         }
         return -1;
     }

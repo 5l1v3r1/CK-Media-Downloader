@@ -5,6 +5,7 @@
  */
 package downloaderProject;
 
+import downloader.CommonUtils;
 import downloader.DataStructures.Settings;
 import downloader.DataStructures.historyItem;
 import static downloader.Site.QueryType;
@@ -160,7 +161,7 @@ public class ManageSettings {
                 }
             });
         } catch(IOException e) {
-            System.out.println("Failed to load history layout");
+            CommonUtils.log("Failed to load history layout",this);
         }
         return historyPane;
     }
@@ -275,7 +276,7 @@ public class ManageSettings {
         try {
             DataIO.saveSettings(preferences); 
         } catch (IOException e) {
-            System.out.println(e.getMessage());
+            CommonUtils.log(e.getMessage(),this);
             MainApp.createMessageDialog("Failed to save user preferences");
         }
     }

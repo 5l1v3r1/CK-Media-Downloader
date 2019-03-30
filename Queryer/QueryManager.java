@@ -5,24 +5,12 @@
  */
 package Queryer;
 
+import downloader.CommonUtils;
 import downloader.DataStructures.GenericQuery;
 import downloader.DataStructures.historyItem;
 import downloader.DataStructures.video;
 import downloader.DownloaderItem;
-import downloader.Extractors.Bigbootytube;
-import downloader.Extractors.GenericExtractor;
 import downloader.Extractors.GenericQueryExtractor;
-import downloader.Extractors.Pornhub;
-import downloader.Extractors.Redtube;
-import downloader.Extractors.Ruleporn;
-import downloader.Extractors.Shesfreaky;
-import downloader.Extractors.Spankbang;
-import downloader.Extractors.Spankwire;
-import downloader.Extractors.Thumbzilla;
-import downloader.Extractors.Tube8;
-import downloader.Extractors.Xhamster;
-import downloader.Extractors.Xvideos;
-import downloader.Extractors.Youporn;
 import downloader.Site;
 import static downloader.Site.QueryType;
 import downloaderProject.DataIO;
@@ -213,11 +201,11 @@ public class QueryManager {
                 MainApp.createMessageDialog("Error downloading a page");
             } catch(IOException e) {
                 e.printStackTrace();
-                System.out.println(e.getMessage());
+                CommonUtils.log(e.getMessage(),this);
                 MainApp.createMessageDialog("Connection Error Occurred");
             } catch (Exception e) {
                 e.printStackTrace();
-                MainApp.createMessageDialog("An error occured: "+e.getMessage());
+                CommonUtils.log("An error occured: "+e.getMessage(),this);
             } finally {
                 changeButton("Search");
             }
@@ -296,7 +284,7 @@ public class QueryManager {
                                 Desktop desktop = Desktop.getDesktop();
                                 desktop.browse(new URI(results.getLink(which)));
                             } catch (URISyntaxException ex) {
-                                System.out.println("Bad Uri");
+                                CommonUtils.log("Bad Uri",this);
                             } catch (IOException ex) {
                                  MainApp.createMessageDialog("Failed to load");
                             }

@@ -57,7 +57,7 @@ public class Porn extends GenericExtractor{
         
         try {
             src = src.replaceAll("id:\"","\"id\":\"").replaceAll("url","\"url\"").replaceAll("active","\"active\"").replaceAll("false","\"false\"").replaceAll("true","\"true\"");
-            System.out.println(src);
+            CommonUtils.log(src,"Porn");
             JSONArray json = (JSONArray)new JSONParser().parse(src);
             Iterator<JSONObject> i = json.iterator();
             while(i.hasNext()) {

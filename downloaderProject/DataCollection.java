@@ -53,7 +53,7 @@ public class DataCollection implements Externalizable{
             //dictionary = DataIO.loadDictionary(); Collections.sort(dictionary);
             try { ignoreWords = DataIO.loadIgnoreWords(); }catch (FileNotFoundException e) {}
             ignoreWords.add("a"); ignoreWords.add("the"); ignoreWords.add("an");
-            Collections.sort(ignoreWords);
+            Collections.sort(ignoreWords, String.CASE_INSENSITIVE_ORDER);
 	}
         
         public Vector<File> getExempt() { 
@@ -150,7 +150,6 @@ public class DataCollection implements Externalizable{
 	}
 	
 	private void addStar(String name) {
-            //if (frequentStars.containsKey(name))
             if (frequentStars.containsKey(name))
                 frequentStars.put(name, frequentStars.get(name) + 1);
             else
