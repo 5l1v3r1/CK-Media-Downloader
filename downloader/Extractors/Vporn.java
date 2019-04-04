@@ -150,7 +150,7 @@ public class Vporn extends GenericExtractor{
     }
     
     @Override public String getId(String link) {
-        Pattern p = Pattern.compile("https://(www.)?vporn.com/[\\S]+/[\\S]+/([\\d]+)/");
+        Pattern p = Pattern.compile("https?://(www.)?vporn.com/[\\S]+/[\\S]+/([\\d]+)/");
         Matcher m = p.matcher(link);
         return m.find() ? m.group(2) : "";
     }

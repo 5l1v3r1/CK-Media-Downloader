@@ -85,7 +85,7 @@ public class Hoodamateurs extends GenericExtractor{
     }
     
     @Override public String getId(String link) {
-        Pattern p = Pattern.compile("https://(www.)?hoodamateurs.com/([\\d]+)(/[\\S]+)?/?");
+        Pattern p = Pattern.compile("https?://(www.)?hoodamateurs.com/([\\d]+)(/[\\S]+)?/?");
         Matcher m = p.matcher(link);
         return m.find() ? m.group(2) : "";
     }

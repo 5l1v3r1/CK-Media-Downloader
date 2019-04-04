@@ -189,9 +189,9 @@ public class Imgur extends GenericExtractor {
     
     @Override public String getId(String link) {
         Pattern p;
-        if (link.matches("https://(www.)?imgur.com/gallery/[\\S]+"))
-            p = Pattern.compile("https://(www.)?imgur.com/gallery/([\\S]+)");
-        else p = Pattern.compile("https://(www.)?imgur.com/([\\S])+");
+        if (link.matches("https?://(www.)?imgur.com/gallery/[\\S]+"))
+            p = Pattern.compile("https?://(www.)?imgur.com/gallery/([\\S]+)");
+        else p = Pattern.compile("https?://(www.)?imgur.com/([\\S])+");
         Matcher m = p.matcher(link);
         return m.find() ? m.group(2) : "";
     }

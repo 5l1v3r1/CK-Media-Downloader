@@ -152,7 +152,7 @@ public class Ghettotube extends GenericExtractor{
     }
     
     @Override public String getId(String link) {
-        Pattern p = Pattern.compile("https://(www.)?ghettotube.com/video/([\\S]+).html");
+        Pattern p = Pattern.compile("https?://(www.)?ghettotube.com/video/([\\S]+).html");
         Matcher m = p.matcher(link);
         return m.find() ? m.group(2) : "";
     }

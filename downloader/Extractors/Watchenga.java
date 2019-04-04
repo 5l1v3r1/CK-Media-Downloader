@@ -83,7 +83,7 @@ public class Watchenga extends GenericExtractor{
     }
     
     @Override public String getId(String link) {
-        Pattern p = Pattern.compile("https://(www.)?watcheng[a]?.tv/en/show/(?<id>[\\S]+)/(season-[\\d]+/episode-[\\d]+/)?");
+        Pattern p = Pattern.compile("https?://(www.)?watcheng[a]?.tv/en/show/(?<id>[\\S]+)/(season-[\\d]+/episode-[\\d]+/)?");
         Matcher m = p.matcher(link);
         return m.find() ? m.group("id") : "";
     }

@@ -109,7 +109,7 @@ public class Drtuber extends GenericExtractor{
     }
     
     @Override public String getId(String link) {
-        Pattern p = Pattern.compile("https://(?:(www|m).)?drtuber.com/video/(?<id>[\\d]+)/[\\S]+");
+        Pattern p = Pattern.compile("https?://(?:(www|m).)?drtuber.com/video/(?<id>[\\d]+)/[\\S]+");
         Matcher m = p.matcher(link);
         return m.find() ? m.group("id") : "";
     }

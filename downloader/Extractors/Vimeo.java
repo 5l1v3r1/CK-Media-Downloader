@@ -167,9 +167,9 @@ public class Vimeo extends GenericExtractor{
     
     @Override public String getId(String link) {
         Pattern p;
-        if (link.matches("https://(www.)?vimeo.com/[\\d]+"))
-            p = Pattern.compile("https://(www.)?vimeo.com/([\\d]+)");
-        else p = Pattern.compile("https://player.vimeo.com/video/([\\d]+)");
+        if (link.matches("https?://(www.)?vimeo.com/[\\d]+"))
+            p = Pattern.compile("https?://(www.)?vimeo.com/([\\d]+)");
+        else p = Pattern.compile("https?://player.vimeo.com/video/([\\d]+)");
         Matcher m = p.matcher(link);
         return m.find() ? m.group(2) : "";
     }

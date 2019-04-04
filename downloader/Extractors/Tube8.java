@@ -214,7 +214,7 @@ public class Tube8 extends GenericQueryExtractor{
     }
     
     @Override public String getId(String link) {
-        Pattern p = Pattern.compile("https://(www.)?tube8.com/[\\S]+/[\\S]+/([\\d]+)/");
+        Pattern p = Pattern.compile("https?://(www.)?tube8.com/[\\S]+/[\\S]+/([\\d]+)/");
         Matcher m = p.matcher(link);
         return m.find() ? m.group(2) : "";
     }

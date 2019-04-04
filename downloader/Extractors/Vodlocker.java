@@ -80,7 +80,7 @@ public class Vodlocker extends GenericExtractor{
     }
     
     @Override public String getId(String link) {
-        Pattern p = Pattern.compile("https://(www.)?vodlocker.nl/([\\S]+).html");
+        Pattern p = Pattern.compile("https?://(www.)?vodlocker.nl/([\\S]+).html");
         Matcher m = p.matcher(link);
         return m.find() ? m.group(2) : "";
     }

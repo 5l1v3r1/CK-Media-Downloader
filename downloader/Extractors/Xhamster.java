@@ -224,13 +224,14 @@ public class Xhamster extends GenericQueryExtractor{
     
     public String getId(String link) {
         Pattern p;
-        if (link.matches("https://(((www)|m).)?xhamster.com/movies/[\\d]+/.html"))
-            p = Pattern.compile("https://(((www)|m).)?xhamster.com/movies/(?<id>[\\d]+)/.html");
-        else if(link.matches("https://([\\S]+.)?m.xhamster.com/videos/[\\S]+")) 
-            p = Pattern.compile("https://([\\S]+.)?m.xhamster.com/videos/(?<id>[\\S]+)");
-        else if (link.matches("https://([\\S]+.)?xhamster.com/videos/[\\S]+"))
-            p = Pattern.compile("https://([\\S]+.)?xhamster.com/videos/(?<id>[\\S]+)");
-        else p = Pattern.compile("https://((www|m).)?xhamster.com/videos/(?<id>[\\S]+)");
+        
+        if (link.matches("https?://(((www)|m).)?xhamster.com/movies/[\\d]+/.html[\\S]*"))
+            p = Pattern.compile("https?://(((www)|m).)?xhamster.com/movies/(?<id>[\\d]+)/.html[\\S]*");
+        else if(link.matches("https?://([\\S]+.)?m.xhamster.com/videos/[\\S]+")) 
+            p = Pattern.compile("https?://([\\S]+.)?m.xhamster.com/videos/[\\S]+-(?<id>[\\d]+)[\\S]*");
+        else if (link.matches("https?://([\\S]+.)?xhamster.com/videos/[\\S]+"))
+            p = Pattern.compile("https?://([\\S]+.)?xhamster.com/videos/[\\S]+-(?<id>[\\d]+)[\\S]*");
+        else p = Pattern.compile("https?://((www|m).)?xhamster.com/videos/[\\S]+-(?<id>[\\d]+)[\\S]*");
         Matcher m = p.matcher(link);
         return m.find() ? m.group("id") : "";
     }

@@ -230,9 +230,9 @@ public class Instagram extends GenericExtractor{
     
     @Override public String getId(String link) {
         Pattern p;
-        if (link.matches("https://(www.)?instagram.com/p/[\\S]+(/[?]taken-by=[\\S]*)?"))
-            p = Pattern.compile("https://(www.)?instagram.com/p/([\\S]+)(/[?]taken-by=[\\S]*)?");
-        else p = Pattern.compile("https://(www.)?instagram.com/([\\S]+)/");
+        if (link.matches("https?://(www.)?instagram.com/p/[\\S]+(/[?]taken-by=[\\S]*)?"))
+            p = Pattern.compile("https?://(www.)?instagram.com/p/([\\S]+)(/[?]taken-by=[\\S]*)?");
+        else p = Pattern.compile("https?://(www.)?instagram.com/([\\S]+)/");
         Matcher m = p.matcher(link);
         return m.find() ? m.group(2) : "";
     }

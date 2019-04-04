@@ -178,7 +178,7 @@ public class Ruleporn extends GenericQueryExtractor{
     }
     
     @Override public String getId(String link) {
-        Pattern p = Pattern.compile("https://(www.)?ruleporn.com/([\\S]+)/");
+        Pattern p = Pattern.compile("https?://(www.)?ruleporn.com/([\\S]+)/");
         Matcher m = p.matcher(link);
         return m.find() ? m.group(2) : "";
     }

@@ -206,7 +206,7 @@ public class Shesfreaky extends GenericQueryExtractor{
     }
     
     @Override public String getId(String link) {
-        Pattern p = Pattern.compile("https://(www.)?shesfreaky.com/video/([\\S]+).html");
+        Pattern p = Pattern.compile("https?://(www.)?shesfreaky.com/video/[\\S]+-(\\d+).html");
         Matcher m = p.matcher(link);
         return m.find() ? m.group(2) : "";
     }

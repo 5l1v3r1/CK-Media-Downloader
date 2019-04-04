@@ -302,7 +302,7 @@ public class CommonUtils {
     public static String addId(String name, String id) {
         StringBuilder pure = new StringBuilder();
         pure.append(name.substring(0,name.lastIndexOf(".")));
-        pure.append("-"+id);
+        if(id.length() > 0) pure.append("-"+id);
         pure.append(name.substring(name.lastIndexOf(".")));
         return pure.toString();
     }

@@ -575,9 +575,9 @@ public class Pornhub extends GenericQueryExtractor implements Playlist{
     
     @Override public String getId(String link) {
         Pattern p;
-        if (link.matches("https://(www.)?pornhub.com/view_video.php[?]viewkey=[\\S]*"))
-            p = Pattern.compile("https://(www.)?pornhub.com/view_video.php[?]viewkey=(?<id>[\\S]*)");
-        else p = Pattern.compile("https://(www.)?pornhub.com/(photo|album|gif|playlist)/(?<id>[\\S]*)");
+        if (link.matches("https?://(www.)?pornhub.com/view_video.php[?]viewkey=[\\S]*"))
+            p = Pattern.compile("https?://(www.)?pornhub.com/view_video.php[?]viewkey=(?<id>[\\S]*)");
+        else p = Pattern.compile("https?://(www.)?pornhub.com/(photo|album|gif|playlist)/(?<id>[\\S]*)");
         Matcher m = p.matcher(link);
         return m.find() ? m.group("id") : "";
     }

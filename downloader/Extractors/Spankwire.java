@@ -196,7 +196,7 @@ public class Spankwire extends GenericQueryExtractor{
     }
     
     private static String getVideoId(String link) {
-        Pattern p = Pattern.compile("https://(www.)?spankwire.com/[\\S]+/video([\\d]+)/([\\d]+)?");
+        Pattern p = Pattern.compile("https?://(www.)?spankwire.com/[\\S]+/video([\\d]+)/([\\d]+)?");
         Matcher m = p.matcher(link);
         return m.find() ? m.group(2) : "";
     }

@@ -27,6 +27,7 @@ public class ExtractorList {
             Constructor<?> cons = c.getConstructor(String.class);
             return (GenericExtractor)cons.newInstance(url);
         } catch (ClassNotFoundException | NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
+            if (e.getCause() instanceof GenericDownloaderException) throw (GenericDownloaderException)e.getCause();
             CommonUtils.log(e.getMessage(),"ExtractorList:getExtractor(type,string)");
             return null;
         }

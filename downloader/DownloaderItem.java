@@ -38,6 +38,7 @@ import org.jsoup.UncheckedIOException;
 import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -190,11 +191,9 @@ public class DownloaderItem {
     }
     
     private void setName() {
-        Platform.runLater(new Runnable() {
-           @Override public void run() {
-                Label temp = (Label)root.lookup("#downloadName");
-                temp.setText(videoName);
-           }
+        Platform.runLater(() -> {
+            Label temp = (Label)root.lookup("#downloadName");
+            temp.setText(videoName);
         });
     }
     
@@ -332,12 +331,9 @@ public class DownloaderItem {
        item[4] = new MenuItem("export links to file");
        
        item[0].setGraphic(getIcon("/icons/icons8-copy-link-48.png"));
-       item[0].setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent t) {
-                Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-                clipboard.setContents(new StringSelection(url), new StringSelection(MainApp.username));
-            }
+       item[0].setOnAction((ActionEvent t) -> {
+           Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+           clipboard.setContents(new StringSelection(url), new StringSelection(MainApp.username));
        });
        item[1].setGraphic(getIcon("/icons/icons8-open-in-browser-40.png"));
        item[1].setOnAction(new EventHandler<ActionEvent>() {
@@ -359,29 +355,19 @@ public class DownloaderItem {
             }
        });
        item[2].setGraphic(getIcon("/icons/icons8-cancel-40.png"));
-       item[2].setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent t) {
-                clearThis();
-            }
+       item[2].setOnAction((ActionEvent t) -> {
+           clearThis();
        });
        item[3].setGraphic(getIcon("/icons/icons8-cancel-40.png"));
-       item[3].setOnAction(new EventHandler<ActionEvent>() {
-           @Override 
-           public void handle(ActionEvent t) {
-               MainApp.dm.removeAll();
-           }
+       item[3].setOnAction((ActionEvent t) -> {
+           MainApp.dm.removeAll();
        });
        item[4].setGraphic(getIcon("/icons/icons8-export-40.png"));
-       item[4].setOnAction(new EventHandler<ActionEvent>() {
-           @Override 
-           public void handle(ActionEvent t) {
-               MainApp.dm.exportAll();
-           }
+       item[4].setOnAction((ActionEvent t) -> {
+           MainApp.dm.exportAll();
        });
        
-       for(int i = 0; i < item.length; i++)
-            menu.getItems().add(item[i]);
+       menu.getItems().addAll(Arrays.asList(item));
        
        return menu;
     }  
@@ -393,12 +379,9 @@ public class DownloaderItem {
        disableButton();
        root.setPadding(new Insets(3,3,3,3));
        final ContextMenu contextMenu = initContextMenu();
-       root.setOnMouseClicked(new EventHandler<MouseEvent>() {
-           @Override
-           public void handle(MouseEvent t) {
-               if (((MouseEvent)t).getButton().equals(MouseButton.SECONDARY))
-                    contextMenu.show(root,((MouseEvent)t).getScreenX(),((MouseEvent)t).getScreenY());
-           }
+       root.setOnMouseClicked((MouseEvent t) -> {
+           if (((MouseEvent)t).getButton().equals(MouseButton.SECONDARY))
+               contextMenu.show(root,((MouseEvent)t).getScreenX(),((MouseEvent)t).getScreenY());
        });
        return root; //give manager a ref to the pane
     }
@@ -493,7 +476,7 @@ public class DownloaderItem {
             while(k.hasNext()) { //download threads with chosen qualities
                 String tempLink = k.next();
                 downloadLinks.add(tempLink);
-                downloadNames.add(m.get(tempLink)+"-"+extractor.getId());
+                downloadNames.add(m.get(tempLink));
                 albumName = media.getAlbumName();
             }
         } else {
@@ -508,7 +491,7 @@ public class DownloaderItem {
                 link = m.get(m.keySet().iterator().next());
             if (link != null) {
                 downloadLinks.add(link);
-                downloadNames.add(media.getThreadName(0)+"-"+extractor.getId());
+                downloadNames.add(media.getThreadName(0));
             }
         }
     }
@@ -549,18 +532,14 @@ public class DownloaderItem {
             if (!CommonUtils.hasExtension(name, "mp4"))
                 name = name + ".mp4"; //assume video
         name = CommonUtils.addId(name, extractor.getId());
-        File folder;
-        if (CommonUtils.isImage(name)) folder = MainApp.settings.preferences.getPictureFolder(); 
-        else folder = MainApp.settings.preferences.getVideoFolder();
+        File folder = CommonUtils.isImage(name) ? MainApp.settings.preferences.getPictureFolder() : MainApp.settings.preferences.getVideoFolder();
         
         long stop;
         int retries = 15; //approx a min if fails instant
         do {
             if (retries < 1) break;
             if (s != null) s.addProgress("Trying "+CommonUtils.clean(name));
-            if (albumName != null)
-                stop = CommonUtils.saveFile(link,CommonUtils.clean(name),folder+File.separator+albumName,s);
-            else stop = CommonUtils.saveFile(link,CommonUtils.clean(name),folder,s);
+            stop = albumName != null ? CommonUtils.saveFile(link,CommonUtils.clean(name),folder+File.separator+albumName,s) : CommonUtils.saveFile(link,CommonUtils.clean(name),folder,s);
             try {
                 Thread.sleep(4000);
             } catch (InterruptedException ex) {
@@ -569,18 +548,13 @@ public class DownloaderItem {
             retries--;
         }while(stop != -2); //retry download if failed
         MainApp.createNotification("Download Success","Finished Downloading "+name);
-        File saved;
-        if (albumName != null)
-            saved = new File(folder + File.separator + albumName + File.separator + CommonUtils.clean(name));
-        else saved = new File(folder + File.separator + CommonUtils.clean(name));
+        File saved = albumName != null ? new File(folder + File.separator + albumName + File.separator + CommonUtils.clean(name)) : new File(folder + File.separator + CommonUtils.clean(name));
         MainApp.downloadHistoryList.add(new downloadedMedia(CommonUtils.clean(name),extractor.getThumb(),saved,extractor.getClass().getSimpleName()));
     }
     
     private void setSize(final long size) {
-        Platform.runLater(new Runnable() {
-           @Override public void run() { 
-                ((Label)root.lookup("#size")).setText(MainApp.getSizeText(size));
-           }
+        Platform.runLater(() -> {
+            ((Label)root.lookup("#size")).setText(MainApp.getSizeText(size));
         });
     }
     
@@ -588,65 +562,53 @@ public class DownloaderItem {
         size = 0;
         try {size = extractor.getSize();}catch(IOException | GenericDownloaderException e) {size = -1;}
         final long s = size;
-        Platform.runLater(new Runnable() {
-           public void run() { 
-                ((Label)root.lookup("#size")).setText(MainApp.getSizeText(s));
-           }
+        Platform.runLater(() -> {
+            ((Label)root.lookup("#size")).setText(MainApp.getSizeText(s));
         });
     }
     
     private void displayStatus(String msg) {
-        Platform.runLater(new Runnable() {
-           public void run() { 
-                ((Label)root.lookup("#downloadName")).setText(msg+" "+videoName);
-           }
+        Platform.runLater(() -> {
+            ((Label)root.lookup("#downloadName")).setText(msg+" "+videoName);
         });
     }
     
     private void updateSpeed(double speed) {
-        Platform.runLater(new Runnable() {
-           @Override public void run() {
-               if (root != null) {
-                    if (root.lookup("#speed") != null) {
-                         if (speed > 1000)
-                              ((Label)root.lookup("#speed")).setText(String.format("%.0f",speed/1000)+" mb/s");
-                         else ((Label)root.lookup("#speed")).setText(String.format("%.0f",speed)+" kb/s");
-                    }
-               }
-           }
+        Platform.runLater(() -> {
+            if (root != null) {
+                if (root.lookup("#speed") != null) {
+                    if (speed > 1000)
+                        ((Label)root.lookup("#speed")).setText(String.format("%.0f",speed/1000)+" mb/s");
+                    else ((Label)root.lookup("#speed")).setText(String.format("%.0f",speed)+" kb/s");
+                }
+            }
         });
     }
     
     private void updateEta(String s) {
-        Platform.runLater(new Runnable() {
-           @Override public void run() {
-               if (root != null) {
-                    if (root.lookup("#eta") != null)
-                         ((Label)root.lookup("#eta")).setText("ETA "+s);
-               }
-           }
+        Platform.runLater(() -> {
+            if (root != null) {
+                if (root.lookup("#eta") != null)
+                    ((Label)root.lookup("#eta")).setText("ETA "+s);
+            }
         });
     }
     
     private void updateProgressBar(final float progress) {
-        Platform.runLater(new Runnable() {
-           @Override public void run() {
-               if (root != null) 
-                   if (root.lookup("#pBar") != null)
-                        ((ProgressBar)root.lookup("#pBar")).setProgress(progress);
-           }
+        Platform.runLater(() -> {
+            if (root != null)
+                if (root.lookup("#pBar") != null)
+                    ((ProgressBar)root.lookup("#pBar")).setProgress(progress);
         });
     }
     
     private void setIndeteminate(boolean enable) {
-        Platform.runLater(new Runnable() {
-           @Override public void run() {
-               if (root != null) 
-                   if (root.lookup("#pBar") != null)
-                       if (enable)
-                            ((ProgressBar)root.lookup("#pBar")).setProgress(ProgressBar.INDETERMINATE_PROGRESS);
-                       else ((ProgressBar)root.lookup("#pBar")).setProgress(0);
-           }
+        Platform.runLater(() -> {
+            if (root != null)
+                if (root.lookup("#pBar") != null)
+                    if (enable)
+                        ((ProgressBar)root.lookup("#pBar")).setProgress(ProgressBar.INDETERMINATE_PROGRESS);
+                    else ((ProgressBar)root.lookup("#pBar")).setProgress(0);
         });
     }
 }

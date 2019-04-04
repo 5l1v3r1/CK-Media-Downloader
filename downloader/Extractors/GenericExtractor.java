@@ -36,7 +36,11 @@ public abstract class GenericExtractor {
     protected String videoName, url;
     protected String extractorName;
     protected Map<String,String> cookieJar;
-
+    
+    GenericExtractor(String url) throws GenericDownloaderException { 
+        //had to put this so (polymorphism) would kno this exception can be thrown
+    }
+    
     GenericExtractor(String url, File thumb, String videoName) {
        this();
        this.videoThumb = thumb;

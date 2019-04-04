@@ -204,7 +204,7 @@ public class Redtube extends GenericQueryExtractor{
     }
     
     @Override public String getId(String link) {
-        Pattern p = Pattern.compile("https://(www.)?redtube.com/([\\S]+)");
+        Pattern p = Pattern.compile("https?://(www.)?redtube.com/([\\S]+)");
         Matcher m = p.matcher(link);
         return m.find() ? m.group(2) : "";
     }

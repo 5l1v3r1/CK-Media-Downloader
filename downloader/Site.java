@@ -22,7 +22,7 @@ public class Site {
 	    	return Type.pornhub;
 		else if (url.matches("https://(www.)?instagram.com/[\\S]+/") || url.matches("https://(www.)?instagram.com/p/[\\S]+(/[?]taken-by=[\\S]*)?"))
 	            return Type.instagram;
-		else if ((url.matches("https://(((www)|m).)?xhamster.com/movies/[\\d]+/.html")) || (url.matches("https://([\\S]+.)?m.xhamster.com/videos/[\\S]+")) || (url.matches("https://([\\S]+.)?xhamster.com/videos/[\\S]+")))
+		else if ((url.matches("https://(((www)|m).)?xhamster.com/movies/[\\d]+/.html[\\S]*")) || (url.matches("https://([\\S]+.)?m.xhamster.com/videos/[\\S]+")) || (url.matches("https://([\\S]+.)?xhamster.com/videos/[\\S]+")))
 	            return Type.xhamster; //this one done retarded ik
 		else if (url.matches("https://((www|m).)?xhamster.com/videos/[\\S]+"))
 	            return Type.xhamster;

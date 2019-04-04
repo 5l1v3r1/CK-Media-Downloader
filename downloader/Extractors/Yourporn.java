@@ -118,7 +118,7 @@ public class Yourporn extends GenericExtractor{
                 if(page.select("span.vidsnfo").isEmpty())
                     throw new VideoDeletedException("Video could not be found");
             }
-        }
+        } else CommonUtils.log("wasnt null", "Yourporn");
     }
     
     private static String downloadVideoName(String url) throws IOException , SocketTimeoutException, UncheckedIOException, GenericDownloaderException,Exception{
@@ -210,7 +210,7 @@ public class Yourporn extends GenericExtractor{
         Pattern p;
         if (link.matches("http://pics.vc/watch[?]g=[\\S]+"))
             p = Pattern.compile("http://pics.vc/watch[?]g=(?<id>[\\S]+)");
-        else p = Pattern.compile("https://(www.)?yourporn.sexy/post/(?<id>[\\S]+).html([?][\\S]*)?");
+        else p = Pattern.compile("https?://(www.)?yourporn.sexy/post/(?<id>[\\S]+).html([?][\\S]*)?");
         Matcher m = p.matcher(link);
         return m.find() ? m.group("id") : "";
     }

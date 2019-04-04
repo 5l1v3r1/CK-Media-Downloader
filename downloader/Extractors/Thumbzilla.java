@@ -25,6 +25,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 /**
@@ -72,12 +73,18 @@ public class Thumbzilla extends GenericQueryExtractor{
     
     private static void verify(Document page) throws GenericDownloaderException {
         try {
-            Elements section = page.select("section.sectionVideoWrapper");
-            if(!section.hasClass("videoInfoBottom"))
+            Elements sections = page.select("section.sectionVideoWrapper");
+            Element section = null;
+            for(Element s: sections)
+                if (!s.hasClass("videoInfoBottom")) {
+                    section = s; break;
+                }
+            if(!section.hasClass("videoInfoBottom")) {
                 if(!section.select("div.notice").isEmpty())
-                    if(section.select("div.notice").text().isEmpty())
-                        throw new VideoDeletedException("Video removed");
-                    else throw new VideoDeletedException(section.select("div.notice").get(0).text());
+                    throw new VideoDeletedException(section.select("div.notice").get(0).text());
+                else throw new VideoDeletedException("Video removed");
+            }
+            CommonUtils.log("Passed", "Thumbzilla");
         } catch (NullPointerException e) {
             
         }
@@ -126,7 +133,7 @@ public class Thumbzilla extends GenericQueryExtractor{
         return thumbs;
     }
     
-    private static String downloadVideoName(String url) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
+    private static String downloadVideoName(String url) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
         if (!CommonUtils.testPage(url)) throw new PageNotFoundException("Could find video"); //test to avoid error 404
         Document page = getPage(url,false);
         verify(page);
@@ -135,7 +142,7 @@ public class Thumbzilla extends GenericQueryExtractor{
     } 
 	
     //getVideo thumbnail
-    private static File downloadThumb(String url) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
+    private static File downloadThumb(String url) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
         if (!CommonUtils.testPage(url)) throw new PageNotFoundException("Could find video"); //test to avoid error 404
         Document page = getPage(url,false);
         
@@ -217,7 +224,7 @@ public class Thumbzilla extends GenericQueryExtractor{
     }
     
     public String getId(String link) {
-        Pattern p = Pattern.compile("https://(www.)?thumbzilla.com/video/([\\S]+)/[\\S]+");
+        Pattern p = Pattern.compile("https?://(www.)?thumbzilla.com/video/([\\S]+)/[\\S]+");
         Matcher m = p.matcher(link);
         return m.find() ? m.group(2) : "";
     }

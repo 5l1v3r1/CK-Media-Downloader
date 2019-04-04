@@ -286,9 +286,9 @@ public class Xvideos extends GenericQueryExtractor{
     
     public String getId(String link) {
         Pattern p;
-        if(link.matches("https://(www.)?xnxx.com/video-[\\S]+/[\\S]+"))
-            p = Pattern.compile("https://(www.)?xnxx.com/video-([\\S]+)/[\\S]+");
-        else p = Pattern.compile("https://(www.)?xvideos.com/video([\\S]+)/[\\S]+");
+        if(link.matches("https?://(www.)?xnxx.com/video-[\\S]+/[\\S]+"))
+            p = Pattern.compile("https?://(www.)?xnxx.com/video-([\\S]+)/[\\S]+");
+        else p = Pattern.compile("https?://(www.)?xvideos.com/video([\\S]+)/[\\S]+");
         Matcher m = p.matcher(link);
         return m.find() ? m.group(2) : "";
     }
