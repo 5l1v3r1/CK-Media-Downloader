@@ -37,10 +37,6 @@ public abstract class GenericExtractor {
     protected String extractorName;
     protected Map<String,String> cookieJar;
     
-    GenericExtractor(String url) throws GenericDownloaderException { 
-        //had to put this so (polymorphism) would kno this exception can be thrown
-    }
-    
     GenericExtractor(String url, File thumb, String videoName) {
        this();
        this.videoThumb = thumb;
@@ -66,9 +62,7 @@ public abstract class GenericExtractor {
             page = Jsoup.parse(CommonUtils.loadPage(MainApp.pageCache.getAbsolutePath()+File.separator+CommonUtils.getCacheName(url,mobile))); //load if not force redownload
         else { String html;
             try {
-                if (mobile)
-                   html = Jsoup.connect(url).userAgent(CommonUtils.MOBILECLIENT).get().html();
-                else html = Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html();
+               html = mobile ? Jsoup.connect(url).userAgent(CommonUtils.MOBILECLIENT).get().html() : Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html();
                page = Jsoup.parse(html);
                CommonUtils.savePage(html, url, mobile);
             } catch (HttpStatusException e) {
@@ -88,9 +82,7 @@ public abstract class GenericExtractor {
             page = Jsoup.parse(CommonUtils.loadPage(MainApp.pageCache.getAbsolutePath()+File.separator+CommonUtils.getCacheName(url,mobile))); //load if not force redownload
         else { String html;
             try {
-                if (mobile)
-                   html = addCookies(Jsoup.connect(url)).followRedirects(true).userAgent(CommonUtils.MOBILECLIENT).get().html();
-                else html = addCookies(Jsoup.connect(url)).followRedirects(true).userAgent(CommonUtils.PCCLIENT).get().html();
+               html = mobile ? addCookies(Jsoup.connect(url)).followRedirects(true).userAgent(CommonUtils.MOBILECLIENT).get().html() : addCookies(Jsoup.connect(url)).followRedirects(true).userAgent(CommonUtils.PCCLIENT).get().html();
                page = Jsoup.parse(html);
                CommonUtils.savePage(html, url, mobile);
             } catch (HttpStatusException e) {
@@ -123,10 +115,8 @@ public abstract class GenericExtractor {
     protected static String getMetaImage(Document page, boolean ignore) {
         String thumbLink;
         thumbLink = pullMetaImage(page.select("meta"), ignore, "property");
-        if (thumbLink == null)
-            thumbLink = pullMetaImage(page.select("meta"), ignore, "name");
-        if (thumbLink == null)
-            thumbLink = pullMetaImage(page.select("meta"), ignore, "itemprop");
+        thumbLink = thumbLink == null ? pullMetaImage(page.select("meta"), ignore, "name") : thumbLink;
+        thumbLink = thumbLink == null ? pullMetaImage(page.select("meta"), ignore, "itemprop") : thumbLink;
         if (thumbLink == null)
             for(Element meta :page.select("link"))
                 if (meta.attr("rel").equals("image_src"))
@@ -169,8 +159,8 @@ public abstract class GenericExtractor {
             q.put("single",page.select("video").attr("src"));
         else  {
             if (page.select("video").select("source").size() > 1) {
-                for(Element source: page.select("video").select("source")) {
-                    String format = ""; int i = 0;
+                page.select("video").select("source").forEach((source) -> {
+                    String format; int i = 0;
                     format = source.attr("title");
                     if(format.length() == 0)
                         format = source.attr("id");
@@ -187,7 +177,7 @@ public abstract class GenericExtractor {
                     else if (!src.startsWith("https") && !src.startsWith("http"))
                         src = "http://" + src;
                     q.put(format,src);
-                }
+                });
             } else
                 q.put("single",page.select("video").select("source").attr("src"));
         }

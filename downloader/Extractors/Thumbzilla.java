@@ -73,18 +73,19 @@ public class Thumbzilla extends GenericQueryExtractor{
     
     private static void verify(Document page) throws GenericDownloaderException {
         try {
-            Elements sections = page.select("section.sectionVideoWrapper");
-            Element section = null;
-            for(Element s: sections)
-                if (!s.hasClass("videoInfoBottom")) {
-                    section = s; break;
+            if (page.select("a.qualityButton").isEmpty()) {
+                Elements sections = page.select("section.sectionVideoWrapper");
+                Element section = null;
+                for(Element s: sections)
+                    if (!s.hasClass("videoInfoBottom")) {
+                        section = s; break;
+                    }
+                if(section != null && !section.hasClass("videoInfoBottom")) {
+                    if(!section.select("div.notice").isEmpty())
+                        throw new VideoDeletedException(section.select("div.notice").get(0).text());
+                    else throw new VideoDeletedException("Video removed");
                 }
-            if(!section.hasClass("videoInfoBottom")) {
-                if(!section.select("div.notice").isEmpty())
-                    throw new VideoDeletedException(section.select("div.notice").get(0).text());
-                else throw new VideoDeletedException("Video removed");
             }
-            CommonUtils.log("Passed", "Thumbzilla");
         } catch (NullPointerException e) {
             
         }
@@ -223,7 +224,7 @@ public class Thumbzilla extends GenericQueryExtractor{
         return getSize(url);
     }
     
-    public String getId(String link) {
+    @Override public String getId(String link) {
         Pattern p = Pattern.compile("https?://(www.)?thumbzilla.com/video/([\\S]+)/[\\S]+");
         Matcher m = p.matcher(link);
         return m.find() ? m.group(2) : "";

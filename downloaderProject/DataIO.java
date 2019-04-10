@@ -74,7 +74,7 @@ public class DataIO {
     }
     
     public static Vector<video> loadVideos() {
-        ObjectInputStream in = null;
+        ObjectInputStream in;
         Vector<video> videos;
         File save = new File(MainApp.saveDir.getAbsolutePath()+File.separator+"laterVideos.dat");
         
@@ -113,7 +113,7 @@ public class DataIO {
     }
     
     public static Vector<Device> loadDevices() {
-        ObjectInputStream in = null;
+        ObjectInputStream in;
         Vector<Device> device;
         File save = new File(MainApp.saveDir.getAbsolutePath()+File.separator+"devices.dat");
         
@@ -149,7 +149,7 @@ public class DataIO {
     }
     
     public static Vector<historyItem> loadHistory() {
-        ObjectInputStream in = null;
+        ObjectInputStream in;
         Vector<historyItem> history;
         File save = new File(MainApp.saveDir.getAbsolutePath()+File.separator+"history.dat");
         

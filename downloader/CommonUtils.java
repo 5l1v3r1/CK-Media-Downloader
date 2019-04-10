@@ -453,8 +453,7 @@ public class CommonUtils {
             if ((response == HttpURLConnection.HTTP_SEE_OTHER) || (response == HttpURLConnection.HTTP_MOVED_TEMP) || (response == HttpURLConnection.HTTP_MOVED_PERM) || (response == 403 && forbid)) {
                 String location = connection.getHeaderField("Location");
                 if (location != null) {
-                    if (location.startsWith("/")) 
-                        location = "https://"+location;
+                    location = location.startsWith("//") ? "https:"+location : location;
                     connection = new URL(location).openConnection();
                     String cookies = connection.getHeaderField("Set-Cookie");
                     connection.setRequestProperty("Cookie", cookies);
@@ -498,7 +497,7 @@ public class CommonUtils {
             }
         } catch (UncheckedIOException | SocketException e) {
             e.printStackTrace();
-            log("link "+link,"CommonUtils");
+            log("link \""+link+"\"","CommonUtils");
             if (s != null) s.addProgress("Lost Connection: "+e.getMessage());
             return how; //return kb stopped at
         } catch(IOException e){
@@ -507,13 +506,13 @@ public class CommonUtils {
                 return -2;
             } else {
                 e.printStackTrace();
-                log("link "+link,"CommonUtils");
+                log("link \""+link+"\"","CommonUtils");
                 if (s != null) s.addProgress("An IO error occurred: "+e.getMessage());
                 return how; //return kb stopped at
             }
         } catch (Exception e) {
             e.printStackTrace();
-            log("link "+link,"CommonUtils");
+            log("link \""+link+"\"","CommonUtils");
             if (s != null) s.addProgress("An error occurred: "+e.getMessage());
             return how;
         }

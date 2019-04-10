@@ -75,7 +75,7 @@ public class MainApp extends Application {
     public static ProgressBar progress;
     public static TextArea log;
     public static Actions act;
-    private static final String TITLE = "Video Downloader build 28.5";
+    private static final String TITLE = "Video Downloader build 28.5.1";
     public static DownloadHistory downloadHistoryList;
     public static StackPane root;
     public static DataCollection habits;
@@ -210,7 +210,7 @@ public class MainApp extends Application {
             }
         } 
         if (query != null)
-        	query.switchTheme(enable);
+            query.switchTheme(enable);
         if (downloadHistoryList != null)
             downloadHistoryList.switchTheme(enable);
         if(dm != null) 
@@ -334,19 +334,21 @@ public class MainApp extends Application {
             InetAddress ip = InetAddress.getLocalHost();
             return ip.getHostName();
         } catch (UnknownHostException ex) {
+            CommonUtils.log(ex.getMessage(),this);
             return "Undetermined";
         }
     }
     
     public static void updateDevices() {
         devices = DataIO.loadDevices();
-        if(devices == null) devices = new Vector<Device>();
+        if(devices == null) devices = new Vector<>();
         
         deviceBox.getItems().clear();
         settings.setDeviceCount(devices.size()+" devices");
         
-        for(Device d : devices)
+        devices.forEach((d) -> {
             deviceBox.getItems().add(d);
+        });
     }
     
     private void setupSharePane() {
@@ -412,6 +414,7 @@ public class MainApp extends Application {
                     dialog.show(); a.setEffect(blur);
                     }
                 } catch(IOException e) {
+                    CommonUtils.log(e.getMessage(),this);
                     e.printStackTrace();
                 }
             }
@@ -471,7 +474,7 @@ public class MainApp extends Application {
             if(splash != null)
                  splash.close();
        } catch (IllegalStateException e) {
-           CommonUtils.log("Splash screen error",this);
+           CommonUtils.log("Splash screen error: "+e.getMessage(),this);
        }
        window.show();
        

@@ -224,36 +224,36 @@ public class QueryManager {
         
         private void setOnclickAction() {
             queryPane.setOnMouseClicked(new EventHandler<MouseEvent>() {
-				@Override
-				public void handle(MouseEvent arg0) {
-					clearPreviewImages();
-	                int index = queryPane.getSelectionModel().getSelectedIndex();
-	                Vector<File> imgs = results.getPreview(index);
-	                int currentHeight = 0;
-	                if (imgs != null) {
-		                for(int j = 0; j < imgs.size(); j++) {
-		                    FileInputStream fis;
-		                    try {
-		                        fis = new FileInputStream(imgs.get(j));
-		                        Image image = new Image(fis);
-		                        //adjust size of imageview to fit the image and set the image
-		                        double width = 285;
-		                        if (image.getWidth() < 285)
-		                        	width = image.getWidth();
-		                        previewPane.setPrefWidth(width);
-		                        ImageView imgView = new ImageView();
-		                        imgView.setFitWidth(width);
-		                        imgView.setImage(image);
-		                        imgView.setLayoutY(currentHeight);
-		                        currentHeight += image.getHeight();
-		                        previewPane.setMinHeight(currentHeight);
-		                        previewPane.getChildren().add(imgView);
-		                    } catch (FileNotFoundException ex) {
-		                       MainApp.createMessageDialog("Error");
-		                    }
-		                }//endfor
-	                }
-				}});
+		@Override public void handle(MouseEvent arg0) {
+                    clearPreviewImages();
+                    int index = queryPane.getSelectionModel().getSelectedIndex();
+	            Vector<File> imgs = results.getPreview(index);
+	            int currentHeight = 0;
+	            if (imgs != null) {
+		        for(int j = 0; j < imgs.size(); j++) {
+		            FileInputStream fis;
+		            try {
+		                fis = new FileInputStream(imgs.get(j));
+		                Image image = new Image(fis);
+		                //adjust size of imageview to fit the image and set the image
+		                double width = 285;
+		                if (image.getWidth() < 285)
+                                    width = image.getWidth();
+		                previewPane.setPrefWidth(width);
+		                ImageView imgView = new ImageView();
+		                imgView.setFitWidth(width);
+		                imgView.setImage(image);
+		                imgView.setLayoutY(currentHeight);
+		                currentHeight += image.getHeight();
+		                previewPane.setMinHeight(currentHeight);
+		                previewPane.getChildren().add(imgView);
+		            } catch (FileNotFoundException ex) {
+                                CommonUtils.log(ex.getMessage(), QueryManager.this);
+		                MainApp.createMessageDialog("Error");
+		            }
+		        }//endfor
+	            }
+            }});
         }
         
         private Vector<ImageView> getImages() throws FileNotFoundException{
