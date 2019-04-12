@@ -208,9 +208,10 @@ public class Yourporn extends GenericExtractor{
     
     @Override public String getId(String link) {
         Pattern p;
-        if (link.matches("http://pics.vc/watch[?]g=[\\S]+"))
-            p = Pattern.compile("http://pics.vc/watch[?]g=(?<id>[\\S]+)");
-        else p = Pattern.compile("https?://(www.)?yourporn.sexy/post/(?<id>[\\S]+).html([?][\\S]*)?");
+        CommonUtils.log(link,this);
+        if (link.matches("https?://pics.vc/watch[?]g=[\\S]+"))
+            p = Pattern.compile("https?://pics.vc/watch[?]g=(?<id>[^?]+)");
+        else p = Pattern.compile("https?://(www.)?(?:yourporn.sexy|sxyprn.com)/post/(?<id>[\\S]+).html([?][\\S]*)?");
         Matcher m = p.matcher(link);
         return m.find() ? m.group("id") : "";
     }

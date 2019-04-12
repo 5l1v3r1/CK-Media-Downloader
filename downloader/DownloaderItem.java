@@ -539,7 +539,7 @@ public class DownloaderItem {
         do {
             if (retries < 1) break;
             if (s != null) s.addProgress("Trying "+CommonUtils.clean(name));
-            stop = albumName != null ? CommonUtils.saveFile(link,CommonUtils.clean(name),folder+File.separator+albumName,s) : CommonUtils.saveFile(link,CommonUtils.clean(name),folder,s);
+            stop = albumName != null ? CommonUtils.saveFile(link,CommonUtils.clean(name),folder+File.separator+albumName,s) : CommonUtils.saveFile(link,CommonUtils.clean(name),folder,s, true);
             try {
                 Thread.sleep(4000);
             } catch (InterruptedException ex) {

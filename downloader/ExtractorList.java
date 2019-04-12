@@ -57,10 +57,10 @@ public class ExtractorList {
         if (s.startsWith("http://")) s = s.replace("http://", "https://"); //so it doesnt matter if link is http / https
         if ((!s2.startsWith("https://")) && (!s2.startsWith("http://"))) s2 = "https://" + s2;
         if (s2.startsWith("http://")) s2 = s2.replace("http://", "https://"); //so it doesnt matter if link is http / https
-        if(Site.getUrlSite(s) == Site.getUrlSite(s2))
+        Type t1 = Site.getUrlSite(s), t2 = Site.getUrlSite(s2);
+        if(t1 == t2)
             try {
-                Type t = Site.getUrlSite(s);
-                Class<?> c = Class.forName("downloader.Extractors."+t.toString().substring(0,1).toUpperCase()+t.toString().substring(1));
+                Class<?> c = Class.forName("downloader.Extractors."+t1.toString().substring(0,1).toUpperCase()+t1.toString().substring(1));
                 Constructor<?> cons = c.getConstructor();
                 GenericExtractor x = (GenericExtractor)cons.newInstance();
                 return x.getId(s).equals(x.getId(s2));
@@ -68,6 +68,19 @@ public class ExtractorList {
                 CommonUtils.log(e.getMessage(),"ExtractorList:similar");
                 return false;
             }
-        else return false;
+        else if ((t1 == Site.Type.pornhub && t2 == Site.Type.thumbzilla) || (t2 == Site.Type.pornhub && t1 == Site.Type.thumbzilla)) {
+            try {
+                Class<?> c = Class.forName("downloader.Extractors."+t1.toString().substring(0,1).toUpperCase()+t1.toString().substring(1));
+                Constructor<?> cons1 = c.getConstructor();
+                c = Class.forName("downloader.Extractors."+t2.toString().substring(0,1).toUpperCase()+t2.toString().substring(1));
+                Constructor<?> cons2 = c.getConstructor();
+                GenericExtractor x1 = (GenericExtractor)cons1.newInstance();
+                GenericExtractor x2 = (GenericExtractor)cons2.newInstance();
+                return x1.getId(s).equals(x2.getId(s2));
+            } catch (ClassNotFoundException | NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
+                CommonUtils.log(e.getMessage(),"ExtractorList:similar");
+                return false;
+            }
+        } else return false;
     }
 }

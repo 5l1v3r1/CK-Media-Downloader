@@ -40,8 +40,8 @@ public class Site {
             return Type.youporn;
         else if ((url.matches("https://(www.)?shesfreaky.com/video/[\\S]+.html")))
             return Type.shesfreaky;
-        else if ((url.matches("https://(www.)?yourporn.sexy/post/[\\S]+.html([?][\\S]*)?")) || (url.matches("https://pics.vc/watch[?]g=[\\S]+")))
-            return Type.yourporn;
+        else if ((url.matches("https://(www.)?(?:yourporn.sexy|sxyprn.com)/post/[\\S]+.html([?][\\S]*)?")) || (url.matches("https?://pics.vc/watch[?]g=[\\S]+")))
+            return Type.yourporn; 
         else if ((url.matches("https://(www.)?bigtits.com/videos/watch/[\\S]+/[\\d]+")))
             return Type.bigtits;
         else if((url.matches("https://(www.)?pornhd.com/videos/[\\d]+/[\\S]+")))

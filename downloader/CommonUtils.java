@@ -28,6 +28,7 @@ import java.util.Scanner;
 import java.util.Vector;
 import javax.imageio.ImageIO;
 import org.jsoup.Jsoup;
+import sun.net.ConnectionResetException;
 
 /**
  *
@@ -434,11 +435,15 @@ public class CommonUtils {
         return saveFile(link, saveName, path, s, false);
     }
     
+    public static long saveFile(String link, String saveName, File path, OperationStream s, boolean forbid) throws MalformedURLException{
+        return saveFile(link, saveName, path.getAbsolutePath(), s, forbid);
+    }
+    
     public static long saveFile(String link, String saveName, String path, OperationStream s, boolean forbid) throws MalformedURLException{
 	BufferedInputStream in;
 	FileOutputStream out;
         File dir = new File(path);
-        long how = 0;
+        long how = 0, fileSize = 0;
         if (!dir.exists()) 
             dir.mkdirs();
 	
@@ -462,7 +467,7 @@ public class CommonUtils {
                 }
             }
             if (s != null) s.addProgress("Connected to Page for");
-            long fileSize = connection.getContentLengthLong();
+            fileSize = connection.getContentLengthLong();
             if (how >= fileSize) {
                 if (s != null) s.addProgress(String.format("%.0f",(float)how/fileSize*100)+"% Complete");
                 return -2;
@@ -497,22 +502,22 @@ public class CommonUtils {
             }
         } catch (UncheckedIOException | SocketException e) {
             e.printStackTrace();
-            log("link \""+link+"\"","CommonUtils");
+            log("link \""+link+"\" "+e.getMessage(),"CommonUtils");
             if (s != null) s.addProgress("Lost Connection: "+e.getMessage());
             return how; //return kb stopped at
         } catch(IOException e){
              if (e.getMessage().contains("Server returned HTTP response code: 416")) {
-                log("Bad range","CommonUtils");
+                log("Bad range ("+how+"-"+fileSize+")","CommonUtils");
                 return -2;
             } else {
                 e.printStackTrace();
-                log("link \""+link+"\"","CommonUtils");
+                log("link \""+link+"\" "+e.getMessage(),"CommonUtils");
                 if (s != null) s.addProgress("An IO error occurred: "+e.getMessage());
                 return how; //return kb stopped at
             }
         } catch (Exception e) {
             e.printStackTrace();
-            log("link \""+link+"\"","CommonUtils");
+            log("link \""+link+"\" "+e.getMessage(),"CommonUtils");
             if (s != null) s.addProgress("An error occurred: "+e.getMessage());
             return how;
         }
