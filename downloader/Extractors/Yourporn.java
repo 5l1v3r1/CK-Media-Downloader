@@ -127,7 +127,6 @@ public class Yourporn extends GenericExtractor{
         //return page.select("meta").get(6).attr("content").replace(" on YourPorn. Sexy","");
         if (!isAlbum(url)) {
             String raw = getTitleTag(page);
-            CommonUtils.log(raw,"Yourporn");
             return raw.contains("#") ? (raw.indexOf("#") == 0 ? raw.replace(" on YourPorn. Sexy","") : raw.substring(0,raw.indexOf("#")-1).trim()) : raw.replace(" on YourPorn. Sexy","");
         } else
             return page.select("div.gall_header").select("h2").text();

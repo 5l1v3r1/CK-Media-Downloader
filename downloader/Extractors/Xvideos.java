@@ -212,7 +212,7 @@ public class Xvideos extends GenericQueryExtractor{
         String array = page.toString().substring(page.toString().indexOf("var video_related")+18,page.toString().indexOf("];")+1);
         try {
             JSONArray j = (JSONArray)new JSONParser().parse(array);
-            Random randomNum = new Random(); int count = 0; boolean got = false; if (j.isEmpty()) got = true;
+            Random randomNum = new Random(); int count = 0; boolean got = j.isEmpty();
             while(!got) {
                 if (count > j.size()) break;
                 int i = randomNum.nextInt(j.size()); count++;

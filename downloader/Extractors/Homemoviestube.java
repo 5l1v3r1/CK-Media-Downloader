@@ -76,7 +76,7 @@ public class Homemoviestube extends GenericExtractor{
         video v = null;
         Document page = getPage(url,false);
         Elements li = page.getElementById("videoTabs").getElementById("ctab1").select("div.film-item.col-lg-4.col-md-75.col-sm-10.col-xs-10");
-        Random randomNum = new Random(); int count = 0; boolean got = false; if (li.isEmpty()) got = true;
+        Random randomNum = new Random(); int count = 0; boolean got = li.isEmpty();
         while(!got) {
         	if (count > li.size()) break;
         	int i = randomNum.nextInt(li.size()); count++;

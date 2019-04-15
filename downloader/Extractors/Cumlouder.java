@@ -78,7 +78,7 @@ public class Cumlouder extends GenericExtractor {
         video v = null;
         Document page = getPage(url,false);
         Elements li = page.getElementById("related_videos").select("div").get(0).select("a.muestra-escena");
-        Random randomNum = new Random(); int count = 0; boolean got = false; if (li.isEmpty()) got = true;
+        Random randomNum = new Random(); int count = 0; boolean got = li.isEmpty();
         while(!got) {
         	if (count > li.size()) break;
         	int i = randomNum.nextInt(li.size()); count++;

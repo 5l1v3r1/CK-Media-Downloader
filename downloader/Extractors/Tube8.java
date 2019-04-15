@@ -153,7 +153,7 @@ public class Tube8 extends GenericQueryExtractor{
         video v = null;
         Document page = getPage(url,false);
         Elements li = page.select("div.gridList.videosList").select("div.video_box");
-        Random randomNum = new Random(); int count = 0; boolean got = false; if (li.isEmpty()) got = true;
+        Random randomNum = new Random(); int count = 0; boolean got = li.isEmpty();
         while(!got) {
         	if (count > li.size()) break;
         	int i = randomNum.nextInt(li.size()); count++;

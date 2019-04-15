@@ -82,7 +82,7 @@ public class Pornhd extends GenericExtractor{
         video v = null;
         Document page = getPage(url,false);
         Elements li = page.select("ul.thumbs").select("li");
-        Random randomNum = new Random(); int count = 0; boolean got = false; if (li.isEmpty()) got = true;
+        Random randomNum = new Random(); int count = 0; boolean got = li.isEmpty();
         while(!got) {
             if (count > li.size()) break;
             int i = randomNum.nextInt(li.size()); count++;

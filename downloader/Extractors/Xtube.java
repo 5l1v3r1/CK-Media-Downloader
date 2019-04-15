@@ -102,7 +102,7 @@ public class Xtube extends GenericExtractor{
         video v = null;
         Document page = getPage(url,false);
         Elements li = page.select("div.cntPanel.relatedVideosPanel").select("ul.row.smallSpace.rowSpace").select("li");
-        Random randomNum = new Random(); int count = 0; boolean got = false; if (li.isEmpty()) got = true;
+        Random randomNum = new Random(); int count = 0; boolean got = li.isEmpty();
         while(!got) {
         	if (count > li.size()) break;
         	int i = randomNum.nextInt(li.size()); count++;
