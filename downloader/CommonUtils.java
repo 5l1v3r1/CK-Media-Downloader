@@ -28,7 +28,6 @@ import java.util.Scanner;
 import java.util.Vector;
 import javax.imageio.ImageIO;
 import org.jsoup.Jsoup;
-import sun.net.ConnectionResetException;
 
 /**
  *

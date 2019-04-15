@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.Map;
+import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.jsoup.UncheckedIOException;
@@ -67,8 +68,28 @@ public class Anysex extends GenericExtractor{
         return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumbLink,SKIP));
     }
 
-    @Override public video similar() throws IOException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    @Override public video similar() throws IOException, GenericDownloaderException {
+        if (url == null) return null;
+        Elements results = getPage(url,false).select("div.watched").select("ul.box").select("li.item");
+        
+        Random randomNum = new Random(); int count = 0; boolean got = results.isEmpty();
+        video v = null; int limit = results.size() > 100 ? results.size() / 10 : results.size() < 10 ? results.size() : results.size() / 5; 
+        while(!got) {
+            if (count > results.size()) break;
+            int i = randomNum.nextInt(limit); count++;
+            String link = null;
+            for(Element a :results.get(i).select("a")) {
+                if(a.attr("href").matches("/\\d+/"))
+                    link = "http://anysex.com" + a.attr("href");
+            } 
+            
+            try {
+                File thumb = downloadThumb(link);
+                v = new video(link,downloadVideoName(link),thumb,getSize(link));
+            } catch (Exception e) {continue;}
+            got = true;
+        }
+        return v;
     }
 
     @Override public video search(String str) throws IOException, GenericDownloaderException {

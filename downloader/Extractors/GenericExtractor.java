@@ -149,6 +149,10 @@ public abstract class GenericExtractor {
         return title;
     }
     
+    protected static String getTitleTag(Document page) {
+        return Jsoup.parse(page.select("title").toString()).text();
+    }
+    
     protected static String getH1Title(Document page) {
         return Jsoup.parse(page.select("h1").toString()).body().text();
     }

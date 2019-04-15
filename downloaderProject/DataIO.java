@@ -334,7 +334,8 @@ public class DataIO {
         }
         
         //get thumbs from suggested videos to exempt
-        files.addAll(DataIO.loadCollectedData().getExempt());
+        DataCollection d = DataIO.loadCollectedData();
+        if (d != null) files.addAll(d.getExempt());
         
         //get thumbs from download history to exempt
         Vector<downloadedMedia> media = loadDownloaded();

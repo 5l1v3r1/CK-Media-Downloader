@@ -27,7 +27,7 @@ public class Site {
 		else if (url.matches("https://((www|m).)?xhamster.com/videos/[\\S]+"))
 	            return Type.xhamster;
 		else if (url.matches("https://(((www)|([mt])).)?spankbang.com/[\\S]+/(video|playlist)/[\\S]+"))
-	            return Type.spankbang;
+	            return Type.none;//return Type.spankbang;
 		else if (url.matches("https://(www.)?xvideos.com/video[\\S]+/[\\S]+"))
 	            return Type.xvideos;
 		else if (url.matches("https://(www.)?redtube.com/[\\S]+"))

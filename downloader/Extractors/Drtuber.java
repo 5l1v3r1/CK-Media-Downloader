@@ -19,12 +19,14 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.jsoup.Jsoup;
 import org.jsoup.UncheckedIOException;
 import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 
 /**
  *
@@ -49,9 +51,9 @@ public class Drtuber extends GenericExtractor{
         super(url,thumb,videoName);
     }
     
-    private Map<String,String> getQualities() throws PageParseException, IOException {
+    private Map<String,String> getQualities(String link) throws PageParseException, IOException {
         Pattern pattern = Pattern.compile("https?://(?:(?:www|m).)?drtuber.com/video/([\\d]+)/[\\S]+");
-        Matcher matcher = pattern.matcher(url);
+        Matcher matcher = pattern.matcher(link);
         if(matcher.matches()) {
            String id = matcher.group(1);
            String rawJson = Jsoup.connect("http://www.drtuber.com/player_config_json/"+id+"?vid="+id).ignoreContentType(true).execute().body();
@@ -72,7 +74,7 @@ public class Drtuber extends GenericExtractor{
     }
     
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {        
-        Map<String,String> qualities = getQualities();
+        Map<String,String> qualities = getQualities(url);
         
         MediaDefinition media = new MediaDefinition();
         media.addThread(qualities,videoName);
@@ -95,17 +97,60 @@ public class Drtuber extends GenericExtractor{
         return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,SKIP));
     }
 
-    @Override public video similar() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    @Override public video similar() throws PageParseException, IOException {
+        if (url == null) return null;
+        Pattern pattern = Pattern.compile("https?://(?:(?:www|m).)?drtuber.com/video/([\\d]+)/[\\S]+");
+        Matcher matcher = pattern.matcher(url); video v = null;
+        if(matcher.matches()) {
+           String id = matcher.group(1);
+           String rawJson = Jsoup.connect("http://www.drtuber.com/player_config_json/"+id+"?vid="+id).ignoreContentType(true).execute().body();
+            try {
+                JSONObject json = (JSONObject)new JSONParser().parse(rawJson);
+                JSONArray related = (JSONArray)((JSONObject)json.get("lists")).get("related");
+                Iterator<JSONObject> i = related.iterator(); boolean got = false;
+                while(i.hasNext()) {
+                    if (got) break;
+                    JSONObject item = i.next();
+                    String link = "http://www.drtuber.com/video/"+String.valueOf(item.get("VID"));
+                    String title = String.valueOf(item.get("title"));
+                    try {v = new video(link,title,downloadThumb(link),getSize(link));} catch (Exception e){}
+                    got = true;
+                }
+            } catch (ParseException e) {
+               throw new PageParseException(e.getMessage());
+            }
+        } else throw new PageParseException("Couldnt match video url");
+        return v;
     }
 
-    @Override public video search(String str) throws IOException {
-    	throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    @Override public video search(String str) throws IOException, GenericDownloaderException {
+    	String searchUrl = "https://www.drtuber.com/search/videos/"+str.trim().replaceAll(" ", "%20");
+        Document page = getPage(searchUrl,false); video v = null;
+        Elements searchResults = page.getElementById("search_results").select("a");
+        
+        //get first valid video
+	for(int i = 0; i < searchResults.size(); i++)  {
+            String link = "https://www.drtuber.com" + searchResults.get(i).attr("href");
+            CommonUtils.log(link,this);
+            if (!CommonUtils.testPage(link)) continue; //test to avoid error 404
+            //try {verify(getPage(link,false)); } catch (GenericDownloaderException e) {continue;}
+            try {
+                v = new video(link,downloadVideoName(link),downloadThumb(link),getSize(link));
+            } catch (Exception e) {
+                v = null; continue;
+            }
+            break; //if u made it this far u already have a vaild video
+	}
+        return v;
+    }
+    
+    private long getSize(String link) throws IOException, GenericDownloaderException {
+        Map<String,String> qualities = getQualities(link);
+        return CommonUtils.getContentSize(qualities.get(qualities.keySet().iterator().next()));
     }
 
     @Override public long getSize() throws IOException, GenericDownloaderException {
-        Map<String,String> m = getVideo().iterator().next();
-        return CommonUtils.getContentSize(m.get(m.keySet().iterator().next()));
+        return getSize(url);
     }
     
     @Override public String getId(String link) {

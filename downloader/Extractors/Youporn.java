@@ -11,6 +11,7 @@ import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
 import downloader.Exceptions.PageParseException;
+import static downloader.Extractors.GenericExtractor.getPage;
 import downloaderProject.MainApp;
 import java.io.File;
 import java.io.IOException;
@@ -19,6 +20,7 @@ import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Random;
 import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -28,6 +30,7 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 /**
@@ -141,8 +144,31 @@ public class Youporn extends GenericQueryExtractor{
         return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,6));
     }
     
-    @Override public video similar() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    @Override public video similar() throws IOException, GenericDownloaderException {
+        if (url == null) return null;
+        
+        //String which = new Random().nextInt(2) == 1 ? "relatedVideos" : "recommendedVideos";
+        String which = "relatedVideos";
+        
+        Elements related = getPage(url,false).getElementById(which).select("div.video-box.four-column.video_block_wrapper");
+        Random randomNum = new Random(); int count = 0; boolean got = related.isEmpty();
+        video v = null;
+        while(!got) {
+            if (count > related.size()) break;
+            int i = randomNum.nextInt(related.size()); count++;
+            String link = null;
+            for(Element a :related.get(i).select("a")) {
+                if(a.attr("href").matches("/watch/\\d+/\\S+/"))
+                    link = "http://youporn.com" + a.attr("href");
+            }
+            
+            try {
+                File thumb = downloadThumb(link);
+                v = new video(link,downloadVideoName(link),thumb,getSize(link));
+            } catch (Exception e) {continue;}
+            got = true;
+        }
+        return v;
     }
 
     @Override  public video search(String str) throws IOException, GenericDownloaderException {
@@ -168,7 +194,11 @@ public class Youporn extends GenericQueryExtractor{
     }
 
     @Override public long getSize() throws IOException, GenericDownloaderException {
-        Document page = getPage(url,false,true);
+        return getSize(url);
+    }
+    
+    private long getSize(String link) throws IOException, GenericDownloaderException{
+        Document page = getPage(link,false,true);
         Map<String,String> qualities = getQualities(page.toString().substring(page.toString().indexOf("mediaDefinition = [{")+18));
         return CommonUtils.getContentSize(qualities.values().iterator().next());
     }

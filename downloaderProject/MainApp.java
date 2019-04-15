@@ -421,7 +421,7 @@ public class MainApp extends Application {
         });
     }
     
-    @Override public void start(Stage primaryStage) {
+    @Override public void start(Stage primaryStage) throws GenericDownloaderException {
     	window = primaryStage;
         determineOS(); //determine what OS is running
         getUserName(); //get the username
@@ -480,6 +480,16 @@ public class MainApp extends Application {
        
        if (!dontLoad)
          loadSuggestions();
+        /*try {
+            GenericExtractor x = new Drtuber("https://www.drtuber.com/video/5420919/sas");
+            video v = x.similar();
+            DownloaderItem d = new DownloaderItem();
+            d.setLink(v.getLink()); d.setType(Site.getUrlSite(v.getLink())); d.setVideo(v);
+            dm.addDownload(d);
+        } catch (Exception e) {
+            CommonUtils.log("error?: "+e.getMessage(),this);
+        }*/
+        
        ExecutorService x = Executors.newSingleThreadExecutor();
        x.execute(clippy); x.shutdown();
        //startGarbageSuggester();

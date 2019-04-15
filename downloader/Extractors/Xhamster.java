@@ -161,7 +161,7 @@ public class Xhamster extends GenericQueryExtractor{
         video v = null;
         Document page = getPage(url,false);
         Elements li = page.select("div.thumb-list__item.video-thumb");
-        Random randomNum = new Random(); int count = 0; boolean got = false; if (li.size() == 0) got = true;
+        Random randomNum = new Random(); int count = 0; boolean got = li.isEmpty();
         while(!got) {
         	if (count > li.size()) break;
         	int i = randomNum.nextInt(li.size()); count++;

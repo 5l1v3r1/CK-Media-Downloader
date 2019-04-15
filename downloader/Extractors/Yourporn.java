@@ -17,6 +17,7 @@ import org.jsoup.UncheckedIOException;
 import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -97,7 +98,6 @@ public class Yourporn extends GenericExtractor{
               test = test.replace("cdn4", "cdn3");
             if (CommonUtils.getContentSize(test) < 1)
                 test = test.replace("cdn3", "cdn2");*/
-            CommonUtils.log("What was test "+test,this);
             qualities.put("single",test);
             media.addThread(qualities,videoName);
 
@@ -126,7 +126,8 @@ public class Yourporn extends GenericExtractor{
         verify(page);
         //return page.select("meta").get(6).attr("content").replace(" on YourPorn. Sexy","");
         if (!isAlbum(url)) {
-            String raw = getTitle(page);
+            String raw = getTitleTag(page);
+            CommonUtils.log(raw,"Yourporn");
             return raw.contains("#") ? (raw.indexOf("#") == 0 ? raw.replace(" on YourPorn. Sexy","") : raw.substring(0,raw.indexOf("#")-1).trim()) : raw.replace(" on YourPorn. Sexy","");
         } else
             return page.select("div.gall_header").select("h2").text();
@@ -152,8 +153,29 @@ public class Yourporn extends GenericExtractor{
         return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumbLink,SKIP));
     }
 
-    @Override public video similar() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    @Override public video similar() throws IOException, GenericDownloaderException {
+        if (url == null) return null;
+        if (isAlbum(url)) return null;
+        
+        Elements post = getPage(url,false).select("div.block_header").select("post_el_small");
+        Random randomNum = new Random(); int count = 0; boolean got = post.isEmpty();
+        video v = null;
+        while(!got) {
+            if (count > post.size()) break;
+            int i = randomNum.nextInt(post.size()); count++;
+            String link = null;
+            for(Element a :post.get(i).select("a")) {
+                if(a.attr("href").matches("/post/\\S+.html"))
+                    link = "http://yourporn.sexy" + a.attr("href");
+            }
+            
+            try {
+                File thumb = downloadThumb(link);
+                v = new video(link,downloadVideoName(link),thumb,getSize(link));
+                got = true;
+            } catch (Exception e) {}   
+        }
+        return v;
     }
 
     @Override public video search(String str) throws IOException, GenericDownloaderException{
@@ -197,7 +219,6 @@ public class Yourporn extends GenericExtractor{
               test = test.replace("cdn4", "cdn3");
             if (CommonUtils.getContentSize(test) < 1)
                 test = test.replace("cdn3", "cdn2");*/
-            CommonUtils.log("What was test "+test,this);
             return CommonUtils.getContentSize(test, true);
         }
     }
