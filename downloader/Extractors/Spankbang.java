@@ -9,11 +9,11 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import downloader.CommonUtils;
-import static downloader.CommonUtils.PCCLIENT;
 import downloader.DataStructures.GenericQuery;
 import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
+import downloader.Exceptions.PageParseException;
 import downloader.Exceptions.VideoDeletedException;
 import java.io.File;
 import java.io.IOException;
@@ -23,12 +23,15 @@ import downloaderProject.MainApp;
 import org.jsoup.UncheckedIOException;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.jsoup.Connection.Response;
-import org.jsoup.Jsoup;
 
 /**
  *
@@ -39,6 +42,7 @@ public class Spankbang extends GenericQueryExtractor implements Playlist{
     //this class will eventually not be static and will have an output stream to send status messages
     private static final int SKIP = 3;
     private String playlistUrl = null;
+    private final String jsonUrl = "https://spankbang.com/api/videos/stream";
     
     public Spankbang() { //this contructor is used for when you jus want to query
         
@@ -68,61 +72,45 @@ public class Spankbang extends GenericQueryExtractor implements Playlist{
         super(url,thumb,videoName);
     }
     
-    private String getQuality(String s) {
-        return CommonUtils.getLink(s,0,'\'');
+    private Map<String,String> getQualities(String s) throws PageParseException {
+        Map<String,String> quality = new HashMap<>();
+        try {
+            JSONObject json = (JSONObject)new JSONParser().parse(s);
+            Iterator<String> i = json.keySet().iterator();
+            while(i.hasNext()) {
+                String id = i.next();
+                if (id.startsWith("stream_url_"))
+                    if (!((String)json.get(id)).isEmpty())
+                        quality.put(id.replace("stream_url_", ""),(String)json.get(id));
+            }
+        } catch (ParseException e) {
+            throw new PageParseException(e.getMessage());
+        }
+        return quality;
     }
     
     @Override public MediaDefinition getVideo() throws MalformedURLException, IOException,SocketTimeoutException, UncheckedIOException, GenericDownloaderException{        
         Response r = getPageResponse(url, false);
         Document page = r.parse();
         verify(page);
-                
-	//Elements video = page.select("video").select("source");
-        Map<String,String> qualities = new HashMap<>();
+        
         /*qualities.put("240P",getQuality(page.toString().substring(page.toString().indexOf("var stream_url_240p")+24)));
         qualities.put("320P",getQuality(page.toString().substring(page.toString().indexOf("var stream_url_320p")+24)));
         qualities.put("480P",getQuality(page.toString().substring(page.toString().indexOf("var stream_url_480p")+24)));
         qualities.put("720P",getQuality(page.toString().substring(page.toString().indexOf("var stream_url_720p")+24)));
         qualities.put("1080P",getQuality(page.toString().substring(page.toString().indexOf("var stream_url_1080p")+25)));
         qualities.put("4K",getQuality(page.toString().substring(page.toString().indexOf("var stream_url_4k")+22)));*/
+        
         String streamKey = page.getElementById("video").attr("data-streamkey");
         String cookie = r.cookie("sb_csrf_session");
         
-        CommonUtils.log("key "+streamKey,this);
-        Map<String,String> headers = new HashMap<>(), params = new HashMap<>(), cookies = new HashMap<>();
-        headers.put("X-CSRFToken",cookie); headers.put("Referer",url); headers.put("Cookie","Country=US;");
-        params.put("id",streamKey); params.put("data", "0"); params.put("sb_csrf_session",cookie);
-        cookies.putAll(r.cookies()); headers.putAll(r.headers());
-        try {
-            CommonUtils.log(String.valueOf(Jsoup.connect("https://spankbang.com/api/videos/stream").headers(headers).data(params).cookies(cookies).ignoreContentType(true).execute()),this);
-            /*URLConnection connection = new URL("https://spankbang.com/api/videos/stream?data=0&id="+streamKey+"&sb_csrf_session="+cookie).openConnection();
-            //connection.setRequestProperty("User-Agent", PCCLIENT);'
-            connection.setDoInput(true);
-            connection.setDoOutput(true);
-            connection.setRequestProperty("Referer",url);
-            connection.setRequestProperty("X-CSRFToken",cookie);
-            connection.setRequestProperty("Cookie", "sb_csrf_session="+cookie+";Country=US");
-            
-            int response = ((HttpURLConnection)connection).getResponseCode();
-            if ((response == HttpURLConnection.HTTP_SEE_OTHER) || (response == HttpURLConnection.HTTP_MOVED_TEMP) || (response == HttpURLConnection.HTTP_MOVED_PERM) || response == 403) {
-                String location = connection.getHeaderField("Location");
-                if (location.startsWith("/")) 
-                    location = "https://"+location;
-                connection = new URL(location).openConnection();
-                String cook = connection.getHeaderField("Set-Cookie");
-                connection.setRequestProperty("Cookie", cook);
-                connection.setRequestProperty("User-Agent", PCCLIENT);
-                connection.connect();
-            }
-            System.out.println(connection.getContent());
-            System.out.println(response);*/
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        //https://spankbang.com/1y4qi/video/vanessa+del+red+dress
+        StringBuilder params = new StringBuilder();
+        params.append("sb_csrf_session="+URLEncoder.encode(cookie)+"&data=0&");
+        params.append("id="+URLEncoder.encode(streamKey));
         
         MediaDefinition media = new MediaDefinition();
-        media.addThread(qualities,videoName);
+        media.addThread(getQualities(CommonUtils.sendPost(jsonUrl,params.toString(),false,url,"application/json")),videoName);
+        //https://spankbang.com/1y4qi/video/vanessa+del+red+dress
         
         return media;
     }
@@ -211,9 +199,7 @@ public class Spankbang extends GenericQueryExtractor implements Playlist{
     
     private static boolean isPlaylist(String url) {
         if (url.startsWith("http://")) url = url.replace("http://", "https://"); //so it doesnt matter if link is http / https
-        if (url.matches("https://(www.)?spankbang.com/[a-zA-Z0-9]+/playlist/[\\S]*"))
-            return true;
-        else return false;
+        return url.matches("https://(www.)?spankbang.com/[a-zA-Z0-9]+/playlist/[\\S]*");
     }
 
     @Override public video similar() throws IOException, GenericDownloaderException{
@@ -284,8 +270,17 @@ public class Spankbang extends GenericQueryExtractor implements Playlist{
     }
     
     private long getSize(String link) throws IOException, GenericDownloaderException {
-        Document page = getPage(link,false,true);
-        Map<String,String> q = getDefaultVideo(page);
+        Response r = getPageResponse(link, false);
+        Document page = r.parse();
+        String streamKey = page.getElementById("video").attr("data-streamkey");
+        String cookie = r.cookie("sb_csrf_session");
+        
+        StringBuilder params = new StringBuilder();
+        params.append("sb_csrf_session="+URLEncoder.encode(cookie)+"&data=0&");
+        params.append("id="+URLEncoder.encode(streamKey));
+        
+        Map<String,String> q = getQualities(CommonUtils.sendPost(jsonUrl,params.toString(),false,link,"application/json"));
+        
         return CommonUtils.getContentSize(q.get(q.keySet().iterator().next()));
     }
 

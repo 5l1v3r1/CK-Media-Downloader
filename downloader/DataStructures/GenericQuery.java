@@ -22,19 +22,19 @@ public class GenericQuery implements Serializable{
     protected Vector<Long> size;
     
     public GenericQuery() {
-        thumbnails = new Vector<File>();
-        link = new Vector<String>();
-        name = new Vector<String>();
+        thumbnails = new Vector<>();
+        link = new Vector<>();
+        name = new Vector<>();
         preview = new Vector<Vector<File>>();
-        size = new Vector<Long>();
+        size = new Vector<>();
     }
     
     public GenericQuery(GenericQuery g) {
-        if (thumbnails == null) this.thumbnails = new Vector<File>();
-        if (link == null) this.link = new Vector<String>();
+        if (thumbnails == null) this.thumbnails = new Vector<>();
+        if (link == null) this.link = new Vector<>();
         if (preview == null) this.preview = new Vector<Vector<File>>();
-        if (name == null) this.name = new Vector<String>();
-        if (size == null) this.size = new Vector<Long>();
+        if (name == null) this.name = new Vector<>();
+        if (size == null) this.size = new Vector<>();
         
         for(int i = 0; i < g.thumbnailCount(); i++) {
             this.thumbnails.add(g.getThumbnail(i));

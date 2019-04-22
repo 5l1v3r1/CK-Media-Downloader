@@ -39,7 +39,10 @@ import java.net.URISyntaxException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.application.Platform;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
@@ -256,26 +259,44 @@ public class QueryManager {
             }});
         }
         
-        private Vector<ImageView> getImages() throws FileNotFoundException{
-            Vector<ImageView> images = new Vector<>();
+        private Vector<Image> getImages() throws FileNotFoundException{
+            Vector<Image> images = new Vector<>();
             
             for(int i = 0; i < results.thumbnailCount(); i++) {
                 FileInputStream fis = new FileInputStream(results.getThumbnail(i));
                 Image image = new Image(fis);
-                ImageView view = new ImageView();
-                view.setImage(image);
                 //final int current = i;
-                images.add(view);
+                images.add(image);
             }
             return images;
         }
         
-        private Button createOpenBroswerBtn(int which, double offset) {
-            Button btn = new Button();
-            btn.setLayoutX(offset+20);
-            btn.setLayoutY(80);
-            btn.setText("Open in browser");
-            btn.setOnAction(new EventHandler<ActionEvent>() {
+        private void setButtons(Pane pane, int which) {
+            ((Button)pane.lookup("#addList")).setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent t) {
+                    DownloaderItem download = new DownloaderItem();
+                    download.setLink(results.getLink(which)); 
+                    download.setType(Site.getUrlSite(results.getLink(which)));
+                    //add item to downloadManager for display
+                    MainApp.dm.addDownload(download);
+                }
+            });
+            
+            ((Button)pane.lookup("#later")).setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent t) {
+                    try {
+                        DataIO.saveVideo(new video(results.getLink(which),results.getName(which),results.getThumbnail(which),results.getSize(which),results.getPreview(which)));
+                        MainApp.createMessageDialog("Video saved");
+                        MainApp.settings.videoUpdate();
+                    } catch (IOException e) {
+                        MainApp.createMessageDialog("Failed to save video for later");
+                    }
+                }
+            });
+            
+            ((Button)pane.lookup("#browser")).setOnAction(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent t) {
                     if (Desktop.isDesktopSupported()) {
@@ -293,76 +314,13 @@ public class QueryManager {
                         MainApp.createMessageDialog("Not supported");
                 }
             });
-            InputStream in = System.class.getResourceAsStream("/icons/icons8-open-in-browser-40.png");
-            Image img = new Image(in);
-            ImageView icon = new ImageView(img);
-            icon.setFitHeight(20);
-            icon.setFitWidth(20);
-            
-            btn.setGraphic(icon);
-            
-            return btn;
         }
         
-        private Button createDownloadLaterBtn(int which, double offset) {
-            Button btn = new Button();
-            btn.setLayoutX(offset+20);
-            btn.setLayoutY(45);
-            btn.setText("Download Later");
-            btn.setOnAction(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent t) {
-                    try {
-                        DataIO.saveVideo(new video(results.getLink(which),results.getName(which),results.getThumbnail(which),results.getSize(which),results.getPreview(which)));
-                        MainApp.createMessageDialog("Video saved");
-                        MainApp.settings.videoUpdate();
-                    } catch (IOException e) {
-                        MainApp.createMessageDialog("Failed to save video for later");
-                    }
-                }
-            });
-            
-            InputStream in = System.class.getResourceAsStream("/icons/icons8-download-from-cloud-40.png");
-            Image img = new Image(in);
-            ImageView icon = new ImageView(img);
-            icon.setFitHeight(20);
-            icon.setFitWidth(20);
-            
-            btn.setGraphic(icon);
-            
-            return btn;
-        }
-        
-        private Button createDownloadBtn(int which, double offset) {
-            Button btn = new Button();
-            btn.setLayoutX(offset+20);
-            btn.setLayoutY(10);
-            btn.setText("Add to Download List");
-            btn.setOnAction(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent t) {
-                    DownloaderItem download = new DownloaderItem();
-                    download.setLink(results.getLink(which)); 
-                    download.setType(Site.getUrlSite(results.getLink(which)));
-                    //add item to downloadManager for display
-                    MainApp.dm.addDownload(download);
-                }
-            });
-            
-            InputStream in = System.class.getResourceAsStream("/icons/icons8-download-80.png");
-            Image img = new Image(in);
-            ImageView icon = new ImageView(img);
-            icon.setFitHeight(20);
-            icon.setFitWidth(20);
-            
-            btn.setGraphic(icon);
-            
-            return btn;
-        }
-        
-        private Pane createPane(ImageView image, int i) {
-            Pane pane = new Pane();
-            int width;
+        private Pane createPane(Image image, int i) throws IOException {
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(MainApp.class.getResource("layouts/queryItem.fxml"));
+            Pane pane = loader.load();
+            /*int width;
             if (image.getImage().getHeight() > 200) {
                 pane.setPrefHeight(200); image.setFitHeight(200);
             } else pane.setPrefHeight(image.getImage().getHeight());
@@ -370,11 +328,11 @@ public class QueryManager {
                 width = 235;
             else width = (int) image.getImage().getWidth();
             image.setFitWidth(width);
-            pane.setPrefWidth(450); 
-            pane.getChildren().add(image);
-            pane.getChildren().add(createDownloadBtn(i,width));
-            pane.getChildren().add(createDownloadLaterBtn(i,width));
-            pane.getChildren().add(createOpenBroswerBtn(i,width));
+            pane.setPrefWidth(450);
+            pane.getChildren().add(image);*/
+            setButtons(pane,i);
+            ((ImageView)pane.lookup("#preview")).setImage(image);
+            ((Label)pane.lookup("#title")).setText(results.getName(i));
             pane.getStyleClass().add("lighter");
             return pane;
         }
@@ -384,12 +342,15 @@ public class QueryManager {
                 @Override public void run() {
                     ObservableList<Pane> panes = queryPane.getItems();
                     try {
-                        Vector<ImageView>images = getImages();
+                        Vector<Image>images = getImages();
                         for(int i = 0; i < images.size(); i++)
                             panes.add(createPane(images.get(i), i)); //add pane of video thumb and download button etc.
                         setOnclickAction(); //on click of a list item show thumbnails of video
                     } catch (FileNotFoundException e) {
+                        CommonUtils.log("Error with :("+e.getMessage()+")",this);
                         MainApp.createMessageDialog("Error in cache : 1");
+                    } catch (IOException e) {
+                        CommonUtils.log(e.getMessage(),this);
                     }
                     searchResultCount.setText(panes.size()+" results found");
                 }

@@ -75,7 +75,7 @@ public class MainApp extends Application {
     public static ProgressBar progress;
     public static TextArea log;
     public static Actions act;
-    private static final String TITLE = "Video Downloader build 29";
+    private static final String TITLE = "Video Downloader build 30";
     public static DownloadHistory downloadHistoryList;
     public static StackPane root;
     public static DataCollection habits;
