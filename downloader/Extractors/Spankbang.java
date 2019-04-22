@@ -42,7 +42,7 @@ public class Spankbang extends GenericQueryExtractor implements Playlist{
     //this class will eventually not be static and will have an output stream to send status messages
     private static final int SKIP = 3;
     private String playlistUrl = null;
-    private final String jsonUrl = "https://spankbang.com/api/videos/stream";
+    private final String JSONURL = "https://spankbang.com/api/videos/stream";
     
     public Spankbang() { //this contructor is used for when you jus want to query
         
@@ -109,7 +109,7 @@ public class Spankbang extends GenericQueryExtractor implements Playlist{
         params.append("id="+URLEncoder.encode(streamKey));
         
         MediaDefinition media = new MediaDefinition();
-        media.addThread(getQualities(CommonUtils.sendPost(jsonUrl,params.toString(),false,url,"application/json")),videoName);
+        media.addThread(getQualities(CommonUtils.sendPost(JSONURL,params.toString(),false,url,"application/json")),videoName);
         //https://spankbang.com/1y4qi/video/vanessa+del+red+dress
         
         return media;
@@ -279,7 +279,7 @@ public class Spankbang extends GenericQueryExtractor implements Playlist{
         params.append("sb_csrf_session="+URLEncoder.encode(cookie)+"&data=0&");
         params.append("id="+URLEncoder.encode(streamKey));
         
-        Map<String,String> q = getQualities(CommonUtils.sendPost(jsonUrl,params.toString(),false,link,"application/json"));
+        Map<String,String> q = getQualities(CommonUtils.sendPost(JSONURL,params.toString(),false,link,"application/json"));
         
         return CommonUtils.getContentSize(q.get(q.keySet().iterator().next()));
     }

@@ -28,7 +28,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import downloaderProject.MainApp;
 import java.awt.Desktop;
-import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import org.jsoup.UncheckedIOException;
@@ -39,8 +38,6 @@ import java.net.URISyntaxException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
@@ -265,7 +262,6 @@ public class QueryManager {
             for(int i = 0; i < results.thumbnailCount(); i++) {
                 FileInputStream fis = new FileInputStream(results.getThumbnail(i));
                 Image image = new Image(fis);
-                //final int current = i;
                 images.add(image);
             }
             return images;
@@ -320,16 +316,6 @@ public class QueryManager {
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(MainApp.class.getResource("layouts/queryItem.fxml"));
             Pane pane = loader.load();
-            /*int width;
-            if (image.getImage().getHeight() > 200) {
-                pane.setPrefHeight(200); image.setFitHeight(200);
-            } else pane.setPrefHeight(image.getImage().getHeight());
-            if (image.getImage().getWidth() > 235)
-                width = 235;
-            else width = (int) image.getImage().getWidth();
-            image.setFitWidth(width);
-            pane.setPrefWidth(450);
-            pane.getChildren().add(image);*/
             setButtons(pane,i);
             ((ImageView)pane.lookup("#preview")).setImage(image);
             ((Label)pane.lookup("#title")).setText(results.getName(i));
