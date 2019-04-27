@@ -15,8 +15,6 @@ import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.jsoup.UncheckedIOException;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -79,22 +77,8 @@ public class Pornpics extends GenericExtractor{
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override public long getSize() throws IOException, GenericDownloaderException {
-        long total = 0;
-        Document page = getPage(url,false);
-        Elements a = page.select("a.rel-link");
-        for(Element item :a)
-            total += CommonUtils.getContentSize(item.attr("href"));
-        return total;
-    }
-    
-    @Override public String getId(String link) {
-        Pattern p = Pattern.compile("https?://(www.)?pornpics.com/galleries/([\\S]+)/");
-        Matcher m = p.matcher(link);
-        return m.find() ? m.group(2) : "";
-    }
-
-    @Override public String getId() {
-        return getId(url);
+    @Override protected String getValidURegex() {
+        works = true;
+        return "https?://(?:www.)?pornpics.com/galleries/(?<id>[\\S]+)/"; 
     }
 }

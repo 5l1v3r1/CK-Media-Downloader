@@ -62,14 +62,14 @@ public class mainLayoutController implements Initializable, Reactable{
     
     public void determineSite(String link) {
         DownloaderItem download = new DownloaderItem();
-        download.setLink(link); download.setType(Site.getUrlSite(link)); download.setVideo(null);
+        download.setLink(link); download.setVideo(null);
         //add item to downloadManager for display
         MainApp.dm.addDownload(download);
     }
     
     public void determineSite(String link, video v) {
         DownloaderItem download = new DownloaderItem();
-        download.setLink(link); download.setType(Site.getUrlSite(link)); download.setVideo(v);
+        download.setLink(link); download.setVideo(v);
         //add item to downloadManager for display
         MainApp.dm.addDownload(download);
     }
@@ -91,9 +91,7 @@ public class mainLayoutController implements Initializable, Reactable{
                 String[] token = clipText.split("\n"); //if multiple lines of links on clipboard
                 for(String s:token) {
                     CommonUtils.log(s,this);  //this is jus a debugging output
-                    if (Site.getUrlSite(s) == Site.Type.none) 
-                        CommonUtils.log("Couldn't determine",this); //invalid link
-                    else determineSite(s);
+                    determineSite(s);
                 }
             }
         } catch(UnsupportedFlavorException e) {
@@ -188,8 +186,7 @@ public class mainLayoutController implements Initializable, Reactable{
                 }
                 for(int i = 0; i < lines.size(); i++) {
                     CommonUtils.log(lines.get(i).trim(),this);
-                    if (Site.getUrlSite(lines.get(i).trim()) != Site.Type.none)
-                        determineSite(lines.get(i).trim());
+                    determineSite(lines.get(i).trim());
                 }
                 MainApp.settings.preferences.setImportFolder(selected.getParentFile());
                 MainApp.settings.saveSettings();

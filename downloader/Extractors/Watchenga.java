@@ -15,8 +15,6 @@ import java.io.IOException;
 import org.jsoup.UncheckedIOException;
 import java.net.SocketTimeoutException;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
@@ -76,19 +74,8 @@ public class Watchenga extends GenericExtractor{
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override public long getSize() throws IOException, GenericDownloaderException {
-        Document page = getPage(url,false,true);
-        Map<String,String> q = getDefaultVideo(page);
-        return CommonUtils.getContentSize(q.get(q.keySet().iterator().next()));
-    }
-    
-    @Override public String getId(String link) {
-        Pattern p = Pattern.compile("https?://(www.)?watcheng[a]?.tv/en/show/(?<id>[\\S]+)/(season-[\\d]+/episode-[\\d]+/)?");
-        Matcher m = p.matcher(link);
-        return m.find() ? m.group("id") : "";
-    }
-
-    @Override public String getId() {
-        return getId(url);
+    @Override protected String getValidURegex() {
+        works = false;
+        return "https?://(?:www.)?watcheng[a]?.tv/en/show/(?<id>[\\S]+)/(season-[\\d]+/episode-[\\d]+/)?"; 
     }
 }

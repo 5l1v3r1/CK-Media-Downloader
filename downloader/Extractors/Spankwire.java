@@ -20,8 +20,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Vector;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -35,7 +33,7 @@ import org.jsoup.select.Elements;
  */
 public class Spankwire extends GenericQueryExtractor{
     private static final int SKIP = 5;
-    
+       
     public Spankwire() { //this contructor is used for when you jus want to query
         
     }
@@ -106,7 +104,7 @@ public class Spankwire extends GenericQueryExtractor{
     
      private static Map<String,String> getQualities(String link) throws IOException, PageParseException {
         Map<String, String> qualities = new HashMap<>();
-        String rawJson = Jsoup.connect("http://www.spankwire.com/api/video/"+getVideoId(link)+".json").ignoreContentType(true).execute().body();
+        String rawJson = Jsoup.connect("http://www.spankwire.com/api/video/"+getId(link,getRegex())+".json").ignoreContentType(true).execute().body();
         try {
             JSONObject json = (JSONObject)new JSONParser().parse(rawJson);
             JSONObject videos = (JSONObject)json.get("videos");
@@ -152,7 +150,7 @@ public class Spankwire extends GenericQueryExtractor{
     }
 
     @Override public video similar() throws IOException, PageParseException {
-    	String rawJson = Jsoup.connect("http://www.spankwire.com/api/video/"+getVideoId(url)+".json").ignoreContentType(true).execute().body();
+    	String rawJson = Jsoup.connect("http://www.spankwire.com/api/video/"+getId(url,getRegex())+".json").ignoreContentType(true).execute().body();
         try {
             JSONObject json = (JSONObject)new JSONParser().parse(rawJson);
             String link = "http://spankwire.com" + ((JSONObject)json.get("related")).get("url");
@@ -186,26 +184,18 @@ public class Spankwire extends GenericQueryExtractor{
         return v;
     }
     
-    private static long getSize(String link) throws IOException, GenericDownloaderException{
-        Document page = getPage(link,false,true);
-        return CommonUtils.getContentSize(page.select("div.shareDownload_container__item__dropdown").select("a").get(0).attr("href"));
-    }
-    
-    @Override public long getSize() throws IOException, GenericDownloaderException {
-        return getSize(url);
-    }
-    
-    private static String getVideoId(String link) {
-        Pattern p = Pattern.compile("https?://(www.)?spankwire.com/[\\S]+/video([\\d]+)/([\\d]+)?");
-        Matcher m = p.matcher(link);
-        return m.find() ? m.group(2) : "";
-    }
-    
-    @Override public String getId(String link) {
-        return getVideoId(link);
+    private long getSize(String link) throws IOException, GenericDownloaderException{
+        MediaDefinition media = new MediaDefinition();
+        media.addThread(getQualities(link),videoName);
+        return getSize(media);
     }
 
-    @Override public String getId() {
-        return getId(url);
+    @Override protected String getValidURegex() {
+        works = true;
+        return getRegex();
+    }
+    
+    private static String getRegex() {
+        return "https?://(?:www.)?spankwire.com/[\\S]+/video(?<id>[\\d]+)/(?:[\\d]+)?";
     }
 }

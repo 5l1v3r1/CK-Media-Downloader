@@ -26,9 +26,13 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Formatter;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.Vector;
 import javax.imageio.ImageIO;
 import org.jsoup.Jsoup;
@@ -67,7 +71,7 @@ public class CommonUtils {
                 x+=eHeight;
             }
         } catch (IOException e) {
-            System.out.println("Error splitting");
+            log("Error splitting","CommonUtils");
         }
         return splits;
     }
@@ -285,6 +289,24 @@ public class CommonUtils {
                     break;
         }
         return s.toString().isEmpty() ? 1 : Integer.parseInt(s.toString());
+    }
+    
+    public static List<String> getSortedFormats(Set<String> list) {
+        Iterator<String> i = list.iterator(); List<String> q = new ArrayList<>();
+        while(i.hasNext())
+            q.add(i.next());
+        for(int j = 0; j < q.size() -1; j++) { //selection sort
+            int min = j;
+            for(int k = j+1; k < q.size(); k++)
+                if(CommonUtils.getFormatWeight(q.get(k)) > CommonUtils.getFormatWeight(q.get(min)))
+                    min = k;
+            if(min != j) { //swap
+                String temp = q.get(min);
+                q.set(min,q.get(j)); 
+                q.set(j,temp);
+            }
+        }
+        return q;
     }
     
     public static String addAttr(String attr, String value) {

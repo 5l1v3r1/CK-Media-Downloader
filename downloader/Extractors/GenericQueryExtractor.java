@@ -19,6 +19,7 @@ import java.util.Vector;
  */
 public abstract class GenericQueryExtractor extends GenericExtractor{
     
+    //This probably should have been an interface
     GenericQueryExtractor(String url, File thumb, String videoName){
         super(url,thumb,videoName);
     }

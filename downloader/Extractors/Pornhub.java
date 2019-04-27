@@ -25,8 +25,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 import java.util.Vector;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
@@ -271,23 +269,19 @@ public class Pornhub extends GenericQueryExtractor implements Playlist{
     }
     
     private static boolean isAlbum(String url) {
-        if (url.startsWith("http://")) url = url.replace("http://", "https://"); //so it doesnt matter if link is http / https
-        return (url.matches("https://(www.)?pornhub.com/album/[\\S]+"));
+        return (url.matches("https?://(www.)?pornhub.com/album/[\\S]+"));
     }
     
     private static boolean isPhoto(String url) {
-        if (url.startsWith("http://")) url = url.replace("http://", "https://"); //so it doesnt matter if link is http / https
-        return (url.matches("https://(www.)?pornhub.com/(photo|gif)/[\\S]+"));
+        return (url.matches("https?://(www.)?pornhub.com/(photo|gif)/[\\S]+"));
     }
     
     private static boolean isGif(String url) {
-        if (url.startsWith("http://")) url = url.replace("http://", "https://"); //so it doesnt matter if link is http / https
-        return (url.matches("https://(www.)?pornhub.com/gif/[\\S]+"));
+        return (url.matches("https?://(www.)?pornhub.com/gif/[\\S]+"));
     }
     
     private static boolean isPlaylist(String url) {
-        if (url.startsWith("http://")) url = url.replace("http://", "https://"); //so it doesnt matter if link is http / https
-        return (url.matches("https://(www.)?pornhub.com/playlist/[\\S]+"));
+        return (url.matches("https?://(www.)?pornhub.com/playlist/[\\S]+"));
     }
     
      private static String downloadVideoName(String url) throws IOException , SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
@@ -316,8 +310,8 @@ public class Pornhub extends GenericQueryExtractor implements Playlist{
             page = Jsoup.parse(page.toString());
             CommonUtils.savePage(page.toString(), url, true);
             verify(page);
-           Elements titleSpan = page.select("span.inlineFree");
-           return Jsoup.parse(titleSpan.toString()).body().text(); //pull out text in span
+            Elements titleSpan = page.select("span.inlineFree");
+            return Jsoup.parse(titleSpan.toString()).body().text(); //pull out text in span
         }
     } 
 	
@@ -481,10 +475,6 @@ public class Pornhub extends GenericQueryExtractor implements Playlist{
 	}
         return v;
     }
-
-    @Override public long getSize() throws IOException, GenericDownloaderException {
-        return getSize(url);
-    }
     
     private static String getSingle(Document page) {
         String img;
@@ -572,17 +562,9 @@ public class Pornhub extends GenericQueryExtractor implements Playlist{
                 return CommonUtils.getContentSize(video);
         }
     }
-    
-    @Override public String getId(String link) {
-        Pattern p;
-        if (link.matches("https?://(www.)?pornhub.com/view_video.php[?]viewkey=[\\S]*"))
-            p = Pattern.compile("https?://(www.)?pornhub.com/view_video.php[?]viewkey=(?<id>[\\S]*)");
-        else p = Pattern.compile("https?://(www.)?pornhub.com/(photo|album|gif|playlist)/(?<id>[\\S]*)");
-        Matcher m = p.matcher(link);
-        return m.find() ? m.group("id") : "";
-    }
 
-    @Override public String getId() {
-        return getId(url);
+    @Override protected String getValidURegex() {
+        works = true;
+        return "https?://(?:www.)?pornhub.com/((?:view_video.php[?]viewkey=)(?<id2>[\\S]+)|((?:photo|album|gif|playlist)/(?<id>[\\d]+)))"; 
     }
 }

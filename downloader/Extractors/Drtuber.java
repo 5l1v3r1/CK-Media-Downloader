@@ -145,21 +145,14 @@ public class Drtuber extends GenericExtractor{
     }
     
     private long getSize(String link) throws IOException, GenericDownloaderException {
-        Map<String,String> qualities = getQualities(link);
-        return CommonUtils.getContentSize(qualities.get(qualities.keySet().iterator().next()));
+        MediaDefinition media = new MediaDefinition();
+        media.addThread(getQualities(link),videoName);
+        
+        return getSize(media);
     }
 
-    @Override public long getSize() throws IOException, GenericDownloaderException {
-        return getSize(url);
-    }
-    
-    @Override public String getId(String link) {
-        Pattern p = Pattern.compile("https?://(?:(www|m).)?drtuber.com/video/(?<id>[\\d]+)/[\\S]+");
-        Matcher m = p.matcher(link);
-        return m.find() ? m.group("id") : "";
-    }
-
-    @Override public String getId() {
-        return getId(url);
+    @Override protected String getValidURegex() {
+        works = true;
+        return "https?://(?:(www|m).)?drtuber.com/video/(?<id>[\\d]+)/[\\S]+"; 
     }
 }

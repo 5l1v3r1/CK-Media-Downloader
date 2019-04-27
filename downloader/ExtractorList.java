@@ -5,13 +5,14 @@
  */
 package downloader;
 import downloader.Exceptions.GenericDownloaderException;
+import downloader.Exceptions.NotSupportedException;
 import downloader.Extractors.GenericExtractor;
 import downloader.Extractors.Instagram;
-import downloader.Site.Type;
 import java.io.File;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
+import java.util.ArrayList;
+import java.util.List;
 import org.jsoup.UncheckedIOException;
 import org.jsoup.nodes.Document;
 
@@ -21,25 +22,48 @@ import org.jsoup.nodes.Document;
  */
 
 public class ExtractorList {
-    public static GenericExtractor getExtractor(Type type, String url) throws UncheckedIOException, GenericDownloaderException, Exception {
+    static final String[] EXTRACTORS = {"Anysex", "Befuck", "Bigboobsalert", "Bigbootytube", "Bigtits", "Cumlouder", "Dailymotion",
+        "Drtuber", "Eporner", "Gotporn", "Homemoviestube", "Hoodamateurs", "Imgur", "Instagram", "Justporno", "Myfreeblack",
+        "Porn", "Pornhd", "Pornheed", "Pornhub", "Pornpics", "Redtube", "Ruleporn", "Shesfreaky", "Spankbang", "Spankwire",
+        "Thumbzilla", "Tube8", "Vidoza", "Vimeo", "Vodlocker", "Vporn", "Watchenga", "Xhamster", "Xtube", "Xvideos", "Youjizz",
+        "Youporn", "Yourporn"
+    };
+    
+    private static List<GenericExtractor> getExtractors() throws ClassNotFoundException, NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
+        List<GenericExtractor> l = new ArrayList<>();
+        for (String x : EXTRACTORS)
+            l.add((GenericExtractor) Class.forName("downloader.Extractors." + x).getConstructor().newInstance());
+        //l.add(new Default());
+        return l;
+    }
+    
+    public static GenericExtractor getExtractor(String url) throws UncheckedIOException, GenericDownloaderException, Exception {
         try {
-            Class<?> c = Class.forName("downloader.Extractors."+type.toString().substring(0,1).toUpperCase()+type.toString().substring(1));
-            Constructor<?> cons = c.getConstructor(String.class);
-            return (GenericExtractor)cons.newInstance(url);
+            List<GenericExtractor> list = getExtractors();
+            for(GenericExtractor x :list)
+                if (x.suitable(url)) {
+                    int size = x.getClass().getName().split("[.]").length;
+                    return (GenericExtractor) Class.forName("downloader.Extractors." +x.getClass().getName().split("[.]")[size-1]).getConstructor(String.class).newInstance(url);
+                }
+            throw new NotSupportedException("url is not supported",url);
         } catch (ClassNotFoundException | NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
             if (e.getCause() instanceof GenericDownloaderException) throw (GenericDownloaderException)e.getCause();
-            CommonUtils.log(e.getMessage(),"ExtractorList:getExtractor(type,string)");
+            CommonUtils.log(e.getMessage(),"ExtractorList:getExtractor(string)");
             return null;
         }
     }
     
-    public static GenericExtractor getExtractor(Type type, String url, File thumb, String name) throws UncheckedIOException, GenericDownloaderException, Exception {
+    public static GenericExtractor getExtractor(String url, File thumb, String name) throws UncheckedIOException, GenericDownloaderException, Exception {
         try {
-            Class<?> c = Class.forName("downloader.Extractors."+type.toString().substring(0,1).toUpperCase()+type.toString().substring(1));
-            Constructor<?> cons = c.getConstructor(String.class,File.class,String.class);
-            return (GenericExtractor)cons.newInstance(url,thumb,name);
+            List<GenericExtractor> list = getExtractors();
+            for(GenericExtractor x :list)
+                if (x.suitable(url)) {
+                    int size = x.getClass().getName().split("[.]").length;
+                    return (GenericExtractor) Class.forName("downloader.Extractors." +x.getClass().getName().split("[.]")[size-1]).getConstructor(String.class,File.class,String.class).newInstance(url,thumb,name);
+                }
+            throw new NotSupportedException("url is not supported",url);
         } catch (ClassNotFoundException | NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            CommonUtils.log(e.getMessage(),"ExtractorList:getExtractor(type,string,file,string)");
+            CommonUtils.log(e.getMessage(),"ExtractorList:getExtractor(string,file,string)");
             return null;
         }
     }
@@ -53,34 +77,42 @@ public class ExtractorList {
     }
     
     public static boolean similar(String s, String s2) {
-        if ((!s.startsWith("https://")) && (!s.startsWith("http://"))) s = "https://" + s;
-        if (s.startsWith("http://")) s = s.replace("http://", "https://"); //so it doesnt matter if link is http / https
-        if ((!s2.startsWith("https://")) && (!s2.startsWith("http://"))) s2 = "https://" + s2;
-        if (s2.startsWith("http://")) s2 = s2.replace("http://", "https://"); //so it doesnt matter if link is http / https
-        Type t1 = Site.getUrlSite(s), t2 = Site.getUrlSite(s2);
-        if(t1 == t2)
-            try {
-                Class<?> c = Class.forName("downloader.Extractors."+t1.toString().substring(0,1).toUpperCase()+t1.toString().substring(1));
-                Constructor<?> cons = c.getConstructor();
-                GenericExtractor x = (GenericExtractor)cons.newInstance();
-                return x.getId(s).equals(x.getId(s2));
-            } catch (ClassNotFoundException | NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
-                CommonUtils.log(e.getMessage(),"ExtractorList:similar");
-                return false;
+        GenericExtractor ex1 = null, ex2 = null;
+        try {
+            List<GenericExtractor> list = getExtractors();
+            for(GenericExtractor x :list) {
+                int size = x.getClass().getName().split("[.]").length;
+                if (x.suitable(s)) {
+                    ex1 = (GenericExtractor) Class.forName("downloader.Extractors." +x.getClass().getName().split("[.]")[size-1]).getConstructor().newInstance();
+                    break;
+                }
             }
-        else if ((t1 == Site.Type.pornhub && t2 == Site.Type.thumbzilla) || (t2 == Site.Type.pornhub && t1 == Site.Type.thumbzilla)) {
-            try {
-                Class<?> c = Class.forName("downloader.Extractors."+t1.toString().substring(0,1).toUpperCase()+t1.toString().substring(1));
-                Constructor<?> cons1 = c.getConstructor();
-                c = Class.forName("downloader.Extractors."+t2.toString().substring(0,1).toUpperCase()+t2.toString().substring(1));
-                Constructor<?> cons2 = c.getConstructor();
-                GenericExtractor x1 = (GenericExtractor)cons1.newInstance();
-                GenericExtractor x2 = (GenericExtractor)cons2.newInstance();
-                return x1.getId(s).equals(x2.getId(s2));
-            } catch (ClassNotFoundException | NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
-                CommonUtils.log(e.getMessage(),"ExtractorList:similar");
-                return false;
+            for(GenericExtractor x :list) {
+                int size = x.getClass().getName().split("[.]").length;
+                if (x.suitable(s2)) {
+                    ex2 = (GenericExtractor) Class.forName("downloader.Extractors." +x.getClass().getName().split("[.]")[size-1]).getConstructor().newInstance();
+                    break;
+                }
             }
-        } else return false;
+            if (ex1 == null || ex2 == null) {
+                return false;
+            }else if (ex1.getClass().getName().equals(ex2.getClass().getName())) {
+                String id1 = ex1.getId(s).isEmpty() || ex1.getId(s) == null ? s : ex1.getId(s);
+                String id2 = ex2.getId(s2).isEmpty() || ex2.getId(s2) == null ? s2 : ex2.getId(s2);
+                return id1.equals(id2);
+            } else {
+                String obj1 = ex1.getClass().getName(), obj2 = ex2.getClass().getName();
+                int size1 = obj1.split("[.]").length, size2 = obj2.split("[.]").length;
+                String name1 = obj1.split("[.]")[size1-1], name2 = obj2.split("[.]")[size2-1];
+                if ((name1.equals("Pornhub") && name2.equals("Thumbzilla")) || (name2.equals("Pornhub") && name1.equals("Thumbzilla"))) {
+                    String id1 = ex1.getId(s).isEmpty() || ex1.getId(s) == null ? s : ex1.getId(s);
+                    String id2 = ex2.getId(s2).isEmpty() || ex2.getId(s2) == null ? s2 : ex2.getId(s2);
+                    return id1.equals(id2);
+                } else return false;
+            }
+        } catch (ClassNotFoundException | NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
+            CommonUtils.log(e.getMessage(),"ExtractorList:similar");
+            return false;
+        }
     }
 }

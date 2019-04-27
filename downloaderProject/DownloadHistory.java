@@ -54,7 +54,6 @@ public class DownloadHistory {
         if (d != null) 
             for(int i = d.size()-1; i > -1; i--)
                 items.add(createItem(d.get(i)));
-        d = null;
     }
     
     public void display() {
@@ -118,7 +117,7 @@ public class DownloadHistory {
                     thumb.setImage(SwingFXUtils.toFXImage(b, null));
                 }
             } catch (FileNotFoundException e) {
-                System.out.println("Couldnt find "+d.getThumb().getName());
+                CommonUtils.log("Couldnt find "+d.getThumb().getName(),this);
             } catch (IOException e) {
                 MainApp.createMessageDialog("Failed to load thumb: "+d.getThumb().getName()+"\n"+e.getMessage());
             }

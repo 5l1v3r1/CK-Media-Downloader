@@ -21,8 +21,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 import java.util.Vector;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -37,6 +35,7 @@ import org.jsoup.select.Elements;
  */
 public class Redtube extends GenericQueryExtractor{
     private static final int SKIP = 5;
+    
     public Redtube() { //this contructor is used for when you jus want to query
         
     }
@@ -189,27 +188,19 @@ public class Redtube extends GenericQueryExtractor{
         return v;
     }
     
-    private static long getSize(String link) throws IOException, GenericDownloaderException {
+    private long getSize(String link) throws IOException, GenericDownloaderException {
         Document page = getPage(link,false,true);
-	
+        
 	int mediaIndex = page.toString().indexOf("mediaDefinition:");
-		
-	String defaultVideo = CommonUtils.getBracket(page.toString(),mediaIndex);
-	String videoLink = CommonUtils.eraseChar(CommonUtils.getLink(defaultVideo,defaultVideo.indexOf("videoUrl")+11,'"'),'\\');
-        return CommonUtils.getContentSize(videoLink);
+        Map<String,String> qualities = getQualities(page.toString().substring(mediaIndex+17));
+        
+        MediaDefinition media = new MediaDefinition();
+        media.addThread(qualities, videoName);
+        return getSize(media);
     }
 
-    @Override public long getSize() throws IOException, GenericDownloaderException {
-        return getSize(url);
-    }
-    
-    @Override public String getId(String link) {
-        Pattern p = Pattern.compile("https?://(www.)?redtube.com/([\\S]+)");
-        Matcher m = p.matcher(link);
-        return m.find() ? m.group(2) : "";
-    }
-
-    @Override public String getId() {
-        return getId(url);
+    @Override protected String getValidURegex() {
+        works = true;
+        return "https?://(?:www.)?redtube.com/(?<id>[\\S]+)"; 
     }
 }

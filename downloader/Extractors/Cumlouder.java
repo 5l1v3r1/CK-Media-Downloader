@@ -16,8 +16,6 @@ import org.jsoup.UncheckedIOException;
 import java.net.SocketTimeoutException;
 import java.util.Map;
 import java.util.Random;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -123,18 +121,9 @@ public class Cumlouder extends GenericExtractor {
         Map<String,String> q = getDefaultVideo(page);
         return CommonUtils.getContentSize(q.get(q.keySet().iterator().next()));
     }
-    
-    @Override public long getSize() throws IOException, GenericDownloaderException {
-        return getSize(url);
-    }
-    
-    @Override public String getId(String link) {
-        Pattern p = Pattern.compile("https?://(www.)?cumlouder.com/porn-video/([\\S]+)[/]?");
-        Matcher m = p.matcher(link);
-        return m.find() ? m.group(2) : "";
-    }
 
-    @Override public String getId() {
-        return getId(url);
+    @Override protected String getValidURegex() {
+        works = true;
+        return "https?://(?:www.)?cumlouder.com/porn-video/(<id>[\\S]+)[/]?"; 
     }
 }

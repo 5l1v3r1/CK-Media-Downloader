@@ -16,8 +16,6 @@ import org.jsoup.UncheckedIOException;
 import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -126,17 +124,8 @@ public class Bigtits extends GenericExtractor{
         return v;
     }
 
-    @Override public long getSize() throws IOException, GenericDownloaderException {
-        return CommonUtils.getContentSize(getVideo().iterator().next().get("single"));
-    }
-    
-    @Override public String getId(String link) {
-        Pattern p = Pattern.compile("https?://(www.)?bigtits.com/videos/watch/[\\S]+/([\\d]+)");
-        Matcher m = p.matcher(link);
-        return m.find() ? m.group(2) : "";
-    }
-
-    @Override public String getId() {
-        return getId(url);
+    @Override protected String getValidURegex() {
+        works = true;
+        return "https?://(?:www.)?bigtits.com/videos/watch/[\\S]+/(?<id>[\\d]+)"; 
     }
 }

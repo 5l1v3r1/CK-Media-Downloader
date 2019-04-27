@@ -19,8 +19,6 @@ import java.net.SocketTimeoutException;
 import java.util.Map;
 import java.util.Random;
 import java.util.Vector;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
@@ -173,17 +171,8 @@ public class Ruleporn extends GenericQueryExtractor{
         return CommonUtils.getContentSize(q.get(q.keySet().iterator().next()));
     }
 
-    @Override public long getSize() throws IOException, GenericDownloaderException{
-        return getSize(url);
-    }
-    
-    @Override public String getId(String link) {
-        Pattern p = Pattern.compile("https?://(www.)?ruleporn.com/([\\S]+)/");
-        Matcher m = p.matcher(link);
-        return m.find() ? m.group(2) : "";
-    }
-
-    @Override public String getId() {
-        return getId(url);
+    @Override protected String getValidURegex() {
+        works = true;
+        return "https?://(?:www.)?ruleporn.com/(?<id>[\\S]+)/"; 
     }
 }

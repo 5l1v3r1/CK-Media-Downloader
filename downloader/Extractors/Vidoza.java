@@ -16,8 +16,6 @@ import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -95,18 +93,8 @@ public class Vidoza extends GenericExtractor {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override public long getSize() throws IOException, GenericDownloaderException {
-        Map<String,String> m = getVideo().iterator().next();
-        return CommonUtils.getContentSize(m.get(m.keySet().iterator().next()));
-    }
-    
-    @Override public String getId(String link) {
-        Pattern p = Pattern.compile("https?://(www.)?vidoza.net/([\\S]+).html");
-        Matcher m = p.matcher(link);
-        return m.find() ? m.group(2) : "";
-    }
-
-    @Override public String getId() {
-        return getId(url);
+    @Override protected String getValidURegex() {
+        works = true;
+        return "https?://(?:www.)?vidoza.net/(?<id>[\\S]+).html"; 
     }
 }

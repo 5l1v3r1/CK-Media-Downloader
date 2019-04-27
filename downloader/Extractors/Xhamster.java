@@ -21,8 +21,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 import java.util.Vector;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -38,7 +36,7 @@ import org.jsoup.select.Elements;
  * @author christopher
  */
 public class Xhamster extends GenericQueryExtractor{
-	private static final int SKIP = 5;
+    private static final int SKIP = 5;
     
     public Xhamster() { //this contructor is used for when you jus want to query
         
@@ -203,40 +201,8 @@ public class Xhamster extends GenericQueryExtractor{
         return v;
     }
 
-    @Override public long getSize() throws IOException, GenericDownloaderException {
-        Document page = getPage(url,false,true);
-        Map<String,String> quality =  getQualities(page.toString().substring(page.toString().indexOf("mp4\":[")+5));
-        String video;
-        
-        if (quality.containsKey("720p"))
-            video = quality.get("720p");
-        else if(quality.containsKey("480p"))
-            video = quality.get("480p"); 
-        else if (quality.containsKey("1080p"))
-            video = quality.get("1080p"); 
-        else if(quality.containsKey("240p"))
-            video = quality.get("240p");
-        else 
-            video = quality.get((String)quality.keySet().toArray()[0]);
-        
-        return CommonUtils.getContentSize(video);
-    }
-    
-    public String getId(String link) {
-        Pattern p;
-        
-        if (link.matches("https?://(((www)|m).)?xhamster.com/movies/[\\d]+/.html[\\S]*"))
-            p = Pattern.compile("https?://(((www)|m).)?xhamster.com/movies/(?<id>[\\d]+)/.html[\\S]*");
-        else if(link.matches("https?://([\\S]+.)?m.xhamster.com/videos/[\\S]+")) 
-            p = Pattern.compile("https?://([\\S]+.)?m.xhamster.com/videos/[\\S]+-(?<id>[\\d]+)[\\S]*");
-        else if (link.matches("https?://([\\S]+.)?xhamster.com/videos/[\\S]+"))
-            p = Pattern.compile("https?://([\\S]+.)?xhamster.com/videos/[\\S]+-(?<id>[\\d]+)[\\S]*");
-        else p = Pattern.compile("https?://((www|m).)?xhamster.com/videos/[\\S]+-(?<id>[\\d]+)[\\S]*");
-        Matcher m = p.matcher(link);
-        return m.find() ? m.group("id") : "";
-    }
-
-    @Override public String getId() {
-        return getId(url);
+    @Override protected String getValidURegex() {
+        works = true;
+        return "https?://(?:[\\S]+?.)?xhamster.(?:com|one)/(?:movies/(?<id>[\\d]+)/(?<displayid>[^/]*).html|videos/(?<displayid2>[^/]*)-(?<id2>[\\d]+))"; 
     }
 }

@@ -15,8 +15,6 @@ import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.jsoup.UncheckedIOException;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -26,7 +24,8 @@ import org.jsoup.select.Elements;
  *
  * @author christopher
  */
-public class Bigboobsalert extends GenericExtractor{    
+public class Bigboobsalert extends GenericExtractor{
+    
     public Bigboobsalert() { //this contructor is used for when you jus want to search
         
     }
@@ -88,24 +87,8 @@ public class Bigboobsalert extends GenericExtractor{
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override public long getSize() throws IOException, GenericDownloaderException {
-        Document page = getPage(url,false); long total = 0;
-        
-        Elements links = page.select("table.bg5").select("a");
-        for(Element link: links) {
-            if (!link.attr("href").matches("pics/[\\S]+[.]jpg")) continue;
-            total += CommonUtils.getContentSize("http://www.bigboobsalert.com/" + link.attr("href"));
-        } 
-        return total;
-    }
-    
-    @Override public String getId(String link) {
-        Pattern p = Pattern.compile("https?://(www.)?bigboobsalert.com/([\\S]+)[.]php");
-        Matcher m = p.matcher(link);
-        return m.find() ? m.group(2) : "";
-    }
-
-    @Override public String getId() {
-        return getId(url);
+    @Override protected String getValidURegex() {
+        works = false;
+        return "https?://(?:www.)?bigboobsalert.com/(?<id>[\\S]+)[.]php"; 
     }
 }

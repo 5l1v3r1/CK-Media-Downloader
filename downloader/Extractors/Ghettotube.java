@@ -18,8 +18,6 @@ import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -144,20 +142,8 @@ public class Ghettotube extends GenericExtractor{
         return v;
     }
 
-    @Override public long getSize() throws IOException, GenericDownloaderException {
-        Document page = getPage(url,false,true);
-        Elements scripts = page.select("div.play").select("script");
-        String video = CommonUtils.getLink(scripts.get(scripts.size()-1).toString(), scripts.get(scripts.size()-1).toString().indexOf("file:")+7, '\"');
-        return CommonUtils.getContentSize(video);
-    }
-    
-    @Override public String getId(String link) {
-        Pattern p = Pattern.compile("https?://(www.)?ghettotube.com/video/([\\S]+).html");
-        Matcher m = p.matcher(link);
-        return m.find() ? m.group(2) : "";
-    }
-
-    @Override public String getId() {
-        return getId(url);
+    @Override protected String getValidURegex() {
+        works = true;
+        return "https?://(?:www.)?ghettotube.com/video/(?<id>[\\S]+).html"; 
     }
 }

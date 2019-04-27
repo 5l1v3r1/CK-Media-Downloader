@@ -8,10 +8,8 @@ package downloader;
 import downloaderProject.MainApp;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -38,16 +36,13 @@ public class QualityDialog {
     private static ToggleGroup group;
     private String choice = null;
     
-    
     public QualityDialog() {
         group = new ToggleGroup();
         group.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
-            @Override
-            public void changed(ObservableValue<? extends Toggle> ov, Toggle old, Toggle newT) {
+            @Override public void changed(ObservableValue<? extends Toggle> ov, Toggle old, Toggle newT) {
                  if (group.getSelectedToggle() != null)
                     choice = ((RadioButton)newT).getId();
             }
-            
         });
     }
     
@@ -82,7 +77,7 @@ public class QualityDialog {
             ListView<Pane> qualityList = (ListView<Pane>)pane.lookup("#qualities"); 
             qualityList.getStyleClass().clear(); qualityList.getStyleClass().add("qualityList");
             List<Pane> items = new ArrayList<>();
-            List<String> q = getSortedFormats(qualities.keySet());
+            List<String> q = CommonUtils.getSortedFormats(qualities.keySet());
             for(String s: q)
                 if (qualities.get(s) != null)
                     if (qualities.get(s).length() > 0)
@@ -121,23 +116,5 @@ public class QualityDialog {
         ((Label)p.lookup("#qualityName")).setText(quality);
         ((Label)p.lookup("#size")).setText(MainApp.getSizeText(CommonUtils.getContentSize(link)));
         return p;
-    }
-    
-    private List<String> getSortedFormats(Set<String> list) {
-        Iterator<String> i = list.iterator(); List<String> q = new ArrayList<>();
-        while(i.hasNext())
-            q.add(i.next());
-        for(int j = 0; j < q.size() -1; j++) { //selection sort
-            int min = j;
-            for(int k = j+1; k < q.size(); k++)
-                if(CommonUtils.getFormatWeight(q.get(k)) > CommonUtils.getFormatWeight(q.get(min)))
-                    min = k;
-            if(min != j) { //swap
-                String temp = q.get(min);
-                q.set(min,q.get(j)); 
-                q.set(j,temp);
-            }
-        }
-        return q;
     }
 }

@@ -26,8 +26,6 @@ import java.net.SocketTimeoutException;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -118,6 +116,8 @@ public class Spankbang extends GenericQueryExtractor implements Playlist{
      private static void verify(Document page) throws GenericDownloaderException{
         if (page.getElementById("video_removed") != null) 
             throw new VideoDeletedException();
+        else if(!page.select("div.message").isEmpty())
+            throw new VideoDeletedException(page.select("div.message").select("span.text").get(0).text());
     }
     
     @Override public GenericQuery query(String search) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
@@ -254,13 +254,11 @@ public class Spankbang extends GenericQueryExtractor implements Playlist{
         return "https://spankbang.com" + div.get(0).select("a").get(0).attr("href");
     }
     
-    @Override
-    public boolean isPlaylist() {
+    @Override public boolean isPlaylist() {
         return playlistUrl != null;
     }
 
-    @Override
-    public Vector<String> getItems() throws IOException, GenericDownloaderException {
+    @Override public Vector<String> getItems() throws IOException, GenericDownloaderException {
         Document page = getPage(playlistUrl,false);
         Elements div = page.select("div.results").select("div.video-item");
         Vector<String> list = new Vector<>();
@@ -272,6 +270,8 @@ public class Spankbang extends GenericQueryExtractor implements Playlist{
     private long getSize(String link) throws IOException, GenericDownloaderException {
         Response r = getPageResponse(link, false);
         Document page = r.parse();
+        verify(page);
+        
         String streamKey = page.getElementById("video").attr("data-streamkey");
         String cookie = r.cookie("sb_csrf_session");
         
@@ -279,22 +279,13 @@ public class Spankbang extends GenericQueryExtractor implements Playlist{
         params.append("sb_csrf_session="+URLEncoder.encode(cookie)+"&data=0&");
         params.append("id="+URLEncoder.encode(streamKey));
         
-        Map<String,String> q = getQualities(CommonUtils.sendPost(JSONURL,params.toString(),false,link,"application/json"));
-        
-        return CommonUtils.getContentSize(q.get(q.keySet().iterator().next()));
+        MediaDefinition media = new MediaDefinition();
+        media.addThread(getQualities(CommonUtils.sendPost(JSONURL,params.toString(),false,url,"application/json")),videoName);
+        return getSize(media);
     }
 
-    @Override public long getSize() throws IOException, GenericDownloaderException {
-        return getSize(url);
-    }
-    
-    @Override public String getId(String link) {
-        Pattern p = Pattern.compile("https?://(((www)|([mt])).)?spankbang.com/(?<id>[\\S]+)/(video|playlist)/[\\S]+");
-        Matcher m = p.matcher(link);
-        return m.find() ? m.group("id") : "";
-    }
-
-    @Override public String getId() {
-        return getId(url);
+    @Override  protected String getValidURegex() {
+        works = true;
+        return "https?://(?:[^/]+.)?spankbang.com/(?<id>[\\S]+)/(?:video|playlist|embed)/[\\S]+"; 
     }
 }

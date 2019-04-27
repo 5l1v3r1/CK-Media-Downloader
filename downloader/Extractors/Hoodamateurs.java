@@ -13,9 +13,6 @@ import downloaderProject.MainApp;
 import java.io.File;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.jsoup.UncheckedIOException;
 import org.jsoup.nodes.Document;
 
@@ -23,7 +20,7 @@ import org.jsoup.nodes.Document;
  *
  * @author christopher
  */
-public class Hoodamateurs extends GenericExtractor{
+public class Hoodamateurs extends GenericExtractor {
     private static final int SKIP = 5;
     
     public Hoodamateurs() { //this contructor is used for when you jus want to search
@@ -74,23 +71,8 @@ public class Hoodamateurs extends GenericExtractor{
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    private long getSize(String link) throws IOException, GenericDownloaderException {
-        Document page = getPage(link,false,true);
-        Map<String,String> q = getDefaultVideo(page);
-        return CommonUtils.getContentSize(q.get(q.keySet().iterator().next()));
-    }
-
-    @Override public long getSize() throws IOException, GenericDownloaderException {
-        return getSize(url);
-    }
-    
-    @Override public String getId(String link) {
-        Pattern p = Pattern.compile("https?://(www.)?hoodamateurs.com/([\\d]+)(/[\\S]+)?/?");
-        Matcher m = p.matcher(link);
-        return m.find() ? m.group(2) : "";
-    }
-
-    @Override public String getId() {
-        return getId(url);
+    @Override protected String getValidURegex() {
+        works = true;
+        return "https?://(?:www.)?hoodamateurs.com/(?<id>[\\d]+)(?:/[\\S]+)?/?"; 
     }
 }

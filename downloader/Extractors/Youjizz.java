@@ -18,8 +18,6 @@ import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -30,7 +28,7 @@ import org.jsoup.select.Elements;
  * @author christopher
  */
 public class Youjizz extends GenericExtractor{
-	private static final int SKIP = 3;
+    private static final int SKIP = 3;
 	
     public Youjizz() { //this contructor is used for when you jus want to search
         
@@ -134,37 +132,17 @@ public class Youjizz extends GenericExtractor{
         return v;
     }
 
-    public static long getSize(String link) throws IOException, GenericDownloaderException {
+    public long getSize(String link) throws IOException, GenericDownloaderException {
         Document page = getPage(link,false,true);
         Map<String, String> quality = getQualities(CommonUtils.getSBracket(page.toString(), page.toString().indexOf("var encodings")),"quality");
-        String video;
         
-        //ik this ordered retarded
-        if(quality.containsKey("720"))
-            video = quality.get("720");
-        else if(quality.containsKey("480"))
-            video = quality.get("480");
-        else if(quality.containsKey("1080"))
-            video = quality.get("1080");
-        else if(quality.containsKey("360"))
-            video = quality.get("360");
-        else if(quality.containsKey("288"))
-            video = quality.get("288");
-        else video = quality.get((String)quality.keySet().toArray()[0]);
-        return CommonUtils.getContentSize(video);
-    }
-     
-    @Override public long getSize() throws IOException, GenericDownloaderException {
-        return getSize(url);
-    }
-    
-    @Override public String getId(String link) {
-        Pattern p = Pattern.compile("https?://(www.)?youjizz.com/videos/([\\S]+).html");
-        Matcher m = p.matcher(link);
-        return m.find() ? m.group(2) : "";
+        MediaDefinition media = new MediaDefinition();
+        media.addThread(quality,videoName);
+        return getSize(media);
     }
 
-    @Override public String getId() {
-        return getId(url);
+    @Override protected String getValidURegex() {
+        works = true;
+        return "https?://(?:www.)?youjizz.com/videos/(?<id>[\\S]+).html"; 
     }
 }

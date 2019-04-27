@@ -18,8 +18,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -143,20 +141,14 @@ public class Porn extends GenericExtractor{
         Document page = getPage(url,false,true);
      
         Map<String,String> qualities = getQualities(page.toString().substring(page.toString().indexOf("streams:[")+8,page.toString().indexOf("}]",page.toString().indexOf("streams:["))+2));
-        return CommonUtils.getContentSize(qualities.get(qualities.keySet().iterator().next()));
+        MediaDefinition media = new MediaDefinition();
+        media.addThread(qualities,videoName);
+        
+        return getSize(media);
     }
 
-    @Override public long getSize() throws IOException, GenericDownloaderException {
-        return getSize(url);
-    }
-    
-    @Override public String getId(String link) {
-        Pattern p = Pattern.compile("https?://(www.)?pornpics.com/galleries/([\\S]+)/");
-        Matcher m = p.matcher(link);
-        return m.find() ? m.group(2) : "";
-    }
-
-    @Override public String getId() {
-        return getId(url);
+    @Override protected String getValidURegex() {
+        works = true;
+        return "https?://(?:www.)?pornpics.com/galleries/(?<id>[\\S]+)/"; 
     }
 }

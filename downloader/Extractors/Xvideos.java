@@ -21,8 +21,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.Vector;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -266,34 +264,27 @@ public class Xvideos extends GenericQueryExtractor{
         return v;
     }
     
-    private static long getSize(String link) throws IOException, GenericDownloaderException {
+    private long getSize(String link) throws IOException, GenericDownloaderException {
         Document page = getPage(link,false,true);
         verify(page);
         
         int use = 5;
-        for(int i = 0; i < page.select("script").size(); i++)
+        for(int i = 0; i < page.select("script").size(); i++) {
             if (page.select("script").get(i).toString().contains("var html5player = new HTML5Player('html5video',")) {
                 use = i; break;
             }
+        }
         Vector<String> stats = getStats(page.select("script").get(use).toString());
         
-        return CommonUtils.getContentSize(stats.get(2));
+        Map<String,String> qualities = new HashMap<>();
+        qualities.put("high",stats.get(2)); qualities.put("low",stats.get(1));
+        MediaDefinition media = new MediaDefinition();
+        media.addThread(qualities,videoName);
+        return getSize(media);
     }
 
-    @Override public long getSize() throws IOException, GenericDownloaderException {
-       return getSize(url);
-    }
-    
-    public String getId(String link) {
-        Pattern p;
-        if(link.matches("https?://(www.)?xnxx.com/video-[\\S]+/[\\S]+"))
-            p = Pattern.compile("https?://(www.)?xnxx.com/video-([\\S]+)/[\\S]+");
-        else p = Pattern.compile("https?://(www.)?xvideos.com/video([\\S]+)/[\\S]+");
-        Matcher m = p.matcher(link);
-        return m.find() ? m.group(2) : "";
-    }
-
-    @Override public String getId() {
-        return getId(url);
+    @Override protected String getValidURegex() {
+        works = true;
+        return "https?://(?:www.)?((?:xvideos)|(?:xnxx)).com/video-?(?<id>[\\S]+)/[\\S]+"; 
     }
 }

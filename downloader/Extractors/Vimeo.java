@@ -18,8 +18,6 @@ import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -69,7 +67,9 @@ public class Vimeo extends GenericExtractor{
     
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
         Document page = getPage(url,false,true);
-        verify(page); String newUrl = "https://player.vimeo.com/video/"+url.split("/")[url.split("/").length -1];
+        verify(page); 
+        //thik this was jus suppose to be id...gonna change later
+        String newUrl = "https://player.vimeo.com/video/"+url.split("/")[url.split("/").length -1];
         page = getPage(newUrl,false,true);
         verify(page);
         
@@ -146,35 +146,8 @@ public class Vimeo extends GenericExtractor{
         return v;*/
     }
 
-    @Override public long getSize() throws IOException, GenericDownloaderException {
-        Document page = getPage(url,false,true);
-        verify(page); String newUrl = "https://player.vimeo.com/video/"+url.split("/")[url.split("/").length -1];
-        page = getPage(newUrl,false,true);
-        verify(page);
-        Map<String, String> qualities = getQualities(CommonUtils.getSBracket(page.toString(), page.toString().indexOf("progressive")));
-        int max = 144;
-        Iterator<String> i = qualities.keySet().iterator();
-        while(i.hasNext()) {
-            String str = i.next();
-            int temp = Integer.parseInt(str.substring(0,str.length()-1));
-            if(temp > max)
-                max = temp;
-        }
-        
-	String video = qualities.get(String.valueOf(max)+"p");
-        return CommonUtils.getContentSize(video);
-    }
-    
-    @Override public String getId(String link) {
-        Pattern p;
-        if (link.matches("https?://(www.)?vimeo.com/[\\d]+"))
-            p = Pattern.compile("https?://(www.)?vimeo.com/([\\d]+)");
-        else p = Pattern.compile("https?://player.vimeo.com/video/([\\d]+)");
-        Matcher m = p.matcher(link);
-        return m.find() ? m.group(2) : "";
-    }
-
-    @Override public String getId() {
-        return getId(url);
+    @Override protected String getValidURegex() {
+        works = true;
+        return "https?://(((?:www)?vimeo.com/(?<id>[\\d]+))|(player.vimeo.com/video/(?<id2>[\\d]+)))"; 
     }
 }

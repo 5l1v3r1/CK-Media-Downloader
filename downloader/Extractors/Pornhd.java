@@ -17,8 +17,6 @@ import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -97,44 +95,23 @@ public class Pornhd extends GenericExtractor{
     @Override public video search(String str) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-
-    @Override public long getSize() throws IOException, GenericDownloaderException {
-        return getSize(url);
-    }
     
-    private static long getSize(String link) throws IOException, GenericDownloaderException {
+    private long getSize(String link) throws IOException, GenericDownloaderException {
         Document page = getPage(link,false,true);
-        
+
 	String[] rawData = CommonUtils.getBracket(page.toString(), page.toString().indexOf("sources: {")).split("\"");
-	Map<String,String> qualities = new HashMap<>();
+	Map<String,String> qualities = new HashMap<>(); MediaDefinition media = new MediaDefinition();
 	for(int i = 0; i < rawData.length; i++) {
             if (i == 0) continue;
-            qualities.put(rawData[i], "https://www.pornhd.com"+CommonUtils.eraseChar(rawData[i+2], '\\'));
+            qualities.put(rawData[i], "https://pornhd.com"+CommonUtils.eraseChar(rawData[i+2],'\\'));
             i+=3;
 	}
-        
-        String video;
-        if (qualities.containsKey("720p"))
-            video = qualities.get("720p");
-        else if(qualities.containsKey("480p"))
-            video = qualities.get("480p");
-        else if (qualities.containsKey("360p"))
-            video = qualities.get("360p");
-        else if (qualities.containsKey("240p"))
-            video = qualities.get("240p");
-        else video = qualities.get((String)qualities.values().toArray()[0]);
-        
-        if (video == null) return -1;
-        else return CommonUtils.getContentSize(video, true);
-    }
-    
-    @Override public String getId(String link) {
-        Pattern p = Pattern.compile("https?://(www.)?pornhd.com/videos/([\\d]+)/[\\S]+");
-        Matcher m = p.matcher(link);
-        return m.find() ? m.group(2) : "";
+        media.addThread(qualities, videoName); //video name is not used so doesnt matter
+        return getSize(media);
     }
 
-    @Override public String getId() {
-        return getId(url);
+    @Override protected String getValidURegex() {
+        works = true;
+        return "https?://(?:www.)?pornhd.com/videos/(?<id>[\\d]+)/[\\S]+"; 
     }
 }

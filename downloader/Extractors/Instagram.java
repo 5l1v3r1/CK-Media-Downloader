@@ -18,8 +18,6 @@ import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
@@ -30,6 +28,7 @@ import org.jsoup.select.Elements;
 public class Instagram extends GenericExtractor{
     private Document html;
     //https://www.instagram.com/p/BQ0eAlwhDrw
+    //https://www.instagram.com/p/BnOu_cIgL7Y/?taken-by=calista.barrow
     
     public Instagram() {
         
@@ -185,59 +184,8 @@ public class Instagram extends GenericExtractor{
         return null;
     }
 
-    @Override public long getSize() throws IOException, GenericDownloaderException {
-        Document page;
-        if (html != null)
-            page = html;
-        else page = getPage(url,false,true);
-        String videoLink = null; long total = 0;
-        if (isVideo(page)) { //download video
-            Elements metas = page.select("meta");
-            for(int i = 0; i < metas.size(); i++)
-                if(metas.get(i).attr("property").equals("og:video"))
-                    videoLink = metas.get(i).attr("content");
-        } else if(isProfilePage(page)) //download profile pic
-            videoLink = getMetaImage(page);
-        else { //download pic/s
-            int occur, from = 0; boolean first = true; int count = 0;
-            if (page.toString().contains("\"is_video\":true")) { 
-                while((occur = page.toString().indexOf("video_url",from)) != -1) {
-                    from = occur + 1; count++; 
-                    String link = CommonUtils.getLink(page.toString(), occur+12, '\"');
-                    total += CommonUtils.getContentSize(link);
-                }
-                return total;
-            } else {
-                while((occur = page.toString().indexOf("display_resources",from)) != -1) {
-                    if (first) {first = false; from = occur + 1; continue;}
-                    from = occur + 1; count++;
-                    String brack = CommonUtils.getSBracket(page.toString(),occur);
-                    total += CommonUtils.getContentSize(parseBracket(brack));
-                } if (count < 1) { //if there really was jus one
-                    occur = page.toString().indexOf("display_resources",0);
-                    if(occur != -1) {
-                         String brack = CommonUtils.getSBracket(page.toString(),occur);
-                         total += CommonUtils.getContentSize(parseBracket(brack));
-                    } else
-                         total += CommonUtils.getContentSize(getMetaImage(page));
-                }
-                return total;
-            }
-        }
-        if (videoLink == null) return -1;
-        else return CommonUtils.getContentSize(videoLink);
-    }
-    
-    @Override public String getId(String link) {
-        Pattern p;
-        if (link.matches("https?://(www.)?instagram.com/p/[\\S]+(/[?]taken-by=[\\S]*)?"))
-            p = Pattern.compile("https?://(www.)?instagram.com/p/([\\S]+)(/[?]taken-by=[\\S]*)?");
-        else p = Pattern.compile("https?://(www.)?instagram.com/([\\S]+)/");
-        Matcher m = p.matcher(link);
-        return m.find() ? m.group(2) : "";
-    }
-
-    @Override public String getId() {
-        return getId(url);
+    @Override protected String getValidURegex() {
+        works = true;
+        return "https?://(?:www.)?instagram.com/((?:p/(?<id>[^/?#&]+)/([\\S]+)?)|(?<id2>[\\S]+))";
     }
 }

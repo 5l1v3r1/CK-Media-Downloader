@@ -19,8 +19,6 @@ import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -153,38 +151,8 @@ public class Dailymotion extends GenericExtractor{
         return v;*/
     }
 
-    @Override public long getSize() throws IOException, GenericDownloaderException {
-       Document page = getPage(url,false,true);
-        verify(page); String link = null;
-        for(Element i:page.select("meta")) {
-            if (i.attr("property").equals("og:video:url")) {
-                link = i.attr("content"); break;
-            }
-        }
-        if (link == null) throw new PageNotFoundException("Couldnt get video");
-        else {
-            page = getPage(link,false,true);
-            Map<String, String> qualities = getQualities(page.toString().substring(page.toString().indexOf("var config = {")+13, page.toString().indexOf("};")+1));
-        
-            int max = 144;
-            Iterator i = qualities.keySet().iterator();
-            while(i.hasNext()) {
-                int temp = Integer.parseInt((String)i.next());
-                if(temp > max)
-                    max = temp;
-            }
-            String video = qualities.get(String.valueOf(max));
-            return CommonUtils.getContentSize(video);
-        }
-    }
-    
-    @Override public String getId(String link) {
-        Pattern p = Pattern.compile("https?://(www.)?dailymotion.com/video/([\\S]+)");
-        Matcher m = p.matcher(link);
-        return m.find() ? m.group(2) : "";
-    }
-
-    @Override public String getId() {
-        return getId(url);
+    @Override protected String getValidURegex() {
+        works = true;
+        return "https?://(?:www.)?dailymotion.com/video/(?<id>[\\S]+)"; 
     }
 }

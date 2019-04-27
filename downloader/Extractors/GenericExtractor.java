@@ -19,6 +19,8 @@ import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.jsoup.Connection;
 import org.jsoup.Connection.Response;
 import org.jsoup.HttpStatusException;
@@ -36,6 +38,7 @@ public abstract class GenericExtractor {
     protected String videoName, url;
     protected String extractorName;
     protected Map<String,String> cookieJar;
+    protected boolean works;
     
     GenericExtractor(String url, File thumb, String videoName) {
        this();
@@ -200,6 +203,10 @@ public abstract class GenericExtractor {
         return this.url;
     }
     
+    final public boolean working() {
+        return works;
+    }
+    
     protected void addCookie(String cookieName, String cookie) {
         cookieJar.put(cookieName, cookie);
     }
@@ -208,13 +215,56 @@ public abstract class GenericExtractor {
         cookieJar.clear();
     }
     
+    //should probably implement a getVideo(url)
     public abstract MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException;
     public abstract video similar() throws IOException, GenericDownloaderException; //get a video from the related items list
     public abstract video search(String str) throws IOException, GenericDownloaderException; //search (similar to query except no img preview and only 1 result) 
-    public abstract long getSize() throws IOException, GenericDownloaderException;
-    public abstract String getId();
-    public abstract String getId(String url);
+    protected abstract String getValidURegex();
     
+    final protected long getSize(MediaDefinition media) throws GenericDownloaderException, UncheckedIOException, IOException {
+        long size = 0;
+        if (!media.isSingleThread()) { //if more than one thread
+            Iterator<Map<String,String>> i = media.iterator(); int j = 0;
+            while(i.hasNext()) { //get best quality from thread
+                Map<String,String> temp = i.next();
+                String highestQuality = temp.keySet().size() == 1 ? temp.keySet().iterator().next() : CommonUtils.getSortedFormats(temp.keySet()).get(0);
+                if(temp.get(highestQuality) != null || !temp.get(highestQuality).isEmpty()) {
+                    long s = CommonUtils.getContentSize(temp.get(highestQuality));
+                    size += s < 0 ? 0 : s;
+                }
+            }
+        } else {
+            Map<String,String> m = media.iterator().next();
+            String highestQuality = m.keySet().size() == 1 ? m.keySet().iterator().next() : CommonUtils.getSortedFormats(m.keySet()).get(0);
+            if(m.get(highestQuality) != null || !m.get(highestQuality).isEmpty()) {
+                long s = CommonUtils.getContentSize(m.get(highestQuality));
+                size += s < 0 ? 0 : s;
+            }
+        }
+        return size;
+    }
+    
+    final public long getSize() throws GenericDownloaderException, UncheckedIOException, IOException {
+        return getSize(getVideo());
+    }
+    
+    final static protected String getId(String link, String regex) {
+        Pattern p = Pattern.compile(regex);
+        Matcher m = p.matcher(link);
+        return !m.find() ? "" :  m.group("id") == null || m.group("id").isEmpty() ? m.group("id2"): m.group("id");
+    }
+   
+    final public String getId(String link) {
+        return getId(link, getValidURegex());
+    }
+    
+    final public String getId() {
+        return getId(url, getValidURegex());
+    }
+    
+    final public boolean suitable(String url) {
+        return url.matches(getValidURegex()) && working();
+    }
     
     protected static String configureUrl(String link) {
         if (!link.matches("http(s)?://[\\S]+")) return "https://" + link;
@@ -222,7 +272,7 @@ public abstract class GenericExtractor {
             return link;
     }
     
-    protected static String changeHttp(String link) {
+    final protected static String changeHttp(String link) {
         return link.replace("https", "http");
     }
 }

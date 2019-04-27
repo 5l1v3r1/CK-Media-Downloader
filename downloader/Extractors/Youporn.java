@@ -21,8 +21,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 import java.util.Vector;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -191,24 +189,18 @@ public class Youporn extends GenericQueryExtractor{
 	}
         return v;
     }
-
-    @Override public long getSize() throws IOException, GenericDownloaderException {
-        return getSize(url);
-    }
     
     private long getSize(String link) throws IOException, GenericDownloaderException{
         Document page = getPage(link,false,true);
+        
         Map<String,String> qualities = getQualities(page.toString().substring(page.toString().indexOf("mediaDefinition = [{")+18));
-        return CommonUtils.getContentSize(qualities.values().iterator().next());
-    }
-    
-    @Override public String getId(String link) {
-        Pattern p = Pattern.compile("https?://(www.)?youporn.com/watch/([\\d]+)/[\\S]+/");
-        Matcher m = p.matcher(link);
-        return m.find() ? m.group(2) : "";
+        MediaDefinition media = new MediaDefinition();
+        media.addThread(qualities,videoName);
+        return getSize(media);
     }
 
-    @Override public String getId() {
-        return getId(url);
+    @Override protected String getValidURegex() {
+        works = true;
+        return "https?://(?:www.)?youporn.com/watch/(?<id>[\\d]+)/[\\S]+/"; 
     }
 }

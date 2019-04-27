@@ -6,6 +6,7 @@
 package downloader;
 
 import downloader.Exceptions.GenericDownloaderException;
+import downloader.Exceptions.NotSupportedException;
 import downloaderProject.MainApp;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -176,7 +177,9 @@ public class DownloadManager {
                     }
                 }
             } catch (GenericDownloaderException | IOException e) {
-                MainApp.createMessageDialog(e.getMessage()+ " "+ d.getLink());
+                if (e instanceof NotSupportedException)
+                    CommonUtils.log(((NotSupportedException)e).getUrl()+" is not supported");
+                else MainApp.createMessageDialog(e.getMessage()+ " "+ d.getLink());
                 removeDownload(d);
             } catch (Exception e) {
                 MainApp.createMessageDialog(e.getMessage()+ " "+ d.getLink());

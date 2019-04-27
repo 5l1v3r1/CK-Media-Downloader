@@ -15,8 +15,6 @@ import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.Map;
 import java.util.Random;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.jsoup.UncheckedIOException;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -111,17 +109,8 @@ public class Homemoviestube extends GenericExtractor{
         return CommonUtils.getContentSize(q.get(q.keySet().iterator().next()));
     }
 
-    @Override public long getSize() throws IOException, GenericDownloaderException {
-        return getSize(url);
-    }
-    
-    @Override public String getId(String link) {
-         Pattern p = Pattern.compile("https?://(www.)?homemoviestube.com/videos/([\\d]+)/[\\S]+.html");
-        Matcher m = p.matcher(link);
-        return m.find() ? m.group(2) : "";
-    }
-
-    @Override public String getId() {
-        return getId(url);
+    @Override protected String getValidURegex() {
+        works = true;
+        return "https?://(?:www.)?homemoviestube.com/videos/(?<id>[\\d]+)/[\\S]+.html"; 
     }
 }

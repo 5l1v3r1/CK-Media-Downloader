@@ -84,7 +84,7 @@ public class Yourporn extends GenericExtractor{
                 Map<String,String> qualities = new HashMap<>();
                 qualities.put("single",links.get(i));
                 media.addThread(qualities, CommonUtils.getPicName(links.get(i)));
-            } return media;
+            }
         } else {
             String video = "https://www.yourporn.sexy"+CommonUtils.eraseChar(page.select("span.vidsnfo").attr("data-vnfo").split("\"")[3],'\\');
             //String video = "https://www.yourporn.sexy"+page.select("video.player_el").attr("src");
@@ -100,9 +100,8 @@ public class Yourporn extends GenericExtractor{
                 test = test.replace("cdn3", "cdn2");*/
             qualities.put("single",test);
             media.addThread(qualities,videoName);
-
-            return media;
         }
+        return media;
     }
     
     private static boolean isAlbum(String url) {
@@ -201,42 +200,30 @@ public class Yourporn extends GenericExtractor{
         Document page = getPage(link,false,true);
         verify(page);
      
+        MediaDefinition media = new MediaDefinition();
         if (isAlbum(link)) {
-            long total = 0;
-            Vector<String> links = getImages(link);
-            for(int i = 0; i < links.size(); i++)
-                total += CommonUtils.getContentSize(links.get(i));
-            return total;
+            media.setAlbumName(this.videoName);
+            Vector<String> links = getImages(url);
+            for(int i = 0; i < links.size(); i++) {
+                Map<String,String> qualities = new HashMap<>();
+                qualities.put("single",links.get(i));
+                media.addThread(qualities, CommonUtils.getPicName(links.get(i)));
+            }
         } else {
             String video = "https://www.yourporn.sexy"+CommonUtils.eraseChar(page.select("span.vidsnfo").attr("data-vnfo").split("\"")[3],'\\');
-            //idk wtf them keep changind the cdn
+            Map<String,String> qualities = new HashMap<>();
             String test = video.replace("cdn", "cdn4");
             Pattern p = Pattern.compile("(.+/)s(\\d+)-1(/.+)");
             Matcher m = p.matcher(test);
             test = m.replaceAll("$1s$2$3");
-            /*if (CommonUtils.getContentSize(test) < 1)
-              test = test.replace("cdn4", "cdn3");
-            if (CommonUtils.getContentSize(test) < 1)
-                test = test.replace("cdn3", "cdn2");*/
-            return CommonUtils.getContentSize(test, true);
+            qualities.put("single",test);
+            media.addThread(qualities,videoName);
         }
+        return getSize(media);
     }
 
-    @Override public long getSize() throws IOException, GenericDownloaderException {
-       return getSize(url);
-    }
-    
-    @Override public String getId(String link) {
-        Pattern p;
-        CommonUtils.log(link,this);
-        if (link.matches("https?://pics.vc/watch[?]g=[\\S]+"))
-            p = Pattern.compile("https?://pics.vc/watch[?]g=(?<id>[^?]+)");
-        else p = Pattern.compile("https?://(www.)?(?:yourporn.sexy|sxyprn.com)/post/(?<id>[\\S]+).html([?][\\S]*)?");
-        Matcher m = p.matcher(link);
-        return m.find() ? m.group("id") : "";
-    }
-
-    @Override public String getId() {
-        return getId(url);
+    @Override protected String getValidURegex() {
+        works = true;
+        return "https?://((?:www.)?(?:yourporn.sexy|sxyprn.com)/post/(?<id>[\\S]+).html(?:[?][\\S]*)?)|http://pics.vc/watch[?]g=(?<id2>[\\S]+)";
     }
 }

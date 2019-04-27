@@ -151,7 +151,7 @@ public class QueryManager {
         //this will return the appropriate extractor
         private GenericQueryExtractor getExtractor(String site) {
             try {
-                Class<?> c = Class.forName("downloader.Extractors."+site.toString().substring(0,1).toUpperCase()+site.toString().substring(1));
+                Class<?> c = Class.forName("downloader.Extractors."+site);
                 Constructor<?> cons = c.getConstructor();
                 return (GenericQueryExtractor)cons.newInstance();
             } catch (ClassNotFoundException | NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
@@ -273,7 +273,6 @@ public class QueryManager {
                 public void handle(ActionEvent t) {
                     DownloaderItem download = new DownloaderItem();
                     download.setLink(results.getLink(which)); 
-                    download.setType(Site.getUrlSite(results.getLink(which)));
                     //add item to downloadManager for display
                     MainApp.dm.addDownload(download);
                 }

@@ -21,8 +21,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.Vector;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -198,10 +196,13 @@ public class Thumbzilla extends GenericQueryExtractor{
         return v;
     }
 
-    private static long getSize(String link) throws IOException, GenericDownloaderException {
+    private long getSize(String link) throws IOException, GenericDownloaderException {
         if (!CommonUtils.testPage(link)) throw new PageNotFoundException("Could find video"); //test to avoid error 404
         Document page = getPage(link,false,true);
-        Elements qualities = page.select("a.qualityButton");
+        
+        verify(page);
+        
+	Elements qualities = page.select("a.qualityButton");
         Map<String,String> quality = new HashMap<>();
         for(int i = 0; i < qualities.size(); i++) {
             String qualityName = Jsoup.parse(qualities.get(i).toString()).body().text();
@@ -209,28 +210,13 @@ public class Thumbzilla extends GenericQueryExtractor{
             quality.put(qualityName, qualityLink);
         }
         
-        String video; //quality link
-        if (quality.containsKey("720P"))
-            video = quality.get("720P");
-        else if (quality.containsKey("480P"))
-            video = quality.get("480P");
-        else if (quality.containsKey("1080P"))
-            video = quality.get("1080P");
-        else video = quality.get("240P");
-        return CommonUtils.getContentSize(video);
-    }
-    
-    @Override public long getSize() throws IOException, GenericDownloaderException {
-        return getSize(url);
-    }
-    
-    @Override public String getId(String link) {
-        Pattern p = Pattern.compile("https?://(www.)?thumbzilla.com/video/([\\S]+)/[\\S]+");
-        Matcher m = p.matcher(link);
-        return m.find() ? m.group(2) : "";
+        MediaDefinition media = new MediaDefinition();
+        media.addThread(quality,videoName);
+        return getSize(media);
     }
 
-    @Override public String getId() {
-        return getId(url);
+    @Override protected String getValidURegex() {
+        works = true;
+        return "https?://(?:www.)?thumbzilla.com/video/(?<id>[\\S]+)/[\\S]+"; 
     }
 }

@@ -18,8 +18,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.Vector;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.jsoup.Jsoup;
 import org.jsoup.UncheckedIOException;
 import org.jsoup.nodes.Document;
@@ -159,19 +157,8 @@ public class Bigbootytube extends GenericQueryExtractor{
         return v;        
     }
 
-    @Override public long getSize() throws IOException, GenericDownloaderException {
-        Document page = getPage(url,false,true);
-        String video = CommonUtils.getLink(page.toString(),page.toString().indexOf("video_url:")+12,'\'');
-        return CommonUtils.getContentSize(video);
-    }
-    
-    @Override public String getId(String link) {
-        Pattern p = Pattern.compile("https?://(www.)?bigbootytube.xxx/videos/([\\d]+)/[\\S]+/");
-        Matcher m = p.matcher(link);
-        return m.find() ? m.group(2) : "";
-    }
-
-    @Override public String getId() {
-        return getId(url);
+    @Override protected String getValidURegex() {
+        works = true;
+        return "https?://(?:www.)?bigbootytube.xxx/videos/(?<id>[\\d]+)/[\\S]+/";
     }
 }

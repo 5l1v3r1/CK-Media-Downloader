@@ -17,8 +17,6 @@ import org.jsoup.UncheckedIOException;
 import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -173,12 +171,6 @@ public class Imgur extends GenericExtractor {
         return -1;
     }
 
-    @Override public long getSize() throws IOException, GenericDownloaderException {
-        if (url.matches("https://imgur.com/gallery/[\\S]*"))
-            return getCollectSize();
-	else return getSingleSize();
-    }
-
     @Override public video similar() throws IOException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
@@ -186,17 +178,9 @@ public class Imgur extends GenericExtractor {
     @Override public video search(String str) throws IOException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-    
-    @Override public String getId(String link) {
-        Pattern p;
-        if (link.matches("https?://(www.)?imgur.com/gallery/[\\S]+"))
-            p = Pattern.compile("https?://(www.)?imgur.com/gallery/([\\S]+)");
-        else p = Pattern.compile("https?://(www.)?imgur.com/([\\S])+");
-        Matcher m = p.matcher(link);
-        return m.find() ? m.group(2) : "";
-    }
 
-    @Override public String getId() {
-        return getId(url);
+    @Override protected String getValidURegex() {
+        works = true;
+        return "https?://(?:www.)?imgur.com/(?:gallery/)?(?<id>[\\S]+)"; 
     }
 }

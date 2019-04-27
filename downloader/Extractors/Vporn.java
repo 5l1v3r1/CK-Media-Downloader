@@ -17,8 +17,6 @@ import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.jsoup.Jsoup;
 
 import org.jsoup.nodes.Document;
@@ -125,7 +123,7 @@ public class Vporn extends GenericExtractor{
         return v;
     }
     
-    private static long getSize(String link) throws IOException, GenericDownloaderException {
+    private long getSize(String link) throws IOException, GenericDownloaderException {
         Document page = getPage(link,false,true);
 	Elements rawQualities = page.getElementById("vporn-video-player").select("source");
 	Map<String,String> qualities = new HashMap<>();
@@ -133,29 +131,13 @@ public class Vporn extends GenericExtractor{
 	for(int i = 0; i < rawQualities.size(); i++)
             qualities.put(rawQualities.get(i).attr("label"),rawQualities.get(i).attr("src"));
         
-        String video = null;
-        if (qualities.containsKey("720p"))
-            video = qualities.get("720p");
-        else if (qualities.containsKey("480p"))
-            video = qualities.get("480p");
-        else if (qualities.containsKey("320p"))
-            video = qualities.get("320p");
-        else if (qualities.containsKey("240p"))
-            video = qualities.get("240p");
-        return CommonUtils.getContentSize(video);
+        MediaDefinition media = new MediaDefinition();
+        media.addThread(qualities,videoName);
+        return getSize(media);
     }
 
-    @Override public long getSize() throws IOException, GenericDownloaderException {
-        return getSize(url);
-    }
-    
-    @Override public String getId(String link) {
-        Pattern p = Pattern.compile("https?://(www.)?vporn.com/[\\S]+/[\\S]+/([\\d]+)/");
-        Matcher m = p.matcher(link);
-        return m.find() ? m.group(2) : "";
-    }
-
-    @Override public String getId() {
-        return getId(url);
+    @Override protected String getValidURegex() {
+        works = true;
+        return "https?://(?:www.)?vporn.com/[\\S]+/[\\S]+/(?<id>[\\d]+)/"; 
     }
 }

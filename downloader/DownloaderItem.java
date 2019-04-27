@@ -66,7 +66,6 @@ public class DownloaderItem {
     private String url, videoName;
     private Pane root;
     private GenericExtractor extractor;
-    private Site.Type type;
     private Site.Page pageType;
     private video v = null;
     private File thumbFile;
@@ -104,13 +103,11 @@ public class DownloaderItem {
     }
     
     private GenericExtractor getExtractor(video v) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
-    	if ((null == type) && (null == pageType))
-            return null;
-        else if (v == null) {
+    	if (v == null) {
             if (page != null)
-                return ExtractorList.getExtractor(pageType,Jsoup.parse(page));
-            else return ExtractorList.getExtractor(type,url);
-        } else return ExtractorList.getExtractor(type,url,v.getThumbnail(),v.getName());
+                return ExtractorList.getExtractor(pageType, Jsoup.parse(page));
+            else return ExtractorList.getExtractor(url);
+        } else return ExtractorList.getExtractor(url,v.getThumbnail(),v.getName());
     }
     
     private GenericExtractor getExtractor() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
@@ -143,6 +140,8 @@ public class DownloaderItem {
         try {
             if(extractor == null) return false; //couldnt find extractor for link
             thumbFile = extractor.getThumb();
+            if (extractor.getClass().getName().equals("downloader.Extractors.Instagram"))
+                view.preserveRatioProperty().setValue(true);
             if (thumbFile == null) return true; //no thumb //this really shouldnt be allowed but....
             //if more than 10mb (probably a large gif) image stream will run out of memory
             if (thumbFile.length() < 1024 * 1024 * 10) { 
@@ -183,7 +182,6 @@ public class DownloaderItem {
     
     private boolean getThumbnail() {
         ImageView view = (ImageView)root.lookup("#thumb");
-        if (type == Site.Type.instagram) view.preserveRatioProperty().setValue(true);
         if (v == null)
             return setFromExtractor(view);
         else
@@ -231,7 +229,8 @@ public class DownloaderItem {
            setIndeteminate(true);
            if (v == null) {
                loaded = false;
-               extractor = getExtractor(); if (extractor == null) throw new Exception("couldnt get extractor"); //unsupported link
+               extractor = getExtractor();
+               if (extractor == null) throw new Exception("couldnt get extractor"); //unsupported link
                videoName = extractor.getVideoName();
                setSize();
            } else {
@@ -253,7 +252,7 @@ public class DownloaderItem {
                 DownloaderItem download;
                 for(int i = 0; i < links.size(); i++) {
                     download = new DownloaderItem();
-                    download.setLink(links.get(i)); download.setType(Site.getUrlSite(links.get(i))); download.setVideo(null);
+                    download.setLink(links.get(i)); download.setVideo(null);
                     MainApp.dm.addDownload(download);
                 }
             }
@@ -281,10 +280,6 @@ public class DownloaderItem {
     
     public void setPageType(Site.Page type) {
         this.pageType = type;
-    }
-    
-    public void setType(Site.Type type) {
-        this.type = type;
     }
     
     public void setLink(String url) {

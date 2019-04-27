@@ -15,8 +15,6 @@ import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.jsoup.Jsoup;
 import org.jsoup.UncheckedIOException;
@@ -144,17 +142,8 @@ public class Justporno extends GenericExtractor{
         return CommonUtils.getContentSize(q.get(q.keySet().iterator().next()));
     }
 
-    @Override public long getSize() throws IOException, GenericDownloaderException {
-        return getSize(url);
-    }
-    
-    @Override public String getId(String link) {
-        Pattern p = Pattern.compile("https?://(xxx.)?justporno.(tv|es)?/[\\S]+/([\\d]+)/[\\S]+");
-        Matcher m = p.matcher(link);
-        return m.find() ? m.group(2) : "";
-    }
-
-    @Override public String getId() {
-        return getId(url);
+    @Override protected String getValidURegex() {
+        works = true;
+        return "https?://(?:xxx.)?justporno.(?:tv|es)?/[\\S]+/(?<id>[\\d]+)/[\\S]+"; 
     }
 }

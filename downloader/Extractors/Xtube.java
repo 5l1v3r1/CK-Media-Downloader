@@ -1,4 +1,4 @@
-/*
+    /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
@@ -18,8 +18,6 @@ import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.jsoup.Jsoup;
 
 import org.jsoup.nodes.Document;
@@ -30,7 +28,7 @@ import org.jsoup.select.Elements;
  * @author christopher
  */
 public class Xtube extends GenericExtractor{
-	private static final int SKIP = 6;
+    private static final int SKIP = 6;
     
     public Xtube() { //this contructor is used for when you jus want to search
         
@@ -141,35 +139,17 @@ public class Xtube extends GenericExtractor{
         return v;
     }
     
-    private static long getSize(String link) throws IOException, GenericDownloaderException {
+    private long getSize(String link) throws IOException, GenericDownloaderException {
         Document page = getPage(link,false,true);
-        
 	Map<String,String> quality = getQualities(page.toString());
         
-        String video;
-        if (quality.containsKey("720"))
-            video = quality.get("720");
-        else if(quality.containsKey("480"))
-            video = quality.get("480");
-        else if (quality.containsKey("360"))
-            video = quality.get("360");
-        else if (quality.containsKey("240"))
-            video = quality.get("240");
-        else video = quality.get((String)quality.values().toArray()[0]);
-        return CommonUtils.getContentSize(video);
+        MediaDefinition media = new MediaDefinition();
+        media.addThread(quality,videoName);
+        return getSize(media);
     }
 
-    @Override public long getSize() throws IOException, GenericDownloaderException {
-        return getSize(url);
-    }
-    
-    @Override public String getId(String link) {
-        Pattern p = Pattern.compile("https?://(www.)?xtube.com/video-watch/([\\S]+)");
-        Matcher m = p.matcher(link);
-        return m.find() ? m.group(2) : "";
-    }
-
-    @Override public String getId() {
-        return getId(url);
+    @Override protected String getValidURegex() {
+        works = true;
+        return "https?://(?:www.)?xtube.com/video-watch/(?<id>[\\S]+)"; 
     }
 }

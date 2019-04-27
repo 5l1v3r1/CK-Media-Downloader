@@ -17,7 +17,6 @@ import downloader.DataStructures.video;
 import downloader.DownloadManager;
 import downloader.DownloaderItem;
 import downloader.Exceptions.GenericDownloaderException;
-import downloader.Site;
 import java.awt.SplashScreen;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -75,7 +74,7 @@ public class MainApp extends Application {
     public static ProgressBar progress;
     public static TextArea log;
     public static Actions act;
-    private static final String TITLE = "Video Downloader build 30";
+    private static final String TITLE = "Video Downloader build 31";
     public static DownloadHistory downloadHistoryList;
     public static StackPane root;
     public static DataCollection habits;
@@ -478,10 +477,10 @@ public class MainApp extends Application {
        }
        window.show();
        
-       if (!dontLoad)
-         loadSuggestions();
+        if (!dontLoad)
+            loadSuggestions();
         /*try {
-            GenericExtractor x = new Drtuber("https://www.drtuber.com/video/5420919/sas");
+            GenericExtractor x = new Drtuber("https://www.drtuber.com/video/5420919/havana-ginger-and-maserati-fuck-with-a-strapon-dildo");
             video v = x.similar();
             DownloaderItem d = new DownloaderItem();
             d.setLink(v.getLink()); d.setType(Site.getUrlSite(v.getLink())); d.setVideo(v);
@@ -555,7 +554,7 @@ public class MainApp extends Application {
     
     public void determineSite(String link, video v) {
         DownloaderItem download = new DownloaderItem();
-        download.setLink(link); download.setType(Site.getUrlSite(link)); download.setVideo(v);
+        download.setLink(link); download.setVideo(v);
         //add item to downloadManager for display
         dm.addDownload(download);
     }
