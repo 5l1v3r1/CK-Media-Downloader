@@ -222,7 +222,7 @@ public class Yourporn extends GenericExtractor{
         return getSize(media);
     }
 
-    @Override protected String getValidURegex() {
+    @Override protected String getValidRegex() {
         works = true;
         return "https?://((?:www.)?(?:yourporn.sexy|sxyprn.com)/post/(?<id>[\\S]+).html(?:[?][\\S]*)?)|http://pics.vc/watch[?]g=(?<id2>[\\S]+)";
     }

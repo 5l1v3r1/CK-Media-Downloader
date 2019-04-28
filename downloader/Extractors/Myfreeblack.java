@@ -70,7 +70,7 @@ public class Myfreeblack extends GenericExtractor {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override protected String getValidURegex() {
+    @Override protected String getValidRegex() {
         works = true;
         return "https?://(?:www.)?myfreeblack.com/porn/(?<id>[\\d]+)(?:/[\\S]+)?";
     }

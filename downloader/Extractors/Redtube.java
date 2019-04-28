@@ -199,7 +199,7 @@ public class Redtube extends GenericQueryExtractor{
         return getSize(media);
     }
 
-    @Override protected String getValidURegex() {
+    @Override protected String getValidRegex() {
         works = true;
         return "https?://(?:www.)?redtube.com/(?<id>[\\S]+)"; 
     }

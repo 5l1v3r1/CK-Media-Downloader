@@ -190,7 +190,7 @@ public class Spankwire extends GenericQueryExtractor{
         return getSize(media);
     }
 
-    @Override protected String getValidURegex() {
+    @Override protected String getValidRegex() {
         works = true;
         return getRegex();
     }

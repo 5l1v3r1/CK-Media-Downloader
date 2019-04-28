@@ -563,7 +563,7 @@ public class Pornhub extends GenericQueryExtractor implements Playlist{
         }
     }
 
-    @Override protected String getValidURegex() {
+    @Override protected String getValidRegex() {
         works = true;
         return "https?://(?:www.)?pornhub.com/((?:view_video.php[?]viewkey=)(?<id2>[\\S]+)|((?:photo|album|gif|playlist)/(?<id>[\\d]+)))"; 
     }

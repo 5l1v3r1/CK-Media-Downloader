@@ -142,7 +142,7 @@ public class Ghettotube extends GenericExtractor{
         return v;
     }
 
-    @Override protected String getValidURegex() {
+    @Override protected String getValidRegex() {
         works = true;
         return "https?://(?:www.)?ghettotube.com/video/(?<id>[\\S]+).html"; 
     }

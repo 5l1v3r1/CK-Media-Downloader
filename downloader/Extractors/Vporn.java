@@ -136,7 +136,7 @@ public class Vporn extends GenericExtractor{
         return getSize(media);
     }
 
-    @Override protected String getValidURegex() {
+    @Override protected String getValidRegex() {
         works = true;
         return "https?://(?:www.)?vporn.com/[\\S]+/[\\S]+/(?<id>[\\d]+)/"; 
     }

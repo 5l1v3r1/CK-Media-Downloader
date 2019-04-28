@@ -170,8 +170,9 @@ public class ManageSettings {
         clearHistory();
         Vector<historyItem> history = DataIO.loadHistory();
         if(history != null)
-            for(historyItem h:history)
+            history.forEach((h) -> {
                 HISTORYLIST.add(addHistoryPane(h));
+            });
         ObservableList<Pane> list = FXCollections.observableList(HISTORYLIST);
         searchHistory.setItems(list);
         historyUpdate();
@@ -190,7 +191,7 @@ public class ManageSettings {
             try {
                 DataIO.saveSettings(preferences);
             } catch(IOException e) {
-                MainApp.createMessageDialog("Failed to save preferences");
+                MainApp.createMessageDialog("Failed to save preferences: "+e.getMessage());
             }
         });
         Pane container = new Pane();

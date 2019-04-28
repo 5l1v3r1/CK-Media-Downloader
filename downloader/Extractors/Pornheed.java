@@ -78,7 +78,7 @@ public class Pornheed extends GenericExtractor{
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override protected String getValidURegex() {
+    @Override protected String getValidRegex() {
         works = true;
         return "https?://(?:www.)?pornheed.com/video/(?<id>[\\d]+)/[\\S]+"; 
     }

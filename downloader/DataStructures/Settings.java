@@ -187,8 +187,7 @@ public class Settings implements Externalizable{
         }
     }
     
-    @Override
-    public void writeExternal(ObjectOutput out) throws IOException {
+    @Override public void writeExternal(ObjectOutput out) throws IOException {
         out.writeObject(version);
         out.writeObject(videoFolder); out.writeObject(pictureFolder);
         out.writeObject(importFolder); out.writeObject(sharedFolder);
@@ -196,8 +195,7 @@ public class Settings implements Externalizable{
         out.writeObject(profileFolder);
     }
 
-    @Override
-    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+    @Override public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         long version = (long)in.readObject();
         if (version == 3L) {
             videoFolder = (File)in.readObject(); pictureFolder = (File)in.readObject();
@@ -212,5 +210,20 @@ public class Settings implements Externalizable{
             initDownloadFolder(MainApp.OS);
             darkTheme = false;
         }
+        Vector<String> l = new Vector<>();
+        for (String site : supportedSite.keySet()) {
+            if (isAllLower(site))
+                l.add(site); //gotta remove the old version of the extractor names (there were in all common)
+        }
+        l.forEach((s) -> {
+            supportedSite.remove(s);
+        });
+    }
+    
+    private boolean isAllLower(String str) {
+        for(int i = 0; i < str.length(); i++)
+            if (Character.isUpperCase(str.charAt(i)))
+                return false;
+        return true;
     }
 }

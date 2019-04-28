@@ -199,7 +199,7 @@ public class Youporn extends GenericQueryExtractor{
         return getSize(media);
     }
 
-    @Override protected String getValidURegex() {
+    @Override protected String getValidRegex() {
         works = true;
         return "https?://(?:www.)?youporn.com/watch/(?<id>[\\d]+)/[\\S]+/"; 
     }

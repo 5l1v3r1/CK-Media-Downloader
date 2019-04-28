@@ -9,12 +9,14 @@ import downloader.CommonUtils;
 import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
+import downloader.Exceptions.NotSupportedException;
 import downloader.Exceptions.PageNotFoundException;
 import downloaderProject.MainApp;
 import java.io.File;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
+import java.util.Map;
 import org.jsoup.UncheckedIOException;
 import org.jsoup.nodes.Document;
 
@@ -24,6 +26,10 @@ import org.jsoup.nodes.Document;
  */
 public class Default extends GenericExtractor {
     private static int SKIP = 1;
+    
+    public Default() {
+        
+    }
 
     public Default(String url) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
         this(url,downloadThumb(configureUrl(url)),downloadVideoName(configureUrl(url)));
@@ -42,7 +48,9 @@ public class Default extends GenericExtractor {
      
         MediaDefinition media = new MediaDefinition();
         try {
-            media.addThread(getDefaultVideo(page),videoName);
+            Map<String,String> v = getDefaultVideo(page);
+            if (v == null) throw new PageNotFoundException("Could not find a video");
+            media.addThread(v,videoName);
         } catch (NullPointerException e) {
             throw new PageNotFoundException("Could not find a video");
         }
@@ -56,7 +64,7 @@ public class Default extends GenericExtractor {
             String title = getH1Title(page);
             return (title == null) || (title.length() < 1) ? getTitle(page) : page.select("title").text();
         } catch (UnknownHostException e) {
-           throw new PageNotFoundException("Couldnt determine: "+url); 
+           throw new NotSupportedException("Couldnt determine video name: ",url); 
         }
     } 
 	
@@ -64,14 +72,24 @@ public class Default extends GenericExtractor {
     private static File downloadThumb(String url) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
         try {
             Document page = getPage(url,false);
-            String thumbLink = getMetaImage(page);
+            verify(page);
+            String thumbLink = getVideoPoster(page);
+            thumbLink = thumbLink == null || thumbLink.isEmpty() ? getMetaImage(page) : thumbLink;
+            thumbLink = thumbLink.startsWith("//") ? "http:" + thumbLink : thumbLink;
+            thumbLink = !thumbLink.startsWith("http") && thumbLink.startsWith("/") ? "http://" +getDomain(url) + thumbLink : thumbLink;
+            thumbLink = !thumbLink.startsWith("http") && !thumbLink.startsWith("/") ? "http://" +getDomain(url) + "/" + thumbLink : thumbLink;
 
             if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,SKIP))) //if file not already in cache download it
                 CommonUtils.saveFile(thumbLink,CommonUtils.getThumbName(thumbLink,SKIP),MainApp.imageCache);
             return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumbLink,SKIP));
         } catch (UnknownHostException | NullPointerException e) {
-           throw new PageNotFoundException("Couldnt determine: "+url); 
+           throw new NotSupportedException("Couldnt determine thumb: ",url); 
         }
+    }
+    
+    private static void verify(Document page) throws IOException, GenericDownloaderException {
+        if (page.select("video").isEmpty())
+            throw new PageNotFoundException("Could not find a video");
     }
 
     @Override public video similar() throws IOException {
@@ -82,7 +100,7 @@ public class Default extends GenericExtractor {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override protected String getValidURegex() {
+    @Override protected String getValidRegex() {
         works = true;
         return "https?://[\\S]+";
     }

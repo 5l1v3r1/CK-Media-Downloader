@@ -178,7 +178,7 @@ public class DownloadManager {
                 }
             } catch (GenericDownloaderException | IOException e) {
                 if (e instanceof NotSupportedException)
-                    CommonUtils.log(((NotSupportedException)e).getUrl()+" is not supported");
+                    CommonUtils.log(((NotSupportedException)e).getMessage()+" "+((NotSupportedException)e).getUrl());
                 else MainApp.createMessageDialog(e.getMessage()+ " "+ d.getLink());
                 removeDownload(d);
             } catch (Exception e) {

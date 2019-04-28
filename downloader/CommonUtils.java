@@ -518,8 +518,8 @@ public class CommonUtils {
                 if (location != null) {
                     location = location.startsWith("//") ? "https:"+location : location;
                     connection = new URL(location).openConnection();
-                    String cookies = connection.getHeaderField("Set-Cookie");
-                    connection.setRequestProperty("Cookie", cookies);
+                    //String cookies = connection.getHeaderField("Set-Cookie");
+                    //connection.setRequestProperty("Cookie", cookies);
                     connection.setRequestProperty("User-Agent", PCCLIENT);
                     connection.connect();
                 }

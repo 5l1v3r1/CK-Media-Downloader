@@ -120,9 +120,14 @@ public abstract class GenericExtractor {
         thumbLink = pullMetaImage(page.select("meta"), ignore, "property");
         thumbLink = thumbLink == null ? pullMetaImage(page.select("meta"), ignore, "name") : thumbLink;
         thumbLink = thumbLink == null ? pullMetaImage(page.select("meta"), ignore, "itemprop") : thumbLink;
+        thumbLink = thumbLink == null ? pullMetaImage(page.select("meta"), ignore, "content") : thumbLink;
         if (thumbLink == null)
             for(Element meta :page.select("link"))
                 if (meta.attr("rel").equals("image_src"))
+                    thumbLink = meta.attr("href");
+        if (thumbLink == null)
+            for(Element meta :page.select("link"))
+                if (meta.attr("rel").equals("icon"))
                     thumbLink = meta.attr("href");
         return thumbLink;
     }
@@ -162,7 +167,9 @@ public abstract class GenericExtractor {
     
     protected Map<String,String> getDefaultVideo(Document page) {
         Map<String,String> q = new HashMap<>();
-        if (page.select("video").select("source").isEmpty())    
+        if (page.select("video").isEmpty())
+            return null;
+        else if (page.select("video").select("source").isEmpty())    
             q.put("single",page.select("video").attr("src"));
         else  {
             if (page.select("video").select("source").size() > 1) {
@@ -189,6 +196,14 @@ public abstract class GenericExtractor {
                 q.put("single",page.select("video").select("source").attr("src"));
         }
         return q;
+    }
+    
+    protected static String getVideoPoster(Document page) {
+        try {
+            return page.select("video").get(0).attr("poster") != null && !page.select("video").get(0).attr("poster").isEmpty() ? page.select("video").get(0).attr("poster") : null;
+        } catch (NullPointerException e) {
+            return null;
+        }
     }
     
     public String getVideoName() {
@@ -219,7 +234,7 @@ public abstract class GenericExtractor {
     public abstract MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException;
     public abstract video similar() throws IOException, GenericDownloaderException; //get a video from the related items list
     public abstract video search(String str) throws IOException, GenericDownloaderException; //search (similar to query except no img preview and only 1 result) 
-    protected abstract String getValidURegex();
+    protected abstract String getValidRegex();
     
     final protected long getSize(MediaDefinition media) throws GenericDownloaderException, UncheckedIOException, IOException {
         long size = 0;
@@ -255,19 +270,26 @@ public abstract class GenericExtractor {
     }
    
     final public String getId(String link) {
-        return getId(link, getValidURegex());
+        return getId(link, getValidRegex());
     }
     
     final public String getId() {
-        return getId(url, getValidURegex());
+        return getId(url, getValidRegex());
     }
     
+    
     final public boolean suitable(String url) {
-        return url.matches(getValidURegex()) && working();
+        return url.matches(getValidRegex()) && working();
+    }
+    
+    final protected static String getDomain(String s) {
+        Pattern p = Pattern.compile("https?://([^/]+)/[\\S]+");
+        Matcher m = p.matcher(s);
+        return !m.find() ? "" : m.group(1);
     }
     
     protected static String configureUrl(String link) {
-        if (!link.matches("http(s)?://[\\S]+")) return "https://" + link;
+        if (!link.matches("https?://[\\S]+")) return "https://" + link;
         else
             return link;
     }

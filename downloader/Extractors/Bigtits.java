@@ -124,7 +124,7 @@ public class Bigtits extends GenericExtractor{
         return v;
     }
 
-    @Override protected String getValidURegex() {
+    @Override protected String getValidRegex() {
         works = true;
         return "https?://(?:www.)?bigtits.com/videos/watch/[\\S]+/(?<id>[\\d]+)"; 
     }

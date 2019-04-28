@@ -15,8 +15,8 @@ import java.io.Serializable;
  */
 public class downloadedMedia implements Serializable{
     private static final long serialVersionUID = -75282981916575898l;
-    String name, site; //add url
-    File thumb, media;
+    private String name, site; //add url
+    private File thumb, media;
     
     public downloadedMedia(String name, File thumb, File media, String site) {
         this.name = name; this.thumb = thumb; this.media = media; this.site = site;

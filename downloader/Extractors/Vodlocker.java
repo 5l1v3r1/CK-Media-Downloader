@@ -75,7 +75,7 @@ public class Vodlocker extends GenericExtractor{
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override protected String getValidURegex() {
+    @Override protected String getValidRegex() {
         works = false;
         return "https?://(?:www.)?vodlocker.nl/(?<id>[\\S]+).html"; 
     }

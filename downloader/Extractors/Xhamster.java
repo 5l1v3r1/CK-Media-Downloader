@@ -201,7 +201,7 @@ public class Xhamster extends GenericQueryExtractor{
         return v;
     }
 
-    @Override protected String getValidURegex() {
+    @Override protected String getValidRegex() {
         works = true;
         return "https?://(?:[\\S]+?.)?xhamster.(?:com|one)/(?:movies/(?<id>[\\d]+)/(?<displayid>[^/]*).html|videos/(?<displayid2>[^/]*)-(?<id2>[\\d]+))"; 
     }

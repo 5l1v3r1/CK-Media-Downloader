@@ -283,7 +283,7 @@ public class Xvideos extends GenericQueryExtractor{
         return getSize(media);
     }
 
-    @Override protected String getValidURegex() {
+    @Override protected String getValidRegex() {
         works = true;
         return "https?://(?:www.)?((?:xvideos)|(?:xnxx)).com/video-?(?<id>[\\S]+)/[\\S]+"; 
     }

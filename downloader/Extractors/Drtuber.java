@@ -151,7 +151,7 @@ public class Drtuber extends GenericExtractor{
         return getSize(media);
     }
 
-    @Override protected String getValidURegex() {
+    @Override protected String getValidRegex() {
         works = true;
         return "https?://(?:(www|m).)?drtuber.com/video/(?<id>[\\d]+)/[\\S]+"; 
     }

@@ -199,7 +199,7 @@ public class Shesfreaky extends GenericQueryExtractor{
         return CommonUtils.getContentSize(q.get(q.keySet().iterator().next()));
     }
 
-    @Override protected String getValidURegex() {
+    @Override protected String getValidRegex() {
         works = true;
         return "https?://(?:www.)?shesfreaky.com/video/[\\S]+-(?<id>\\d+).html"; 
     }

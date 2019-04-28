@@ -157,7 +157,7 @@ public class Bigbootytube extends GenericQueryExtractor{
         return v;        
     }
 
-    @Override protected String getValidURegex() {
+    @Override protected String getValidRegex() {
         works = true;
         return "https?://(?:www.)?bigbootytube.xxx/videos/(?<id>[\\d]+)/[\\S]+/";
     }

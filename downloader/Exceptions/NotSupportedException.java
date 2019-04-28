@@ -10,7 +10,7 @@ package downloader.Exceptions;
  * @author christopher
  */
 public class NotSupportedException extends GenericDownloaderException {
-    private String url;
+    private final String url;
     
     public NotSupportedException(String msg, String url) {
         super(msg);

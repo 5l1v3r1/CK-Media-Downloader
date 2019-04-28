@@ -11,7 +11,6 @@ import downloader.DataStructures.historyItem;
 import downloader.DataStructures.video;
 import downloader.DownloaderItem;
 import downloader.Extractors.GenericQueryExtractor;
-import downloader.Site;
 import static downloader.Site.QueryType;
 import downloaderProject.DataIO;
 import java.io.File;

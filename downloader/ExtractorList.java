@@ -6,6 +6,7 @@
 package downloader;
 import downloader.Exceptions.GenericDownloaderException;
 import downloader.Exceptions.NotSupportedException;
+import downloader.Extractors.Default;
 import downloader.Extractors.GenericExtractor;
 import downloader.Extractors.Instagram;
 import java.io.File;
@@ -33,7 +34,7 @@ public class ExtractorList {
         List<GenericExtractor> l = new ArrayList<>();
         for (String x : EXTRACTORS)
             l.add((GenericExtractor) Class.forName("downloader.Extractors." + x).getConstructor().newInstance());
-        //l.add(new Default());
+        l.add(new Default()); //fall back on default 
         return l;
     }
     
@@ -45,7 +46,7 @@ public class ExtractorList {
                     int size = x.getClass().getName().split("[.]").length;
                     return (GenericExtractor) Class.forName("downloader.Extractors." +x.getClass().getName().split("[.]")[size-1]).getConstructor(String.class).newInstance(url);
                 }
-            throw new NotSupportedException("url is not supported",url);
+            throw new NotSupportedException("Url is not supported:",url);
         } catch (ClassNotFoundException | NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
             if (e.getCause() instanceof GenericDownloaderException) throw (GenericDownloaderException)e.getCause();
             CommonUtils.log(e.getMessage(),"ExtractorList:getExtractor(string)");
@@ -61,7 +62,7 @@ public class ExtractorList {
                     int size = x.getClass().getName().split("[.]").length;
                     return (GenericExtractor) Class.forName("downloader.Extractors." +x.getClass().getName().split("[.]")[size-1]).getConstructor(String.class,File.class,String.class).newInstance(url,thumb,name);
                 }
-            throw new NotSupportedException("url is not supported",url);
+            throw new NotSupportedException("Url is not supported:",url);
         } catch (ClassNotFoundException | NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
             CommonUtils.log(e.getMessage(),"ExtractorList:getExtractor(string,file,string)");
             return null;

@@ -284,7 +284,7 @@ public class Spankbang extends GenericQueryExtractor implements Playlist{
         return getSize(media);
     }
 
-    @Override  protected String getValidURegex() {
+    @Override  protected String getValidRegex() {
         works = true;
         return "https?://(?:[^/]+.)?spankbang.com/(?<id>[\\S]+)/(?:video|playlist|embed)/[\\S]+"; 
     }

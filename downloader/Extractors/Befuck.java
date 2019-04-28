@@ -100,7 +100,7 @@ public class Befuck extends GenericExtractor{
         return CommonUtils.getContentSize(q.get(q.keySet().iterator().next()));
     }
 
-    @Override protected String getValidURegex() {
+    @Override protected String getValidRegex() {
         works = true;
         return "https?://(?:www.)?befuck.com/videos/(?<id>[\\d]+)/[\\S]+"; 
     }

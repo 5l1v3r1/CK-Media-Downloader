@@ -146,7 +146,7 @@ public class Vimeo extends GenericExtractor{
         return v;*/
     }
 
-    @Override protected String getValidURegex() {
+    @Override protected String getValidRegex() {
         works = true;
         return "https?://(((?:www)?vimeo.com/(?<id>[\\d]+))|(player.vimeo.com/video/(?<id2>[\\d]+)))"; 
     }
