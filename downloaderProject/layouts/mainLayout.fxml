@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import com.jfoenix.controls.JFXButton?>
-
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.image.Image?>
@@ -29,7 +28,7 @@
              </children></Pane>
           <AnchorPane fx:id="currentView" layoutX="200.0" prefHeight="550.0" prefWidth="695.0" />
           <Pane layoutX="0.0" layoutY="55.0" prefHeight="495.0" prefWidth="200.0" styleClass="mainPane" stylesheets="@darkPane.css">
-          <JFXButton layoutY="0.0" maxHeight="32.0" onAction="#showDownloads" prefHeight="32.0" prefWidth="200.0" text="Downloads" textFill="#FFFFFF">
+          <JFXButton layoutY="0.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onAction="#showDownloads" prefHeight="32.0" prefWidth="200.0" text="Downloads" textFill="#FFFFFF">
              <font>
                 <Font name="System Bold" size="13.0" />
              </font>
@@ -41,7 +40,7 @@
                 </ImageView>
              </graphic>
           </JFXButton>
-          <JFXButton layoutY="32.0" maxHeight="32.0" onAction="#showDownloadHistory" prefHeight="32.0" prefWidth="200.0" text="History" textFill="#FFFFFF">
+          <JFXButton layoutY="32.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onAction="#showDownloadHistory" prefHeight="32.0" prefWidth="200.0" text="History" textFill="#FFFFFF">
              <font>
                 <Font name="System Bold" size="13.0" />
              </font>
@@ -53,7 +52,7 @@
                 </ImageView>
              </graphic>
           </JFXButton>
-          <JFXButton layoutY="64.0" maxHeight="32.0" onAction="#showBrowser" prefHeight="32.0" prefWidth="200.0" text="Browser" textFill="#FFFFFF">
+          <JFXButton layoutY="64.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onAction="#showBrowser" prefHeight="32.0" prefWidth="200.0" text="Browser" textFill="#FFFFFF">
              <font>
                 <Font name="System Bold" size="13.0" />
              </font>
@@ -65,7 +64,7 @@
                 </ImageView>
              </graphic>
           </JFXButton>
-          <JFXButton layoutY="160.0" maxHeight="32.0" onAction="#showSettings" prefHeight="32.0" prefWidth="200.0" text="Settings" textFill="#FFFFFF">
+          <JFXButton layoutY="192.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onAction="#showSettings" prefHeight="32.0" prefWidth="200.0" text="Settings" textFill="#FFFFFF">
              <font>
                 <Font name="System Bold" size="13.0" />
              </font>
@@ -77,7 +76,7 @@
                 </ImageView>
              </graphic>
           </JFXButton>
-          <JFXButton layoutY="96.0" maxHeight="32.0" onAction="#showShare" prefHeight="32.0" prefWidth="200.0" text="Share" textFill="#FFFFFF">
+          <JFXButton layoutY="128.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onAction="#showShare" prefHeight="32.0" prefWidth="200.0" text="Share" textFill="#FFFFFF">
              <font>
                 <Font name="System Bold" size="13.0" />
              </font>
@@ -89,7 +88,7 @@
                 </ImageView>
              </graphic>
           </JFXButton>
-          <JFXButton layoutY="128.0" maxHeight="32.0" onAction="#showAccounts" prefHeight="32.0" prefWidth="200.0" text="Accounts" textFill="#FFFFFF">
+          <JFXButton layoutY="160.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onAction="#showAccounts" prefHeight="32.0" prefWidth="200.0" text="Accounts" textFill="#FFFFFF">
              <font>
                 <Font name="System Bold" size="13.0" />
              </font>
@@ -101,6 +100,18 @@
                 </ImageView>
              </graphic>
           </JFXButton>
+            <JFXButton layoutY="96.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onAction="#showStream" prefHeight="32.0" prefWidth="200.0" text="Stream">
+               <font>
+                  <Font name="System Bold" size="13.0" />
+               </font>
+               <graphic>
+                  <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../../icons/icons8-video-playlist-40.png" />
+                     </image>
+                  </ImageView>
+               </graphic>
+            </JFXButton>
             <opaqueInsets>
                <Insets right="20.0" top="20.0" />
             </opaqueInsets>

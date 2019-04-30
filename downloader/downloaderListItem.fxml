@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import com.jfoenix.controls.JFXButton?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ProgressBar?>
@@ -8,9 +9,7 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.Pane?>
 
-<?import com.jfoenix.controls.JFXButton?>
-
-<Pane id="AnchorPane" prefHeight="84.0" prefWidth="685.0" styleClass="background" xmlns:fx="http://javafx.com/fxml/1">
+<Pane id="AnchorPane" prefHeight="84.0" prefWidth="685.0" styleClass="background" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.60">
    <children>
       <ImageView id="thumb" fx:id="thumb" fitHeight="84.0" fitWidth="90.0" pickOnBounds="true" />
       <Label id="downloadName" fx:id="downloadName" layoutX="98.0" layoutY="1.0" prefHeight="40.0" prefWidth="546.0" text="Searching media" wrapText="true" />
@@ -24,7 +23,7 @@
          </graphic>
          <tooltip><Tooltip text="remove from list" /></tooltip>
       </JFXButton>
-      <Button id="downloadBtn" fx:id="downloadBtn" layoutX="96.0" layoutY="50.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="115.0" text="Download">
+      <Button id="downloadBtn" fx:id="downloadBtn" layoutX="96.0" layoutY="50.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="30.0" prefWidth="115.0" text="Download">
          <graphic>
             <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                <image>
@@ -34,8 +33,8 @@
          </graphic>
          <tooltip><Tooltip text="download media" /></tooltip>
       </Button>
-      <ProgressBar id="pBar" fx:id="pBar" layoutX="260.0" layoutY="62.0" prefHeight="20.0" prefWidth="426.0" progress="0.0" />
-      <Button id="save" fx:id="save" layoutX="215.0" layoutY="50.0" mnemonicParsing="false" prefHeight="30.0">
+      <ProgressBar id="pBar" fx:id="pBar" layoutX="301.0" layoutY="62.0" prefHeight="20.0" prefWidth="382.0" progress="0.0" />
+      <Button id="save" fx:id="save" layoutX="215.0" layoutY="50.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="30.0">
          <graphic>
             <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                <image>
@@ -45,22 +44,31 @@
          </graphic>
          <tooltip><Tooltip text="save media for later" /></tooltip>
       </Button>
-      <Label id="speed" layoutX="390.0" layoutY="46.0" prefHeight="16.0" prefWidth="70.0" text="0kb/s" />
-      <Label id="eta" layoutX="485.0" layoutY="46.0" prefHeight="16.0" prefWidth="125.0" text=" ETA 00:00:00:00" />
-      <Label id="size" layoutX="283.0" layoutY="43.0" prefHeight="16.0" prefWidth="88.0" text="----" />
-      <ImageView fitHeight="15.0" fitWidth="20.0" layoutX="468.0" layoutY="47.0" pickOnBounds="true" preserveRatio="true">
+      <Label id="speed" layoutX="435.0" layoutY="46.0" prefHeight="16.0" prefWidth="70.0" text="0kb/s" />
+      <Label id="eta" layoutX="530.0" layoutY="46.0" prefHeight="16.0" prefWidth="125.0" text=" ETA 00:00:00:00" />
+      <Label id="size" layoutX="328.0" layoutY="43.0" prefHeight="16.0" prefWidth="88.0" text="----" />
+      <ImageView fitHeight="15.0" fitWidth="20.0" layoutX="513.0" layoutY="47.0" pickOnBounds="true" preserveRatio="true">
          <image>
             <Image url="@../icons/icons8-submit-progress-480.png" />
          </image>
       </ImageView>
-      <ImageView id="speedicon" fx:id="speedicon" fitHeight="15.0" fitWidth="20.0" layoutX="373.0" layoutY="46.0" pickOnBounds="true" preserveRatio="true">
+      <ImageView id="speedicon" fx:id="speedicon" fitHeight="15.0" fitWidth="20.0" layoutX="418.0" layoutY="46.0" pickOnBounds="true" preserveRatio="true">
          <image>
             <Image url="@../icons/icons8-speedometer-480.png" />
          </image></ImageView>
-      <ImageView fitHeight="20.0" fitWidth="20.0" layoutX="258.0" layoutY="41.0" pickOnBounds="true" preserveRatio="true">
+      <ImageView fitHeight="20.0" fitWidth="20.0" layoutX="303.0" layoutY="41.0" pickOnBounds="true" preserveRatio="true">
          <image>
             <Image url="@../icons/icons8-database-40.png" />
          </image>
       </ImageView>
+      <Button id="streamBtn" layoutX="258.0" layoutY="50.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="30.0" prefWidth="38.0">
+         <graphic>
+            <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../icons/icons8-video-playlist-40.png" />
+               </image>
+            </ImageView>
+         </graphic>
+      </Button>
    </children>
 </Pane>

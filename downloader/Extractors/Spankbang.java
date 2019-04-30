@@ -37,7 +37,6 @@ import org.jsoup.Connection.Response;
  */
 
 public class Spankbang extends GenericQueryExtractor implements Playlist{
-    //this class will eventually not be static and will have an output stream to send status messages
     private static final int SKIP = 3;
     private String playlistUrl = null;
     private final String JSONURL = "https://spankbang.com/api/videos/stream";
@@ -138,12 +137,10 @@ public class Spankbang extends GenericQueryExtractor implements Playlist{
                 if (CommonUtils.saveFile(thumbLink, CommonUtils.parseName(thumbLink,".jpg"),MainApp.imageCache) != -2)
                     throw new IOException("Failed to completely download page");
             String link = "https://spankbang.com"+searchResults.get(i).select("a.thumb").attr("href");
-            Document linkPage = getPage(link,false);
-            String video = linkPage.select("video").select("source").attr("src");
             thequery.addThumbnail(new File(MainApp.imageCache+File.separator+CommonUtils.parseName(thumbLink,".jpg")));
             thequery.addPreview(parse(thequery.getLink(i)));
             thequery.addName(downloadVideoName("https://spankbang.com"+searchResults.get(i).select("a.thumb").attr("href")));
-            thequery.addSize(CommonUtils.getContentSize(video));
+            thequery.addSize(getSize(link));
 	}
         return thequery;
     }
@@ -213,9 +210,7 @@ public class Spankbang extends GenericQueryExtractor implements Playlist{
         	try {verify(getPage(link,false));} catch (GenericDownloaderException e) {continue;}
             String title = li.get(i).select("div.inf").select("a").text();
             try {if (title.length() < 1) title = downloadVideoName(link);} catch (Exception e) {continue;}
-                Document linkPage = getPage(link,false);
-                String video = linkPage.select("video").select("source").attr("src");
-                try {v = new video(link,title,downloadThumb(link),CommonUtils.getContentSize(video)); }catch(Exception e) {continue;}
+                try {v = new video(link,title,downloadThumb(link),getSize(link)); }catch(Exception e) {continue;}
                 break;
             }
         return v;

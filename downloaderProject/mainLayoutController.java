@@ -8,13 +8,10 @@ package downloaderProject;
 import ChrisPackage.Reactable;
 import Queryer.QueryManager;
 import com.jfoenix.controls.JFXDialog;
-import com.jfoenix.controls.events.JFXDialogEvent;
 import downloader.CommonUtils;
 import downloader.DataStructures.Device;
 import downloader.DataStructures.video;
-import downloader.DownloaderItem;
 import downloader.Site;
-import downloader.Site.Page;
 import java.awt.HeadlessException;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -29,8 +26,6 @@ import java.io.IOException;
 import java.util.Scanner;
 import java.util.Vector;
 import javafx.application.Platform;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -59,28 +54,6 @@ public class mainLayoutController implements Initializable, Reactable{
         getDownloadLink();
     }
     
-    
-    public void determineSite(String link) {
-        DownloaderItem download = new DownloaderItem();
-        download.setLink(link); download.setVideo(null);
-        //add item to downloadManager for display
-        MainApp.dm.addDownload(download);
-    }
-    
-    public void determineSite(String link, video v) {
-        DownloaderItem download = new DownloaderItem();
-        download.setLink(link); download.setVideo(v);
-        //add item to downloadManager for display
-        MainApp.dm.addDownload(download);
-    }
-    
-    public void determineSite(String page, Page type) {
-        DownloaderItem download = new DownloaderItem();
-        download.setPage(page); download.setPageType(type);
-        //add item to downloadManager for display
-        MainApp.dm.addDownload(download);
-    }
-    
     public void getDownloadLink() {
         try { 
             Toolkit tool = Toolkit.getDefaultToolkit();
@@ -91,7 +64,7 @@ public class mainLayoutController implements Initializable, Reactable{
                 String[] token = clipText.split("\n"); //if multiple lines of links on clipboard
                 for(String s:token) {
                     CommonUtils.log(s,this);  //this is jus a debugging output
-                    determineSite(s);
+                    MainApp.dm.addDownload(s);
                 }
             }
         } catch(UnsupportedFlavorException e) {
@@ -113,7 +86,7 @@ public class mainLayoutController implements Initializable, Reactable{
                 if (Site.getPageSite(clipText) == Site.Page.none) 
                     CommonUtils.log("Was none",this); //invalid link
                 else
-                    determineSite(clipText, Site.getPageSite(clipText));
+                    MainApp.dm.addDownload(clipText, Site.getPageSite(clipText));
             }
         } catch(UnsupportedFlavorException e) {
             CommonUtils.log("Unsupported clipboard entry: "+e.getMessage(),this);
@@ -186,7 +159,7 @@ public class mainLayoutController implements Initializable, Reactable{
                 }
                 for(int i = 0; i < lines.size(); i++) {
                     CommonUtils.log(lines.get(i).trim(),this);
-                    determineSite(lines.get(i).trim());
+                    MainApp.dm.addDownload(lines.get(i).trim());
                 }
                 MainApp.settings.preferences.setImportFolder(selected.getParentFile());
                 MainApp.settings.saveSettings();
@@ -220,6 +193,10 @@ public class mainLayoutController implements Initializable, Reactable{
     
     public void showAccounts() {
         MainApp.displayPane(MainApp.ACCOUNTPANE);
+    }
+    
+    public void showStream() {
+        MainApp.displayPane(MainApp.STREAMPANE);
     }
     
     private static boolean isDup(String name) {
@@ -260,7 +237,7 @@ public class mainLayoutController implements Initializable, Reactable{
             MainApp.createMessageDialog("No saved media");
         else {
             for(int i = 0; i < videos.size(); i++)
-                determineSite(videos.get(i).getLink(),videos.get(i));
+                MainApp.dm.addDownload(videos.get(i).getLink(),videos.get(i));
         }
     }
     
@@ -299,8 +276,7 @@ public class mainLayoutController implements Initializable, Reactable{
                     TextField nick = (TextField)pane.lookup("#nickname");
                     TextField device = (TextField)pane.lookup("#hostname");
                     Button enter = (Button)pane.lookup("#enterBtn");
-                    enter.setOnAction(new EventHandler<ActionEvent>() {
-                        @Override public void handle(ActionEvent event) {
+                    enter.setOnAction((ActionEvent) -> {
                             dialog.close();
                             if((nick == null) || (nick.getText().length() < 1)) return;
                             if(isDup(nick.getText())) {MainApp.createMessageDialog("You already have a device with that name"); return;}
@@ -315,12 +291,9 @@ public class mainLayoutController implements Initializable, Reactable{
                                 MainApp.createMessageDialog("Failed to save new device");
                                 CommonUtils.log(e.getMessage(),this);
                             }
-                        }
                     });
-                    dialog.setOnDialogClosed(new EventHandler<JFXDialogEvent>() {
-                        @Override public void handle(JFXDialogEvent event) {
-                            a.setEffect(null);
-                        }
+                    dialog.setOnDialogClosed((JFXDialogEvent) -> {
+                        a.setEffect(null);
                     });
                     dialog.show(); a.setEffect(blur);
                 } catch(IOException e) {
@@ -346,49 +319,41 @@ public class mainLayoutController implements Initializable, Reactable{
                     Button ok = (Button)pane.lookup("#yesBtn");
                     Button no = (Button)pane.lookup("#noBtn");
                     Button cancel = (Button)pane.lookup("#cancelBtn");
-                    cancel.setOnAction(new EventHandler<ActionEvent>() {
-                        @Override public void handle(ActionEvent t) {
-                            dialog.close();
-                        }
+                    cancel.setOnAction((ActionEvent) -> {
+                        dialog.close();
                     });
-                    no.setOnAction(new EventHandler<ActionEvent>() {
-                        @Override public void handle(ActionEvent t) {
-                            dialog.close();
-                        }
+                    no.setOnAction((ActionEvent) -> {
+                        dialog.close();
                     });
                     text.setText(msg);
-                    ok.setOnAction(new EventHandler<ActionEvent>() {
-                        @Override public void handle(ActionEvent event) {
-                            dialog.close();
-                            switch(action) {
-                                case 1:
-                                    DataIO.clearDevices();
-                                    MainApp.updateDevices();
-                                    break;
-                                case 2:
-                                    MainApp.downloadHistoryList.clear();
-                                    break;
-                                case 3:
-                                    DataIO.clearHistory();
-                                    MainApp.settings.clearHistory();
-                                    MainApp.settings.historyUpdate();
-                                    break;
-                                case 4:
-                                    DataIO.clearCache();
-                                    MainApp.settings.cacheUpdate();
-                                    MainApp.settings.setHistory();
-                                    break;
-                                case 5:
-                                    DataIO.clearVideos();
-                                    MainApp.settings.videoUpdate();
-                                    break;
-                            }
+                    ok.setOnAction((ActionEvent) -> {
+                        dialog.close();
+                        switch(action) {
+                            case 1:
+                                DataIO.clearDevices();
+                                MainApp.updateDevices();
+                                break;
+                            case 2:
+                                MainApp.downloadHistoryList.clear();
+                                break;
+                            case 3:
+                                DataIO.clearHistory();
+                                MainApp.settings.clearHistory();
+                                MainApp.settings.historyUpdate();
+                                break;
+                            case 4:
+                                DataIO.clearCache();
+                                MainApp.settings.cacheUpdate();
+                                MainApp.settings.setHistory();
+                                break;
+                            case 5:
+                                DataIO.clearVideos();
+                                MainApp.settings.videoUpdate();
+                                break;
                         }
                     });
-                    dialog.setOnDialogClosed(new EventHandler<JFXDialogEvent>() {
-                        @Override public void handle(JFXDialogEvent event) {
-                            a.setEffect(null);
-                        }
+                    dialog.setOnDialogClosed((JFXDialogEvent) -> {
+                        a.setEffect(null);
                     });
                     dialog.show(); a.setEffect(blur);
                 } catch(IOException e) {

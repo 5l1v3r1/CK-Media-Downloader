@@ -9,7 +9,6 @@ import downloader.CommonUtils;
 import downloader.DataStructures.GenericQuery;
 import downloader.DataStructures.historyItem;
 import downloader.DataStructures.video;
-import downloader.DownloaderItem;
 import downloader.Extractors.GenericQueryExtractor;
 import static downloader.Site.QueryType;
 import downloaderProject.DataIO;
@@ -24,7 +23,6 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
 import downloaderProject.MainApp;
 import java.awt.Desktop;
 import java.lang.reflect.Constructor;
@@ -211,48 +209,45 @@ public class QueryManager {
         }
         
         private void changeButton(String msg) {
-            Platform.runLater(new Runnable() {
-                @Override public void run() {
-                    searchBtn.setText(msg);
-                    if (msg.equals("Searching"))
-                        searchBtn.setDisable(true);
-                    else searchBtn.setDisable(false);
-                }
+            Platform.runLater(() -> {
+                searchBtn.setText(msg);
+                if (msg.equals("Searching"))
+                    searchBtn.setDisable(true);
+                else searchBtn.setDisable(false);
             });
         }
         
         private void setOnclickAction() {
-            queryPane.setOnMouseClicked(new EventHandler<MouseEvent>() {
-		@Override public void handle(MouseEvent arg0) {
-                    clearPreviewImages();
-                    int index = queryPane.getSelectionModel().getSelectedIndex();
-	            Vector<File> imgs = results.getPreview(index);
-	            int currentHeight = 0;
-	            if (imgs != null) {
-		        for(int j = 0; j < imgs.size(); j++) {
-		            FileInputStream fis;
-		            try {
-		                fis = new FileInputStream(imgs.get(j));
-		                Image image = new Image(fis);
-		                //adjust size of imageview to fit the image and set the image
-		                double width = 285;
-		                if (image.getWidth() < 285)
-                                    width = image.getWidth();
-		                previewPane.setPrefWidth(width);
-		                ImageView imgView = new ImageView();
-		                imgView.setFitWidth(width);
-		                imgView.setImage(image);
-		                imgView.setLayoutY(currentHeight);
-		                currentHeight += image.getHeight();
-		                previewPane.setMinHeight(currentHeight);
-		                previewPane.getChildren().add(imgView);
-		            } catch (FileNotFoundException ex) {
-                                CommonUtils.log(ex.getMessage(), QueryManager.this);
-		                MainApp.createMessageDialog("Error");
-		            }
-		        }//endfor
-	            }
-            }});
+            queryPane.setOnMouseClicked((MouseEvent) -> {
+                clearPreviewImages();
+                int index = queryPane.getSelectionModel().getSelectedIndex();
+                Vector<File> imgs = results.getPreview(index);
+                int currentHeight = 0;
+                if (imgs != null) {
+                    for(int j = 0; j < imgs.size(); j++) {
+                        FileInputStream fis;
+                        try {
+                            fis = new FileInputStream(imgs.get(j));
+                            Image image = new Image(fis);
+                            //adjust size of imageview to fit the image and set the image
+                            double width = 285;
+                            if (image.getWidth() < 285)
+                                width = image.getWidth();
+                            previewPane.setPrefWidth(width);
+                            ImageView imgView = new ImageView();
+                            imgView.setFitWidth(width);
+                            imgView.setImage(image);
+                            imgView.setLayoutY(currentHeight);
+                            currentHeight += image.getHeight();
+                            previewPane.setMinHeight(currentHeight);
+                            previewPane.getChildren().add(imgView);
+                        } catch (FileNotFoundException ex) {
+                            CommonUtils.log(ex.getMessage(), QueryManager.this);
+                            MainApp.createMessageDialog("Error");
+                        }
+                    }//endfor
+                }
+            });
         }
         
         private Vector<Image> getImages() throws FileNotFoundException{
@@ -267,32 +262,23 @@ public class QueryManager {
         }
         
         private void setButtons(Pane pane, int which) {
-            ((Button)pane.lookup("#addList")).setOnAction(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent t) {
-                    DownloaderItem download = new DownloaderItem();
-                    download.setLink(results.getLink(which)); 
-                    //add item to downloadManager for display
-                    MainApp.dm.addDownload(download);
-                }
+            ((Button)pane.lookup("#addList")).setOnAction((ActionEvent) -> {
+                //add item to downloadManager for display
+                MainApp.dm.addDownload(results.getLink(which));
             });
             
-            ((Button)pane.lookup("#later")).setOnAction(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent t) {
-                    try {
-                        DataIO.saveVideo(new video(results.getLink(which),results.getName(which),results.getThumbnail(which),results.getSize(which),results.getPreview(which)));
-                        MainApp.createMessageDialog("Video saved");
-                        MainApp.settings.videoUpdate();
-                    } catch (IOException e) {
-                        MainApp.createMessageDialog("Failed to save video for later");
-                    }
+            ((Button)pane.lookup("#later")).setOnAction((ActionEvent) -> {
+                try {
+                    DataIO.saveVideo(new video(results.getLink(which),results.getName(which),results.getThumbnail(which),results.getSize(which),results.getPreview(which)));
+                    MainApp.createMessageDialog("Video saved");
+                    MainApp.settings.videoUpdate();
+                } catch (IOException e) {
+                    MainApp.createMessageDialog("Failed to save video for later");
                 }
             });
             
             ((Button)pane.lookup("#browser")).setOnAction(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent t) {
+                @Override public void handle(ActionEvent t) {
                     if (Desktop.isDesktopSupported()) {
                         new Thread(() -> {
                             try {
@@ -322,22 +308,20 @@ public class QueryManager {
         }
         
         private void updateView() {
-            Platform.runLater(new Runnable() {
-                @Override public void run() {
-                    ObservableList<Pane> panes = queryPane.getItems();
-                    try {
-                        Vector<Image>images = getImages();
-                        for(int i = 0; i < images.size(); i++)
-                            panes.add(createPane(images.get(i), i)); //add pane of video thumb and download button etc.
-                        setOnclickAction(); //on click of a list item show thumbnails of video
-                    } catch (FileNotFoundException e) {
-                        CommonUtils.log("Error with :("+e.getMessage()+")",this);
-                        MainApp.createMessageDialog("Error in cache : 1");
-                    } catch (IOException e) {
-                        CommonUtils.log(e.getMessage(),this);
-                    }
-                    searchResultCount.setText(panes.size()+" results found");
+            Platform.runLater(() -> {
+                ObservableList<Pane> panes = queryPane.getItems();
+                try {
+                    Vector<Image>images = getImages();
+                    for(int i = 0; i < images.size(); i++)
+                        panes.add(createPane(images.get(i), i)); //add pane of video thumb and download button etc.
+                    setOnclickAction(); //on click of a list item show thumbnails of video
+                } catch (FileNotFoundException e) {
+                    CommonUtils.log("Error with :("+e.getMessage()+")",this);
+                    MainApp.createMessageDialog("Error in cache : 1");
+                } catch (IOException e) {
+                    CommonUtils.log(e.getMessage(),this);
                 }
+                searchResultCount.setText(panes.size()+" results found");
             });
         } //end update view   
     } //end inner class

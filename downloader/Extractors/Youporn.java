@@ -35,6 +35,7 @@ import org.jsoup.select.Elements;
  * @author christopher
  */
 public class Youporn extends GenericQueryExtractor{
+    private static final int SKIP = 6;
     
     public Youporn() { //used to when you only want to query
         
@@ -136,9 +137,9 @@ public class Youporn extends GenericQueryExtractor{
         
 	String thumb = page.getElementById("player-html5").attr("poster");
         
-        if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,6))) //if file not already in cache download it
-            CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,6),MainApp.imageCache);
-        return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,6));
+        if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
+            CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache);
+        return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,SKIP));
     }
     
     @Override public video similar() throws IOException, GenericDownloaderException {

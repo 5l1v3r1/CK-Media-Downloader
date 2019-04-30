@@ -9,13 +9,11 @@ import ChrisPackage.ClipboardListener;
 import Queryer.QueryManager;
 import Share.Actions;
 import com.jfoenix.controls.JFXDialog;
-import com.jfoenix.controls.events.JFXDialogEvent;
 import downloader.CommonUtils;
 import downloader.DataStructures.Device;
 import downloader.DataStructures.GenericQuery;
 import downloader.DataStructures.video;
 import downloader.DownloadManager;
-import downloader.DownloaderItem;
 import downloader.Exceptions.GenericDownloaderException;
 import java.awt.SplashScreen;
 import java.io.File;
@@ -32,8 +30,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -65,7 +61,6 @@ public class MainApp extends Application {
     public static File pageCache, imageCache, saveDir, progressCache;
     public static DownloadManager dm;
     public static QueryManager query;
-    public static ListView<Pane> downloads;
     public static Scene scene;
     public static boolean active = true;
     public static Vector<Device> devices;
@@ -74,22 +69,22 @@ public class MainApp extends Application {
     public static ProgressBar progress;
     public static TextArea log;
     public static Actions act;
-    private static final String TITLE = "Video Downloader build 31.1";
+    private static final String TITLE = "Video Downloader build 32";
     public static DownloadHistory downloadHistoryList;
     public static StackPane root;
     public static DataCollection habits;
     private static boolean dontLoad;
     
     public static final int WIDTH = 895, HEIGHT = 550, XS = 100;
-    public static final int SUPPORTEDSITES = 37, PANES = 6;
+    public static final int SUPPORTEDSITES = 37, PANES = 7;
     public static Pane[] actionPanes = new Pane[PANES];
-    public static final int DOWNLOADPANE = 0, BROWSERPANE = 1, SETTINGSPANE = 2, SHAREPANE = 3, DOWNLOADHISTORYPANE = 4, ACCOUNTPANE = 5;
+    public static final int DOWNLOADPANE = 0, BROWSERPANE = 1, SETTINGSPANE = 2, SHAREPANE = 3, DOWNLOADHISTORYPANE = 4, ACCOUNTPANE = 5, STREAMPANE = 6;
     private static int BYTE;
     
     public static ManageSettings settings;
     private ClipboardListener clippy;
     public static mainLayoutController mainController;
-    public static Stage window;
+    private static Stage window;
 
     private void getUserName() {
         username = System.getProperty("user.name");
@@ -214,12 +209,6 @@ public class MainApp extends Application {
             downloadHistoryList.switchTheme(enable);
         if(dm != null) 
             dm.changeTheme(enable);
-        if (downloads != null) {
-            if (downloads.getStylesheets() != null) downloads.getStylesheets().clear();
-            if (enable)
-                downloads.getStylesheets().add(MainApp.class.getResource("layouts/darkPane.css").toExternalForm());
-            else downloads.getStylesheets().add(MainApp.class.getResource("layouts/normal.css").toExternalForm());
-        }
     }
     
     public static void loadQuery(GenericQuery q) {
@@ -228,26 +217,20 @@ public class MainApp extends Application {
         displayPane(BROWSERPANE);
     }
     
+    private Pane loadPane(String name) throws IOException {
+        FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("layouts/"+name+".fxml"));
+        return loader.load();
+    }
+    
     private void loadActionPanes() {
         try {
-            FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(MainApp.class.getResource("layouts/downloads.fxml"));
-            actionPanes[DOWNLOADPANE] = loader.load();
-            loader = new FXMLLoader();
-            loader.setLocation(MainApp.class.getResource("layouts/browser.fxml"));
-            actionPanes[BROWSERPANE] = loader.load();
-            loader = new FXMLLoader();
-            loader.setLocation(MainApp.class.getResource("layouts/settings.fxml"));
-            actionPanes[SETTINGSPANE] = loader.load();
-            loader = new FXMLLoader();
-            loader.setLocation(MainApp.class.getResource("layouts/share.fxml"));
-            actionPanes[SHAREPANE] = loader.load();
-            loader = new FXMLLoader();
-            loader.setLocation(MainApp.class.getResource("layouts/downloadHistory.fxml"));
-            actionPanes[DOWNLOADHISTORYPANE] = loader.load();
-            loader = new FXMLLoader();
-            loader.setLocation(MainApp.class.getResource("layouts/accounts.fxml"));
-            actionPanes[ACCOUNTPANE] = loader.load();
+            actionPanes[DOWNLOADPANE] = loadPane("downloads");
+            actionPanes[BROWSERPANE] = loadPane("browser");
+            actionPanes[SETTINGSPANE] = loadPane("settings");
+            actionPanes[SHAREPANE] = loadPane("share");
+            actionPanes[DOWNLOADHISTORYPANE] = loadPane("downloadHistory");
+            actionPanes[ACCOUNTPANE] = loadPane("accounts");
+            actionPanes[STREAMPANE] = loadPane("stream");
         } catch (IOException ex) {
             CommonUtils.log("Action Panes failed",this);
         }
@@ -370,17 +353,15 @@ public class MainApp extends Application {
     }
 
     public static void createNotification(final String title, final String msg) {
-        Platform.runLater(new Runnable() {
-            @Override public void run() {
-                String[] tokens = msg.split(" ");
-                StringBuilder m = new StringBuilder();
-                for(int i = 0; i < tokens.length; i++) {
-                    if (i % 6 == 0) { m.append("\n"); m.append(tokens[i]); continue;}
-                    if (i == 0) m.append(tokens[i]);
-                    else m.append(" "+tokens[i]);
-                }
-                Notifications.create().title(title).text(m.toString()).darkStyle().position(Pos.BOTTOM_RIGHT).showConfirm();
+        Platform.runLater(() -> {
+            String[] tokens = msg.split(" ");
+            StringBuilder m = new StringBuilder();
+            for(int i = 0; i < tokens.length; i++) {
+                if (i % 6 == 0) { m.append("\n"); m.append(tokens[i]); continue;}
+                if (i == 0) m.append(tokens[i]);
+                else m.append(" "+tokens[i]);
             }
+            Notifications.create().title(title).text(m.toString()).darkStyle().position(Pos.BOTTOM_RIGHT).showConfirm();
         });
     }
     
@@ -400,15 +381,11 @@ public class MainApp extends Application {
                     Label text = (Label)pane.lookup("#messageLabel");
                     Button ok = (Button)pane.lookup("#okay");
                     text.setText(msg);
-                    ok.setOnAction(new EventHandler<ActionEvent>() {
-                        @Override public void handle(ActionEvent event) {
-                            dialog.close();
-                        }
+                    ok.setOnAction((ActionEvent) -> {
+                        dialog.close();
                     });
-                    dialog.setOnDialogClosed(new EventHandler<JFXDialogEvent>() {
-                        @Override public void handle(JFXDialogEvent event) {
-                            a.setEffect(null);
-                        }
+                    dialog.setOnDialogClosed((JFXDialogEvent) -> {
+                        a.setEffect(null);
                     });
                     dialog.show(); a.setEffect(blur);
                     }
@@ -427,9 +404,12 @@ public class MainApp extends Application {
         setCacheDir(); //set up cache (create it if it doesnt exist yet)
         cleanUp(); //correct old version data
         
-       dm = new DownloadManager(); //create the download manager
-        
        loadView();
+       
+       dm = new DownloadManager(); //create the download manager
+       dm.setStreamer(new StreamManager(actionPanes[STREAMPANE]));
+       dm.setDownloadList((ListView<Pane>) actionPanes[DOWNLOADPANE].lookup("#downloadList"));
+       
        settings = new ManageSettings(actionPanes[SETTINGSPANE],DataIO.loadSettings());
        setProfileFolder();
        setDarkTheme(settings.preferences.dark());
@@ -439,11 +419,8 @@ public class MainApp extends Application {
        actionPaneHolder = (AnchorPane)scene.lookup("#currentView");
        displayPane(DOWNLOADPANE);
        
-       downloads = (ListView<Pane>) actionPanes[DOWNLOADPANE].lookup("#downloadList"); //listview of downloads
-       //downloads.getStyleClass().add("list-view");
        Label userLabel = (Label) scene.lookup("#username");
-       
-      userLabel.setText(username);
+       userLabel.setText(username);
       
        settings.init(); setupDownloadHistoryPane();
        downloadHistoryList.setSettings(settings);
@@ -496,15 +473,13 @@ public class MainApp extends Application {
     
     private static void startGarbageSuggester() {
         ExecutorService x = Executors.newSingleThreadExecutor();
-        x.execute(new Runnable() {
-            @Override public void run() {
-                while(active) {
-                    System.gc();
-                    try {
-                        Thread.sleep(15000);
-                    } catch (InterruptedException ex) {
-                        Logger.getLogger(MainApp.class.getName()).log(Level.SEVERE, null, ex);
-                    }
+        x.execute(() -> {
+            while(active) {
+                System.gc();
+                try {
+                    Thread.sleep(15000);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(MainApp.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         });
@@ -544,19 +519,12 @@ public class MainApp extends Application {
             for(int i = 0; i < pull; i++) {
                 video temp = habits.next(); 
                 if (temp != null)
-                    determineSite(temp.getLink(),temp);
+                    dm.addDownload(temp.getLink(),temp);
                 else CommonUtils.log("no suggestions",this);
             }
             try {DataIO.saveCollectedData(habits);} catch(IOException e) {CommonUtils.log("Failed to save habits",this);}
             writeJson();
         } else {habits = new DataCollection(true);}
-    }
-    
-    public void determineSite(String link, video v) {
-        DownloaderItem download = new DownloaderItem();
-        download.setLink(link); download.setVideo(v);
-        //add item to downloadManager for display
-        dm.addDownload(download);
     }
 
     /**

@@ -188,6 +188,16 @@ public class DownloaderItem {
             return setFromVideo(view);
     }
     
+    private void setStreamButton() {
+        Button streamBtn = (Button)root.lookup("#streamBtn");
+        streamBtn.setOnAction(event -> {
+            new Thread(() -> {
+                MainApp.dm.play(this);
+            }).start();
+        });
+        streamBtn.setDisable(false);
+    }
+    
     private void setName() {
         Platform.runLater(() -> {
             Label temp = (Label)root.lookup("#downloadName");
@@ -247,15 +257,10 @@ public class DownloaderItem {
        }
        
        if (extractor instanceof Playlist) {
-            if (((Playlist)extractor).isPlaylist()) {
-                Vector<String> links = ((Playlist)extractor).getItems();
-                DownloaderItem download;
-                for(int i = 0; i < links.size(); i++) {
-                    download = new DownloaderItem();
-                    download.setLink(links.get(i)); download.setVideo(null);
-                    MainApp.dm.addDownload(download);
-                }
-            }
+            if (((Playlist)extractor).isPlaylist())
+                ((Playlist)extractor).getItems().forEach((s) -> {
+                    MainApp.dm.addDownload(s);
+                });
        }
        
        if (!getThumbnail()) {release(); return false;} //either link not supported or network error
@@ -264,6 +269,7 @@ public class DownloaderItem {
        setSaveBtn();
        setName();
        setCloseBtn();
+       setStreamButton();
        
        CommonUtils.log("Found",this);
        setIndeteminate(false);
@@ -381,7 +387,7 @@ public class DownloaderItem {
        return root; //give manager a ref to the pane
     }
     
-    public void downloadThis() {
+    private void downloadThis() {
         try {
             determineLink();
         } catch (SocketException e) {
@@ -450,6 +456,13 @@ public class DownloaderItem {
         enableButton();
     }
     
+    public String getStreamLink() throws GenericDownloaderException, UncheckedIOException, Exception {
+        if (extractor == null) extractor = getExtractor();
+        Map<String,String> m = extractor.getVideo().iterator().next();
+        String highestQuality = m.keySet().size() == 1 ? m.keySet().iterator().next() : CommonUtils.getSortedFormats(m.keySet()).get(0);
+        return m.get(highestQuality);
+    }
+    
     private void determineLink() throws GenericDownloaderException, UncheckedIOException, Exception {
         if (extractor == null) extractor = getExtractor();
         MediaDefinition media = extractor.getVideo();
@@ -498,8 +511,7 @@ public class DownloaderItem {
             stream = s;
         }
 
-        @Override
-        public void run() {
+        @Override public void run() {
             try {
                 stream.startTiming();
                 for(int i = 0; i < downloadLinks.size(); i++)

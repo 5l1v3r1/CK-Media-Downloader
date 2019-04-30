@@ -10,11 +10,12 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.Pane?>
+<?import javafx.scene.text.Font?>
 
-<Pane prefHeight="550.0" prefWidth="695.0" styleClass="header" stylesheets="@darkPane.css" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.60" fx:controller="downloaderProject.mainLayoutController">
+<Pane prefHeight="550.0" prefWidth="695.0" styleClass="background" stylesheets="@darkPane.css" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1" fx:controller="downloaderProject.mainLayoutController">
    <children>
-                        <TextField id="queryBox" fx:id="queryBox" layoutX="3.0" layoutY="4.0" prefHeight="26.0" prefWidth="560.0" />
-                        <Button id="queryButton" fx:id="queryButton" layoutX="567.0" layoutY="3.0" minHeight="27.0" minWidth="116.0" mnemonicParsing="false" onAction="#queryString" prefHeight="27.0" prefWidth="126.0" text="Search">
+                        <TextField id="queryBox" fx:id="queryBox" layoutX="3.0" layoutY="61.0" prefHeight="26.0" prefWidth="560.0" />
+                        <Button id="queryButton" fx:id="queryButton" layoutX="567.0" layoutY="60.0" minHeight="27.0" minWidth="116.0" mnemonicParsing="false" onAction="#queryString" prefHeight="27.0" prefWidth="126.0" text="Search">
          <graphic>
             <ImageView fitHeight="20.0" fitWidth="27.0" pickOnBounds="true" preserveRatio="true">
                <image>
@@ -23,12 +24,21 @@
             </ImageView>
          </graphic>
                         <tooltip><Tooltip text="Begin a search" /></tooltip></Button>
-                        <ListView id="resultPane" fx:id="resultPane" layoutY="55.0" prefHeight="495.0" prefWidth="270.0" styleClass="lighter" />
-                        <ScrollPane id="scroll" layoutX="408.0" layoutY="55.0" maxHeight="1000.0" maxWidth="400.0" prefHeight="495.0" prefWidth="287.0" styleClass="background">
+                        <ListView id="resultPane" fx:id="resultPane" layoutY="110.0" prefHeight="440.0" prefWidth="270.0" styleClass="lighter" />
+                        <ScrollPane id="scroll" layoutX="408.0" layoutY="110.0" maxHeight="1000.0" maxWidth="400.0" prefHeight="440.0" prefWidth="287.0" styleClass="background">
                           <content>
                             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="0.0" prefWidth="0.0" styleClass="background" />
                           </content>
                         </ScrollPane>
-                        <Label id="searchResult" fx:id="searchResult" layoutX="10.0" layoutY="35.0" prefHeight="16.0" prefWidth="243.0" />
+                        <Label id="searchResult" fx:id="searchResult" layoutX="9.0" layoutY="92.0" prefHeight="16.0" prefWidth="243.0" />
+      <Pane prefHeight="55.0" prefWidth="695.0" styleClass="header">
+         <children>
+            <Label layoutX="25.0" layoutY="10.0" prefHeight="39.0" prefWidth="500.0" text="Browser" textFill="#FFFFFF">
+               <font>
+                  <Font name="System Bold" size="14.0" />
+               </font>
+            </Label>
+         </children>
+      </Pane>
    </children>
 </Pane>

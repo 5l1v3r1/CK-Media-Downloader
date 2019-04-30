@@ -208,7 +208,7 @@ public class ManageSettings {
         else toogleThemeText.setText("Disable Dark Theme");
         toggleButton toggle = new toggleButton(preferences.dark());
         toggle.setLayoutX(420);
-        toggle.setLayoutY(495);
+        toggle.setLayoutY(480);
         toggle.setOnMouseClicked(event -> {
             boolean value = toggle.switchedOnProperty();
             toggle.setBoolValue(!value);

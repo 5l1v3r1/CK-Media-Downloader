@@ -5,12 +5,16 @@
  */
 package downloader;
 
+import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
 import downloader.Exceptions.NotSupportedException;
 import downloaderProject.MainApp;
+import downloaderProject.StreamManager;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Formatter;
 import java.util.List;
@@ -19,22 +23,23 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import javafx.application.Platform;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import javafx.scene.control.ListView;
 import javafx.scene.layout.Pane;
 import javafx.stage.DirectoryChooser;
+import org.jsoup.UncheckedIOException;
 
 /**
  *
  * @author christopher
  */
 public class DownloadManager {
-    private List<Pane> downloads = new ArrayList<>(); //list of panes
     private List<DownloaderItem> downloadItems = new ArrayList<>();//list of downloader items that create panes
     private final ExecutorService downloadThreads;
     private final ExecutorService sideJobs;
     //private final int threads = 3;
     private final int sideThreads = 4;
+    private StreamManager streamer;
+    private ListView downloadsView;
     
     public void release() {
         try {
@@ -45,7 +50,7 @@ public class DownloadManager {
             sideJobs.awaitTermination(2, TimeUnit.SECONDS);
             sideJobs.shutdownNow();
             removeAll();
-            downloads = null;
+            downloadsView.getItems().clear();
             downloadItems = null;
         } catch (InterruptedException ex) {
             CommonUtils.log("Failed to stop download threads",this);
@@ -57,25 +62,56 @@ public class DownloadManager {
         sideJobs = Executors.newFixedThreadPool(sideThreads); //fixed amount mineial tasks
     }
     
+    public void setDownloadList(ListView<Pane> d) {
+        this.downloadsView = d;
+    }
+    
+    public void setStreamer(StreamManager s) {
+        this.streamer = s;
+    }
+    
     public void changeTheme(boolean enable) {
-        for(int i = 0; i < downloads.size(); i++) {
-            if (((Pane)downloads.get(i)).getStylesheets() != null) ((Pane)downloads.get(i)).getStylesheets().clear();
+        for(int i = 0; i < downloadsView.getItems().size(); i++) {
+            if (((Pane)downloadsView.getItems().get(i)).getStylesheets() != null) ((Pane)downloadsView.getItems().get(i)).getStylesheets().clear();
             if(enable)
-                ((Pane)downloads.get(i)).getStylesheets().add(MainApp.class.getResource("layouts/darkPane.css").toExternalForm());
-            else ((Pane)downloads.get(i)).getStylesheets().add(MainApp.class.getResource("layouts/normal.css").toExternalForm());
+                ((Pane)downloadsView.getItems().get(i)).getStylesheets().add(MainApp.class.getResource("layouts/darkPane.css").toExternalForm());
+            else ((Pane)downloadsView.getItems().get(i)).getStylesheets().add(MainApp.class.getResource("layouts/normal.css").toExternalForm());
+        }
+        
+        if (downloadsView != null) {
+            if (downloadsView.getStylesheets() != null) downloadsView.getStylesheets().clear();
+            if (enable)
+                downloadsView.getStylesheets().add(MainApp.class.getResource("layouts/darkPane.css").toExternalForm());
+            else downloadsView.getStylesheets().add(MainApp.class.getResource("layouts/normal.css").toExternalForm());
         }
     }
     
-    public synchronized void addDownload(DownloaderItem d) {
-        Platform.runLater(new Runnable() {
-            @Override public void run() {
-                if(!isDup(d)) {
-                    display(d);
-                    sideJobs.execute(new search(d));
-                    System.gc();
-                }
+    private synchronized void addDownload(DownloaderItem d) {
+        Platform.runLater(() -> {
+            if(!isDup(d)) {
+                display(d);
+                sideJobs.execute(new search(d));
+                System.gc();
             }
         });
+    }
+    
+    public synchronized void addDownload(String link) {
+        DownloaderItem download = new DownloaderItem();
+        download.setLink(link); download.setVideo(null);
+        addDownload(download);
+    }
+    
+    public synchronized void addDownload(String link, video v) {
+        DownloaderItem download = new DownloaderItem();
+        download.setLink(link); download.setVideo(v);
+        addDownload(download);
+    }
+    
+    public synchronized void addDownload(String page, Site.Page type) {
+        DownloaderItem download = new DownloaderItem();
+        download.setPage(page); download.setPageType(type);
+        addDownload(download);
     }
     
     private boolean isDup(DownloaderItem d) {
@@ -88,9 +124,7 @@ public class DownloadManager {
     private void display(DownloaderItem d) {
         try {
             downloadItems.add(d);
-            downloads.add(d.createItem());
-            ObservableList<Pane> list = FXCollections.observableList(downloads);
-            MainApp.downloads.setItems(null); MainApp.downloads.setItems(list);
+            downloadsView.getItems().add(d.createItem());
         } catch (IOException e) {
             MainApp.createMessageDialog("An internal error occurred: 1");
         }
@@ -101,18 +135,14 @@ public class DownloadManager {
     }
     
     public void removeDownload(DownloaderItem which) {
-        Platform.runLater(new Runnable() {
-            @Override public void run() {
-            	if (downloadItems != null) {
-	            int i = downloadItems.indexOf(which);
-	            if (i != -1) {
-		        downloadItems.get(i).setDone();
-		        downloadItems.remove(i);
-		        downloads.remove(i);
-		        ObservableList<Pane> list = FXCollections.observableList(downloads);
-		        MainApp.downloads.setItems(null); MainApp.downloads.setItems(list);
-	            }
-            	}
+        Platform.runLater(() -> {
+            if (downloadItems != null) {
+                int i = downloadItems.indexOf(which);
+                if (i != -1) {
+                    downloadItems.get(i).setDone();
+                    downloadItems.remove(i);
+                    downloadsView.getItems().remove(i);
+                }
             }
         });
     }
@@ -144,6 +174,25 @@ public class DownloadManager {
         }
     }
     
+    public void play(DownloaderItem d) {
+        String streamLink = null;
+        try {
+            streamLink = d.getStreamLink();
+            if(streamLink == null || streamLink.isEmpty())
+                MainApp.createMessageDialog("Error with stream link");
+            else
+                streamer.setMedia(streamLink);
+        } catch (GenericDownloaderException | UncheckedIOException e) {
+            CommonUtils.log(e.getMessage(),this);
+            MainApp.createMessageDialog(e.getMessage());
+        } catch(MalformedURLException | URISyntaxException e) {
+           CommonUtils.log(streamLink+" failed",this);
+           MainApp.createMessageDialog(e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
     private class search implements Runnable {
         DownloaderItem d;
         
@@ -151,8 +200,7 @@ public class DownloadManager {
             this.d = d;
         }
         
-        @Override
-        public void run() {
+        @Override public void run() {
             CommonUtils.log("Searching link",this);
             try {
                 if(!d.searchLink()) {
@@ -196,8 +244,7 @@ public class DownloadManager {
             this.item = what;
         }
         
-        @Override
-        public void run() {
+        @Override public void run() {
             item.start();
         }
     }
