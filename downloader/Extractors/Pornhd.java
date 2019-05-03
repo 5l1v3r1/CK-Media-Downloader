@@ -51,7 +51,7 @@ public class Pornhd extends GenericExtractor{
 	Map<String,String> qualities = new HashMap<>(); MediaDefinition media = new MediaDefinition();
 	for(int i = 0; i < rawData.length; i++) {
             if (i == 0) continue;
-            qualities.put(rawData[i], "https://pornhd.com"+CommonUtils.eraseChar(rawData[i+2],'\\'));
+            qualities.put(rawData[i], "http://pornhd.com"+CommonUtils.eraseChar(rawData[i+2],'\\'));
             i+=3;
 	}
         media.addThread(qualities, videoName);
@@ -103,7 +103,7 @@ public class Pornhd extends GenericExtractor{
 	Map<String,String> qualities = new HashMap<>(); MediaDefinition media = new MediaDefinition();
 	for(int i = 0; i < rawData.length; i++) {
             if (i == 0) continue;
-            qualities.put(rawData[i], "https://pornhd.com"+CommonUtils.eraseChar(rawData[i+2],'\\'));
+            qualities.put(rawData[i], "http://pornhd.com"+CommonUtils.eraseChar(rawData[i+2],'\\'));
             i+=3;
 	}
         media.addThread(qualities, videoName); //video name is not used so doesnt matter

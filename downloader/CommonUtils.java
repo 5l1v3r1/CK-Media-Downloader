@@ -76,10 +76,6 @@ public class CommonUtils {
         return splits;
     }
     
-    public static void log(String msg) {
-        log(msg,"undefined");
-    }
-    
     public static void log(String msg, String context) {
         System.out.println("["+context+"] "+msg);
     }
@@ -369,10 +365,10 @@ public class CommonUtils {
     }
     
     public static long getContentSize(String url) {
-        return getContentSize(url,false);
+        return getContentSize(url,false,10);
     }
     
-    public static long getContentSize(String url, boolean forbidden) {
+    public static long getContentSize(String url, boolean forbidden, int t) {
         if (url == null) return -5;
         try {
             URLConnection connection = new URL(url).openConnection();
@@ -384,21 +380,21 @@ public class CommonUtils {
                 if (location != null) {
                     if (location.startsWith("/")) 
                         location = "https://"+location;
-                    connection = new URL(location).openConnection();
-                    String cookies = connection.getHeaderField("Set-Cookie");
-                    connection.setRequestProperty("Cookie", cookies);
-                    connection.setRequestProperty("User-Agent", PCCLIENT);
-                    connection.connect();
+                    return getContentSize(location, true, t-1);
+                    //https://www.pornhd.com/videos/154232/latina-ella-knox-massive1-boobs-almost-suffocate-a-bloke-hd-porn-video
                 }
             }
             return connection.getContentLengthLong();
         } catch (SocketException e){
+            e.printStackTrace();
             log(e.getMessage(),"CommonUtils");
             return -2;
         } catch (IOException e) {
+            e.printStackTrace();
             log(e.getMessage(),"CommonUtils");
             return -3;
         } catch (Exception e) {
+            e.printStackTrace();
             log(e.getMessage(),"CommonUtils");
             return -4;
         }
@@ -462,13 +458,13 @@ public class CommonUtils {
         connection.setDoOutput(true);
             
         try (DataOutputStream w = new DataOutputStream(connection.getOutputStream())) {
-            w.writeBytes(params.toString());
+            w.writeBytes(params);
             w.flush();
         }
             
         BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
         String line;
-        StringBuffer re = new StringBuffer();
+        StringBuilder re = new StringBuilder();
             
         while((line = in.readLine()) != null)
             re.append(line);

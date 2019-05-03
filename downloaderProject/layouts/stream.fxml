@@ -11,7 +11,7 @@
    <children>
       <Pane prefHeight="55.0" prefWidth="695.0" styleClass="header">
          <children>
-            <Label layoutX="25.0" layoutY="10.0" prefHeight="39.0" prefWidth="500.0" text="Stream" textFill="#FFFFFF">
+            <Label id="title" layoutX="25.0" layoutY="10.0" prefHeight="39.0" prefWidth="660.0" text="Stream" textFill="#FFFFFF">
                <font>
                   <Font name="System Bold" size="14.0" />
                </font>
@@ -23,5 +23,7 @@
       <Slider id="progress" layoutY="488.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="25.0" prefWidth="694.0" />
       <Button id="toogle" layoutX="226.0" layoutY="513.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="135.0" text="Pause" />
       <Button id="stop" layoutX="362.0" layoutY="513.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="135.0" text="Stop" />
+      <Label id="time" layoutX="504.0" layoutY="518.0" prefHeight="25.0" prefWidth="184.0" />
+      <Label id="status" layoutX="9.0" layoutY="518.0" prefHeight="25.0" prefWidth="201.0" />
    </children>
 </Pane>

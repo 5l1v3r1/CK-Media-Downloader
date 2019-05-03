@@ -5,12 +5,15 @@
  */
 package downloaderProject;
 
+import ChrisPackage.GameTime;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.layout.Pane;
 import javafx.scene.media.Media;
@@ -38,7 +41,35 @@ public class StreamManager {
         stop.setDisable(true);
     }
     
-    public void setMedia(String url) throws MalformedURLException, URISyntaxException {
+    private void setHeader(String s) {
+        Platform.runLater(() -> {
+            ((Label)root.lookup("#title")).setText("Stream - "+s);
+        });
+    }
+    
+    private void resetHeader() {
+        Platform.runLater(() -> {
+            ((Label)root.lookup("#title")).setText("Stream");
+        });
+    }
+    
+    private void updateTime(long current, long total) {
+        GameTime c = new GameTime(), t = new GameTime();
+        c.addSec(current); t.addSec(total);
+        String progress = current == -1 ? "" : c + " / " + t;
+        
+        Platform.runLater(() -> {
+            ((Label)root.lookup("#time")).setText(progress);
+        });
+    }
+    
+    private void changeStatus(String s) {
+        Platform.runLater(() -> {
+            ((Label)root.lookup("#status")).setText(s);
+        });
+    }
+    
+    public void setMedia(String url, String name) throws MalformedURLException, URISyntaxException, IOException {
         if (player != null)
             player.dispose();
         player = new MediaPlayer(new Media(new URL(url.replace("https","http")).toURI().toString()));
@@ -49,19 +80,48 @@ public class StreamManager {
         play.setText("Pause");
         player.play();
         
+        setHeader(name);
         Platform.runLater(() -> {
             MainApp.displayPane(MainApp.STREAMPANE);
         });
     }
     
     private void configurePlayer() {
+        changeStatus("Preparing");
+        
         player.setOnReady(() -> {
             slide.setValue(0.0);
             slide.setMax(player.getTotalDuration().toSeconds());
+            changeStatus("Ready");
+        });
+        
+        player.setOnEndOfMedia(() -> {
+            changeStatus("Done");
+            play.setText("Play");
+            slide.setValue(0.0);
+            player.seek(Duration.ZERO);
+            player.pause();
+            changeStatus("Done");
+        });
+        
+        player.setOnStopped(() -> {changeStatus("");});
+        player.setOnStalled(() -> {changeStatus("Stalled");});
+        player.setOnError(() -> {changeStatus("Error");});
+        player.setOnHalted(() -> {changeStatus("Halted");});
+        player.setOnPlaying(() -> {
+            changeStatus("Streaming");
+            play.setText("Pause");
+        });
+        player.setOnPaused(() -> {
+            changeStatus("Paused");
+            play.setText("Play");
         });
         
         player.currentTimeProperty().addListener((ObservableValue<? extends Duration> ov, Duration t, Duration current) -> {
             slide.setValue(current.toSeconds());
+            if (player != null)
+                updateTime((long)current.toSeconds(), (long)player.getTotalDuration().toSeconds());
+            else updateTime(-1,-1);
         });
         
         slide.setOnMousePressed((MouseEvent) -> {
@@ -70,8 +130,10 @@ public class StreamManager {
         });
         
         slide.setOnMouseClicked((MouseEvent) -> {
-            if(player != null)
+            if(player != null) {
                 player.seek(Duration.seconds(slide.getValue()));
+                play.setText("Pause");
+            }
         });
         
         play.setDisable(false);
@@ -93,15 +155,20 @@ public class StreamManager {
         }
         play.setDisable(true);
         stop.setDisable(true);
+        resetHeader();
     }
     
     public void tooglePlay() {
-        if(player.getStatus() == MediaPlayer.Status.PLAYING) {
-            play.setText("Play");
-            player.pause();
-        } else { 
-            play.setText("Pause");
-            player.play();
+        if(null == player.getStatus()) {
+        } else switch (player.getStatus()) {
+            case PLAYING:
+                player.pause();
+                break;
+            case PAUSED:
+                player.play();
+                break;
+            default:
+                break;
         }
     }
 }

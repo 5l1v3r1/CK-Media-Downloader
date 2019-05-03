@@ -37,9 +37,9 @@ public class DownloadManager {
     private final ExecutorService downloadThreads;
     private final ExecutorService sideJobs;
     //private final int threads = 3;
-    private final int sideThreads = 4;
+    private final int sideThreads = 4, TIMES = 3;
     private StreamManager streamer;
-    private ListView downloadsView;
+    private ListView<Pane> downloadsView;
     
     public void release() {
         try {
@@ -72,10 +72,10 @@ public class DownloadManager {
     
     public void changeTheme(boolean enable) {
         for(int i = 0; i < downloadsView.getItems().size(); i++) {
-            if (((Pane)downloadsView.getItems().get(i)).getStylesheets() != null) ((Pane)downloadsView.getItems().get(i)).getStylesheets().clear();
+            if ((downloadsView.getItems().get(i)).getStylesheets() != null) (downloadsView.getItems().get(i)).getStylesheets().clear();
             if(enable)
-                ((Pane)downloadsView.getItems().get(i)).getStylesheets().add(MainApp.class.getResource("layouts/darkPane.css").toExternalForm());
-            else ((Pane)downloadsView.getItems().get(i)).getStylesheets().add(MainApp.class.getResource("layouts/normal.css").toExternalForm());
+                (downloadsView.getItems().get(i)).getStylesheets().add(MainApp.class.getResource("layouts/darkPane.css").toExternalForm());
+            else (downloadsView.getItems().get(i)).getStylesheets().add(MainApp.class.getResource("layouts/normal.css").toExternalForm());
         }
         
         if (downloadsView != null) {
@@ -139,7 +139,6 @@ public class DownloadManager {
             if (downloadItems != null) {
                 int i = downloadItems.indexOf(which);
                 if (i != -1) {
-                    downloadItems.get(i).setDone();
                     downloadItems.remove(i);
                     downloadsView.getItems().remove(i);
                 }
@@ -148,10 +147,8 @@ public class DownloadManager {
     }
     
     public void removeAll() {
-        for(DownloaderItem d: downloadItems) {
+        for(DownloaderItem d: downloadItems)
             removeDownload(d);
-            d.release();
-        }
     }
     
     public void exportAll() {
@@ -181,7 +178,7 @@ public class DownloadManager {
             if(streamLink == null || streamLink.isEmpty())
                 MainApp.createMessageDialog("Error with stream link");
             else
-                streamer.setMedia(streamLink);
+                streamer.setMedia(streamLink, d.getName());
         } catch (GenericDownloaderException | UncheckedIOException e) {
             CommonUtils.log(e.getMessage(),this);
             MainApp.createMessageDialog(e.getMessage());
@@ -210,7 +207,7 @@ public class DownloadManager {
                     //wasnt loaded
                     try {
                         if (!d.wasLoaded()) {
-                            int stop = new Random().nextInt(3) + 1;
+                            int stop = new Random().nextInt(TIMES) + 1;
                             for(int i = 0; i < stop; i++) {
                                 MainApp.log(d.getName(),d.getSite());
                                 MainApp.log(d.getSide());
@@ -226,7 +223,7 @@ public class DownloadManager {
                 }
             } catch (GenericDownloaderException | IOException e) {
                 if (e instanceof NotSupportedException)
-                    CommonUtils.log(((NotSupportedException)e).getMessage()+" "+((NotSupportedException)e).getUrl());
+                    CommonUtils.log(((NotSupportedException)e).getMessage()+" "+((NotSupportedException)e).getUrl(),this);
                 else MainApp.createMessageDialog(e.getMessage()+ " "+ d.getLink());
                 removeDownload(d);
             } catch (Exception e) {

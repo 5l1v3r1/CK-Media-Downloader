@@ -63,29 +63,30 @@ import org.jsoup.Jsoup;
  * @author christopher
  */
 public class DownloaderItem {
-    private String url, videoName;
+    private String url;
     private Pane root;
     private GenericExtractor extractor;
     private Site.Page pageType;
     private video v = null;
-    private File thumbFile;
     private boolean loaded;
     private Vector<String> downloadLinks, downloadNames;
     private String albumName, page;
     private long size = -1;
     
     public void release() {
+        url = null;
         root = null;
         extractor = null;
-        thumbFile = null;
         v = null;
         downloadLinks = null;
-        page = null;
-        albumName = null;
+        page = albumName = null;
+        downloadLinks = downloadLinks = null;
     }
     
     public String getName() {
-        return videoName;
+        if(v != null)
+            return v.getName();
+        else return extractor.getVideoName();
     }
     
     public String getSite() {
@@ -116,7 +117,6 @@ public class DownloaderItem {
     
     private boolean setFromVideo(ImageView view) {
         try {
-            thumbFile = v.getThumbnail();
             FileInputStream fis = new FileInputStream(v.getThumbnail());
             Image image = new Image(fis);
             if (fis != null) fis.close();
@@ -139,7 +139,7 @@ public class DownloaderItem {
     private boolean setFromExtractor(ImageView view) {
         try {
             if(extractor == null) return false; //couldnt find extractor for link
-            thumbFile = extractor.getThumb();
+            File thumbFile = extractor.getThumb();
             if (extractor.getClass().getName().equals("downloader.Extractors.Instagram"))
                 view.preserveRatioProperty().setValue(true);
             if (thumbFile == null) return true; //no thumb //this really shouldnt be allowed but....
@@ -201,7 +201,7 @@ public class DownloaderItem {
     private void setName() {
         Platform.runLater(() -> {
             Label temp = (Label)root.lookup("#downloadName");
-            temp.setText(videoName);
+            temp.setText(v != null ? v.getName() : extractor.getVideoName());
         });
     }
     
@@ -224,7 +224,13 @@ public class DownloaderItem {
         Button btn = (Button)root.lookup("#save");
         btn.setOnAction(event -> {
             try {
-                if (size == -1) {try {if (extractor == null) extractor = getExtractor(); size = extractor.getSize();}catch(Exception e){size = -1;}}
+                if (size == -1) {
+                    try {
+                        if ((extractor == null) && (v == null))
+                            extractor = getExtractor(); 
+                        size = extractor == null ? v.getSize() : extractor.getSize();
+                    }catch(Exception e){size = -1;}
+                }
                 DataIO.saveVideo(new video(url,extractor.getVideoName(),extractor.getThumb(),size));
                 MainApp.createMessageDialog("Media saved");
                 MainApp.settings.videoUpdate();
@@ -235,45 +241,43 @@ public class DownloaderItem {
     }
     
     public boolean searchLink() throws GenericDownloaderException, IOException {       
-       try { 
-           setIndeteminate(true);
-           if (v == null) {
-               loaded = false;
-               extractor = getExtractor();
-               if (extractor == null) throw new Exception("couldnt get extractor"); //unsupported link
-               videoName = extractor.getVideoName();
-               setSize();
+        try { 
+            setIndeteminate(true);
+            if (v == null) {
+                loaded = false;
+                extractor = getExtractor();
+                if (extractor == null) throw new Exception("couldnt get extractor"); //unsupported link
+                setSize();
            } else {
-        	   loaded = true;
-        	   extractor = getExtractor(v);
-               setSize(v.getSize());
-               videoName = v.getName();
-           }
-       } catch (Exception e) {
+        	loaded = true;
+        	extractor = getExtractor(v);
+                setSize(v.getSize());
+            }
+        } catch (Exception e) {
            if (e instanceof GenericDownloaderException) throw (GenericDownloaderException)e;
            e.printStackTrace();
            CommonUtils.log(e.getMessage(),this); release();
            return false;
-       }
+        }
        
-       if (extractor instanceof Playlist) {
+        if (extractor instanceof Playlist) {
             if (((Playlist)extractor).isPlaylist())
                 ((Playlist)extractor).getItems().forEach((s) -> {
                     MainApp.dm.addDownload(s);
                 });
-       }
+        }
        
-       if (!getThumbnail()) {release(); return false;} //either link not supported or network error
+        if (!getThumbnail()) {release(); return false;} //either link not supported or network error
        
-       setButton();
-       setSaveBtn();
-       setName();
-       setCloseBtn();
-       setStreamButton();
+        setButton();
+        setSaveBtn();
+        setName();
+        setCloseBtn();
+        setStreamButton();
        
-       CommonUtils.log("Found",this);
-       setIndeteminate(false);
-       return true; //if u made it this far process must be successful
+        CommonUtils.log("Found",this);
+        setIndeteminate(false);
+        return true; //if u made it this far process must be successful
     }
     
     public boolean wasLoaded() {
@@ -322,24 +326,23 @@ public class DownloaderItem {
     }
     
     private ContextMenu initContextMenu() {
-       ContextMenu menu = new ContextMenu();
-       menu.getStyleClass().add("background");
-       final MenuItem[] item = new MenuItem[5];
-       item[0] = new MenuItem("copy url");
-       item[1] = new MenuItem("open in browser");
-       item[2] = new MenuItem("remove");
-       item[3] = new MenuItem("remove all");
-       item[4] = new MenuItem("export links to file");
+        ContextMenu menu = new ContextMenu();
+        menu.getStyleClass().add("background");
+        final MenuItem[] item = new MenuItem[5];
+        item[0] = new MenuItem("copy url");
+        item[1] = new MenuItem("open in browser");
+        item[2] = new MenuItem("remove");
+        item[3] = new MenuItem("remove all");
+        item[4] = new MenuItem("export links to file");
        
-       item[0].setGraphic(getIcon("/icons/icons8-copy-link-48.png"));
-       item[0].setOnAction((ActionEvent t) -> {
-           Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-           clipboard.setContents(new StringSelection(url), new StringSelection(MainApp.username));
-       });
-       item[1].setGraphic(getIcon("/icons/icons8-open-in-browser-40.png"));
-       item[1].setOnAction(new EventHandler<ActionEvent>() {
-           @Override
-            public void handle(ActionEvent t) {
+        item[0].setGraphic(getIcon("/icons/icons8-copy-link-48.png"));
+        item[0].setOnAction((ActionEvent t) -> {
+            Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+            clipboard.setContents(new StringSelection(url), new StringSelection(MainApp.username));
+        });
+        item[1].setGraphic(getIcon("/icons/icons8-open-in-browser-40.png"));
+        item[1].setOnAction(new EventHandler<ActionEvent>() {
+            @Override public void handle(ActionEvent t) {
                 if (Desktop.isDesktopSupported()) {
                     new Thread(() -> {
                         try {
@@ -354,37 +357,37 @@ public class DownloaderItem {
                 } else
                     MainApp.createMessageDialog("Not supported");
             }
-       });
-       item[2].setGraphic(getIcon("/icons/icons8-cancel-40.png"));
-       item[2].setOnAction((ActionEvent t) -> {
-           clearThis();
-       });
-       item[3].setGraphic(getIcon("/icons/icons8-cancel-40.png"));
-       item[3].setOnAction((ActionEvent t) -> {
-           MainApp.dm.removeAll();
-       });
-       item[4].setGraphic(getIcon("/icons/icons8-export-40.png"));
-       item[4].setOnAction((ActionEvent t) -> {
-           MainApp.dm.exportAll();
-       });
+        });
+        item[2].setGraphic(getIcon("/icons/icons8-cancel-40.png"));
+        item[2].setOnAction((ActionEvent t) -> {
+            clearThis();
+        });
+        item[3].setGraphic(getIcon("/icons/icons8-cancel-40.png"));
+        item[3].setOnAction((ActionEvent t) -> {
+            MainApp.dm.removeAll();
+        });
+        item[4].setGraphic(getIcon("/icons/icons8-export-40.png"));
+        item[4].setOnAction((ActionEvent t) -> {
+            MainApp.dm.exportAll();
+        });
        
-       menu.getItems().addAll(Arrays.asList(item));
+        menu.getItems().addAll(Arrays.asList(item));
        
-       return menu;
+        return menu;
     }  
     
     public Pane createItem() throws IOException {
-       FXMLLoader loader = new FXMLLoader();
-       loader.setLocation(DownloaderItem.class.getResource("downloaderListItem.fxml"));
-       root = loader.load();
-       disableButton();
-       root.setPadding(new Insets(3,3,3,3));
-       final ContextMenu contextMenu = initContextMenu();
-       root.setOnMouseClicked((MouseEvent t) -> {
-           if (((MouseEvent)t).getButton().equals(MouseButton.SECONDARY))
-               contextMenu.show(root,((MouseEvent)t).getScreenX(),((MouseEvent)t).getScreenY());
-       });
-       return root; //give manager a ref to the pane
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(DownloaderItem.class.getResource("downloaderListItem.fxml"));
+        root = loader.load();
+        disableButton();
+        root.setPadding(new Insets(3,3,3,3));
+        final ContextMenu contextMenu = initContextMenu();
+        root.setOnMouseClicked((MouseEvent t) -> {
+            if (((MouseEvent)t).getButton().equals(MouseButton.SECONDARY))
+                contextMenu.show(root,((MouseEvent)t).getScreenX(),((MouseEvent)t).getScreenY());
+        });
+        return root; //give manager a ref to the pane
     }
     
     private void downloadThis() {
@@ -576,7 +579,8 @@ public class DownloaderItem {
     
     private void displayStatus(String msg) {
         Platform.runLater(() -> {
-            ((Label)root.lookup("#downloadName")).setText(msg+" "+videoName);
+            String vidName = v != null ? v.getName() : extractor.getVideoName();
+            ((Label)root.lookup("#downloadName")).setText(msg+" "+vidName);
         });
     }
     

@@ -102,6 +102,6 @@ public class Default extends GenericExtractor {
 
     @Override protected String getValidRegex() {
         works = true;
-        return "https?://[\\S]+";
+        return "https?://(?<id>[\\S]+)";
     }
 }

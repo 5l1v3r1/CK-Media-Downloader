@@ -35,7 +35,7 @@ public class video implements Externalizable{
     }
     
     public video(String link, String name, File thumbnail, long size, Vector<File> preview) {
-        this.link = link; this.name = name;
+        this.link = link.split(" ")[0]; this.name = name;
         this.thumbnail = thumbnail;
         this.preview = preview;
         this.size = size;
@@ -82,6 +82,13 @@ public class video implements Externalizable{
         return name;
     }
     
+    public Vector<File> getDependencies() {
+        Vector<File> f = new Vector<>();
+        f.add(thumbnail);
+        f.addAll(preview);
+        return f;
+    }
+    
     @Override public boolean equals(Object o) {
         if (o instanceof video) {
             video temp = (video)o;
@@ -91,8 +98,7 @@ public class video implements Externalizable{
         } else return false;
     }
 
-    @Override
-    public void writeExternal(ObjectOutput out) throws IOException {
+    @Override public void writeExternal(ObjectOutput out) throws IOException {
         out.writeObject(version);
         out.writeObject(thumbnail);
         out.writeObject(preview);
@@ -101,8 +107,7 @@ public class video implements Externalizable{
         out.writeObject(size);
     }
 
-    @Override
-    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+    @Override public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         long v = (long)in.readObject();
         if (v == 1) {
             thumbnail = (File)in.readObject();

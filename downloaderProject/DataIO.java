@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Scanner;
 import java.util.Vector;
 
@@ -325,13 +326,9 @@ public class DataIO {
         Vector<video> videos = loadVideos();
         
         //get thumbs from saved videos to exempt
-        if(videos != null) {
-             for(video v:videos) {
-                 files.add(v.getThumbnail());
-                 for(int i = 0; i < v.getPreviewCount(); i++)
-                     files.add(v.getPreview(i));
-             }
-        }
+        if(videos != null)
+             for(video v:videos)
+                 files.addAll(v.getDependencies());
         
         //get thumbs from suggested videos to exempt
         DataCollection d = DataIO.loadCollectedData();
@@ -342,6 +339,13 @@ public class DataIO {
         if (media != null)
             for(downloadedMedia m: media)
                 files.add(m.getThumb());
+        
+        //get query dependencies
+        Vector<historyItem> history = loadHistory();
+        if(history != null)
+            for(historyItem h: history)
+                files.addAll(h.getSearchResult().getDependencies());
+        
         File[] f = new File[files.size()];
         files.toArray(f); Arrays.parallelSort(f);
         return f;
@@ -350,17 +354,17 @@ public class DataIO {
     public static void clearCache() {
         File[] files = MainApp.imageCache.listFiles();
         File[] files2 = MainApp.pageCache.listFiles();
-        File historyFile = new File(MainApp.saveDir.getAbsolutePath()+File.separator+"history.dat");
         
         File[] exemptFiles = getExempt();
         
+        //remove unused thumbnails
         for(File f:files)
             if (Arrays.binarySearch(exemptFiles, f) < 0)
                 f.delete();
         
+        //remove all saved pages
         for(File f:files2)
-            f.delete();
-        historyFile.delete();        
+            f.delete();    
     }
     
     public static long getCacheSize() {

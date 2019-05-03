@@ -33,7 +33,7 @@ public class DataCollection implements Externalizable{
 	private Queue<video> videoQueue; 
 	
 	public DataCollection() {
-		loadLibs();
+            loadLibs();
 	}
 	
 	public DataCollection(boolean yes) {
@@ -61,11 +61,8 @@ public class DataCollection implements Externalizable{
            Vector<File> list = new Vector<>();
            video[] v = new video[videoQueue.size()];
            videoQueue.toArray(v);
-            for(video l:v) {
-                list.add(l.getThumbnail());
-                for(int i = 0; i < l.getPreviewCount(); i++)
-                    list.add(l.getPreview(i));
-            }
+            for(video l:v)
+                list.addAll(l.getDependencies());
             return list;
         }
 	
@@ -208,7 +205,7 @@ public class DataCollection implements Externalizable{
 	private void generateSearch(Map<String,Integer> kwords, Map<String,Integer> stars) throws GenericDownloaderException {
             Random randomNum = new Random();
             int max = randomNum.nextInt(8); //generate 1 - 8 words
-            int starIndex = randomNum.nextInt(5); //generate from top 5 stars
+            int starIndex = randomNum.nextInt(stars.keySet().size() / 3); //generate from top stars (depending on size of list)
 		
             int count = 0; Iterator<String> i = kwords.keySet().iterator();
             StringBuilder words = new StringBuilder();
@@ -266,8 +263,7 @@ public class DataCollection implements Externalizable{
             /*Pornhd //not implemented //complex
             Dailymotion //not implemented
             Vimeo //not implemented
-            Pornheed //not implemented
-            Drtuber //not implemented*/
+            Pornheed //not implemented*/
         }
         
         private static boolean isValid(String str) {

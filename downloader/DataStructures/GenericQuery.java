@@ -111,4 +111,12 @@ public class GenericQuery implements Serializable{
             return preview.get(i);
         return null;
     }
+    
+    public Vector<File> getDependencies() {
+        Vector<File> f = new Vector<>();
+        f.addAll(thumbnails);
+        for(Vector<File> f2 :preview)
+            f.addAll(f2);
+        return f;
+    }
 }

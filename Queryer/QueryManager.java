@@ -57,6 +57,7 @@ public class QueryManager {
     private AnchorPane previewPane;
     private Label searchResultCount;
     private ScrollPane previewScroller;
+    private generate generator;
     
     //private final int scrollerWidth = 287;
     
@@ -108,8 +109,14 @@ public class QueryManager {
             searchResultCount.setText("");
 
             app = Executors.newSingleThreadExecutor();
-            //display thumbnails of results found    
-            app.execute(new generate(searchString.getText()));
+            if (generator == null)
+                generator = new generate(searchString.getText());
+            else {
+                generator.release();
+                generator.setSearch(searchString.getText());
+            }
+            //display thumbnails of results found
+            app.execute(generator);
             app.shutdown();
         } else MainApp.createMessageDialog("Probably should enter something to search first");
     }
@@ -129,20 +136,30 @@ public class QueryManager {
     }
     
     private class generate implements Runnable {
-        String search;
-        GenericQuery results = new GenericQuery();
+        private String search;
+        private GenericQuery results;
         
         public generate() {
             
         }
         
         public generate(String search) {
+            setSearch(search);
+        }
+        
+        public void setSearch(String search) {
             this.search = search;
+            results = new GenericQuery();
         }
         
         public void load(GenericQuery q) {
             results = q;
             updateView();
+        }
+        
+        public void release() {
+            search = null;
+            results = null;
         }
         
         //this will return the appropriate extractor

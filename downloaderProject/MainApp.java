@@ -69,7 +69,7 @@ public class MainApp extends Application {
     public static ProgressBar progress;
     public static TextArea log;
     public static Actions act;
-    private static final String TITLE = "Video Downloader build 32";
+    private static final String TITLE = "Video Downloader build 32.1";
     public static DownloadHistory downloadHistoryList;
     public static StackPane root;
     public static DataCollection habits;
@@ -431,13 +431,12 @@ public class MainApp extends Application {
        
        window.setTitle(TITLE);
        window.setOnCloseRequest(event -> {
+           active = false;
            if (query != null)
                query.release();
             dm.release();
-            active = false;
             clippy.stop();
             CommonUtils.log("Exiting",this);
-            //System.exit(0);
         });
        window.setScene(scene);
        window.setMinHeight(HEIGHT);

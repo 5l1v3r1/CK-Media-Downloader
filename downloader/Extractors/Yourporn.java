@@ -117,7 +117,7 @@ public class Yourporn extends GenericExtractor{
                 if(page.select("span.vidsnfo").isEmpty())
                     throw new VideoDeletedException("Video could not be found");
             }
-        } else CommonUtils.log("wasnt null", "Yourporn");
+        }
     }
     
     private static String downloadVideoName(String url) throws IOException , SocketTimeoutException, UncheckedIOException, GenericDownloaderException,Exception{
