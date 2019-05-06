@@ -164,10 +164,12 @@ public class DataCollection implements Externalizable{
 	}
 	
 	private void addSite(String site) {
-            if (frequentSites.containsKey(site))
-            	frequentSites.put(site, frequentSites.get(site) + 1);
-            else
-		frequentSites.put(site, 1);
+            if (site != null || !site.isEmpty()) {
+                if (frequentSites.containsKey(site))
+                    frequentSites.put(site, frequentSites.get(site) + 1);
+                else
+                    frequentSites.put(site, 1);
+            }
 	}
 	
 	private void generateSuggestion() throws GenericDownloaderException {
@@ -227,11 +229,11 @@ public class DataCollection implements Externalizable{
         
         private void generateSearch(Map<String,Integer> kwords) throws GenericDownloaderException {
             Random randomNum = new Random();
-            int max = randomNum.nextInt(8); //generate 0 - 7
+            int max = randomNum.nextInt(8) + 1; //generate 1 - 8
             CommonUtils.log("key size: "+kwords.keySet().size(),this);
             int count = 0; Iterator<String> i = kwords.keySet().iterator();
             StringBuilder words = new StringBuilder();
-            while(i.hasNext()) {
+            while(i.hasNext()) { //generate at least 2 words to search with
                 if (count >= max + 1) break;
                 words.append(i.next()+" ");
                 count++;

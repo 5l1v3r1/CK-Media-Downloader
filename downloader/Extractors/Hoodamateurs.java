@@ -73,6 +73,6 @@ public class Hoodamateurs extends GenericExtractor {
 
     @Override protected String getValidRegex() {
         works = true;
-        return "https?://(?:www.)?hoodamateurs.com/(?<id>[\\d]+)(?:/[\\S]+)?/?"; 
+        return "https?://(?:www[.])?hoodamateurs[.]com/(?<id>[\\d]+)(?:/[\\S]+)?/?"; 
     }
 }

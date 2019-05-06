@@ -144,6 +144,6 @@ public class Ghettotube extends GenericExtractor{
 
     @Override protected String getValidRegex() {
         works = true;
-        return "https?://(?:www.)?ghettotube.com/video/(?<id>[\\S]+).html"; 
+        return "https?://(?:www[.])?ghettotube[.]com/video/(?<id>[\\S]+)[.]html"; 
     }
 }

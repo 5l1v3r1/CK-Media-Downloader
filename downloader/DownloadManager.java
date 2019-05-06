@@ -52,6 +52,9 @@ public class DownloadManager {
             removeAll();
             downloadsView.getItems().clear();
             downloadItems = null;
+            streamer.stop();
+            streamer = null;
+            CommonUtils.log("Attempted to release download Manager",this);
         } catch (InterruptedException ex) {
             CommonUtils.log("Failed to stop download threads",this);
         }
@@ -147,8 +150,9 @@ public class DownloadManager {
     }
     
     public void removeAll() {
-        for(DownloaderItem d: downloadItems)
+        downloadItems.forEach((d) -> {
             removeDownload(d);
+        });
     }
     
     public void exportAll() {
@@ -203,14 +207,13 @@ public class DownloadManager {
                 if(!d.searchLink()) {
                     //MainApp.createMessageDialog("Error with: "+d.getLink());
                     removeDownload(d);
-                } else { 
-                    //wasnt loaded
+                } else { //wasnt loaded
                     try {
                         if (!d.wasLoaded()) {
                             int stop = new Random().nextInt(TIMES) + 1;
                             for(int i = 0; i < stop; i++) {
-                                MainApp.log(d.getName(),d.getSite());
-                                MainApp.log(d.getSide());
+                                MainApp.log(d.getName(),d.getSite()); //generate suggestion from search algo with provided info
+                                MainApp.log(d.getSide()); //add similar video as suggestion
                             }
                         }
                     } catch (GenericDownloaderException e) {

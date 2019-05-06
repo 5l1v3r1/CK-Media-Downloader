@@ -143,6 +143,6 @@ public class Youjizz extends GenericExtractor{
 
     @Override protected String getValidRegex() {
         works = true;
-        return "https?://(?:www.)?youjizz.com/videos/(?<id>[\\S]+).html"; 
+        return "https?://(?:www[.])?youjizz[.]com/videos/(?<id>[\\S]+)[.]html"; 
     }
 }

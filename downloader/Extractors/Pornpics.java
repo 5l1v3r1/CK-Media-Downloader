@@ -78,6 +78,6 @@ public class Pornpics extends GenericExtractor{
 
     @Override protected String getValidRegex() {
         works = true;
-        return "https?://(?:www.)?pornpics.com/galleries/(?<id>[\\S]+)/"; 
+        return "https?://(?:www[.])?pornpics[.]com/galleries/(?<id>[\\S]+)/"; 
     }
 }

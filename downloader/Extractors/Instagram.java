@@ -186,6 +186,6 @@ public class Instagram extends GenericExtractor{
 
     @Override protected String getValidRegex() {
         works = true;
-        return "https?://(?:www.)?instagram.com/((?:p/(?<id>[^/?#&]+)/([\\S]+)?)|(?<id2>[\\S]+))";
+        return "https?://(?:www[.])?instagram[.]com/((?:p/(?<id>[^/?#&]+)/([\\S]+)?)|(?<id2>[\\S]+))";
     }
 }

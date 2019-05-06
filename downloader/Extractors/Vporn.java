@@ -138,6 +138,6 @@ public class Vporn extends GenericExtractor{
 
     @Override protected String getValidRegex() {
         works = true;
-        return "https?://(?:www.)?vporn.com/[\\S]+/[\\S]+/(?<id>[\\d]+)/"; 
+        return "https?://(?:www[.])?vporn[.]com/[\\S]+/[\\S]+/(?<id>[\\d]+)/"; 
     }
 }

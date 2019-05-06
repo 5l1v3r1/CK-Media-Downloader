@@ -201,6 +201,6 @@ public class Shesfreaky extends GenericQueryExtractor{
 
     @Override protected String getValidRegex() {
         works = true;
-        return "https?://(?:www.)?shesfreaky.com/video/[\\S]+-(?<id>\\d+).html"; 
+        return "https?://(?:www[.])?shesfreaky[.]com/video/[\\S]+-(?<id>\\d+)[.]html"; 
     }
 }

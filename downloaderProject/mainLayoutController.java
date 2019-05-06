@@ -246,7 +246,7 @@ public class mainLayoutController implements Initializable, Reactable{
     }
     
     public void clearCache() {
-        createConfirmDialog("Clearing cache will cause search history to be deleted. Do you wish to continue?",4);
+        createConfirmDialog("Are you sure you want to clear unused cache?",4);
     }
     
     public void clearHistory() {

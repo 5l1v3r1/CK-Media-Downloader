@@ -196,6 +196,6 @@ public class Tube8 extends GenericQueryExtractor{
 
     @Override protected String getValidRegex() {
         works = true;
-        return "https?://(?:www.)?tube8.com/[\\S]+/[\\S]+/(?<id>[\\d]+)/"; 
+        return "https?://(?:www[.])?tube8[.]com/[\\S]+/[\\S]+/(?<id>[\\d]+)/"; 
     }
 }

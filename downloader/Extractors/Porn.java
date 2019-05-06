@@ -87,7 +87,7 @@ public class Porn extends GenericExtractor{
     //getVideo thumbnail
     private static File downloadThumb(String url) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
         Document page = getPage(url,false);
-        String thumbLink = null; 
+        String thumbLink;
 	String preThumb = CommonUtils.getLink(page.toString(),page.toString().indexOf("thumbCDN")+10,'\"');
 	String postThumb = CommonUtils.getLink(page.toString(),page.toString().indexOf("poster",page.toString().indexOf("thumbCDN")+10)+8,'\"');
         thumbLink = preThumb + postThumb;
@@ -149,6 +149,6 @@ public class Porn extends GenericExtractor{
 
     @Override protected String getValidRegex() {
         works = true;
-        return "https?://(?:www.)?porn.com/videos/([\\S]+[-])+(?<id>[\\d]+)"; 
+        return "https?://(?:www[.])?porn[.]com/videos/([\\S]+[-])+(?<id>[\\d]+)"; 
     }
 }

@@ -124,6 +124,6 @@ public class Cumlouder extends GenericExtractor {
 
     @Override protected String getValidRegex() {
         works = true;
-        return "https?://(?:www.)?cumlouder.com/porn-video/(<id>[\\S]+)[/]?"; 
+        return "https?://(?:www[.])?cumlouder[.]com/porn-video/(<id>[\\S]+)[/]?"; 
     }
 }

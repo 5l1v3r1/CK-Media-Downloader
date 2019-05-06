@@ -153,6 +153,6 @@ public class Drtuber extends GenericExtractor{
 
     @Override protected String getValidRegex() {
         works = true;
-        return "https?://(?:(www|m).)?drtuber.com/video/(?<id>[\\d]+)/[\\S]+"; 
+        return "https?://(?:(www|m)[.])?drtuber[.]com/video/(?<id>[\\d]+)/[\\S]+"; 
     }
 }

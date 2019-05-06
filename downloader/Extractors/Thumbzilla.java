@@ -217,6 +217,6 @@ public class Thumbzilla extends GenericQueryExtractor{
 
     @Override protected String getValidRegex() {
         works = true;
-        return "https?://(?:www.)?thumbzilla.com/video/(?<id>[\\S]+)/[\\S]+"; 
+        return "https?://(?:www[.])?thumbzilla[.]com/video/(?<id>[\\S]+)/[\\S]+"; 
     }
 }

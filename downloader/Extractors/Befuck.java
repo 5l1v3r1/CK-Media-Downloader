@@ -102,6 +102,6 @@ public class Befuck extends GenericExtractor{
 
     @Override protected String getValidRegex() {
         works = true;
-        return "https?://(?:www.)?befuck.com/videos/(?<id>[\\d]+)/[\\S]+"; 
+        return "https?://(?:www[.])?befuck[.]com/videos/(?<id>[\\d]+)/[\\S]+"; 
     }
 }

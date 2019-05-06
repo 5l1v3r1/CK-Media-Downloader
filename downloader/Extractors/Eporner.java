@@ -80,6 +80,6 @@ public class Eporner extends GenericExtractor{
 
     @Override protected String getValidRegex() {
         works = true;
-        return "https?://(?:www.)?eporner.com/hd-porn/(?<id>[\\S]+)/[\\S]+/"; 
+        return "https?://(?:www[.])?eporner[.]com/hd-porn/(?<id>[\\S]+)/[\\S]+/"; 
     }
 }

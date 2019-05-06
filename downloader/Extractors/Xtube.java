@@ -150,6 +150,6 @@ public class Xtube extends GenericExtractor{
 
     @Override protected String getValidRegex() {
         works = true;
-        return "https?://(?:www.)?xtube.com/video-watch/(?<id>[\\S]+)"; 
+        return "https?://(?:www[.])?xtube[.]com/video-watch/(?<id>[\\S]+)"; 
     }
 }

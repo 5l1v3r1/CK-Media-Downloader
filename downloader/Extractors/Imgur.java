@@ -52,7 +52,7 @@ public class Imgur extends GenericExtractor {
 
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException{
         
-        if (url.matches("https://imgur.com/gallery/[\\S]*"))
+        if (url.matches("https?://imgur[.]com/gallery/[\\S]*"))
             return getImgurGallery();
 	else return getImgurSingle();
     }
@@ -133,43 +133,6 @@ public class Imgur extends GenericExtractor {
             throw new PageParseException(e.getMessage());
         }
     }
-    
-    private long getSingleSize(JSONObject details) {
-        String link = "https://i.imgur.com/"+ details.get("hash")+""+details.get("ext"); 
-        return CommonUtils.getContentSize(link);
-    }
-    
-    private long getCollectSize() throws IOException, GenericDownloaderException {
-        long total = 0;
-        try {
-            Document page = getPage(url,false,true);
-            String data = page.toString().substring(page.toString().indexOf("image               : {")+22,page.toString().indexOf("},\n",page.toString().indexOf("image               : {"))+1);
-            JSONObject details = (JSONObject)new JSONParser().parse(data);
-            if (details.get("album_images") == null)
-                return getSingleSize(details);
-            else {
-                int count = Integer.parseInt(String.valueOf(((JSONObject)details.get("album_images")).get("count")));
-		JSONArray images = ((JSONArray)((JSONObject)details.get("album_images")).get("images"));
-        	for(int i = 0; i < count; i++)
-                    total += CommonUtils.getContentSize("https://i.imgur.com/"+ ((JSONObject)images.get(i)).get("hash")+""+((JSONObject)images.get(i)).get("ext"));
-            }
-	} catch (ParseException e) {
-            CommonUtils.log(e.getMessage(),this);
-	}
-        return total;
-    }
-    
-    private long getSingleSize() throws IOException, GenericDownloaderException{
-        try {
-            Document page = getPage(url,false,true);
-            String data = page.toString().substring(page.toString().indexOf("image               : {")+22,page.toString().indexOf("},\n",page.toString().indexOf("image               : {"))+1);
-            JSONObject details = (JSONObject)new JSONParser().parse(data);
-            return getSingleSize(details);
-        } catch (ParseException e) {
-            CommonUtils.log(e.getMessage(),this);
-        }
-        return -1;
-    }
 
     @Override public video similar() throws IOException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
@@ -181,6 +144,6 @@ public class Imgur extends GenericExtractor {
 
     @Override protected String getValidRegex() {
         works = true;
-        return "https?://(?:www.)?imgur.com/(?:gallery/)?(?<id>[\\S]+)"; 
+        return "https?://(?:www[.])?imgur[.]com/(?:gallery/)?(?<id>[\\S]+)"; 
     }
 }

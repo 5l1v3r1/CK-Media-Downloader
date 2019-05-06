@@ -306,7 +306,7 @@ public class CommonUtils {
     }
     
     public static String addAttr(String attr, String value) {
-        return "\""+attr+"\":\""+value+"\"";
+        return attr == null || value == null ? "" : "\""+attr.replaceAll("\"", "\\\"")+"\":\""+value.replaceAll("\"", "\\\"")+"\"";
     }
     
     public static String addAttr(String attr, int value) {
@@ -544,11 +544,12 @@ public class CommonUtils {
                     double speed = (how / secs) / (double)BYTE;
                     long remain = (fileSize - how) / (long)BYTE;
                     GameTime g = new GameTime(); g.addSec((long)(remain / speed));
+                    int use = g.getLength() < 3 ? 3 : g.getLength();
                     if (speed == Double.POSITIVE_INFINITY) {
                         if (s != null) s.addProgress(String.format("%s%d","^^",0));
                     } else {
                         if(s != null) s.addProgress(String.format("%s%f","^^",speed));
-                    } if(s != null) s.addProgress(String.format("%s","**"+g));
+                    } if(s != null) s.addProgress(String.format("%s","**"+g.getTimeFormat(use)));
                 }
                 in.close();
                 out.flush();

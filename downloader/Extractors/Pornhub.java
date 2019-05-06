@@ -269,19 +269,19 @@ public class Pornhub extends GenericQueryExtractor implements Playlist{
     }
     
     private static boolean isAlbum(String url) {
-        return (url.matches("https?://(www.)?pornhub.com/album/[\\S]+"));
+        return (url.matches("https?://(www[.])?pornhub[.]com/album/[\\S]+"));
     }
     
     private static boolean isPhoto(String url) {
-        return (url.matches("https?://(www.)?pornhub.com/(photo|gif)/[\\S]+"));
+        return (url.matches("https?://(www[.])?pornhub[.]com/(photo|gif)/[\\S]+"));
     }
     
     private static boolean isGif(String url) {
-        return (url.matches("https?://(www.)?pornhub.com/gif/[\\S]+"));
+        return (url.matches("https?://(www[.])?pornhub[.]com/gif/[\\S]+"));
     }
     
     private static boolean isPlaylist(String url) {
-        return (url.matches("https?://(www.)?pornhub.com/playlist/[\\S]+"));
+        return (url.matches("https?://(www[.])?pornhub[.]com/playlist/[\\S]+"));
     }
     
      private static String downloadVideoName(String url) throws IOException , SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
@@ -513,8 +513,9 @@ public class Pornhub extends GenericQueryExtractor implements Playlist{
         else {
             Elements li = ul.select("li.videoblock.videoBox");
             Vector<String> links = new Vector<>();
-            for(Element item: li)
+            li.forEach((item) -> {
                 links.add("https://pornhub.com" + item.select("div.phimage").select("a.img").attr("href"));
+            });
             return links;
         }
     }
@@ -565,6 +566,6 @@ public class Pornhub extends GenericQueryExtractor implements Playlist{
 
     @Override protected String getValidRegex() {
         works = true;
-        return "https?://(?:www.)?pornhub.com/((?:view_video.php[?]viewkey=)(?<id2>[\\S]+)|((?:photo|album|gif|playlist)/(?<id>[\\d]+)))"; 
+        return "https?://(?:www[.])?pornhub[.]com/((?:view_video[.]php[?]viewkey=)(?<id2>[\\S]+)|((?:photo|album|gif|playlist)/(?<id>[\\d]+)))"; 
     }
 }

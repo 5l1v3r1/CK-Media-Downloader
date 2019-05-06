@@ -202,6 +202,6 @@ public class Youporn extends GenericQueryExtractor{
 
     @Override protected String getValidRegex() {
         works = true;
-        return "https?://(?:www.)?youporn.com/watch/(?<id>[\\d]+)/[\\S]+/"; 
+        return "https?://(?:www[.])?youporn[.]com/watch/(?<id>[\\d]+)/[\\S]+/"; 
     }
 }

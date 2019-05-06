@@ -170,7 +170,7 @@ public abstract class GenericExtractor {
         if (page.select("video").isEmpty())
             return null;
         else if (page.select("video").select("source").isEmpty())    
-            q.put("single",page.select("video").attr("src"));
+            q.put("single",configureUrl(page.select("video").attr("src")));
         else  {
             if (page.select("video").select("source").size() > 1) {
                 page.select("video").select("source").forEach((source) -> {
@@ -186,14 +186,10 @@ public abstract class GenericExtractor {
                         format = String.valueOf(i++);
                     String src = source.attr("src");
                     src = (src == null || src.length() < 1) ? page.select("video").attr("id") : src;
-                    if (src.startsWith("//"))
-                        src = "http:" + src;
-                    else if (!src.startsWith("https") && !src.startsWith("http"))
-                        src = "http://" + src;
-                    q.put(format,src);
+                    q.put(format,configureUrl(src));
                 });
             } else
-                q.put("single",page.select("video").select("source").attr("src"));
+                q.put("single",configureUrl(page.select("video").select("source").attr("src")));
         }
         return q;
     }
@@ -289,7 +285,9 @@ public abstract class GenericExtractor {
     }
     
     protected static String configureUrl(String link) {
-        if (!link.matches("https?://[\\S]+")) return "https://" + link;
+        if (link.startsWith("//"))
+            return  "http:" + link;
+        else if (!link.matches("https?://[\\S]+")) return "https://" + link;
         else
             return link;
     }

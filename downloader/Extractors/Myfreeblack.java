@@ -72,6 +72,6 @@ public class Myfreeblack extends GenericExtractor {
 
     @Override protected String getValidRegex() {
         works = true;
-        return "https?://(?:www.)?myfreeblack.com/porn/(?<id>[\\d]+)(?:/[\\S]+)?";
+        return "https?://(?:www[.])?myfreeblack[.]com/porn/(?<id>[\\d]+)(?:/[\\S]+)?";
     }
 }

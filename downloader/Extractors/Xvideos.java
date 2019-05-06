@@ -285,6 +285,6 @@ public class Xvideos extends GenericQueryExtractor{
 
     @Override protected String getValidRegex() {
         works = true;
-        return "https?://(?:www.)?((?:xvideos)|(?:xnxx)).com/video-?(?<id>[\\S]+)/[\\S]+"; 
+        return "https?://(?:www[.])?((?:xvideos)|(?:xnxx))[.]com/video-?(?<id>[\\S]+)/[\\S]+"; 
     }
 }

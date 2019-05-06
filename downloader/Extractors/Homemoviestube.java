@@ -111,6 +111,6 @@ public class Homemoviestube extends GenericExtractor{
 
     @Override protected String getValidRegex() {
         works = true;
-        return "https?://(?:www.)?homemoviestube.com/videos/(?<id>[\\d]+)/[\\S]+.html"; 
+        return "https?://(?:www[.])?homemoviestube[.]com/videos/(?<id>[\\d]+)/[\\S]+[.]html"; 
     }
 }

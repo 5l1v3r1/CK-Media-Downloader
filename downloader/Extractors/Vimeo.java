@@ -16,7 +16,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -148,6 +147,6 @@ public class Vimeo extends GenericExtractor{
 
     @Override protected String getValidRegex() {
         works = true;
-        return "https?://(((?:www)?vimeo.com/(?<id>[\\d]+))|(player.vimeo.com/video/(?<id2>[\\d]+)))"; 
+        return "https?://(((?:www)?vimeo[.]com/(?<id>[\\d]+))|(player[.]vimeo[.]com/video/(?<id2>[\\d]+)))"; 
     }
 }

@@ -153,6 +153,6 @@ public class Dailymotion extends GenericExtractor{
 
     @Override protected String getValidRegex() {
         works = true;
-        return "https?://(?:www.)?dailymotion.com/video/(?<id>[\\S]+)"; 
+        return "https?://(?:www[.])?dailymotion[.]com/video/(?<id>[\\S]+)"; 
     }
 }

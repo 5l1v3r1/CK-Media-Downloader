@@ -80,6 +80,6 @@ public class Pornheed extends GenericExtractor{
 
     @Override protected String getValidRegex() {
         works = true;
-        return "https?://(?:www.)?pornheed.com/video/(?<id>[\\d]+)/[\\S]+"; 
+        return "https?://(?:www[.])?pornheed[.]com/video/(?<id>[\\d]+)/[\\S]+"; 
     }
 }

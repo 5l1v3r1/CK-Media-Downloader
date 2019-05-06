@@ -404,57 +404,56 @@ public class MainApp extends Application {
         setCacheDir(); //set up cache (create it if it doesnt exist yet)
         cleanUp(); //correct old version data
         
-       loadView();
+        loadView();
        
-       dm = new DownloadManager(); //create the download manager
-       dm.setStreamer(new StreamManager(actionPanes[STREAMPANE]));
-       dm.setDownloadList((ListView<Pane>) actionPanes[DOWNLOADPANE].lookup("#downloadList"));
+        dm = new DownloadManager(); //create the download manager
+        dm.setStreamer(new StreamManager(actionPanes[STREAMPANE]));
+        dm.setDownloadList((ListView<Pane>) actionPanes[DOWNLOADPANE].lookup("#downloadList"));
        
-       settings = new ManageSettings(actionPanes[SETTINGSPANE],DataIO.loadSettings());
-       setProfileFolder();
-       setDarkTheme(settings.preferences.dark());
+        settings = new ManageSettings(actionPanes[SETTINGSPANE],DataIO.loadSettings());
+        setProfileFolder();
+        setDarkTheme(settings.preferences.dark());
 
-       Pane topPane = (Pane)scene.lookup("#topPane");
-       setOSicon((ImageView)topPane.lookup("#OSicon"));
-       actionPaneHolder = (AnchorPane)scene.lookup("#currentView");
-       displayPane(DOWNLOADPANE);
+        Pane topPane = (Pane)scene.lookup("#topPane");
+        setOSicon((ImageView)topPane.lookup("#OSicon"));
+        actionPaneHolder = (AnchorPane)scene.lookup("#currentView");
+        displayPane(DOWNLOADPANE);
        
-       Label userLabel = (Label) scene.lookup("#username");
-       userLabel.setText(username);
+        Label userLabel = (Label) scene.lookup("#username");
+        userLabel.setText(username);
       
-       settings.init(); setupDownloadHistoryPane();
-       downloadHistoryList.setSettings(settings);
+        settings.init(); setupDownloadHistoryPane();
+        downloadHistoryList.setSettings(settings);
        
-       setupSharePane();
+        setupSharePane();
        
        clippy = new ClipboardListener(mainController);
-       
-       window.setTitle(TITLE);
-       window.setOnCloseRequest(event -> {
-           active = false;
-           if (query != null)
-               query.release();
+        
+        window.setTitle(TITLE);
+        window.setOnCloseRequest(event -> {
+            active = false;
+            if (query != null)
+                query.release();
             dm.release();
             clippy.stop();
             CommonUtils.log("Exiting",this);
         });
-       window.setScene(scene);
-       window.setMinHeight(HEIGHT);
-       window.setMinWidth(WIDTH);
-       window.setMaxHeight(HEIGHT+XS);
-       window.setMaxWidth(WIDTH+XS);
-       window.setHeight(HEIGHT);
-       window.setWidth(WIDTH);
-       try {
+        window.setScene(scene);
+        window.setMinHeight(HEIGHT);
+        window.setMinWidth(WIDTH);
+        window.setMaxHeight(HEIGHT+XS);
+        window.setMaxWidth(WIDTH+XS);
+        window.setHeight(HEIGHT);
+        window.setWidth(WIDTH);
+        try {
             if(splash != null)
-                 splash.close();
-       } catch (IllegalStateException e) {
+                splash.close();
+        } catch (IllegalStateException e) {
            CommonUtils.log("Splash screen error: "+e.getMessage(),this);
-       }
-       window.show();
+        }
+        window.show();
        
-        if (!dontLoad)
-            loadSuggestions();
+        loadSuggestions();
         /*try {
             GenericExtractor x = new Drtuber("https://www.drtuber.com/video/5420919/havana-ginger-and-maserati-fuck-with-a-strapon-dildo");
             video v = x.similar();
@@ -509,21 +508,23 @@ public class MainApp extends Application {
     
     private void loadSuggestions() {
         habits = DataIO.loadCollectedData();
-        if (habits != null) {
-            int pull = 1;
-            if (habits.suggestions() > 12 && habits.suggestions() <= 20) pull = 2;
-            else if (habits.suggestions() > 20 && habits.suggestions() <= 35) pull = 3;
-            else if (habits.suggestions() > 35 && habits.suggestions() <= 50) pull = 4;
-            else if (habits.suggestions() > 50) pull = 5;
-            for(int i = 0; i < pull; i++) {
-                video temp = habits.next(); 
-                if (temp != null)
-                    dm.addDownload(temp.getLink(),temp);
-                else CommonUtils.log("no suggestions",this);
-            }
-            try {DataIO.saveCollectedData(habits);} catch(IOException e) {CommonUtils.log("Failed to save habits",this);}
-            writeJson();
-        } else {habits = new DataCollection(true);}
+        if (!dontLoad) {
+            if (habits != null) {
+                int pull = 1;
+                if (habits.suggestions() > 12 && habits.suggestions() <= 20) pull = 2;
+                else if (habits.suggestions() > 20 && habits.suggestions() <= 35) pull = 3;
+                else if (habits.suggestions() > 35 && habits.suggestions() <= 50) pull = 4;
+                else if (habits.suggestions() > 50) pull = 5;
+                for(int i = 0; i < pull; i++) {
+                    video temp = habits.next(); 
+                    if (temp != null)
+                        dm.addDownload(temp.getLink(),temp);
+                    else CommonUtils.log("no suggestions",this);
+                }
+                try {DataIO.saveCollectedData(habits);} catch(IOException e) {CommonUtils.log("Failed to save habits",this);}
+                writeJson();
+            } else {habits = new DataCollection(true);}
+        }
     }
 
     /**

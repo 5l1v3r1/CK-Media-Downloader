@@ -85,7 +85,8 @@ public class video implements Externalizable{
     public Vector<File> getDependencies() {
         Vector<File> f = new Vector<>();
         f.add(thumbnail);
-        f.addAll(preview);
+        if (preview != null)
+            f.addAll(preview);
         return f;
     }
     

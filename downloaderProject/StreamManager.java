@@ -27,18 +27,20 @@ import javafx.util.Duration;
  */
 public class StreamManager {
     private final Pane root;
-    private final Button play, stop; 
+    private final Button play, stop, back, skip; 
     private final Slider slide;
     private MediaPlayer player;
+    private final int SKIP = 15;
     
     public StreamManager(Pane p) {
         this.root = p;
         play = (Button)root.lookup("#toogle");
         stop = (Button)root.lookup("#stop");
+        back = (Button)root.lookup("#back");
+        skip = (Button)root.lookup("#skip");
         slide = (Slider)root.lookup("#progress");
         slide.setMin(0.0);
-        play.setDisable(true);
-        stop.setDisable(true);
+        enableButtons(true);
     }
     
     private void setHeader(String s) {
@@ -56,7 +58,8 @@ public class StreamManager {
     private void updateTime(long current, long total) {
         GameTime c = new GameTime(), t = new GameTime();
         c.addSec(current); t.addSec(total);
-        String progress = current == -1 ? "" : c + " / " + t;
+        int min = t.getLength() < 2 ? 2 : t.getLength();
+        String progress = current == -1 ? "" : c.getTimeFormat(min) + " / " + t.getTimeFormat(min);
         
         Platform.runLater(() -> {
             ((Label)root.lookup("#time")).setText(progress);
@@ -67,6 +70,13 @@ public class StreamManager {
         Platform.runLater(() -> {
             ((Label)root.lookup("#status")).setText(s);
         });
+    }
+    
+    private void enableButtons(boolean enable) {
+        play.setDisable(enable);
+        stop.setDisable(enable);
+        skip.setDisable(enable);
+        back.setDisable(enable);
     }
     
     public void setMedia(String url, String name) throws MalformedURLException, URISyntaxException, IOException {
@@ -106,7 +116,13 @@ public class StreamManager {
         
         player.setOnStopped(() -> {changeStatus("");});
         player.setOnStalled(() -> {changeStatus("Stalled");});
-        player.setOnError(() -> {changeStatus("Error");});
+        player.setOnError(() -> {
+            changeStatus("Error");
+            player = null;
+            ((MediaView)root.lookup("#video")).setMediaPlayer(null);
+            enableButtons(true);
+            resetHeader();
+        });
         player.setOnHalted(() -> {changeStatus("Halted");});
         player.setOnPlaying(() -> {
             changeStatus("Streaming");
@@ -136,26 +152,32 @@ public class StreamManager {
             }
         });
         
-        play.setDisable(false);
-        stop.setDisable(false);
+        enableButtons(false);
         play.setOnAction((ActionEvent) -> {
             tooglePlay();
         });
         stop.setOnAction((ActionEvent) -> {
             stop();
         });
+        skip.setOnAction((ActionEvent) -> {
+            player.seek(Duration.seconds(slide.getValue()).add(Duration.seconds(SKIP)));
+        });
+        back.setOnAction((ActionEvent) -> {
+            player.seek(Duration.seconds(slide.getValue()).subtract(Duration.seconds(SKIP)));
+        });
     }
     
     public void stop() {
+        changeStatus("");
         if (player != null) {
             player.stop();
             player.dispose();
             player = null;
             ((MediaView)root.lookup("#video")).setMediaPlayer(null);
         }
-        play.setDisable(true);
-        stop.setDisable(true);
+        enableButtons(true);
         resetHeader();
+        updateTime(-1,-1);
     }
     
     public void tooglePlay() {

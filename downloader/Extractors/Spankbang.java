@@ -281,6 +281,6 @@ public class Spankbang extends GenericQueryExtractor implements Playlist{
 
     @Override  protected String getValidRegex() {
         works = true;
-        return "https?://(?:[^/]+.)?spankbang.com/(?<id>[\\S]+)/(?:video|playlist|embed)/[\\S]+"; 
+        return "https?://(?:[^/]+[.])?spankbang[.]com/(?<id>[\\S]+)/(?:video|playlist|embed)/[\\S]+"; 
     }
 }

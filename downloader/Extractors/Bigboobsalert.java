@@ -89,6 +89,6 @@ public class Bigboobsalert extends GenericExtractor{
 
     @Override protected String getValidRegex() {
         works = false;
-        return "https?://(?:www.)?bigboobsalert.com/(?<id>[\\S]+)[.]php"; 
+        return "https?://(?:www[.])?bigboobsalert[.]com/(?<id>[\\S]+)[.]php"; 
     }
 }

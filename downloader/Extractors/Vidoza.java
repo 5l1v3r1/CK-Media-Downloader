@@ -95,6 +95,6 @@ public class Vidoza extends GenericExtractor {
 
     @Override protected String getValidRegex() {
         works = true;
-        return "https?://(?:www.)?vidoza.net/(?<id>[\\S]+).html"; 
+        return "https?://(?:www[.])?vidoza[.]net/(?<id>[\\S]+)[.]html"; 
     }
 }

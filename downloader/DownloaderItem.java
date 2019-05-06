@@ -92,7 +92,7 @@ public class DownloaderItem {
     public String getSite() {
         if (extractor != null)
             return extractor.getClass().getSimpleName();
-        else return null;
+        else return "";
     }
     
     public video getSide() throws GenericDownloaderException {

@@ -14,7 +14,6 @@ import java.io.File;
 import java.io.IOException;
 import org.jsoup.UncheckedIOException;
 import java.net.SocketTimeoutException;
-import java.util.Map;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
@@ -76,6 +75,6 @@ public class Watchenga extends GenericExtractor{
 
     @Override protected String getValidRegex() {
         works = false;
-        return "https?://(?:www.)?watcheng[a]?.tv/en/show/(?<id>[\\S]+)/(season-[\\d]+/episode-[\\d]+/)?"; 
+        return "https?://(?:www[.])?watchenga?[.]tv/en/show/(?<id>[\\S]+)/(season-[\\d]+/episode-[\\d]+/)?"; 
     }
 }

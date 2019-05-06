@@ -7,7 +7,7 @@
 <?import javafx.scene.media.MediaView?>
 <?import javafx.scene.text.Font?>
 
-<Pane id="AnchorPane" prefHeight="549.0" prefWidth="694.0" styleClass="background" stylesheets="@darkPane.css" xmlns:fx="http://javafx.com/fxml/1">
+<Pane id="AnchorPane" prefHeight="549.0" prefWidth="694.0" styleClass="background" stylesheets="@darkPane.css" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/9">
    <children>
       <Pane prefHeight="55.0" prefWidth="695.0" styleClass="header">
          <children>
@@ -21,9 +21,11 @@
       <MediaView id="video" fitHeight="430.0" fitWidth="695.0" layoutY="55.0">
       </MediaView>
       <Slider id="progress" layoutY="488.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="25.0" prefWidth="694.0" />
-      <Button id="toogle" layoutX="226.0" layoutY="513.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="135.0" text="Pause" />
+      <Button id="toogle" layoutX="225.0" layoutY="513.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="135.0" text="Pause" />
       <Button id="stop" layoutX="362.0" layoutY="513.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="135.0" text="Stop" />
-      <Label id="time" layoutX="504.0" layoutY="518.0" prefHeight="25.0" prefWidth="184.0" />
-      <Label id="status" layoutX="9.0" layoutY="518.0" prefHeight="25.0" prefWidth="201.0" />
+      <Label id="time" alignment="CENTER_RIGHT" layoutX="543.0" layoutY="522.0" prefHeight="25.0" prefWidth="149.0" text="00:00:00 / 00:00:00" />
+      <Label id="status" layoutX="9.0" layoutY="518.0" prefHeight="25.0" prefWidth="149.0" />
+      <Button id="back" layoutX="181.0" layoutY="513.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="35.0" prefWidth="42.0" text="&lt;&lt;" />
+      <Button id="skip" layoutX="499.0" layoutY="513.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="35.0" prefWidth="42.0" text="&gt;&gt;" />
    </children>
 </Pane>

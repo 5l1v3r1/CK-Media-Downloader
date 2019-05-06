@@ -173,6 +173,6 @@ public class Ruleporn extends GenericQueryExtractor{
 
     @Override protected String getValidRegex() {
         works = true;
-        return "https?://(?:www.)?ruleporn.com/(?<id>[\\S]+)/"; 
+        return "https?://(?:www[.])?ruleporn[.]com/(?<id>[\\S]+)/"; 
     }
 }

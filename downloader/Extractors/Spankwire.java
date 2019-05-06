@@ -196,6 +196,6 @@ public class Spankwire extends GenericQueryExtractor{
     }
     
     private static String getRegex() {
-        return "https?://(?:www.)?spankwire.com/[\\S]+/video(?<id>[\\d]+)/(?:[\\d]+)?";
+        return "https?://(?:www[.])?spankwire[.]com/[\\S]+/video(?<id>[\\d]+)/(?:[\\d]+)?";
     }
 }

@@ -201,6 +201,6 @@ public class Redtube extends GenericQueryExtractor{
 
     @Override protected String getValidRegex() {
         works = true;
-        return "https?://(?:www.)?redtube.com/(?<id>[\\S]+)"; 
+        return "https?://(?:www[.])?redtube[.]com/(?<id>[\\S]+)"; 
     }
 }

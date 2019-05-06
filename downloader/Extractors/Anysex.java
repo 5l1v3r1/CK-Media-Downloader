@@ -113,6 +113,6 @@ public class Anysex extends GenericExtractor{
     
     @Override protected String getValidRegex() {
         works = true;
-        return "https?://(?:www.)?anysex.com/(?<id>[\\d]+)/";
+        return "https?://(?:www[.])?anysex[.]com/(?<id>[\\d]+)/";
     }
 }

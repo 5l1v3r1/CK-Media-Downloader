@@ -144,6 +144,6 @@ public class Justporno extends GenericExtractor{
 
     @Override protected String getValidRegex() {
         works = true;
-        return "https?://(?:xxx.)?justporno.(?:tv|es)?/[\\S]+/(?<id>[\\d]+)/[\\S]+"; 
+        return "https?://(?:xxx[.])?justporno[.](?:tv|es)?/[\\S]+/(?<id>[\\d]+)/[\\S]+"; 
     }
 }
