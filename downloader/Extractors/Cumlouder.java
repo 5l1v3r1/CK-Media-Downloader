@@ -24,7 +24,7 @@ import org.jsoup.select.Elements;
  *
  * @author christopher
  */
-public class Cumlouder extends GenericExtractor {
+public class Cumlouder extends GenericExtractor implements Searchable{
     private static final int SKIP = 4;
     
     public Cumlouder() { //this contructor is used for when you jus want to search
@@ -100,17 +100,19 @@ public class Cumlouder extends GenericExtractor {
         video v = null;
         
         Elements li = page.select("div.medida").select("a.muestra-escena");
+        int count = li.size(); Random rand = new Random();
         
-        for(int i = 0; i < li.size(); i++) {
-        	String thumbLink = li.get(i).select("img.thumb").attr("src"); 
-        	if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,SKIP))) //if file not already in cache download it
-                    if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,SKIP),MainApp.imageCache) != -2)
-                        throw new IOException("Failed to completely download page");
-        	String link = "https://www.cumlouder.com" + li.get(i).select("a").attr("href");
-        	String name = li.get(i).select("img.thumb").attr("title");
-        	if (link.isEmpty() || name.isEmpty()) continue;
-        	v = new video(link,name,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)),getSize(link));
-        	break;
+        while(count-- > 0) {
+            int i = rand.nextInt(li.size());
+            String thumbLink = li.get(i).select("img.thumb").attr("src"); 
+            if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,SKIP))) //if file not already in cache download it
+                if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,SKIP),MainApp.imageCache) != -2)
+                    throw new IOException("Failed to completely download page");
+            String link = "https://www.cumlouder.com" + li.get(i).select("a").attr("href");
+            String name = li.get(i).select("img.thumb").attr("title");
+            if (link.isEmpty() || name.isEmpty()) continue;
+            v = new video(link,name,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)),getSize(link));
+            break;
         }
         
         return v;

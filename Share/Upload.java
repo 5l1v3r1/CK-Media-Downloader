@@ -56,8 +56,7 @@ public class Upload {
     
     private class client implements Runnable {
 
-        @Override
-        public void run() {
+        @Override public void run() {
             if(connectToServer() == 0) {
                 s.addProgress("Connection Successful");
                 processConnection();
@@ -127,9 +126,7 @@ public class Upload {
             long serverMemory = (long)in.readObject();
             long freeMemory = Runtime.getRuntime().freeMemory(), buffSize;
             
-            if(serverMemory > freeMemory)
-                buffSize = freeMemory;
-            else buffSize = serverMemory;
+            buffSize = serverMemory > freeMemory ? freeMemory : serverMemory;
             
             if (buffSize < media.length()) {
                 out.writeObject(2); out.flush(); sendPackets(buffSize,media.length());
@@ -182,7 +179,7 @@ public class Upload {
                 s.addProgress("Attempting Connection");
                 try {
                     s.addProgress("Server: "+InetAddress.getByName(address).toString());
-                    soc = new Socket(InetAddress.getByName(address), Actions.port);
+                    soc = new Socket(InetAddress.getByName(address), Actions.PORT);
                     if (getStreams() == 0)
                         return 0;
                     else return 5;

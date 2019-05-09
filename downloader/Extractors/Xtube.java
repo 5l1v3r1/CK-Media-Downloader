@@ -27,7 +27,7 @@ import org.jsoup.select.Elements;
  *
  * @author christopher
  */
-public class Xtube extends GenericExtractor{
+public class Xtube extends GenericExtractor implements Searchable{
     private static final int SKIP = 6;
     
     public Xtube() { //this contructor is used for when you jus want to search
@@ -102,15 +102,15 @@ public class Xtube extends GenericExtractor{
         Elements li = page.select("div.cntPanel.relatedVideosPanel").select("ul.row.smallSpace.rowSpace").select("li");
         Random randomNum = new Random(); int count = 0; boolean got = li.isEmpty();
         while(!got) {
-        	if (count > li.size()) break;
-        	int i = randomNum.nextInt(li.size()); count++;
-        	String link = "https://www.xtube.com" + li.get(i).select("a").get(0).attr("href");
-                try {verify(getPage(link,false));} catch (GenericDownloaderException ex) {continue;}
+            if (count > li.size()) break;
+            int i = randomNum.nextInt(li.size()); count++;
+            String link = "https://www.xtube.com" + li.get(i).select("a").get(0).attr("href");
+            try {verify(getPage(link,false));} catch (GenericDownloaderException ex) {continue;}
             String title = li.get(i).select("h3").text();
                 
-                try {v = new video(link,title,downloadThumb(link),getSize(link));}catch(Exception e) {continue;}
-                break;
-            }
+            try {v = new video(link,title,downloadThumb(link),getSize(link));}catch(Exception e) {continue;}
+            break;
+        }
         return v;
     }
 
@@ -122,18 +122,20 @@ public class Xtube extends GenericExtractor{
         video v = null;
         
         Elements li = page.select("li.deleteListElement.col-xs-24.col-s-12.col-xl-6.col10-xxl-2");
+        int count = li.size(); Random rand = new Random();
         
-        for(int i = 0; i < li.size(); i++) {
+        while(count-- > 0) {
+            int i = rand.nextInt(li.size());
             String link = "http://www.xtube.com" + li.get(i).select("a").get(0).attr("href");
-                try {verify(getPage(link,false));} catch (GenericDownloaderException ex) {continue;}
-        	String thumbLink = li.get(i).select("img").get(0).attr("src"); 
-        	if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,SKIP))) //if file not already in cache download it
-                    if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,SKIP),MainApp.imageCache) != -2)
-                        throw new IOException("Failed to completely download page");
-        	String name = li.get(i).select("h3").text();
-        	if (link.isEmpty() || name.isEmpty()) continue;
-        	try { v = new video(link,name,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)),getSize(link)); } catch(GenericDownloaderException | IOException e)  {}
-        	break;
+            try {verify(getPage(link,false));} catch (GenericDownloaderException ex) {continue;}
+            String thumbLink = li.get(i).select("img").get(0).attr("src"); 
+            if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,SKIP))) //if file not already in cache download it
+                if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,SKIP),MainApp.imageCache) != -2)
+                    throw new IOException("Failed to completely download page");
+            String name = li.get(i).select("h3").text();
+            if (link.isEmpty() || name.isEmpty()) continue;
+            try { v = new video(link,name,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)),getSize(link)); } catch(GenericDownloaderException | IOException e)  {}
+            break;
         }
         
         return v;

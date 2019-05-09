@@ -33,7 +33,7 @@ import org.jsoup.select.Elements;
  *
  * @author christopher
  */
-public class Tube8 extends GenericQueryExtractor{
+public class Tube8 extends GenericQueryExtractor implements Searchable{
     private static final int SKIP = 4;
     
     public Tube8() { //this contructor is used for when you jus want to query
@@ -153,13 +153,13 @@ public class Tube8 extends GenericQueryExtractor{
         Elements li = page.select("div.gridList.videosList").select("div.video_box");
         Random randomNum = new Random(); int count = 0; boolean got = li.isEmpty();
         while(!got) {
-        	if (count > li.size()) break;
-        	int i = randomNum.nextInt(li.size()); count++;
-        	String link = li.get(i).select("a").get(0).attr("href");
+            if (count > li.size()) break;
+            int i = randomNum.nextInt(li.size()); count++;
+            String link = li.get(i).select("a").get(0).attr("href");
             String title = li.get(i).select("p.video_title").select("a").text();
-                try {v = new video(link,title,downloadThumb(link),getSize(link));}catch(Exception e) {continue;}
-                break;
-            }
+            try {v = new video(link,title,downloadThumb(link),getSize(link));}catch(Exception e) {continue;}
+            break;
+        }
         return v;
     }
 
@@ -169,9 +169,11 @@ public class Tube8 extends GenericQueryExtractor{
         String searchUrl = "https://www.tube8.com/searches.html?q=/"+str+"/";
         
         Document page = getPage(searchUrl,false); video v = null;
-		
 	Elements searchResults = page.select("div.video_box");
-	for(int i = 0; i < searchResults.size(); i++) {
+        int count = searchResults.size(); Random rand = new Random();
+        
+	while(count-- > 0) {
+            int i = rand.nextInt(searchResults.size());
             if (!CommonUtils.testPage(searchResults.get(i).select("p.video_title").select("a").attr("href"))) continue; //test to avoid error 404
             String link = searchResults.get(i).select("p.video_title").select("a").attr("href");
             String title = searchResults.get(i).select("p.video_title").select("a").attr("title");

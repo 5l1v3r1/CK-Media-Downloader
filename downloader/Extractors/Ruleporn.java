@@ -26,7 +26,7 @@ import org.jsoup.select.Elements;
  *
  * @author christopher
  */
-public class Ruleporn extends GenericQueryExtractor{
+public class Ruleporn extends GenericQueryExtractor implements Searchable{
     
     public Ruleporn() { //this contructor is used for when you jus want to query
         
@@ -128,10 +128,10 @@ public class Ruleporn extends GenericQueryExtractor{
         Elements li = page.select("div.row").select("div.item-col.col");
         Random randomNum = new Random(); int count = 0; boolean got = false; if (li.isEmpty()) got = true;
         while(!got) {
-        	if (count > li.size()) break;
-        	int i = randomNum.nextInt(li.size()); count++;
-        	String link = li.get(i).select("a").attr("href");
-        	try {verify(getPage(link,false));} catch (GenericDownloaderException e) {continue;}
+            if (count > li.size()) break;
+            int i = randomNum.nextInt(li.size()); count++;
+            String link = li.get(i).select("a").attr("href");
+            try {verify(getPage(link,false));} catch (GenericDownloaderException e) {continue;}
             String thumb = li.get(i).select("span.image").select("img").attr("src");
             String title = li.get(i).select("span.title").text();
             if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb))) //if file not already in cache download it
@@ -149,9 +149,11 @@ public class Ruleporn extends GenericQueryExtractor{
         String searchUrl = "https://ruleporn.com/search/"+str+"/";
         
         Document page = getPage(searchUrl,false); video v = null;
-        
 	Elements searchResults = page.select("div.row").select("div.item-inner-col.inner-col");
-	for(int i = 0; i < searchResults.size(); i++)  {
+        int count = searchResults.size(); Random rand = new Random();
+        
+	while(count-- > 0) {
+            int i = rand.nextInt();
             if (!CommonUtils.testPage(searchResults.get(i).select("a").get(0).attr("href"))) continue; //test to avoid error 404
             try {verify(getPage(searchResults.get(i).select("a").get(0).attr("href"),false));} catch (GenericDownloaderException e) {continue;}
             String thumbLink = searchResults.get(i).select("img").attr("src");

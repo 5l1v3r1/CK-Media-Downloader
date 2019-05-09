@@ -27,7 +27,7 @@ import org.jsoup.select.Elements;
  *
  * @author christopher
  */
-public class Youjizz extends GenericExtractor{
+public class Youjizz extends GenericExtractor implements Searchable{
     private static final int SKIP = 3;
 	
     public Youjizz() { //this contructor is used for when you jus want to search
@@ -93,19 +93,19 @@ public class Youjizz extends GenericExtractor{
         Elements li = page.getElementById("related").select("div.video-thumb");
         Random randomNum = new Random(); int count = 0; boolean got = li.isEmpty();
         while(!got) {
-        	if (count > li.size()) break;
-        	int i = randomNum.nextInt(li.size()); count++;
-        	String link = "https://www.youjizz.com" + li.get(i).select("a").get(0).attr("href");
+            if (count > li.size()) break;
+            int i = randomNum.nextInt(li.size()); count++;
+            String link = "https://www.youjizz.com" + li.get(i).select("a").get(0).attr("href");
             String thumb = li.get(i).select("a").get(0).select("img").attr("src");
             if (thumb.length() < 1) thumb = li.get(i).select("a").get(0).select("img").attr("data-original");
             thumb = "https:" + thumb;
             String title = li.get(i).select("div.video-title").select("a").text();
             if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
             	if (CommonUtils.saveFile(thumb, CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache) != -2)
-            		continue;//throw new IOException("Failed to completely download page");
-                try {v = new video(link,title,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumb,SKIP)),getSize(link)); } catch (GenericDownloaderException | IOException e) {}
-                break;
-            }
+                    continue;//throw new IOException("Failed to completely download page");
+            try {v = new video(link,title,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumb,SKIP)),getSize(link)); } catch (GenericDownloaderException | IOException e) {}
+            break;
+        }
         return v;
     }
 
@@ -116,18 +116,19 @@ public class Youjizz extends GenericExtractor{
     	Document page = getPage(searchUrl,false);
         video v = null;
         
-        Elements li = page.select("div.video-thumb");
+        Elements li = page.select("div.video-thumb"); int count = li.size(); Random rand = new Random();
         
-        for(int i = 0; i < li.size(); i++) {
-        	String thumbLink = "https:"+li.get(i).select("img").get(0).attr("src"); 
-        	if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,SKIP))) //if file not already in cache download it
-                    if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,SKIP),MainApp.imageCache) != -2)
-                        throw new IOException("Failed to completely download page");
-        	String link = "https://youjizz.com"+li.get(i).select("a").get(0).attr("href");
-        	String name = li.get(i).select("div.video-title").select("a").text();
-        	if (link.isEmpty() || name.isEmpty()) continue;
-        	try {v = new video(link,name,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)),getSize(link)); } catch(GenericDownloaderException | IOException e) {}
-        	break;
+        while(count-- > 0) {
+            int i = rand.nextInt(li.size());
+            String thumbLink = "https:"+li.get(i).select("img").get(0).attr("src"); 
+            if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,SKIP))) //if file not already in cache download it
+                if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,SKIP),MainApp.imageCache) != -2)
+                    throw new IOException("Failed to completely download page");
+            String link = "https://youjizz.com"+li.get(i).select("a").get(0).attr("href");
+            String name = li.get(i).select("div.video-title").select("a").text();
+            if (link.isEmpty() || name.isEmpty()) continue;
+            try {v = new video(link,name,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)),getSize(link)); } catch(GenericDownloaderException | IOException e) {}
+            break;
         }
         return v;
     }

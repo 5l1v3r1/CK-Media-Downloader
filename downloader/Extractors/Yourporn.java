@@ -29,7 +29,7 @@ import org.jsoup.select.Elements;
  *
  * @author christopher
  */
-public class Yourporn extends GenericExtractor{
+public class Yourporn extends GenericExtractor implements Searchable{
     private static final int SKIP = 2;
     
     public Yourporn() { //this contructor is used for when you jus want to search
@@ -89,15 +89,10 @@ public class Yourporn extends GenericExtractor{
             String video = "https://www.yourporn.sexy"+CommonUtils.eraseChar(page.select("span.vidsnfo").attr("data-vnfo").split("\"")[3],'\\');
             //String video = "https://www.yourporn.sexy"+page.select("video.player_el").attr("src");
             Map<String,String> qualities = new HashMap<>();
-            //idk wtf them keep changind the cdn
-            String test = video.replace("cdn", "cdn4");//.replaceAll("s12-1", "s12");
-            Pattern p = Pattern.compile("(.+/)s(\\d+)-1(/.+)");
+            String test = video.replace("cdn", "cdn4");
+            Pattern p = Pattern.compile("(.+/)s(\\d+)-1(/.+)"); //replace things like "s12-1", "s12"
             Matcher m = p.matcher(test);
             test = m.replaceAll("$1s$2$3");
-            /*if (CommonUtils.getContentSize(test) < 1)
-              test = test.replace("cdn4", "cdn3");
-            if (CommonUtils.getContentSize(test) < 1)
-                test = test.replace("cdn3", "cdn2");*/
             qualities.put("single",test);
             media.addThread(qualities,videoName);
         }
@@ -181,8 +176,10 @@ public class Yourporn extends GenericExtractor{
         Document page = getPage(searchUrl,false); video v = null;
         
         Elements searchResults = page.select("div.search_results").select("div.post_el_small");
-        //get first valid video
-	for(int i = 0; i < searchResults.size(); i++)  {
+        int count = searchResults.size(); Random rand = new Random();
+        
+	while(count-- > 0) {
+            int i = rand.nextInt(searchResults.size());
             String link = "https://yourporn.sexy" + searchResults.get(i).select("div.post_control").select("a").attr("href");
             if (!CommonUtils.testPage(link)) continue; //test to avoid error 404
             try {verify(getPage(link,false)); } catch (GenericDownloaderException e) {continue;}

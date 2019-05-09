@@ -24,7 +24,7 @@ import org.jsoup.select.Elements;
  *
  * @author christopher
  */
-public class Anysex extends GenericExtractor{
+public class Anysex extends GenericExtractor implements Searchable{
     private static final int SKIP = 4;
     
     public Anysex() { //this contructor is used for when you jus want to search
@@ -95,7 +95,9 @@ public class Anysex extends GenericExtractor{
 	Document page = getPage(searchUrl,false);
 
 	Elements lis = page.select("ul.box").select("li.item"); video v = null;
-	for(Element li: lis) {
+        Random rand = new Random(); int count = lis.size();
+	while(count-- > 0) {
+            Element li = lis.get(rand.nextInt(lis.size()));
             if (li.select("a").isEmpty()) continue;
             if (!CommonUtils.testPage(li.select("a").attr("href"))) continue; //test to avoid error 404
             String link = "https://anysex.com" + li.select("a").attr("href");

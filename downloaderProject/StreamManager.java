@@ -15,6 +15,8 @@ import javafx.beans.value.ObservableValue;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
@@ -27,17 +29,19 @@ import javafx.util.Duration;
  */
 public class StreamManager {
     private final Pane root;
-    private final Button play, stop, back, skip; 
+    private final Button play, stop, rewind15, skip15, skipMin, rewindMin; 
     private final Slider slide;
     private MediaPlayer player;
-    private final int SKIP = 15;
+    private final int SKIP = 15, FASTSKIP = 60;
     
     public StreamManager(Pane p) {
         this.root = p;
         play = (Button)root.lookup("#toogle");
         stop = (Button)root.lookup("#stop");
-        back = (Button)root.lookup("#back");
-        skip = (Button)root.lookup("#skip");
+        rewind15 = (Button)root.lookup("#rewind15");
+        skip15 = (Button)root.lookup("#skip15");
+        rewindMin = (Button)root.lookup("#rewindMin");
+        skipMin = (Button)root.lookup("#skipMin");
         slide = (Slider)root.lookup("#progress");
         slide.setMin(0.0);
         enableButtons(true);
@@ -75,8 +79,10 @@ public class StreamManager {
     private void enableButtons(boolean enable) {
         play.setDisable(enable);
         stop.setDisable(enable);
-        skip.setDisable(enable);
-        back.setDisable(enable);
+        skip15.setDisable(enable);
+        skipMin.setDisable(enable);
+        rewind15.setDisable(enable);
+        rewindMin.setDisable(enable);
     }
     
     public void setMedia(String url, String name) throws MalformedURLException, URISyntaxException, IOException {
@@ -87,7 +93,7 @@ public class StreamManager {
         
         configurePlayer();
         
-        play.setText("Pause");
+        play.setGraphic(getIcon("/icons/icons8-pause-48.png"));
         player.play();
         
         setHeader(name);
@@ -107,7 +113,7 @@ public class StreamManager {
         
         player.setOnEndOfMedia(() -> {
             changeStatus("Done");
-            play.setText("Play");
+            play.setGraphic(getIcon("/icons/icons8-play-48.png"));
             slide.setValue(0.0);
             player.seek(Duration.ZERO);
             player.pause();
@@ -118,7 +124,7 @@ public class StreamManager {
         player.setOnStalled(() -> {changeStatus("Stalled");});
         player.setOnError(() -> {
             changeStatus("Error");
-            player = null;
+            player.dispose(); player = null;
             ((MediaView)root.lookup("#video")).setMediaPlayer(null);
             enableButtons(true);
             resetHeader();
@@ -126,11 +132,11 @@ public class StreamManager {
         player.setOnHalted(() -> {changeStatus("Halted");});
         player.setOnPlaying(() -> {
             changeStatus("Streaming");
-            play.setText("Pause");
+            play.setGraphic(getIcon("/icons/icons8-pause-48.png"));
         });
         player.setOnPaused(() -> {
             changeStatus("Paused");
-            play.setText("Play");
+            play.setGraphic(getIcon("/icons/icons8-play-48.png"));
         });
         
         player.currentTimeProperty().addListener((ObservableValue<? extends Duration> ov, Duration t, Duration current) -> {
@@ -148,7 +154,7 @@ public class StreamManager {
         slide.setOnMouseClicked((MouseEvent) -> {
             if(player != null) {
                 player.seek(Duration.seconds(slide.getValue()));
-                play.setText("Pause");
+                play.setGraphic(getIcon("/icons/icons8-pause-48.png"));
             }
         });
         
@@ -159,12 +165,27 @@ public class StreamManager {
         stop.setOnAction((ActionEvent) -> {
             stop();
         });
-        skip.setOnAction((ActionEvent) -> {
+        skip15.setOnAction((ActionEvent) -> {
             player.seek(Duration.seconds(slide.getValue()).add(Duration.seconds(SKIP)));
         });
-        back.setOnAction((ActionEvent) -> {
+        rewind15.setOnAction((ActionEvent) -> {
             player.seek(Duration.seconds(slide.getValue()).subtract(Duration.seconds(SKIP)));
         });
+        skipMin.setOnAction((ActionEvent) -> {
+            player.seek(Duration.seconds(slide.getValue()).add(Duration.seconds(FASTSKIP)));
+        });
+        rewindMin.setOnAction((ActionEvent) -> {
+            player.seek(Duration.seconds(slide.getValue()).subtract(Duration.seconds(FASTSKIP)));
+        });
+    }
+    
+    private ImageView getIcon(String path) {
+        Image image = new Image(System.class.getResourceAsStream(path));
+        ImageView icon = new ImageView();
+        icon.setImage(image);
+        icon.setFitHeight(30);
+        icon.setFitWidth(30);
+        return icon;
     }
     
     public void stop() {
@@ -178,6 +199,7 @@ public class StreamManager {
         enableButtons(true);
         resetHeader();
         updateTime(-1,-1);
+        MainApp.displayPane(MainApp.DOWNLOADPANE);
     }
     
     public void tooglePlay() {

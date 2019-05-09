@@ -35,7 +35,7 @@ import org.jsoup.select.Elements;
  *
  * @author christopher
  */
-public class Xhamster extends GenericQueryExtractor{
+public class Xhamster extends GenericQueryExtractor implements Searchable{
     private static final int SKIP = 5;
     
     public Xhamster() { //this contructor is used for when you jus want to query
@@ -161,20 +161,20 @@ public class Xhamster extends GenericQueryExtractor{
         Elements li = page.select("div.thumb-list__item.video-thumb");
         Random randomNum = new Random(); int count = 0; boolean got = li.isEmpty();
         while(!got) {
-        	if (count > li.size()) break;
-        	int i = randomNum.nextInt(li.size()); count++;
-        	String link = li.get(i).select("a").get(0).attr("href");
+            if (count > li.size()) break;
+            int i = randomNum.nextInt(li.size()); count++;
+            String link = li.get(i).select("a").get(0).attr("href");
             String thumb = li.get(i).select("img").attr("src");
             String title = li.get(i).select("a.video-thumb-info__name").text();
             if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
             	if (CommonUtils.saveFile(thumb, CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache) != -2)
-            		continue;//throw new IOException("Failed to completely download page");
-                Document linkPage = getPage(link,false);
+                    continue;//throw new IOException("Failed to completely download page");
+            Document linkPage = getPage(link,false);
  
-                String video = linkPage.select("a.player-container__no-player.xplayer.xplayer-fallback-image.xh-helper-hidden").attr("href");
-                v = new video(link,title,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumb,SKIP)),CommonUtils.getContentSize(video));
-                break;
-            }
+            String video = linkPage.select("a.player-container__no-player.xplayer.xplayer-fallback-image.xh-helper-hidden").attr("href");
+            v = new video(link,title,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumb,SKIP)),CommonUtils.getContentSize(video));
+            break;
+        }
         return v;
     }
 
@@ -184,9 +184,11 @@ public class Xhamster extends GenericQueryExtractor{
         String searchUrl = "https://xhamster.com/search?q="+str;
         
         Document page = getPage(searchUrl,false); video v = null;
-        
 	Elements searchResults = page.select("div.thumb-list__item.video-thumb");
-	for(int i = 0; i < searchResults.size(); i++)  {
+        int count = searchResults.size(); Random rand = new Random();
+        
+	while(count-- > 0) {
+            int i = rand.nextInt(searchResults.size());
             if (!CommonUtils.testPage(searchResults.get(i).select("a").attr("href"))) continue; //test to avoid error 404
             String thumbLink = searchResults.get(i).select("a").select("img").attr("src");
             if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,SKIP))) //if file not already in cache download it

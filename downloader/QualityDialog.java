@@ -38,11 +38,9 @@ public class QualityDialog {
     
     public QualityDialog() {
         group = new ToggleGroup();
-        group.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
-            @Override public void changed(ObservableValue<? extends Toggle> ov, Toggle old, Toggle newT) {
-                 if (group.getSelectedToggle() != null)
-                    choice = ((RadioButton)newT).getId();
-            }
+        group.selectedToggleProperty().addListener((ObservableValue<? extends Toggle> ov, Toggle old, Toggle newT) -> {
+            if (group.getSelectedToggle() != null)
+                choice = ((RadioButton)newT).getId();
         });
     }
     
@@ -84,19 +82,17 @@ public class QualityDialog {
                         items.add(createItem(s,qualities.get(s)));
             qualityList.getItems().addAll(items);
             ok.setOnAction(e -> dialog.close());
-            cancel.setOnAction(new EventHandler<ActionEvent>() {
-                @Override public void handle(ActionEvent event) {
-                        if (group.getSelectedToggle() != null)
-                            group.getSelectedToggle().setSelected(false); 
-                        dialog.close(); 
-                    }
-                });
-                Scene scene = new Scene(pane);
-                dialog.setScene(scene);
-                dialog.showAndWait();
-            } catch(IOException e) {
-                e.printStackTrace();
-            }
+            cancel.setOnAction((ActionEvent) -> {
+                if (group.getSelectedToggle() != null)
+                    group.getSelectedToggle().setSelected(false);
+                dialog.close();
+            });
+            Scene scene = new Scene(pane);
+            dialog.setScene(scene);
+            dialog.showAndWait();
+        } catch(IOException e) {
+            e.printStackTrace();
+        }
         if (group.getSelectedToggle() != null) {
             choice = ((RadioButton)group.getSelectedToggle()).getId();
             return choice;

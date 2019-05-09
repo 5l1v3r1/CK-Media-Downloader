@@ -34,8 +34,9 @@ import org.jsoup.select.Elements;
  *
  * @author christopher
  */
-public class Xvideos extends GenericQueryExtractor{
+public class Xvideos extends GenericQueryExtractor implements Searchable{
     private static final int SKIP = 2;
+    private static final int SCRIPT = 5;
     
     public Xvideos() { //this contructor is used for when you jus want to query
         
@@ -57,7 +58,7 @@ public class Xvideos extends GenericQueryExtractor{
         Document page = getPage(url,false,true);
         verify(page);
         
-        int use = 5;
+        int use = SCRIPT;
         for(int i = 0; i < page.select("script").size(); i++) {
             if (page.select("script").get(i).toString().contains("var html5player = new HTML5Player('html5video',")) {
                 use = i; break;
@@ -88,15 +89,8 @@ public class Xvideos extends GenericQueryExtractor{
         
 	Elements searchResults = page.select("div.mozaique").select("div.thumb-block");
 	for(int i = 0; i < searchResults.size(); i++)  {
-            /*//if has /models/ it is link to model page
-            if (searchResults.get(i).select("div.thumb").select("a").attr("href").contains("/models/")) continue;
-            if (searchResults.get(i).select("div.thumb").select("a").attr("href").contains("/pornstars/")) continue;
-            //if  has /channels/ it is a link to channel page
-            if (searchResults.get(i).select("div.thumb").select("a").attr("href").contains("/channels/")) continue;
-            if (searchResults.get(i).select("div.thumb").select("a").attr("href").contains("/verified/videos")) continue;
-            if (searchResults.get(i).select("div.thumb").select("a").attr("href").contains("/pornstar-channels/")) continue;*/
             String link = "https://xvideos.com"+searchResults.get(i).select("div.thumb").select("a").attr("href");;
-            if (!link.matches("https://(www.)?xnxx.com/video-[\\S]+/[\\S]+") || !link.matches("https://(www.)?xvideos.com/video([\\S]+)/[\\S]+")) continue;
+            if (!link.matches(getValidRegex())) continue;
             if (!CommonUtils.testPage(link)) continue; //test to avoid error 404
             try {verify(page);} catch (GenericDownloaderException e) { continue;}
             String thumbLink = searchResults.get(i).select("div.thumb").select("a").select("img").attr("data-src");
@@ -123,10 +117,10 @@ public class Xvideos extends GenericQueryExtractor{
             }
         }
         Vector<String> stats = getStats(page.select("script").get(use).toString());
-        if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(stats.get(5),SKIP))) //if file not already in cache download it
-            CommonUtils.saveFile(stats.get(5), CommonUtils.getThumbName(stats.get(5),SKIP),MainApp.imageCache);
+        if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(stats.get(SCRIPT),SKIP))) //if file not already in cache download it
+            CommonUtils.saveFile(stats.get(SCRIPT), CommonUtils.getThumbName(stats.get(SCRIPT),SKIP),MainApp.imageCache);
         
-        File grid = new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(stats.get(5),SKIP));
+        File grid = new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(stats.get(SCRIPT),SKIP));
         return CommonUtils.splitImage(grid, 5, 6, 25, 50);
     }
     
@@ -159,7 +153,7 @@ public class Xvideos extends GenericQueryExtractor{
         
         verify(page);
         
-        int use = 5;
+        int use = SCRIPT;
         for(int i = 0; i < page.select("script").size(); i++) {
             if (page.select("script").get(i).toString().contains("var html5player = new HTML5Player('html5video',")) {
                 use = i; break;
@@ -189,7 +183,7 @@ public class Xvideos extends GenericQueryExtractor{
         } //if not found in cache download it
         
         verify(page);
-	int use = 5;
+	int use = SCRIPT;
         for(int i = 0; i < page.select("script").size(); i++) {
             if (page.select("script").get(i).toString().contains("var html5player = new HTML5Player('html5video',")) {
                 use = i; break;
@@ -217,7 +211,7 @@ public class Xvideos extends GenericQueryExtractor{
                 JSONObject item = (JSONObject)j.get(i);
                 String thumb = (String)item.get("i");
                 String link = "https://xvideos.com" + (String)item.get("u");
-                if (!link.matches("https://(www.)?xnxx.com/video-[\\S]+/[\\S]+") || !link.matches("https://(www.)?xvideos.com/video([\\S]+)/[\\S]+")) continue;
+                if (!link.matches(getValidRegex())) continue;
                 String title = CommonUtils.getThumbName(link).replaceAll("_", " ");
                 if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
                     if (CommonUtils.saveFile(thumb, CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache) != -2)
@@ -239,15 +233,13 @@ public class Xvideos extends GenericQueryExtractor{
         Document page = getPage(searchUrl,false); video v = null;
         
 	Elements searchResults = page.select("div.mozaique").select("div.thumb-block");
-	for(int i = 0; i < searchResults.size(); i++)  {
-            /*//if has /models/ it is link to model page
-            if (searchResults.get(i).select("div.thumb").select("a").attr("href").contains("/models/")) continue;
-            //if  has /channels/ it is a link to channel page
-            if (searchResults.get(i).select("div.thumb").select("a").attr("href").contains("/channels/")) continue;
-            if (searchResults.get(i).select("div.thumb").select("a").attr("href").contains("/verified/videos")) continue;
-            if (searchResults.get(i).select("div.thumb").select("a").attr("href").contains("/pornstar-channels/")) continue;*/
+        int count = searchResults.size(); Random rand = new Random();
+        
+	while (count-- > 0) {
+            int i = rand.nextInt(searchResults.size());
+            /*"/models/" || "/channels/" ||  "/verified/videos" || "/pornstar-channels/"*/
             String link = "https://xvideos.com"+searchResults.get(i).select("div.thumb").select("a").attr("href");
-            if (!link.matches("https://(www.)?xnxx.com/video-[\\S]+/[\\S]+") || !link.matches("https://(www.)?xvideos.com/video([\\S]+)/[\\S]+")) continue;
+            if (!link.matches(getValidRegex())) continue;
             if (!CommonUtils.testPage(link)) continue; //test to avoid error 404
             try {verify(page);} catch (GenericDownloaderException e) { continue;}
             String thumbLink = searchResults.get(i).select("div.thumb").select("a").select("img").attr("data-src");
@@ -268,7 +260,7 @@ public class Xvideos extends GenericQueryExtractor{
         Document page = getPage(link,false,true);
         verify(page);
         
-        int use = 5;
+        int use = SCRIPT;
         for(int i = 0; i < page.select("script").size(); i++) {
             if (page.select("script").get(i).toString().contains("var html5player = new HTML5Player('html5video',")) {
                 use = i; break;

@@ -42,7 +42,7 @@ import org.jsoup.select.Elements;
  *
  * @author christopher
  */
-public class Pornhub extends GenericQueryExtractor implements Playlist{
+public class Pornhub extends GenericQueryExtractor implements Playlist, Searchable{
     private static final int SKIP = 4;
     private String playlistUrl = null;
     
@@ -216,7 +216,7 @@ public class Pornhub extends GenericQueryExtractor implements Playlist{
                 if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,SKIP),MainApp.imageCache) != -2)
                     throw new IOException("Failed to completely download page");
             thequery.addThumbnail(new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)));
-            thequery.addPreview(parse(thequery.getLink(i)));
+            thequery.addPreview(parse(link));
             thequery.addName(searchResults.get(i).select("a").attr("title"));
 	}
         return thequery;
@@ -384,8 +384,10 @@ public class Pornhub extends GenericQueryExtractor implements Playlist{
                 addCookie("RNKEY",getRNKEY(page.toString()));
                 page = getPageCookie(url,false,true);
             }
-            Elements li = page.getElementById("relatedVideosCenter").select("li");
-            for(int i = 0; i < li.size(); i++) {
+            Elements li = page.getElementById("relatedVideosCenter").select("li"); 
+            int count = li.size(); Random rand = new Random();
+            while(count-- > 0) {
+                int i = rand.nextInt(li.size());
                 String link = "http://pornhub.com" + li.get(i).select("div.phimage").select("a.img").attr("href"); try {verify(getPage(link,false));} catch (GenericDownloaderException e) {continue;}
                 //if (!link.startsWith("http://pornhub.com") || !link.startsWith("https://pornhub.com")) link = "http://pornhub.com" + link;
                 if (!link.matches("https?://pornhub.com/view_video.php[?]viewkey=[\\S]+")) continue;
@@ -422,14 +424,17 @@ public class Pornhub extends GenericQueryExtractor implements Playlist{
                 page = getPageCookie(url,false,true);
             }
             Elements li = page.getElementById("relateRecommendedItems").select("li");
-            for(int i = 0; i < li.size(); i++) {
-                String link = "https://www.pornhub.com" + li.select("div.phimage").select("a.img").attr("href"); try {verify(getPageCookie(link,false));} catch (GenericDownloaderException e) {continue;}
+            int count = li.size(); Random rand = new Random();
+            
+            while(count-- > 0) {
+                int i = rand.nextInt(li.size());
+                String link = "https://www.pornhub.com" + li.get(i).select("div.phimage").select("a.img").attr("href"); try {verify(getPageCookie(link,false));} catch (GenericDownloaderException e) {continue;}
                 //if (!link.startsWith("http://pornhub.com") || !link.startsWith("https://pornhub.com")) link = "http://pornhub.com" + link;
                 if (!link.matches("https?://pornhub.com/view_video.php[?]viewkey=[\\S]+")) continue;
-                String thumb = li.select("div.phimage").select("a.img").select("img").attr("src");
-                if (thumb.length() < 1) li.select("div.phimage").select("a.img").select("img").attr("data-thumb_url");
-                String title = li.select("div.phimage").select("a.img").attr("data-title");
-                if (title.length() < 1) title = li.select("div.phimage").select("a.img").attr("data-title");
+                String thumb = li.get(i).select("div.phimage").select("a.img").select("img").attr("src");
+                if (thumb.length() < 1) li.get(i).select("div.phimage").select("a.img").select("img").attr("data-thumb_url");
+                String title = li.get(i).select("div.phimage").select("a.img").attr("data-title");
+                if (title.length() < 1) title = li.get(i).select("div.phimage").select("a.img").attr("data-title");
                 try {if (title.length() < 1) title = downloadVideoName(link);}catch(Exception e) {continue;}
                 if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
                     if (CommonUtils.saveFile(thumb, CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache) != -2)
@@ -454,8 +459,10 @@ public class Pornhub extends GenericQueryExtractor implements Playlist{
         video v = null;
         
 	Elements searchResults = page.select("ul.videos.search-video-thumbs").select("li");
-        //get first valid video
-	for(int i = 0; i < searchResults.size(); i++)  {
+        int count = searchResults.size(); Random rand = new Random();
+        
+	while(count-- > 0){
+            int i = rand.nextInt();
             if (!CommonUtils.testPage("https://pornhub.com"+searchResults.get(i).select("a").attr("href"))) continue; //test to avoid error 404
             try {
                 Document pageLink = getPage("https://pornhub.com"+searchResults.get(i).select("a").attr("href"),false);

@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 import org.jsoup.Jsoup;
 import org.jsoup.UncheckedIOException;
@@ -25,7 +26,7 @@ import org.jsoup.select.Elements;
  *
  * @author christopher
  */
-public class Justporno extends GenericExtractor{
+public class Justporno extends GenericExtractor implements Searchable{
     private static final int SKIP = 4;
     
     public Justporno() { //this contructor is used for when you jus want to search
@@ -87,9 +88,12 @@ public class Justporno extends GenericExtractor{
         
         video v = null;
         Document page = getPage(url,false);
-        Elements li = page.select("div.thumb-box").select("li");
-        for(int i = 0; i < li.size(); i++) {
-        	String link = li.get(i).select("a").attr("href");
+        Elements li = page.select("div.thumb-box").select("li"); Random rand = new Random();
+        int count = li.size(); 
+        
+        while(count-- > 0) {
+            int i = rand.nextInt(li.size());
+            String link = li.get(i).select("a").attr("href");
             String thumb = li.get(i).select("img").attr("src");
             if (thumb.length() < 1) li.get(i).select("img").attr("data-original");
             thumb = thumb.startsWith("http") ? thumb : "https:" + thumb;
@@ -110,19 +114,20 @@ public class Justporno extends GenericExtractor{
     	Document page = getPage(searchUrl,false);
         video v = null;
         
-        Elements li = page.select("ul").select("li");
+        Elements li = page.select("ul").select("li"); int count = li.size(); Random rand = new Random();
         
-        for(int i = 0; i < li.size(); i++) {
-        	String thumbLink = li.get(i).select("img").attr("src"); 
-                thumbLink = thumbLink.startsWith("http") ? thumbLink : "https:" + thumbLink; 
-        	if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,SKIP))) //if file not already in cache download it
-                    if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,SKIP),MainApp.imageCache) != -2)
-                        throw new IOException("Failed to completely download page");
-        	String link = li.get(i).select("a").attr("href");
-        	String name = li.get(i).select("a").attr("title");
-        	if (link.isEmpty() || name.isEmpty()) continue;
-        	v = new video(link,name,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)),getSize(link));
-        	break;
+        while (count-- > 0) {
+            int i = rand.nextInt(li.size());
+            String thumbLink = li.get(i).select("img").attr("src"); 
+            thumbLink = thumbLink.startsWith("http") ? thumbLink : "https:" + thumbLink; 
+            if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,SKIP))) //if file not already in cache download it
+                if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,SKIP),MainApp.imageCache) != -2)
+                    throw new IOException("Failed to completely download page");
+            String link = li.get(i).select("a").attr("href");
+            String name = li.get(i).select("a").attr("title");
+            if (link.isEmpty() || name.isEmpty()) continue;
+            v = new video(link,name,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)),getSize(link));
+            break;
         }
         
         return v;

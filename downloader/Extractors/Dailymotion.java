@@ -125,7 +125,7 @@ public class Dailymotion extends GenericExtractor{
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override public video search(String str) throws IOException {
+    /*@Override public video search(String str) throws IOException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     	/*str = str.trim(); str = str.replaceAll(" ", "%20");
     	String searchUrl = "https://www.dailymotion.com/search/"+str;
@@ -149,7 +149,7 @@ public class Dailymotion extends GenericExtractor{
         }
         
         return v;*/
-    }
+    //}
 
     @Override protected String getValidRegex() {
         works = true;

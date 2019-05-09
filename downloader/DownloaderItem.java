@@ -71,7 +71,6 @@ public class DownloaderItem {
     private boolean loaded;
     private Vector<String> downloadLinks, downloadNames;
     private String albumName, page;
-    private long size = -1;
     
     public void release() {
         url = null;
@@ -144,7 +143,7 @@ public class DownloaderItem {
                 view.preserveRatioProperty().setValue(true);
             if (thumbFile == null) return true; //no thumb //this really shouldnt be allowed but....
             //if more than 10mb (probably a large gif) image stream will run out of memory
-            if (thumbFile.length() < 1024 * 1024 * 10) { 
+            if (thumbFile.length() < MainApp.BYTE * MainApp.BYTE * 10) { 
                 FileInputStream fis = new FileInputStream(thumbFile);
                 Image image = new Image(fis);
                 view.setImage(image);
@@ -224,14 +223,16 @@ public class DownloaderItem {
         Button btn = (Button)root.lookup("#save");
         btn.setOnAction(event -> {
             try {
-                if (size == -1) {
-                    try {
-                        if ((extractor == null) && (v == null))
-                            extractor = getExtractor(); 
-                        size = extractor == null ? v.getSize() : extractor.getSize();
-                    }catch(Exception e){size = -1;}
-                }
-                DataIO.saveVideo(new video(url,extractor.getVideoName(),extractor.getThumb(),size));
+                long size;
+                try {
+                    if (v == null)
+                        extractor = extractor == null ? getExtractor() : extractor;   
+                    size = v == null ? extractor.getSize() : v.getSize();
+                } catch(Exception e){size= -1;}
+                
+                String name = v == null ? extractor.getVideoName() : v.getName();
+                File thumb = v == null ? extractor.getThumb() : v.getThumbnail();
+                DataIO.saveVideo(new video(url,name,thumb,size));
                 MainApp.createMessageDialog("Media saved");
                 MainApp.settings.videoUpdate();
             } catch (IOException e) {
@@ -569,8 +570,8 @@ public class DownloaderItem {
     }
     
     private void setSize() {
-        size = 0;
-        try {size = extractor.getSize();}catch(IOException | GenericDownloaderException e) {size = -1;}
+        long size;
+        try {size = v == null ? extractor.getSize() : v.getSize(); }catch(IOException | GenericDownloaderException e) {size = -1;}
         final long s = size;
         Platform.runLater(() -> {
             ((Label)root.lookup("#size")).setText(MainApp.getSizeText(s));
@@ -588,8 +589,8 @@ public class DownloaderItem {
         Platform.runLater(() -> {
             if (root != null) {
                 if (root.lookup("#speed") != null) {
-                    if (speed > 1000)
-                        ((Label)root.lookup("#speed")).setText(String.format("%.0f",speed/1000)+" mb/s");
+                    if (speed > MainApp.BYTE)
+                        ((Label)root.lookup("#speed")).setText(String.format("%.0f",speed/MainApp.BYTE)+" mb/s");
                     else ((Label)root.lookup("#speed")).setText(String.format("%.0f",speed)+" kb/s");
                 }
             }

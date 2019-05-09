@@ -27,7 +27,7 @@ import org.jsoup.select.Elements;
  *
  * @author christopher
  */
-public class Bigbootytube extends GenericQueryExtractor{
+public class Bigbootytube extends GenericQueryExtractor implements Searchable{
     private static final int SKIP = 4;
     
     public Bigbootytube() { //this contructor is used for when you jus want to query
@@ -144,7 +144,9 @@ public class Bigbootytube extends GenericQueryExtractor{
         Document page = getPage(searchUrl,false); video v = null;
         
 	Elements searchResults = page.select("div.list-thumbs").get(0).select("li").select("div.thumb").select("div.thumb-content").select("a.thumb-img");
-	for(int i = 0; i < searchResults.size(); i++)  {
+        Random rand = new Random(); int count = searchResults.size();
+	while(count-- > 0) {
+            int i = rand.nextInt(searchResults.size());
             if (!CommonUtils.testPage(searchResults.get(i).attr("href"))) continue; //test to avoid error 404
             //try {verify(page);} catch (GenericDownloaderException e) {continue;}
             try {

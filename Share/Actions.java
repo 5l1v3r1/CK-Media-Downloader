@@ -19,7 +19,7 @@ import javafx.stage.FileChooser;
  * @author christopher
  */
 public class Actions {
-    public static final int port = 32901;
+    public static final int PORT = 32901;
     private boolean isPureDigit(String s) {
         if (s.length() < 1) return false;
         for(int i = 0; i < s.length(); i++)
@@ -29,18 +29,14 @@ public class Actions {
     }
     
     private void updateProgressBar(final float progress) {
-        Platform.runLater(new Runnable() {
-            public void run() {
-                MainApp.progress.setProgress(progress);
-            }
+        Platform.runLater(() -> {
+            MainApp.progress.setProgress(progress);
         });
     }
     
     private void displayStatus(String msg) {
-        Platform.runLater(new Runnable() {
-            public void run() {
-                MainApp.log.appendText("\n"+msg);
-            }
+        Platform.runLater(() -> {
+            MainApp.log.appendText("\n"+msg);
         });
     }
     
@@ -89,13 +85,13 @@ public class Actions {
         choose.setTitle("Choose file to send");
         File selected = choose.showOpenDialog(null);
         if (selected != null) {
-			if(selected.isDirectory()) 
-                            MainApp.createMessageDialog("Cant send a directory");
-			else {
-		        OperationStream os = new OperationStream();
-		        new Upload(getAddress(),os,selected).send();
-		        monitor(os);
-			}
+            if(selected.isDirectory()) 
+                MainApp.createMessageDialog("Cant send a directory");
+            else {
+                OperationStream os = new OperationStream();
+                new Upload(getAddress(),os,selected).send();
+	        monitor(os);
+            }
         }
     }
     

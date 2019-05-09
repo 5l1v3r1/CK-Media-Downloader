@@ -10,7 +10,6 @@ import downloader.DataStructures.Device;
 import downloader.DataStructures.Settings;
 import downloader.DataStructures.downloadedMedia;
 import downloader.DataStructures.historyItem;
-import downloader.DataStructures.itemProgress;
 import downloader.DataStructures.video;
 import java.io.File;
 import java.io.FileInputStream;
@@ -205,23 +204,6 @@ public class DataIO {
         }
     }
     
-    public static long readProgress(File progressFile) throws FileNotFoundException, IOException, ClassNotFoundException {
-        ObjectInputStream in;
-        
-        in = new ObjectInputStream(new FileInputStream(progressFile));
-        itemProgress item = (itemProgress)in.readObject();
-        in.close();
-        return item.bytes();
-    }
-    
-    public static void writeProgress(File progressFile, String url, long progress) throws FileNotFoundException, IOException {
-        ObjectOutputStream out;
-        
-        out = new ObjectOutputStream(new FileOutputStream(progressFile));
-        out.writeObject(new itemProgress(url,progress));
-        out.flush(); out.close();
-    }
-    
     public static void clearVideos() {
         File save = new File(MainApp.saveDir.getAbsolutePath()+File.separator+"laterVideos.dat");
         save.delete();
@@ -320,7 +302,7 @@ public class DataIO {
         out.flush(); out.close();
     }
     
-    public static File[] getExempt() {
+    private static File[] getExempt() {
         Vector<File> files = new Vector<>();
         Vector<video> videos = loadVideos();
         
@@ -330,20 +312,22 @@ public class DataIO {
                  files.addAll(v.getDependencies());
         
         //get thumbs from suggested videos to exempt
-        DataCollection d = DataIO.loadCollectedData();
+        DataCollection d = MainApp.habits == null ? DataIO.loadCollectedData() : MainApp.habits;
         if (d != null) files.addAll(d.getExempt());
         
         //get thumbs from download history to exempt
         Vector<downloadedMedia> media = loadDownloaded();
         if (media != null)
-            for(downloadedMedia m: media)
+            media.forEach((m) -> {
                 files.add(m.getThumb());
+            });
         
         //get query dependencies
         Vector<historyItem> history = loadHistory();
         if(history != null)
-            for(historyItem h: history)
+            history.forEach((h) -> {
                 files.addAll(h.getSearchResult().getDependencies());
+            });
         
         File[] f = new File[files.size()];
         files.toArray(f); Arrays.parallelSort(f);

@@ -202,7 +202,7 @@ public class DownloadManager {
         }
         
         @Override public void run() {
-            CommonUtils.log("Searching link",this);
+            CommonUtils.log("Searching link: "+d.getLink(),this);
             try {
                 if(!d.searchLink()) {
                     //MainApp.createMessageDialog("Error with: "+d.getLink());
@@ -213,7 +213,10 @@ public class DownloadManager {
                             int stop = new Random().nextInt(TIMES) + 1;
                             for(int i = 0; i < stop; i++) {
                                 MainApp.log(d.getName(),d.getSite()); //generate suggestion from search algo with provided info
-                                MainApp.log(d.getSide()); //add similar video as suggestion
+                                int result, count = 5;
+                                do { //add similar video as suggestion
+                                    result = MainApp.log(d.getSide());
+                                } while(result != 2 || count-- > 0); //if video was already there repeat
                             }
                         }
                     } catch (GenericDownloaderException e) {

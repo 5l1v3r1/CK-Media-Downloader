@@ -17,6 +17,7 @@ import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.json.simple.JSONArray;
@@ -32,7 +33,7 @@ import org.jsoup.select.Elements;
  *
  * @author christopher
  */
-public class Drtuber extends GenericExtractor{
+public class Drtuber extends GenericExtractor implements Searchable{
     private static final int SKIP = 4;
     
     public Drtuber() { //this contructor is used for when you jus want to search
@@ -107,12 +108,13 @@ public class Drtuber extends GenericExtractor{
             try {
                 JSONObject json = (JSONObject)new JSONParser().parse(rawJson);
                 JSONArray related = (JSONArray)((JSONObject)json.get("lists")).get("related");
-                Iterator<JSONObject> i = related.iterator(); boolean got = false;
-                while(i.hasNext()) {
+                boolean got = false; Random rand = new Random(); int count = related.size();
+                while(count-- > 0) {
                     if (got) break;
-                    JSONObject item = i.next();
-                    String link = "http://www.drtuber.com/video/"+String.valueOf(item.get("VID"));
+                    JSONObject item = (JSONObject)related.get(rand.nextInt(related.size()));
                     String title = String.valueOf(item.get("title"));
+                    String link = "http://www.drtuber.com/video/"+String.valueOf(item.get("VID")) + "/" + title.replaceAll(" ","-");
+                    CommonUtils.log(link, this);
                     try {v = new video(link,title,downloadThumb(link),getSize(link));} catch (Exception e){}
                     got = true;
                 }
@@ -127,11 +129,11 @@ public class Drtuber extends GenericExtractor{
     	String searchUrl = "https://www.drtuber.com/search/videos/"+str.trim().replaceAll(" ", "%20");
         Document page = getPage(searchUrl,false); video v = null;
         Elements searchResults = page.getElementById("search_results").select("a");
+        Random rand = new Random(); int count = searchResults.size();
         
-        //get first valid video
-	for(int i = 0; i < searchResults.size(); i++)  {
+	while (count-- > 0) {
+            int i = rand.nextInt(searchResults.size());
             String link = "https://www.drtuber.com" + searchResults.get(i).attr("href");
-            CommonUtils.log(link,this);
             if (!CommonUtils.testPage(link)) continue; //test to avoid error 404
             //try {verify(getPage(link,false)); } catch (GenericDownloaderException e) {continue;}
             try {

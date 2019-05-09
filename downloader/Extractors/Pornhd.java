@@ -91,10 +91,6 @@ public class Pornhd extends GenericExtractor{
         }
         return v;
     }
-
-    @Override public video search(String str) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
     
     private long getSize(String link) throws IOException, GenericDownloaderException {
         Document page = getPage(link,false,true);

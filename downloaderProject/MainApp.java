@@ -69,7 +69,7 @@ public class MainApp extends Application {
     public static ProgressBar progress;
     public static TextArea log;
     public static Actions act;
-    private static final String TITLE = "Video Downloader build 32.1";
+    private static final String TITLE = "Video Downloader build 32.3";
     public static DownloadHistory downloadHistoryList;
     public static StackPane root;
     public static DataCollection habits;
@@ -79,7 +79,7 @@ public class MainApp extends Application {
     public static final int SUPPORTEDSITES = 37, PANES = 7;
     public static Pane[] actionPanes = new Pane[PANES];
     public static final int DOWNLOADPANE = 0, BROWSERPANE = 1, SETTINGSPANE = 2, SHAREPANE = 3, DOWNLOADHISTORYPANE = 4, ACCOUNTPANE = 5, STREAMPANE = 6;
-    private static int BYTE;
+    public static int BYTE;
     
     public static ManageSettings settings;
     private ClipboardListener clippy;
@@ -93,21 +93,12 @@ public class MainApp extends Application {
     private void setOSicon(ImageView icon) {
         InputStream in;
         switch(OS) {
-            case Windows:
-                in = System.class.getResourceAsStream("/icons/icons8-windows-xp-48.png");
-                break;
-            case Linux:
-                in = System.class.getResourceAsStream("/icons/icons8-linux-48.png");
-                break;
-            case Apple:
-                in = System.class.getResourceAsStream("/icons/icons8-mac-client-30.png");
-                break;
-            default: 
-                in = System.class.getResourceAsStream("/icons/icons8-linux-48.png");
-                break;
+            case Windows: in = System.class.getResourceAsStream("/icons/icons8-windows-xp-48.png"); break;
+            case Linux: in = System.class.getResourceAsStream("/icons/icons8-linux-48.png"); break;
+            case Apple: in = System.class.getResourceAsStream("/icons/icons8-mac-client-30.png"); break;
+            default: in = System.class.getResourceAsStream("/icons/icons8-linux-48.png"); break;
         }
-        Image image = new Image(in);
-        icon.setImage(image);
+        icon.setImage(new Image(in));
     }
     
     private void determineOS() {
@@ -435,6 +426,7 @@ public class MainApp extends Application {
             if (query != null)
                 query.release();
             dm.release();
+            dm = null;
             clippy.stop();
             CommonUtils.log("Exiting",this);
         });
@@ -452,21 +444,12 @@ public class MainApp extends Application {
            CommonUtils.log("Splash screen error: "+e.getMessage(),this);
         }
         window.show();
-       
-        loadSuggestions();
-        /*try {
-            GenericExtractor x = new Drtuber("https://www.drtuber.com/video/5420919/havana-ginger-and-maserati-fuck-with-a-strapon-dildo");
-            video v = x.similar();
-            DownloaderItem d = new DownloaderItem();
-            d.setLink(v.getLink()); d.setType(Site.getUrlSite(v.getLink())); d.setVideo(v);
-            dm.addDownload(d);
-        } catch (Exception e) {
-            CommonUtils.log("error?: "+e.getMessage(),this);
-        }*/
         
-       ExecutorService x = Executors.newSingleThreadExecutor();
-       x.execute(clippy); x.shutdown();
-       //startGarbageSuggester();
+        loadSuggestions();
+        
+        ExecutorService x = Executors.newSingleThreadExecutor();
+        x.execute(clippy); x.shutdown();
+        //startGarbageSuggester();
     }
     
     private static void startGarbageSuggester() {
@@ -490,10 +473,14 @@ public class MainApp extends Application {
         writeJson();
     }
     
-    public static void log (video v) {
-        if (habits != null) habits.addSuggestion(v);
+    public static int log (video v) {
+        int code;
+        if (habits != null)
+            code = habits.addSuggestion(v);
+        else code = -1;
         try {DataIO.saveCollectedData(habits);} catch(IOException e) {CommonUtils.log("Failed to save habits","MainApp");}
         writeJson();
+        return code;
     }
     
     private static void writeJson() {

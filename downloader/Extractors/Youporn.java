@@ -34,7 +34,7 @@ import org.jsoup.select.Elements;
  *
  * @author christopher
  */
-public class Youporn extends GenericQueryExtractor{
+public class Youporn extends GenericQueryExtractor implements Searchable{
     private static final int SKIP = 6;
     
     public Youporn() { //used to when you only want to query
@@ -169,7 +169,7 @@ public class Youporn extends GenericQueryExtractor{
         return v;
     }
 
-    @Override  public video search(String str) throws IOException, GenericDownloaderException {
+    @Override public video search(String str) throws IOException, GenericDownloaderException {
         str = str.trim(); 
         str = str.replaceAll(" ", "+");
         String searchUrl = "https://www.youporn.com/search?query="+str;
@@ -177,7 +177,10 @@ public class Youporn extends GenericQueryExtractor{
         Document page = getPage(searchUrl,false); video v = null;
         
         Elements searchResults = page.select("div.video-box.four-column.video_block_wrapper");
-	for(int i = 0; i < searchResults.size(); i++) {
+        int count = searchResults.size(); Random rand = new Random();
+        
+	while(count-- > 0) {
+            int i = rand.nextInt(searchResults.size());
             if (!CommonUtils.testPage("https://www.youporn.com"+searchResults.get(i).select("a").attr("href"))) continue; //test to avoid error 404
             String thumb = searchResults.get(i).select("a").select("img").attr("data-thumbnail");
             if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb))) //if file not already in cache download it

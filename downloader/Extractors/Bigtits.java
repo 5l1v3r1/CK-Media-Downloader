@@ -16,6 +16,7 @@ import org.jsoup.UncheckedIOException;
 import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -25,7 +26,7 @@ import org.jsoup.select.Elements;
  *
  * @author christopher
  */
-public class Bigtits extends GenericExtractor{
+public class Bigtits extends GenericExtractor implements Searchable{
     private static final int SKIP = 2;
     
     public Bigtits() { //this contructor is used for when you jus want to search
@@ -104,21 +105,22 @@ public class Bigtits extends GenericExtractor{
     	Document page = getPage(searchUrl,false);
         video v = null;
         
-        Elements li = page.select("ul.videos").select("li");
+        Elements li = page.select("ul.videos").select("li"); int count = li.size(); Random rand = new Random();
         
-        for(int i = 0; i < li.size(); i++) {
-        	String thumbLink = li.get(i).select("div.thumb_container").select("a").select("img").attr("src"); 
-        	if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,SKIP))) //if file not already in cache download it
-                    if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,SKIP),MainApp.imageCache) != -2)
-                        throw new IOException("Failed to completely download page");
-        	String link = "http://www.bigtits.com" + li.get(i).select("div.thumb_container").select("a").attr("href");
-        	String name = li.get(i).select("div.thumb_container").select("a").select("img").attr("title");
-        	if (link.isEmpty() || name.isEmpty()) continue;
-                Document linkPage = getPage(link,false);
-                Element div = linkPage.getElementById("playerCont");
-                String video = CommonUtils.getLink(div.toString(), div.toString().indexOf("<source src=")+13, '\"');
-        	v = new video(link,name,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)),CommonUtils.getContentSize(video));
-        	break;
+        while(count-- > 0) {
+            int i = rand.nextInt(li.size());
+            String thumbLink = li.get(i).select("div.thumb_container").select("a").select("img").attr("src"); 
+            if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,SKIP))) //if file not already in cache download it
+                if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,SKIP),MainApp.imageCache) != -2)
+                    throw new IOException("Failed to completely download page");
+            String link = "http://www.bigtits.com" + li.get(i).select("div.thumb_container").select("a").attr("href");
+            String name = li.get(i).select("div.thumb_container").select("a").select("img").attr("title");
+            if (link.isEmpty() || name.isEmpty()) continue;
+            Document linkPage = getPage(link,false);
+            Element div = linkPage.getElementById("playerCont");
+            String video = CommonUtils.getLink(div.toString(), div.toString().indexOf("<source src=")+13, '\"');
+            v = new video(link,name,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)),CommonUtils.getContentSize(video));
+            break;
         }
         
         return v;

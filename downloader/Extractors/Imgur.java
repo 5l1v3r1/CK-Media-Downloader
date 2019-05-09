@@ -51,7 +51,6 @@ public class Imgur extends GenericExtractor {
     }
 
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException{
-        
         if (url.matches("https?://imgur[.]com/gallery/[\\S]*"))
             return getImgurGallery();
 	else return getImgurSingle();
@@ -135,10 +134,6 @@ public class Imgur extends GenericExtractor {
     }
 
     @Override public video similar() throws IOException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override public video search(String str) throws IOException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

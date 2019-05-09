@@ -19,6 +19,7 @@ import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Random;
 import java.util.Vector;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -31,7 +32,7 @@ import org.jsoup.select.Elements;
  *
  * @author christopher
  */
-public class Spankwire extends GenericQueryExtractor{
+public class Spankwire extends GenericQueryExtractor implements Searchable{
     private static final int SKIP = 5;
        
     public Spankwire() { //this contructor is used for when you jus want to query
@@ -50,8 +51,7 @@ public class Spankwire extends GenericQueryExtractor{
         super(url,thumb,videoName);
     }
 
-    @Override
-    public GenericQuery query(String search) throws IOException, SocketTimeoutException, UncheckedIOException, Exception {
+    @Override public GenericQuery query(String search) throws IOException, SocketTimeoutException, UncheckedIOException, Exception {
         search = search.trim(); 
         search = search.replaceAll(" ", "%2B");
         String searchUrl = "https://spankwire.com/search/straight/keyword/"+search;
@@ -76,8 +76,7 @@ public class Spankwire extends GenericQueryExtractor{
         return thequery;
     }
 
-    @Override
-    protected Vector<File> parse(String url) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
+    @Override protected Vector<File> parse(String url) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
          Vector<File> thumbs = new Vector<>();
         
         Document page = getPage(url,false);
@@ -170,7 +169,10 @@ public class Spankwire extends GenericQueryExtractor{
         Document page = getPage(searchUrl,false); video v = null;
         
 	Elements searchResults = page.select("li.js-li-thumbs");
-	for(int i = 0; i < searchResults.size(); i++)  {
+        int count = searchResults.size(); Random rand = new Random();
+        
+	while(count-- > 0) {
+            int i = rand.nextInt(searchResults.size());
             if (!CommonUtils.testPage("https://spankwire.com"+searchResults.get(i).select("a").get(0).attr("href"))) continue; //test to avoid error 404
             String thumbLink = "https:"+searchResults.get(i).select("img").attr("data-original");
             if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,SKIP))) //if file not already in cache download it

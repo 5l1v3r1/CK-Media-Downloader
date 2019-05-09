@@ -36,7 +36,6 @@ import org.jsoup.select.Elements;
 public abstract class GenericExtractor {
     protected File videoThumb;
     protected String videoName, url;
-    protected String extractorName;
     protected Map<String,String> cookieJar;
     protected boolean works;
     
@@ -229,7 +228,6 @@ public abstract class GenericExtractor {
     //should probably implement a getVideo(url)
     public abstract MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException;
     public abstract video similar() throws IOException, GenericDownloaderException; //get a video from the related items list
-    public abstract video search(String str) throws IOException, GenericDownloaderException; //search (similar to query except no img preview and only 1 result) 
     protected abstract String getValidRegex();
     
     final protected long getSize(MediaDefinition media) throws GenericDownloaderException, UncheckedIOException, IOException {

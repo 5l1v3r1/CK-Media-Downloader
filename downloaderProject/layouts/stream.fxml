@@ -3,11 +3,13 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Slider?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.media.MediaView?>
 <?import javafx.scene.text.Font?>
 
-<Pane id="AnchorPane" prefHeight="549.0" prefWidth="694.0" styleClass="background" stylesheets="@darkPane.css" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/9">
+<Pane id="AnchorPane" prefHeight="549.0" prefWidth="694.0" styleClass="background" stylesheets="@darkPane.css" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <Pane prefHeight="55.0" prefWidth="695.0" styleClass="header">
          <children>
@@ -21,11 +23,57 @@
       <MediaView id="video" fitHeight="430.0" fitWidth="695.0" layoutY="55.0">
       </MediaView>
       <Slider id="progress" layoutY="488.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="25.0" prefWidth="694.0" />
-      <Button id="toogle" layoutX="225.0" layoutY="513.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="135.0" text="Pause" />
-      <Button id="stop" layoutX="362.0" layoutY="513.0" mnemonicParsing="false" prefHeight="35.0" prefWidth="135.0" text="Stop" />
+      <Button id="toogle" layoutX="293.0" layoutY="513.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="35.0" prefWidth="54.0">
+         <graphic>
+            <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../../icons/icons8-play-48.png" />
+               </image>
+            </ImageView>
+         </graphic></Button>
+      <Button id="stop" layoutX="348.0" layoutY="513.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="35.0" prefWidth="54.0">
+         <graphic>
+            <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../../icons/icons8-stop-48.png" />
+               </image>
+            </ImageView>
+         </graphic></Button>
       <Label id="time" alignment="CENTER_RIGHT" layoutX="543.0" layoutY="522.0" prefHeight="25.0" prefWidth="149.0" text="00:00:00 / 00:00:00" />
-      <Label id="status" layoutX="9.0" layoutY="518.0" prefHeight="25.0" prefWidth="149.0" />
-      <Button id="back" layoutX="181.0" layoutY="513.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="35.0" prefWidth="42.0" text="&lt;&lt;" />
-      <Button id="skip" layoutX="499.0" layoutY="513.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="35.0" prefWidth="42.0" text="&gt;&gt;" />
+      <Label id="status" layoutX="9.0" layoutY="518.0" prefHeight="25.0" prefWidth="172.0" />
+      <Button id="rewind15" layoutX="250.0" layoutY="513.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="35.0" prefWidth="42.0">
+         <graphic>
+            <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../../icons/icons8-rewind-48.png" />
+               </image>
+            </ImageView>
+         </graphic></Button>
+      <Button id="skip15" layoutX="403.0" layoutY="513.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="35.0" prefWidth="42.0">
+         <graphic>
+            <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../../icons/icons8-fast-forward-48.png" />
+               </image>
+            </ImageView>
+         </graphic></Button>
+      <Button id="rewindMin" layoutX="207.0" layoutY="513.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="35.0" prefWidth="42.0">
+         <graphic>
+            <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../../icons/icons8-back-48.png" />
+               </image>
+            </ImageView>
+         </graphic>
+      </Button>
+      <Button id="skipMin" layoutX="446.0" layoutY="513.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="35.0" prefWidth="42.0">
+         <graphic>
+            <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../../icons/icons8-forward-48.png" />
+               </image>
+            </ImageView>
+         </graphic>
+      </Button>
    </children>
 </Pane>

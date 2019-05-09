@@ -29,6 +29,5 @@ public abstract class GenericQueryExtractor extends GenericExtractor{
     }
     
     public abstract GenericQuery query(String search) throws IOException, SocketTimeoutException, UncheckedIOException, Exception;
-    
     protected abstract Vector<File> parse(String url) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException;
 }

@@ -46,8 +46,7 @@ public class Device implements Serializable{
         else return false;
     }
     
-    @Override
-    public String toString() {
+    @Override public String toString() {
         return title;
     }
     

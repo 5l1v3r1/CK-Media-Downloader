@@ -45,8 +45,7 @@ public class Download {
     }
     
     private class server implements Runnable {
-        @Override
-        public void run() {
+        @Override public void run() {
             if (openConnection() == 0) {
                 s.addProgress("Connection Successful");
                 processConnection();
@@ -78,8 +77,8 @@ public class Download {
         
         private void receiveMedia() throws IOException, ClassNotFoundException {
             long freeMemory = Runtime.getRuntime().freeMemory();
-            if(freeMemory > 26214400)
-                freeMemory = 26214400;
+            if(freeMemory > 25 * MainApp.BYTE * MainApp.BYTE)
+                freeMemory = 25 * MainApp.BYTE * MainApp.BYTE; //25mb
             out.writeObject(freeMemory); out.flush();
             int transmissionMode = (int)in.readObject();
             if (transmissionMode == 1) 
@@ -161,7 +160,7 @@ public class Download {
         private int openConnection() {
             try {
                 s.addProgress("Waiting for peer to connect");
-                server = new ServerSocket(Actions.port,1);
+                server = new ServerSocket(Actions.PORT,1);
                 soc = server.accept();
                 if(getStreams() == 0) {
                     s.addProgress("Connected to "+soc.getInetAddress().getHostName()); 

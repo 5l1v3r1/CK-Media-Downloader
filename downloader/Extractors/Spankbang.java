@@ -26,6 +26,7 @@ import java.net.SocketTimeoutException;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -36,7 +37,7 @@ import org.jsoup.Connection.Response;
  * @author christopher
  */
 
-public class Spankbang extends GenericQueryExtractor implements Playlist{
+public class Spankbang extends GenericQueryExtractor implements Playlist, Searchable{
     private static final int SKIP = 3;
     private String playlistUrl = null;
     private final String JSONURL = "https://spankbang.com/api/videos/stream";
@@ -205,9 +206,12 @@ public class Spankbang extends GenericQueryExtractor implements Playlist{
         video v = null;
         Document page = getPage(url,false);
         Elements li = page.select("div.video-list.video-rotate").get(page.select("div.video-list.video-rotate").size()- 1).select("div.video-item");
-        for(int i = 0; i < li.size(); i++) {
-        	String link = "https://spankbang.com" + li.get(i).select("a.thumb").attr("href");
-        	try {verify(getPage(link,false));} catch (GenericDownloaderException e) {continue;}
+        int count = li.size(); Random rand = new Random();
+        
+        while(count-- > 0){
+            int i = rand.nextInt(li.size());
+            String link = "https://spankbang.com" + li.get(i).select("a.thumb").attr("href");
+            try {verify(getPage(link,false));} catch (GenericDownloaderException e) {continue;}
             String title = li.get(i).select("div.inf").select("a").text();
             try {if (title.length() < 1) title = downloadVideoName(link);} catch (Exception e) {continue;}
                 try {v = new video(link,title,downloadThumb(link),getSize(link)); }catch(Exception e) {continue;}
@@ -223,9 +227,10 @@ public class Spankbang extends GenericQueryExtractor implements Playlist{
         
         Document page = getPage(searchUrl,true); video v = null;
         
-	Elements searchResults = page.select("div.video-item");
-        //get first valid video
-	for(int i = 0; i < searchResults.size(); i++)  {
+	Elements searchResults = page.select("div.video-item"); int count = searchResults.size(); Random rand = new Random();
+
+	while(count-- > 0) {
+            int i = rand.nextInt(searchResults.size());
             if (!CommonUtils.testPage("https://spankbang.com"+searchResults.get(i).select("a.thumb").attr("href"))) continue; //test to avoid error 404
             try {verify(getPage("https://spankbang.com"+searchResults.get(i).select("a.thumb").attr("href"),false)); } catch (GenericDownloaderException e) {continue;}
             String thumbLink = "https:"+searchResults.get(i).select("a.thumb").select("img").attr("data-src"); //src for pc

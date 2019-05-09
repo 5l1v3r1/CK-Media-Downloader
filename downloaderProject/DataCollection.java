@@ -61,8 +61,10 @@ public class DataCollection implements Externalizable{
            Vector<File> list = new Vector<>();
            video[] v = new video[videoQueue.size()];
            videoQueue.toArray(v);
-            for(video l:v)
-                list.addAll(l.getDependencies());
+            for(video l: v) {
+                if (l == null) continue;
+                    list.addAll(l.getDependencies());
+            }
             return list;
         }
 	
@@ -74,15 +76,19 @@ public class DataCollection implements Externalizable{
             return videoQueue.size();
 	}
 	
-	public void addSuggestion(video v) {
+	public int addSuggestion(video v) {
             if (v != null)
-            	if (!videoQueue.contains(v)) videoQueue.add(v);
+                return 1;
+            else if (!videoQueue.contains(v)) {
+                videoQueue.add(v);
+                return 0;
+            } else return 2;
 	}
 	
 	public void add(String mediaName, String site) throws GenericDownloaderException {
             //if (keywords == null) init();
-            Vector<String> words = new Vector<>(); loadLibs();
-            words = searchStars(mediaName.split(" ")); addSite(site);
+            loadLibs();
+            Vector<String> words = searchStars(mediaName.split(" ")); addSite(site);
             //pull out articles, pronouns, conjuctions and prepositions
             //and ensure the string is actually a word (just in case some video name is ujljkhvjh ljh lj)
             //i dare ya to search that, it was actually the name of one but thats not a helpful search keyword
@@ -164,7 +170,7 @@ public class DataCollection implements Externalizable{
 	}
 	
 	private void addSite(String site) {
-            if (site != null || !site.isEmpty()) {
+            if (site != null && !site.isEmpty()) {
                 if (frequentSites.containsKey(site))
                     frequentSites.put(site, frequentSites.get(site) + 1);
                 else
@@ -243,22 +249,29 @@ public class DataCollection implements Externalizable{
         
 	private void search(String searchStr) throws GenericDownloaderException {
             final Map<String, Integer> siteChart = frequentSites.entrySet().stream().sorted(Map.Entry.<String, Integer>comparingByValue().reversed()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
-            GenericExtractor x; Iterator<String> i = siteChart.keySet().iterator();
+            Searchable x; Iterator<String> i = siteChart.keySet().iterator();
             do {
                 x = getExtractor(i.next());
             }while(x == null && i.hasNext());
 	    if (x != null) {
 		CommonUtils.log("Searching: "+x.getClass().getSimpleName(),this);
 	        CommonUtils.log("search: "+searchStr,this);
-                try {addSuggestion(x.search(searchStr));}catch(IOException | UnsupportedOperationException e) {}
+                try {
+                    int retry = 10, result;
+                    do {
+                        result = addSuggestion(x.search(searchStr));
+                        if (result == 1) break;
+                    }while(result != 0 && retry-- > 0);
+                }catch(IOException | UnsupportedOperationException e) {}
 	    }
 	}
         
-        private GenericExtractor getExtractor(String type) {
+        private Searchable getExtractor(String type) {
             try {
                 Class<?> c = Class.forName("downloader.Extractors."+type);
                 Constructor<?> cons = c.getConstructor();
-                return (GenericExtractor)cons.newInstance();
+                GenericExtractor x = (GenericExtractor)cons.newInstance();
+                return x instanceof Searchable ? (Searchable)x : null;
             } catch (ClassNotFoundException | NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
                 return null;
             }
@@ -306,7 +319,7 @@ public class DataCollection implements Externalizable{
         
         public String toJson() {
             StringBuilder json = new StringBuilder();
-            json.append("{"+CommonUtils.addAttr("Version",VERSION)+","+CommonUtils.addAttr("videoQueue",videoQueue.size())+",\"Keywords\":[");
+            json.append("{"+CommonUtils.addAttr("Version",VERSION)+","+CommonUtils.addAttr("videoQueue",videoQueue.size())+","+CommonUtils.addAttr("keyword size",keywords.size())+",\"Keywords\":[");
             json.append(getMap(keywords));
             json.append("],\"FrequentStars\":[");
             json.append(getMap(frequentStars));

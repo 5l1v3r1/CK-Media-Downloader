@@ -31,7 +31,7 @@ import org.jsoup.select.Elements;
  *
  * @author christopher
  */
-public class Porn extends GenericExtractor{
+public class Porn extends GenericExtractor implements Searchable{
     private static final int SKIP = 6;
     
     public Porn() { //this contructor is used for when you jus want to search
@@ -124,7 +124,10 @@ public class Porn extends GenericExtractor{
 	Document page = getPage(searchUrl,false);
 
         Elements divs = page.select("section.thumb-list.videos").select("div.item.rollable"); video v = null;
-	for(Element div: divs) {
+        int count = divs.size(); Random rand = new Random();
+        
+	while(count-- > 0) {
+            Element div = divs.get(rand.nextInt(divs.size()));
             String link = "https://www.porn.com" + div.select("div.thumb").select("a").attr("href");
             if (!CommonUtils.testPage(link)) continue; //test to avoid error 404
             String thumb = div.select("div.thumb").select("img").attr("src");

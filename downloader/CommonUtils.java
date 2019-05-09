@@ -501,7 +501,7 @@ public class CommonUtils {
         if (!dir.exists()) 
             dir.mkdirs();
 	
-	try { //https://spankbang.com/2lidc/video/slutty+latin+girl+showing+nice+tits+in+cam+chat
+	try {
             URLConnection connection = new URL(link).openConnection();
             File save = new File(path+File.separator+saveName);
             how = save.exists() ? save.length() : 0;
@@ -512,7 +512,7 @@ public class CommonUtils {
             if ((response == HttpURLConnection.HTTP_SEE_OTHER) || (response == HttpURLConnection.HTTP_MOVED_TEMP) || (response == HttpURLConnection.HTTP_MOVED_PERM) || (response == 403 && forbid)) {
                 String location = connection.getHeaderField("Location");
                 if (location != null) {
-                    location = location.startsWith("//") ? "https:"+location : location;
+                    location = location.startsWith("//") ? "http:"+location : location;
                     connection = new URL(location).openConnection();
                     //String cookies = connection.getHeaderField("Set-Cookie");
                     //connection.setRequestProperty("Cookie", cookies);

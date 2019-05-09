@@ -24,7 +24,7 @@ import org.jsoup.select.Elements;
  *
  * @author christopher
  */
-public class Homemoviestube extends GenericExtractor{
+public class Homemoviestube extends GenericExtractor implements Searchable{
     private static final int SKIP = 5;
     
     public Homemoviestube() { //this contructor is used for when you jus want to search
@@ -76,14 +76,14 @@ public class Homemoviestube extends GenericExtractor{
         Elements li = page.getElementById("videoTabs").getElementById("ctab1").select("div.film-item.col-lg-4.col-md-75.col-sm-10.col-xs-10");
         Random randomNum = new Random(); int count = 0; boolean got = li.isEmpty();
         while(!got) {
-        	if (count > li.size()) break;
-        	int i = randomNum.nextInt(li.size()); count++;
-        	String link = li.get(i).select("a").get(0).attr("href");
-                if (link.matches("http://www.homemoviestube.com/videos/[\\d]+/[\\S]+.html"))
-                    try {v = new video(link,downloadVideoName(link),downloadThumb(link),getSize(link)); } catch(Exception e) {continue;}
-                else continue;
-                break;
-            }
+            if (count > li.size()) break;
+            int i = randomNum.nextInt(li.size()); count++;
+            String link = li.get(i).select("a").get(0).attr("href");
+            if (link.matches("http://www.homemoviestube.com/videos/[\\d]+/[\\S]+.html"))
+                try {v = new video(link,downloadVideoName(link),downloadThumb(link),getSize(link)); } catch(Exception e) {continue;}
+            else continue;
+            break;
+        }
         return v;
     }
 
@@ -92,7 +92,10 @@ public class Homemoviestube extends GenericExtractor{
 	Document page = getPage(searchUrl,false);
 
 	Elements divs = page.select("div.film-item.col-lg-4.col-md-75.col-sm-10.col-xs-10"); video v = null;
-	for(Element div: divs) {
+        int count = divs.size(); Random rand = new Random();
+        
+	while(count-- > 0) {
+            Element div = divs.get(rand.nextInt(divs.size()));
             if (div.select("a").isEmpty()) continue;
             if (!div.select("a").get(0).attr("href").matches("http://www.homemoviestube.com/videos/[\\d]+/[\\S]+.html")) continue;         
             if (!CommonUtils.testPage(div.select("a").get(0).attr("href"))) continue; //test to avoid error 404

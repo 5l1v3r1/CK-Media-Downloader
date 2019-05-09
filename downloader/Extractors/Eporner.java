@@ -74,10 +74,6 @@ public class Eporner extends GenericExtractor{
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override public video search(String str) throws IOException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
     @Override protected String getValidRegex() {
         works = true;
         return "https?://(?:www[.])?eporner[.]com/hd-porn/(?<id>[\\S]+)/[\\S]+/"; 

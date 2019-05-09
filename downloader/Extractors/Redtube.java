@@ -33,7 +33,7 @@ import org.jsoup.select.Elements;
  *
  * @author christopher
  */
-public class Redtube extends GenericQueryExtractor{
+public class Redtube extends GenericQueryExtractor implements Searchable{
     private static final int SKIP = 5;
     
     public Redtube() { //this contructor is used for when you jus want to query
@@ -175,7 +175,10 @@ public class Redtube extends GenericQueryExtractor{
         Document page = getPage(searchUrl,false); video v = null;
 		
 	Elements searchResults = page.getElementById("search_results_block").select("li.videoblock_list");
-	for(int i = 0; i < searchResults.size(); i++) {
+        int count = searchResults.size(); Random rand = new Random();
+        
+	while(count-- > 0) {
+            int i = rand.nextInt(searchResults.size());
             if (!CommonUtils.testPage("https://www.redtube.com"+searchResults.get(i).select("a").attr("href"))) continue; //test to avoid error 404
             String thumb = searchResults.get(i).select("span.video_thumb_wrap").select("img").attr("data-thumb_url");
             if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it

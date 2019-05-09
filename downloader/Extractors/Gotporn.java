@@ -72,10 +72,6 @@ public class Gotporn extends GenericExtractor{
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override public video search(String str) throws IOException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
     @Override protected String getValidRegex() {
         works = false;
         return "https?://(?:www[.])?gotporn[.]com/[\\S]+/video-(?<id>[\\d]+)"; 

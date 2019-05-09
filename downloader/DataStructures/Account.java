@@ -47,15 +47,13 @@ public class Account implements Externalizable{
         return login;
     }
 
-    @Override
-    public void writeExternal(ObjectOutput out) throws IOException {
+    @Override public void writeExternal(ObjectOutput out) throws IOException {
         out.writeObject(versionId);
         out.writeObject(login);
         out.writeObject(password);
     }
 
-    @Override
-    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+    @Override public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         versionId = (long)in.readObject();
         login = (String)in.readObject();
         password = (String)in.readObject();

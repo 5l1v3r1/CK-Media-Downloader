@@ -31,8 +31,9 @@ public class Bigboobsalert extends GenericExtractor{
     }
 
     public Bigboobsalert(String url) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
-        this(url,downloadThumb(changeHttp(configureUrl(url))),downloadVideoName(changeHttp(configureUrl(url))));
+        this(url, downloadThumb(changeHttp(configureUrl(url))), downloadVideoName(changeHttp(configureUrl(url))));
         this.url = changeHttp(this.url);
+        CommonUtils.log(getThumb().getName(), this);
     }
     
     public Bigboobsalert(String url, File thumb) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
@@ -74,6 +75,7 @@ public class Bigboobsalert extends GenericExtractor{
             if (!link.attr("href").matches("pics/[\\S]+[.]jpg")) continue;
             thumbLink += link.attr("href"); break;
         }
+        CommonUtils.log(thumbLink, "Bigboobsalert");
         if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink))) //if file not already in cache download it
             CommonUtils.saveFile(thumbLink,CommonUtils.getThumbName(thumbLink),MainApp.imageCache);
         return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumbLink));
@@ -83,12 +85,8 @@ public class Bigboobsalert extends GenericExtractor{
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
-    @Override public video search(String str) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
     @Override protected String getValidRegex() {
         works = false;
-        return "https?://(?:www[.])?bigboobsalert[.]com/(?<id>[\\S]+)[.]php"; 
+        return "(https?://)?(?:www[.])?bigboobsalert[.]com/(?<id>[\\S]+)[.]php"; 
     }
 }

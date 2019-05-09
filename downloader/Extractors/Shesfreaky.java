@@ -28,7 +28,7 @@ import org.jsoup.select.Elements;
  *
  * @author christopher
  */
-public class Shesfreaky extends GenericQueryExtractor{
+public class Shesfreaky extends GenericQueryExtractor implements Searchable{
     private static final int SKIP = 1;
     
     public Shesfreaky() { //this contructor is used for when you jus want to query
@@ -175,8 +175,11 @@ public class Shesfreaky extends GenericQueryExtractor{
         
         Document page = getPage(searchUrl,false); video v = null;
          
-         Elements searchResults = page.select("div.blockItem.blockItemBox");
-         for(int i = 0; i < searchResults.size(); i++) {
+        Elements searchResults = page.select("div.blockItem.blockItemBox");
+        int count = searchResults.size(); Random rand = new Random(); 
+         
+        while(count-- > 0) {
+            int i = rand.nextInt();
             String link = searchResults.get(i).select("a").attr("href");
             if (!CommonUtils.testPage(link)) continue; //test to avoid error 404
             try {verify(getPage(link,false));} catch (GenericDownloaderException e) {continue;}
