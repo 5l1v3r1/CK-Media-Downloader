@@ -34,6 +34,8 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.Vector;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javax.imageio.ImageIO;
 import org.jsoup.Jsoup;
 
@@ -74,6 +76,15 @@ public class CommonUtils {
             log("Error splitting","CommonUtils");
         }
         return splits;
+    }
+    
+    public static ImageView getIcon(String path, int height, int width) {
+        Image image = new Image(System.class.getResourceAsStream(path));
+        ImageView icon = new ImageView();
+        icon.setImage(image);
+        icon.setFitHeight(height);
+        icon.setFitWidth(width);
+        return icon;
     }
     
     public static void log(String msg, String context) {

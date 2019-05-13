@@ -40,8 +40,6 @@ import javafx.scene.control.ListView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.control.Label;
-import javafx.scene.control.ProgressBar;
-import javafx.scene.control.TextArea;
 import javafx.scene.effect.BoxBlur;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -60,23 +58,20 @@ public class MainApp extends Application {
     public static String username;
     public static File pageCache, imageCache, saveDir, progressCache;
     public static DownloadManager dm;
-    public static QueryManager query;
-    public static Scene scene;
     public static boolean active = true;
     public static Vector<Device> devices;
     public static ComboBox<Device> deviceBox;
-    private static AnchorPane actionPaneHolder;
-    public static ProgressBar progress;
-    public static TextArea log;
     public static Actions act;
-    private static final String TITLE = "Video Downloader build 32.3";
     public static DownloadHistory downloadHistoryList;
     public static StackPane root;
     public static DataCollection habits;
+    private static AnchorPane actionPaneHolder;
+    private static QueryManager query;
+    private static Scene scene;
     private static boolean dontLoad;
+    private static final String VERSION = "build 32.4", TITLE = "Video Downloader "+VERSION;
     
-    public static final int WIDTH = 895, HEIGHT = 550, XS = 100;
-    public static final int SUPPORTEDSITES = 37, PANES = 7;
+    private static final int WIDTH = 895, HEIGHT = 550, XS = 100, PANES = 7;
     public static Pane[] actionPanes = new Pane[PANES];
     public static final int DOWNLOADPANE = 0, BROWSERPANE = 1, SETTINGSPANE = 2, SHAREPANE = 3, DOWNLOADHISTORYPANE = 4, ACCOUNTPANE = 5, STREAMPANE = 6;
     public static int BYTE;
@@ -208,6 +203,12 @@ public class MainApp extends Application {
         displayPane(BROWSERPANE);
     }
     
+    public static void makeQuery() {
+        if (query == null)
+            query = new QueryManager(actionPanes[BROWSERPANE]);
+        query.generateContent();
+    }
+    
     private Pane loadPane(String name) throws IOException {
         FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("layouts/"+name+".fxml"));
         return loader.load();
@@ -328,12 +329,9 @@ public class MainApp extends Application {
         deviceBox = (ComboBox<Device>)actionPanes[SHAREPANE].lookup("#devices");
         updateDevices();
         
-        progress = (ProgressBar)actionPanes[SHAREPANE].lookup("#progressBar");
-        log = (TextArea)actionPanes[SHAREPANE].lookup("#log");
-        log.setEditable(false);
         Label deviceName = (Label)actionPanes[SHAREPANE].lookup("#deviceName");
         deviceName.setText("This Device Name: "+getlocalDeviceName());
-        act = new Actions();
+        act = new Actions(actionPanes[SHAREPANE]);
     }
     
     private void setupDownloadHistoryPane() {
@@ -418,7 +416,7 @@ public class MainApp extends Application {
        
         setupSharePane();
        
-       clippy = new ClipboardListener(mainController);
+        clippy = new ClipboardListener(mainController);
         
         window.setTitle(TITLE);
         window.setOnCloseRequest(event -> {
@@ -428,6 +426,10 @@ public class MainApp extends Application {
             dm.release();
             dm = null;
             clippy.stop();
+            try {DataIO.saveCollectedData(habits);} catch(IOException e) {CommonUtils.log("Failed to save habits",this);}
+            writeJson();
+            habits = null;
+            act = null;
             CommonUtils.log("Exiting",this);
         });
         window.setScene(scene);
@@ -468,19 +470,20 @@ public class MainApp extends Application {
     }
     
     public static void log(String mediaName, String site) throws GenericDownloaderException {
-        if (habits != null) habits.add(mediaName, site);
-        try {DataIO.saveCollectedData(habits);} catch(IOException e) {CommonUtils.log("Failed to save habits","MainApp");}
-        writeJson();
+        if (habits != null) {
+            habits.add(mediaName, site);
+            try {DataIO.saveCollectedData(habits);} catch(IOException e) {CommonUtils.log("Failed to save habits","MainApp");}
+            writeJson();
+        }
     }
     
-    public static int log (video v) {
-        int code;
-        if (habits != null)
-            code = habits.addSuggestion(v);
-        else code = -1;
-        try {DataIO.saveCollectedData(habits);} catch(IOException e) {CommonUtils.log("Failed to save habits","MainApp");}
-        writeJson();
-        return code;
+    public static int log(video v) {
+        if (habits != null) {
+            int code = habits.addSuggestion(v);
+            try {DataIO.saveCollectedData(habits);} catch(IOException e) {CommonUtils.log("Failed to save habits","MainApp");}
+            writeJson();
+            return code;
+        } else return -1;
     }
     
     private static void writeJson() {
@@ -498,7 +501,7 @@ public class MainApp extends Application {
         if (!dontLoad) {
             if (habits != null) {
                 int pull = 1;
-                if (habits.suggestions() > 12 && habits.suggestions() <= 20) pull = 2;
+                if (habits.suggestions() > 10 && habits.suggestions() <= 20) pull = 2;
                 else if (habits.suggestions() > 20 && habits.suggestions() <= 35) pull = 3;
                 else if (habits.suggestions() > 35 && habits.suggestions() <= 50) pull = 4;
                 else if (habits.suggestions() > 50) pull = 5;

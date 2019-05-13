@@ -107,7 +107,7 @@ public class Pornhd extends GenericExtractor{
     }
 
     @Override protected String getValidRegex() {
-        works = true;
+        works = false;
         return "https?://(?:www[.])?pornhd[.]com/videos/(?<id>[\\d]+)/[\\S]+"; 
     }
 }

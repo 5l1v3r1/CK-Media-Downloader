@@ -12,6 +12,9 @@ import downloaderProject.OperationStream;
 import java.io.File;
 import java.util.Vector;
 import javafx.application.Platform;
+import javafx.scene.control.ProgressBar;
+import javafx.scene.control.TextArea;
+import javafx.scene.layout.Pane;
 import javafx.stage.FileChooser;
 
 /**
@@ -19,7 +22,16 @@ import javafx.stage.FileChooser;
  * @author christopher
  */
 public class Actions {
-    public static final int PORT = 32901;
+    static final int PORT = 32901;
+    private final ProgressBar progress;
+    private final TextArea log;
+    
+    public Actions(Pane root) {
+        this.progress = (ProgressBar)root.lookup("#progressBar");
+        this.log = (TextArea)root.lookup("#log");
+        log.setEditable(false);
+    }
+    
     private boolean isPureDigit(String s) {
         if (s.length() < 1) return false;
         for(int i = 0; i < s.length(); i++)
@@ -30,13 +42,13 @@ public class Actions {
     
     private void updateProgressBar(final float progress) {
         Platform.runLater(() -> {
-            MainApp.progress.setProgress(progress);
+            this.progress.setProgress(progress);
         });
     }
     
     private void displayStatus(String msg) {
         Platform.runLater(() -> {
-            MainApp.log.appendText("\n"+msg);
+            log.appendText("\n"+msg);
         });
     }
     

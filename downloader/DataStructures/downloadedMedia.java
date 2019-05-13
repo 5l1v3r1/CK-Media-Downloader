@@ -15,7 +15,7 @@ import java.io.Serializable;
  */
 public class downloadedMedia implements Serializable{
     private static final long serialVersionUID = -75282981916575898l;
-    private final String name, site; //add url
+    private final String name, site; //add url?
     private final File thumb, media;
     
     public downloadedMedia(String name, File thumb, File media, String site) {

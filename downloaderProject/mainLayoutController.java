@@ -6,7 +6,6 @@
 package downloaderProject;
 
 import ChrisPackage.Reactable;
-import Queryer.QueryManager;
 import com.jfoenix.controls.JFXDialog;
 import downloader.CommonUtils;
 import downloader.DataStructures.Device;
@@ -96,9 +95,7 @@ public class mainLayoutController implements Initializable, Reactable{
     }
     
     public void queryString() {
-    	if (MainApp.query == null)
-    		MainApp.query = new QueryManager(MainApp.actionPanes[MainApp.BROWSERPANE]);
-        MainApp.query.generateContent();
+    	MainApp.makeQuery();
     }
     
     public void setVideoLocation() {

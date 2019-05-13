@@ -405,7 +405,7 @@ public class Pornhub extends GenericQueryExtractor implements Playlist, Searchab
         } catch (NullPointerException e) {
             if (tries < 1) return getRecommended(1);
         }
-        return v;
+        return v == null ? getRecommended() : v;
     }
     
     private video getRecommended() throws IOException, GenericDownloaderException {
@@ -444,7 +444,7 @@ public class Pornhub extends GenericQueryExtractor implements Playlist, Searchab
         } catch (NullPointerException e) {
             if (tries < 1) return getRelated(1);
         }
-        return v;
+        return v == null ? getRelated() : v;
     }
 
     @Override public video search(String str) throws IOException, GenericDownloaderException {
@@ -462,7 +462,7 @@ public class Pornhub extends GenericQueryExtractor implements Playlist, Searchab
         int count = searchResults.size(); Random rand = new Random();
         
 	while(count-- > 0){
-            int i = rand.nextInt();
+            int i = rand.nextInt(count);
             if (!CommonUtils.testPage("https://pornhub.com"+searchResults.get(i).select("a").attr("href"))) continue; //test to avoid error 404
             try {
                 Document pageLink = getPage("https://pornhub.com"+searchResults.get(i).select("a").attr("href"),false);

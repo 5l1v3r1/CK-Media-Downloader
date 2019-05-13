@@ -19,8 +19,7 @@ import java.util.Vector;
 
 //this class is to save video info for download later
 public class video implements Externalizable{
-    private static final long serialVersionUID = 1L;
-    private static final long version = 2L;
+    private static final long serialVersionUID = 1L, version = 2L;
     private File thumbnail;
     private Vector<File> preview;
     private String link, name;

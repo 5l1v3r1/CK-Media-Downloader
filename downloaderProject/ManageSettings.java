@@ -10,13 +10,9 @@ import downloader.DataStructures.Settings;
 import downloader.DataStructures.historyItem;
 import static downloader.Site.QueryType;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Vector;
 import javafx.application.Platform;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
@@ -37,9 +33,8 @@ public class ManageSettings {
     private TextField videoFolderText = null, pictureFolderText, sharedFolderText;
     private AnchorPane querySitePane;
     private Label cacheAmount, savedVideos, deviceCount, searchCount, downloadHistory, toogleThemeText;
-    public Settings preferences;
     private ListView<Pane> searchHistory;
-    private final List<Pane> HISTORYLIST = new ArrayList<>();
+    public Settings preferences;
     
     public ManageSettings(Pane p, Settings preferences) {
        this.root = p; this.preferences = preferences;
@@ -67,10 +62,9 @@ public class ManageSettings {
     }
     
     public void updateDownloadHistory() {
-        Platform.runLater(new Runnable() {
-           @Override public void run() {
-                int i = DataIO.getDownloadedCount();
-                downloadHistory.setText(i+" in download history");}
+        Platform.runLater(() -> {
+            int i = DataIO.getDownloadedCount();
+            downloadHistory.setText(i+" in download history");
         }); //ensure you are posting results with the UI thread
     }
     
@@ -87,28 +81,24 @@ public class ManageSettings {
     }
     
      public void cacheUpdate() {
-        Platform.runLater(new Runnable() {
-           @Override public void run() {
-                long size = DataIO.getCacheSize();
-                String text = MainApp.getSizeText(size);
-                cacheAmount.setText(text+" in cache");
-            }
+        Platform.runLater(() -> {
+            long size = DataIO.getCacheSize();
+            String text = MainApp.getSizeText(size);
+            cacheAmount.setText(text+" in cache");
         }); //ensure you are posting results with the UI thread
     }
     
     public void videoUpdate() {
-        Platform.runLater(new Runnable() {
-           @Override public void run() {
-                int i = DataIO.getSaveVideoCount();
-                savedVideos.setText(i+" saved");}
+        Platform.runLater(() -> {
+            int i = DataIO.getSaveVideoCount();
+            savedVideos.setText(i+" saved");
         }); //ensure you are posting results with the UI thread
     }
 
     public void historyUpdate() {
-        Platform.runLater(new Runnable() {
-           @Override public void run() {
-                int i = DataIO.getHistoryCount();
-                searchCount.setText(i+" searches in history");}
+        Platform.runLater(() -> {
+            int i = DataIO.getHistoryCount();
+            searchCount.setText(i+" searches in history");
         }); //ensure you are posting results with the UI thread
     }
     
@@ -129,9 +119,7 @@ public class ManageSettings {
     }
     
     public void clearHistory() {
-        HISTORYLIST.clear();
-        ObservableList<Pane> list = FXCollections.observableList(HISTORYLIST);
-        searchHistory.setItems(list);
+        searchHistory.getItems().clear();
     }
     
     private Pane addHistoryPane(historyItem h) {
@@ -171,10 +159,8 @@ public class ManageSettings {
         Vector<historyItem> history = DataIO.loadHistory();
         if(history != null)
             history.forEach((h) -> {
-                HISTORYLIST.add(addHistoryPane(h));
+                searchHistory.getItems().add(addHistoryPane(h));
             });
-        ObservableList<Pane> list = FXCollections.observableList(HISTORYLIST);
-        searchHistory.setItems(list);
         historyUpdate();
     }
     
@@ -241,9 +227,9 @@ public class ManageSettings {
     }
     
     private void checkSupported() { //if new site support added after release add it to settings
-        for(int i = 0; i < QueryType.length; i++)
-            if (!preferences.isSupported(QueryType[i]))
-                preferences.addSupport(QueryType[i]);
+        for (String s : QueryType)
+            if (!preferences.isSupported(s))
+                preferences.addSupport(s);
         saveSettings();
     }
     
@@ -270,7 +256,6 @@ public class ManageSettings {
        searchHistory = (ListView<Pane>)a.lookup("#searches");
        toogleThemeText = (Label)a.lookup("#toogleThemeLabel");
        a.getChildren().add(setToogle());
-       
     }
     
     public void saveSettings() {

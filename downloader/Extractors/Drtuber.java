@@ -114,7 +114,6 @@ public class Drtuber extends GenericExtractor implements Searchable{
                     JSONObject item = (JSONObject)related.get(rand.nextInt(related.size()));
                     String title = String.valueOf(item.get("title"));
                     String link = "http://www.drtuber.com/video/"+String.valueOf(item.get("VID")) + "/" + title.replaceAll(" ","-");
-                    CommonUtils.log(link, this);
                     try {v = new video(link,title,downloadThumb(link),getSize(link));} catch (Exception e){}
                     got = true;
                 }

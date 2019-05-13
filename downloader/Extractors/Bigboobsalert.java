@@ -33,7 +33,6 @@ public class Bigboobsalert extends GenericExtractor{
     public Bigboobsalert(String url) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
         this(url, downloadThumb(changeHttp(configureUrl(url))), downloadVideoName(changeHttp(configureUrl(url))));
         this.url = changeHttp(this.url);
-        CommonUtils.log(getThumb().getName(), this);
     }
     
     public Bigboobsalert(String url, File thumb) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
@@ -75,7 +74,6 @@ public class Bigboobsalert extends GenericExtractor{
             if (!link.attr("href").matches("pics/[\\S]+[.]jpg")) continue;
             thumbLink += link.attr("href"); break;
         }
-        CommonUtils.log(thumbLink, "Bigboobsalert");
         if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink))) //if file not already in cache download it
             CommonUtils.saveFile(thumbLink,CommonUtils.getThumbName(thumbLink),MainApp.imageCache);
         return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumbLink));

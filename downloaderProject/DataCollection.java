@@ -28,8 +28,7 @@ public class DataCollection implements Externalizable{
 	private static final long serialVersionUID = 1L;
 	private static final long VERSION = 2;
 	private transient Vector<String> starList, /*dictionary,*/ ignoreWords;
-	private Map<String, Integer> keywords, frequentStars;
-	private Map<String, Integer> frequentSites;
+	private Map<String, Integer> keywords, frequentStars, frequentSites;
 	private Queue<video> videoQueue; 
 	
 	public DataCollection() {
@@ -63,7 +62,7 @@ public class DataCollection implements Externalizable{
            videoQueue.toArray(v);
             for(video l: v) {
                 if (l == null) continue;
-                    list.addAll(l.getDependencies());
+                list.addAll(l.getDependencies());
             }
             return list;
         }
@@ -77,12 +76,13 @@ public class DataCollection implements Externalizable{
 	}
 	
 	public int addSuggestion(video v) {
-            if (v != null)
+            if (v == null)
                 return 1;
             else if (!videoQueue.contains(v)) {
                 videoQueue.add(v);
                 return 0;
-            } else return 2;
+            } else 
+                return 2;
 	}
 	
 	public void add(String mediaName, String site) throws GenericDownloaderException {
@@ -127,9 +127,9 @@ public class DataCollection implements Externalizable{
                 	if (parseStar(words[i]))
                             words[i] = null;
             }
-            for(int i = 0; i < words.length; i++)
-                if (words[i] != null)
-                    pure.add(words[i]);
+            for(String s: words)
+                if (s != null)
+                    pure.add(s);
             return pure;
 	}
 	
@@ -213,7 +213,7 @@ public class DataCollection implements Externalizable{
 	private void generateSearch(Map<String,Integer> kwords, Map<String,Integer> stars) throws GenericDownloaderException {
             Random randomNum = new Random();
             int max = randomNum.nextInt(8); //generate 1 - 8 words
-            int starIndex = randomNum.nextInt(stars.keySet().size() / 3); //generate from top stars (depending on size of list)
+            int starIndex = stars.keySet().size() > 3 ? randomNum.nextInt(stars.keySet().size() / 3) : 0; //generate from top stars (depending on size of list)
 		
             int count = 0; Iterator<String> i = kwords.keySet().iterator();
             StringBuilder words = new StringBuilder();
@@ -320,12 +320,8 @@ public class DataCollection implements Externalizable{
         public String toJson() {
             StringBuilder json = new StringBuilder();
             json.append("{"+CommonUtils.addAttr("Version",VERSION)+","+CommonUtils.addAttr("videoQueue",videoQueue.size())+","+CommonUtils.addAttr("keyword size",keywords.size())+",\"Keywords\":[");
-            json.append(getMap(keywords));
-            json.append("],\"FrequentStars\":[");
-            json.append(getMap(frequentStars));
-            json.append("],\"FrequentSites\":[");
-            json.append(getMap(frequentSites));
-            json.append("]}");
+            json.append(getMap(keywords)).append("],\"FrequentStars\":[").append(getMap(frequentStars));
+            json.append("],\"FrequentSites\":[").append(getMap(frequentSites)).append("]}");
             return json.toString();
         }
 

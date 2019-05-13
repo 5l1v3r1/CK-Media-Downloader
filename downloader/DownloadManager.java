@@ -34,8 +34,7 @@ import org.jsoup.UncheckedIOException;
  */
 public class DownloadManager {
     private List<DownloaderItem> downloadItems = new ArrayList<>();//list of downloader items that create panes
-    private final ExecutorService downloadThreads;
-    private final ExecutorService sideJobs;
+    private final ExecutorService downloadThreads, sideJobs;
     //private final int threads = 3;
     private final int sideThreads = 4, TIMES = 3;
     private StreamManager streamer;
@@ -213,17 +212,20 @@ public class DownloadManager {
                             int stop = new Random().nextInt(TIMES) + 1;
                             for(int i = 0; i < stop; i++) {
                                 MainApp.log(d.getName(),d.getSite()); //generate suggestion from search algo with provided info
-                                int result, count = 5;
+                                int result, count = 10;
                                 do { //add similar video as suggestion
                                     result = MainApp.log(d.getSide());
-                                } while(result != 2 || count-- > 0); //if video was already there repeat
+                                    CommonUtils.log("result: "+result, this);
+                                    CommonUtils.log("times "+count, this);
+                                    if (count-- < 0) break;
+                                } while(result != 0); //if video was already there repeat
                             }
                         }
                     } catch (GenericDownloaderException e) {
                         CommonUtils.log("Couldnt load side &&|| search",this);
                         CommonUtils.log(e.getMessage(),this);
                     } catch (Exception e) {
-                        CommonUtils.log(e.getMessage(),this);
+                        CommonUtils.log(e.getMessage(), "search:innerExeption");
                         //dont remove download if it has it only because of search || side
                     }
                 }

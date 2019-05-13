@@ -6,7 +6,6 @@
 package downloader.DataStructures;
 
 import downloaderProject.MainApp;
-import static downloaderProject.MainApp.username;
 import java.io.Externalizable;
 import java.io.File;
 import java.io.IOException;
@@ -23,8 +22,7 @@ import java.util.Vector;
  * @author christopher
  */
 public class Settings implements Externalizable{
-    private static final long serialVersionUID = 3L;
-    private static final long version = 4L;
+    private static final long serialVersionUID = 3L, version = 4L;
     private File videoFolder, pictureFolder, importFolder, sharedFolder, profileFolder;
     private Map<String,Boolean> supportedSite;
     private boolean darkTheme;
@@ -182,7 +180,7 @@ public class Settings implements Externalizable{
             default:
                 setVideoFolder(new File(home+File.separator+"Videos"));
                 setPictureFolder(new File(home+File.separator+"Pictures"));
-                setImportFolder(new File(home+username));
+                setImportFolder(new File(home));
                 setSharedFolder(new File(home+File.separator+"Shared"));
         }
     }

@@ -96,7 +96,7 @@ public class Upload {
             byte[] file = new byte[(int)media.length()];
             fis.read(file);
             out.writeObject(file); s.addProgress("98%");
-            out.flush(); out.reset(); s.addProgress("100%");;
+            out.flush(); out.reset(); s.addProgress("100%");
         }
         
         private void sendPackets(long buffSize, long fileSize) throws IOException {

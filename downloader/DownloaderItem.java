@@ -48,8 +48,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ProgressBar;
@@ -316,15 +314,6 @@ public class DownloaderItem {
         if (root != null)
             ((Button)root.lookup("#downloadBtn")).setDisable(false);
     }
-
-    private ImageView getIcon(String path) {
-        Image image = new Image(System.class.getResourceAsStream(path));
-        ImageView icon = new ImageView();
-        icon.setImage(image);
-        icon.setFitHeight(20);
-        icon.setFitWidth(20);
-        return icon;
-    }
     
     private ContextMenu initContextMenu() {
         ContextMenu menu = new ContextMenu();
@@ -336,39 +325,37 @@ public class DownloaderItem {
         item[3] = new MenuItem("remove all");
         item[4] = new MenuItem("export links to file");
        
-        item[0].setGraphic(getIcon("/icons/icons8-copy-link-48.png"));
-        item[0].setOnAction((ActionEvent t) -> {
+        item[0].setGraphic(CommonUtils.getIcon("/icons/icons8-copy-link-48.png", 20, 20));
+        item[0].setOnAction((ActionEvent) -> {
             Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
             clipboard.setContents(new StringSelection(url), new StringSelection(MainApp.username));
         });
-        item[1].setGraphic(getIcon("/icons/icons8-open-in-browser-40.png"));
-        item[1].setOnAction(new EventHandler<ActionEvent>() {
-            @Override public void handle(ActionEvent t) {
-                if (Desktop.isDesktopSupported()) {
-                    new Thread(() -> {
-                        try {
-                            Desktop desktop = Desktop.getDesktop();
-                            desktop.browse(new URI(url));
-                        } catch (URISyntaxException ex) {
-                            CommonUtils.log("Bad Uri",this);
-                        } catch (IOException ex) {
-                            MainApp.createMessageDialog("Failed to load");
-                        }
-                    }).start();    
-                } else
-                    MainApp.createMessageDialog("Not supported");
-            }
+        item[1].setGraphic(CommonUtils.getIcon("/icons/icons8-open-in-browser-40.png", 20, 20));
+        item[1].setOnAction((ActionEvent) -> {
+            if (Desktop.isDesktopSupported()) {
+                new Thread(() -> {
+                    try {
+                        Desktop desktop = Desktop.getDesktop();
+                        desktop.browse(new URI(url));
+                    } catch (URISyntaxException ex) {
+                        CommonUtils.log("Bad Uri",this);
+                    } catch (IOException ex) {
+                        MainApp.createMessageDialog("Failed to load");
+                    }
+                }).start();    
+            } else
+                MainApp.createMessageDialog("Not supported");
         });
-        item[2].setGraphic(getIcon("/icons/icons8-cancel-40.png"));
-        item[2].setOnAction((ActionEvent t) -> {
+        item[2].setGraphic(CommonUtils.getIcon("/icons/icons8-cancel-40.png", 20, 20));
+        item[2].setOnAction((ActionEvent) -> {
             clearThis();
         });
-        item[3].setGraphic(getIcon("/icons/icons8-cancel-40.png"));
-        item[3].setOnAction((ActionEvent t) -> {
+        item[3].setGraphic(CommonUtils.getIcon("/icons/icons8-cancel-40.png", 20, 20));
+        item[3].setOnAction((ActionEvent) -> {
             MainApp.dm.removeAll();
         });
-        item[4].setGraphic(getIcon("/icons/icons8-export-40.png"));
-        item[4].setOnAction((ActionEvent t) -> {
+        item[4].setGraphic(CommonUtils.getIcon("/icons/icons8-export-40.png", 20, 20));
+        item[4].setOnAction((ActionEvent) -> {
             MainApp.dm.exportAll();
         });
        

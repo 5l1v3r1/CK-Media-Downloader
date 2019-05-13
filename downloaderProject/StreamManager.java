@@ -6,6 +6,7 @@
 package downloaderProject;
 
 import ChrisPackage.GameTime;
+import downloader.CommonUtils;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -15,8 +16,6 @@ import javafx.beans.value.ObservableValue;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
@@ -93,7 +92,7 @@ public class StreamManager {
         
         configurePlayer();
         
-        play.setGraphic(getIcon("/icons/icons8-pause-48.png"));
+        play.setGraphic(CommonUtils.getIcon("/icons/icons8-pause-48.png", 30, 30));
         player.play();
         
         setHeader(name);
@@ -113,7 +112,7 @@ public class StreamManager {
         
         player.setOnEndOfMedia(() -> {
             changeStatus("Done");
-            play.setGraphic(getIcon("/icons/icons8-play-48.png"));
+            play.setGraphic(CommonUtils.getIcon("/icons/icons8-play-48.png",30,30));
             slide.setValue(0.0);
             player.seek(Duration.ZERO);
             player.pause();
@@ -132,11 +131,11 @@ public class StreamManager {
         player.setOnHalted(() -> {changeStatus("Halted");});
         player.setOnPlaying(() -> {
             changeStatus("Streaming");
-            play.setGraphic(getIcon("/icons/icons8-pause-48.png"));
+            play.setGraphic(CommonUtils.getIcon("/icons/icons8-pause-48.png", 30, 30));
         });
         player.setOnPaused(() -> {
             changeStatus("Paused");
-            play.setGraphic(getIcon("/icons/icons8-play-48.png"));
+            play.setGraphic(CommonUtils.getIcon("/icons/icons8-play-48.png", 30, 30));
         });
         
         player.currentTimeProperty().addListener((ObservableValue<? extends Duration> ov, Duration t, Duration current) -> {
@@ -154,7 +153,7 @@ public class StreamManager {
         slide.setOnMouseClicked((MouseEvent) -> {
             if(player != null) {
                 player.seek(Duration.seconds(slide.getValue()));
-                play.setGraphic(getIcon("/icons/icons8-pause-48.png"));
+                play.setGraphic(CommonUtils.getIcon("/icons/icons8-pause-48.png", 30, 30));
             }
         });
         
@@ -177,15 +176,6 @@ public class StreamManager {
         rewindMin.setOnAction((ActionEvent) -> {
             player.seek(Duration.seconds(slide.getValue()).subtract(Duration.seconds(FASTSKIP)));
         });
-    }
-    
-    private ImageView getIcon(String path) {
-        Image image = new Image(System.class.getResourceAsStream(path));
-        ImageView icon = new ImageView();
-        icon.setImage(image);
-        icon.setFitHeight(30);
-        icon.setFitWidth(30);
-        return icon;
     }
     
     public void stop() {

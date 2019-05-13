@@ -13,7 +13,7 @@ import java.io.Serializable;
  */
 public class Device implements Serializable{
     private static final long serialVersionUID = 3205872440977757998L;
-    String title = null, ip = null;
+    private String title = null, ip = null;
     
     public Device(String title, String ip) {
        this.title = title;
