@@ -91,8 +91,8 @@ public class Redtube extends GenericQueryExtractor implements Searchable{
 		
 	Elements searchResults = page.getElementById("search_results_block").select("li.videoblock_list");
 	for(int i = 0; i < searchResults.size(); i++) {
-            if (!CommonUtils.testPage("https://www.redtube.com"+searchResults.get(i).select("a").attr("href"))) continue; //test to avoid error 404
-            String link = "https://www.redtube.com"+searchResults.get(i).select("a").attr("href");
+            if (!CommonUtils.testPage(addHost(searchResults.get(i).select("a").attr("href"),"www.redtube.com"))) continue; //test to avoid error 404
+            String link = addHost(searchResults.get(i).select("a").attr("href"),"www.redtube.com");
             String title = Jsoup.parse(searchResults.get(i).select("div.video_title").toString()).body().text();
             String thumb = searchResults.get(i).select("span.video_thumb_wrap").select("img").attr("data-thumb_url");
             thequery.addLink(link);
@@ -159,7 +159,7 @@ public class Redtube extends GenericQueryExtractor implements Searchable{
         while(!got) {
         	if (count > li.size()) break;
         	int i = randomNum.nextInt(li.size()); count++;
-        	String link = "https://www.redtube.com" + li.get(i).select("a").get(0).attr("href");
+        	String link = addHost(li.get(i).select("a").get(0).attr("href"),"www.redtube.com");
             String title = li.get(i).select("div.video_title").select("a").text();
                 try {v = new video(link,title,downloadThumb(link),getSize(link)); } catch(Exception e) {} 
                 break;
@@ -179,12 +179,12 @@ public class Redtube extends GenericQueryExtractor implements Searchable{
         
 	while(count-- > 0) {
             int i = rand.nextInt(searchResults.size());
-            if (!CommonUtils.testPage("https://www.redtube.com"+searchResults.get(i).select("a").attr("href"))) continue; //test to avoid error 404
+            if (!CommonUtils.testPage(addHost(searchResults.get(i).select("a").attr("href"),"www.redtube.com"))) continue; //test to avoid error 404
             String thumb = searchResults.get(i).select("span.video_thumb_wrap").select("img").attr("data-thumb_url");
             if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
                 if (CommonUtils.saveFile(thumb, CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache) != -2)
                     throw new IOException("Failed to completely download page");
-            String link = "https://www.redtube.com"+searchResults.get(i).select("a").attr("href");
+            String link = addHost(searchResults.get(i).select("a").attr("href"),"www.redtube.com");
             try {v = new video(link,Jsoup.parse(searchResults.get(i).select("div.video_title").toString()).body().text(),new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,SKIP)),getSize(link)); } catch(GenericDownloaderException | IOException e) {}
             break; //if u made it this far u already have a vaild video
         }

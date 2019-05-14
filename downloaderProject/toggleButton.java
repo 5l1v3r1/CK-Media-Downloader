@@ -20,7 +20,7 @@ import javafx.util.Duration;
  * @author christopher
  */
 
-public class toggleButton extends Parent{
+public class toggleButton extends Parent {
     private boolean switchedOn;
 
     final private TranslateTransition translateAnimation = new TranslateTransition(Duration.seconds(0.25));

@@ -95,7 +95,7 @@ public class Youjizz extends GenericExtractor implements Searchable{
         while(!got) {
             if (count > li.size()) break;
             int i = randomNum.nextInt(li.size()); count++;
-            String link = "https://www.youjizz.com" + li.get(i).select("a").get(0).attr("href");
+            String link = addHost(li.get(i).select("a").get(0).attr("href"),"www.youjizz.com");
             String thumb = li.get(i).select("a").get(0).select("img").attr("src");
             if (thumb.length() < 1) thumb = li.get(i).select("a").get(0).select("img").attr("data-original");
             thumb = "https:" + thumb;
@@ -124,7 +124,7 @@ public class Youjizz extends GenericExtractor implements Searchable{
             if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,SKIP))) //if file not already in cache download it
                 if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,SKIP),MainApp.imageCache) != -2)
                     throw new IOException("Failed to completely download page");
-            String link = "https://youjizz.com"+li.get(i).select("a").get(0).attr("href");
+            String link = addHost(li.get(i).select("a").get(0).attr("href"),"www.youjizz.com");
             String name = li.get(i).select("div.video-title").select("a").text();
             if (link.isEmpty() || name.isEmpty()) continue;
             try {v = new video(link,name,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)),getSize(link)); } catch(GenericDownloaderException | IOException e) {}

@@ -52,7 +52,7 @@ public class Bigboobsalert extends GenericExtractor{
         for(Element link: links) {
             if (!link.attr("href").matches("pics/[\\S]+[.]jpg")) continue;
             Map<String,String> qualities = new HashMap<>();
-            qualities.put("single","http://www.bigboobsalert.com/"+ link.attr("href"));
+            qualities.put("single",addHost(link.attr("href"),"www.bigboobsalert.com"));
             media.addThread(qualities,CommonUtils.getThumbName(link.attr("href")));
         } media.setAlbumName(videoName);
         
@@ -68,11 +68,11 @@ public class Bigboobsalert extends GenericExtractor{
     private static File downloadThumb(String url) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
         Document page = getPage(url,false);
         
-        String thumbLink = "http://www.bigboobsalert.com/";
+        String thumbLink = "";
         Elements a = page.select("table.bg5").select("a");
         for(Element link: a) {
             if (!link.attr("href").matches("pics/[\\S]+[.]jpg")) continue;
-            thumbLink += link.attr("href"); break;
+            thumbLink = addHost(link.attr("href"),"www.bigboobsalert.com"); break;
         }
         if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink))) //if file not already in cache download it
             CommonUtils.saveFile(thumbLink,CommonUtils.getThumbName(thumbLink),MainApp.imageCache);

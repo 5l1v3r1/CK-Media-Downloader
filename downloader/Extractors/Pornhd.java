@@ -51,7 +51,7 @@ public class Pornhd extends GenericExtractor{
 	Map<String,String> qualities = new HashMap<>(); MediaDefinition media = new MediaDefinition();
 	for(int i = 0; i < rawData.length; i++) {
             if (i == 0) continue;
-            qualities.put(rawData[i], "http://pornhd.com"+CommonUtils.eraseChar(rawData[i+2],'\\'));
+            qualities.put(rawData[i], addHost(CommonUtils.eraseChar(rawData[i+2],'\\'),"pornhd.com"));
             i+=3;
 	}
         media.addThread(qualities, videoName);
@@ -84,7 +84,7 @@ public class Pornhd extends GenericExtractor{
         while(!got) {
             if (count > li.size()) break;
             int i = randomNum.nextInt(li.size()); count++;
-            String link = "https://www.pornhd.com" + li.get(i).select("a.thumb.videoThumb.popTrigger").attr("href");
+            String link = addHost(li.get(i).select("a.thumb.videoThumb.popTrigger").attr("href"),"pornhd.com");
             String title = li.get(i).select("a.title").text();
             try {v = new video(link,title,downloadThumb(link),getSize(link)); } catch(Exception e) {continue;}
             break;
@@ -99,7 +99,7 @@ public class Pornhd extends GenericExtractor{
 	Map<String,String> qualities = new HashMap<>(); MediaDefinition media = new MediaDefinition();
 	for(int i = 0; i < rawData.length; i++) {
             if (i == 0) continue;
-            qualities.put(rawData[i], "http://pornhd.com"+CommonUtils.eraseChar(rawData[i+2],'\\'));
+            qualities.put(rawData[i], addHost(CommonUtils.eraseChar(rawData[i+2],'\\'),"pornhd.com"));
             i+=3;
 	}
         media.addThread(qualities, videoName); //video name is not used so doesnt matter

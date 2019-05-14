@@ -36,7 +36,7 @@ public class DownloadManager {
     private List<DownloaderItem> downloadItems = new ArrayList<>();//list of downloader items that create panes
     private final ExecutorService downloadThreads, sideJobs;
     //private final int threads = 3;
-    private final int sideThreads = 4, TIMES = 3;
+    private final int sideThreads = 4, TIMES = 1;
     private StreamManager streamer;
     private ListView<Pane> downloadsView;
     
@@ -194,7 +194,7 @@ public class DownloadManager {
     }
     
     private class search implements Runnable {
-        DownloaderItem d;
+        private DownloaderItem d;
         
         public search(DownloaderItem d) {
             this.d = d;
@@ -212,13 +212,17 @@ public class DownloadManager {
                             int stop = new Random().nextInt(TIMES) + 1;
                             for(int i = 0; i < stop; i++) {
                                 MainApp.log(d.getName(),d.getSite()); //generate suggestion from search algo with provided info
-                                int result, count = 10;
+                                int result, count = 8;
                                 do { //add similar video as suggestion
+                                    if(!MainApp.active) break;
                                     result = MainApp.log(d.getSide());
+                                    if (result == 2)
+                                        count = count > 3 ? 3 : count;
                                     CommonUtils.log("result: "+result, this);
                                     CommonUtils.log("times "+count, this);
                                     if (count-- < 0) break;
                                 } while(result != 0); //if video was already there repeat
+                                if(!MainApp.active) break;
                             }
                         }
                     } catch (GenericDownloaderException e) {

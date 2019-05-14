@@ -89,17 +89,18 @@ public class Youporn extends GenericQueryExtractor implements Searchable{
         
         Elements searchResults = page.select("div.video-box.four-column.video_block_wrapper");
 	for(int i = 0; i < searchResults.size(); i++) {
-            if (!CommonUtils.testPage("https://www.youporn.com"+searchResults.get(i).select("a").attr("href"))) continue; //test to avoid error 404
-            thequery.addLink("https://www.youporn.com"+searchResults.get(i).select("a").attr("href"));
+            String link = addHost(searchResults.get(i).select("a").attr("href"),"www.youporn.com");
+            if (!CommonUtils.testPage(link)) continue; //test to avoid error 404
+            thequery.addLink(link);
             String thumb = searchResults.get(i).select("a").select("img").attr("data-thumbnail");
             if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb))) //if file not already in cache download it
                 if (CommonUtils.saveFile(thumb, CommonUtils.getThumbName(thumb),MainApp.imageCache) != -2)
                     throw new IOException("Failed to completely download page");
             thequery.addThumbnail(new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumb)));
-            thequery.addPreview(parse("https://www.youporn.com"+searchResults.get(i).select("a").attr("href")));
+            thequery.addPreview(parse(link));
             String title = Jsoup.parse(searchResults.get(i).select("div.video-box-title").toString()).body().text();
             thequery.addName(title);
-            Document linkPage = getPage("https://www.youporn.com"+searchResults.get(i).select("a").attr("href"),false);
+            Document linkPage = getPage(link,false);
             String video = linkPage.getElementById("player-html5").attr("src");
             thequery.addSize(CommonUtils.getContentSize(video));
 	}
@@ -157,7 +158,7 @@ public class Youporn extends GenericQueryExtractor implements Searchable{
             String link = null;
             for(Element a :related.get(i).select("a")) {
                 if(a.attr("href").matches("/watch/\\d+/\\S+/"))
-                    link = "http://youporn.com" + a.attr("href");
+                    link = addHost(a.attr("href"),"youporn.com");
             }
             
             try {
@@ -181,14 +182,15 @@ public class Youporn extends GenericQueryExtractor implements Searchable{
         
 	while(count-- > 0) {
             int i = rand.nextInt(searchResults.size());
-            if (!CommonUtils.testPage("https://www.youporn.com"+searchResults.get(i).select("a").attr("href"))) continue; //test to avoid error 404
+            String link = addHost(searchResults.get(i).select("a").attr("href"),"youporn.com");
+            if (!CommonUtils.testPage(link)) continue; //test to avoid error 404
             String thumb = searchResults.get(i).select("a").select("img").attr("data-thumbnail");
             if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb))) //if file not already in cache download it
                 if (CommonUtils.saveFile(thumb, CommonUtils.getThumbName(thumb),MainApp.imageCache) != -2)
                     throw new IOException("Failed to completely download page");
-            Document linkPage = getPage("https://www.youporn.com"+searchResults.get(i).select("a").attr("href"),false);
+            Document linkPage = getPage(link,false);
             String video = linkPage.getElementById("player-html5").attr("src");
-            v = new video("https://www.youporn.com"+searchResults.get(i).select("a").attr("href"),Jsoup.parse(searchResults.get(i).select("div.video-box-title").toString()).body().text(),new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumb)),CommonUtils.getContentSize(video));
+            v = new video(link,Jsoup.parse(searchResults.get(i).select("div.video-box-title").toString()).body().text(),new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumb)),CommonUtils.getContentSize(video));
             break; //if u made it this far u already have a vaild video
 	}
         return v;

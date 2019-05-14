@@ -230,7 +230,7 @@ public abstract class GenericExtractor {
     public abstract video similar() throws IOException, GenericDownloaderException; //get a video from the related items list
     protected abstract String getValidRegex();
     
-    final protected long getSize(MediaDefinition media) throws GenericDownloaderException, UncheckedIOException, IOException {
+    final static protected long getSize(MediaDefinition media) throws GenericDownloaderException, UncheckedIOException, IOException {
         long size = 0;
         if (!media.isSingleThread()) { //if more than one thread
             Iterator<Map<String,String>> i = media.iterator(); int j = 0;
@@ -274,6 +274,18 @@ public abstract class GenericExtractor {
     
     final public boolean suitable(String url) {
         return url.matches(getValidRegex()) && working();
+    }
+
+    final protected static String addHost(String url, String host) {
+        String real;
+        if (url.startsWith("//"))
+            real = "http:" + url;
+        else if (url.startsWith("/"))
+            real = "http://" + host + url;
+        else if (!url.contains(host))
+            real = "http://" + host + "/" + url;
+        else real = url;
+        return real;
     }
     
     final protected static String getDomain(String s) {

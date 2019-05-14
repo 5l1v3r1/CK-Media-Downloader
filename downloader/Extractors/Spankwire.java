@@ -61,8 +61,9 @@ public class Spankwire extends GenericQueryExtractor implements Searchable{
         
 	Elements searchResults = page.select("li.js-li-thumbs");
 	for(int i = 0; i < searchResults.size(); i++)  {
-            if (!CommonUtils.testPage("https://spankwire.com"+searchResults.get(i).select("a").get(0).attr("href"))) continue; //test to avoid error 404
-            thequery.addLink("https://spankwire.com"+searchResults.get(i).select("a").get(0).attr("href"));
+            String link = addHost(searchResults.get(i).select("a").get(0).attr("href"),"spankwire.com");
+            if (!CommonUtils.testPage(link)) continue; //test to avoid error 404
+            thequery.addLink(link);
             String thumbLink = "https:"+searchResults.get(i).select("img").attr("data-original");
             if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,SKIP))) //if file not already in cache download it
                 if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,SKIP),MainApp.imageCache) != -2)
@@ -70,7 +71,7 @@ public class Spankwire extends GenericQueryExtractor implements Searchable{
             thequery.addThumbnail(new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)));
             thequery.addPreview(parse(thequery.getLink(i)));
             thequery.addName(Jsoup.parse(searchResults.get(i).select("div.video_thumb_wrapper__thumb-wrapper__title_video").select("a").toString()).body().text());
-            long size = -1; try { size = getSize("https://spankwire.com"+searchResults.get(i).select("a").get(0).attr("href")); } catch (GenericDownloaderException | IOException e) {}
+            long size = -1; try { size = getSize(link); } catch (GenericDownloaderException | IOException e) {}
             thequery.addSize(size);
 	}
         return thequery;
@@ -152,7 +153,7 @@ public class Spankwire extends GenericQueryExtractor implements Searchable{
     	String rawJson = Jsoup.connect("http://www.spankwire.com/api/video/"+getId(url,getRegex())+".json").ignoreContentType(true).execute().body();
         try {
             JSONObject json = (JSONObject)new JSONParser().parse(rawJson);
-            String link = "http://spankwire.com" + ((JSONObject)json.get("related")).get("url");
+            String link = addHost((String)((JSONObject)json.get("related")).get("url"),"spankwire.com");
             video v;
             try {v = new video(link,downloadVideoName(link),downloadThumb(link),getSize(link)); }catch (Exception e) { throw new PageParseException("["+this.getClass().getSimpleName()+"]"+e.getMessage());}
             return v;
@@ -173,14 +174,14 @@ public class Spankwire extends GenericQueryExtractor implements Searchable{
         
 	while(count-- > 0) {
             int i = rand.nextInt(searchResults.size());
-            if (!CommonUtils.testPage("https://spankwire.com"+searchResults.get(i).select("a").get(0).attr("href"))) continue; //test to avoid error 404
+            String link = addHost(searchResults.get(i).select("a").get(0).attr("href"),"spankwire.com");
+            if (!CommonUtils.testPage(link)) continue; //test to avoid error 404
             String thumbLink = "https:"+searchResults.get(i).select("img").attr("data-original");
             if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,SKIP))) //if file not already in cache download it
                 if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,SKIP),MainApp.imageCache) != -2)
                     throw new IOException("Failed to completely download page");
-            String link = "https://spankwire.com"+searchResults.get(i).select("a").get(0).attr("href");
             long size; try { size = getSize(link); } catch (GenericDownloaderException | IOException e) {continue;}
-            v = new video("https://spankwire.com"+searchResults.get(i).select("a").get(0).attr("href"),Jsoup.parse(searchResults.get(i).select("div.video_thumb_wrapper__thumb-wrapper__title_video").select("a").toString()).body().text(),new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)),size);
+            v = new video(link,Jsoup.parse(searchResults.get(i).select("div.video_thumb_wrapper__thumb-wrapper__title_video").select("a").toString()).body().text(),new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)),size);
             break; //if u made it this far u already have a vaild video
 	}
         return v;

@@ -80,7 +80,7 @@ public class Cumlouder extends GenericExtractor implements Searchable{
         while(!got) {
         	if (count > li.size()) break;
         	int i = randomNum.nextInt(li.size()); count++;
-        	String link = "https://www.cumlouder.com" + li.get(i).attr("href");
+        	String link = addHost(li.get(i).attr("href"),"www.cumlouder.com");
             String thumb = li.get(i).select("img.thumb").attr("src");
             String title = li.get(i).select("img.thumb").attr("title");
             if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
@@ -108,7 +108,7 @@ public class Cumlouder extends GenericExtractor implements Searchable{
             if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,SKIP))) //if file not already in cache download it
                 if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,SKIP),MainApp.imageCache) != -2)
                     throw new IOException("Failed to completely download page");
-            String link = "https://www.cumlouder.com" + li.get(i).select("a").attr("href");
+            String link = addHost(li.get(i).select("a").attr("href"),"www.cumlouder.com");
             String name = li.get(i).select("img.thumb").attr("title");
             if (link.isEmpty() || name.isEmpty()) continue;
             v = new video(link,name,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)),getSize(link));

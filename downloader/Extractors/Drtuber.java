@@ -132,7 +132,7 @@ public class Drtuber extends GenericExtractor implements Searchable{
         
 	while (count-- > 0) {
             int i = rand.nextInt(searchResults.size());
-            String link = "https://www.drtuber.com" + searchResults.get(i).attr("href");
+            String link = addHost(searchResults.get(i).attr("href"),"www.drtuber.com");
             if (!CommonUtils.testPage(link)) continue; //test to avoid error 404
             //try {verify(getPage(link,false)); } catch (GenericDownloaderException e) {continue;}
             try {

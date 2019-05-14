@@ -107,7 +107,7 @@ public class Porn extends GenericExtractor implements Searchable{
         while(!got) {
             if (count > divs.size()) break;
             int i = randomNum.nextInt(divs.size()); count++;
-            String link = "https://www.porn.com" + divs.get(i).select("div.thumb").select("a").attr("href");
+            String link = addHost(divs.get(i).select("div.thumb").select("a").attr("href"),"www.porn.com");
             String title = divs.get(i).select("div.thumb").select("a").attr("title");
             String thumb = divs.get(i).select("div.thumb").select("img").attr("src");
             if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
@@ -128,7 +128,7 @@ public class Porn extends GenericExtractor implements Searchable{
         
 	while(count-- > 0) {
             Element div = divs.get(rand.nextInt(divs.size()));
-            String link = "https://www.porn.com" + div.select("div.thumb").select("a").attr("href");
+            String link = addHost(div.select("div.thumb").select("a").attr("href"),"www.porn.com");
             if (!CommonUtils.testPage(link)) continue; //test to avoid error 404
             String thumb = div.select("div.thumb").select("img").attr("src");
             if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it

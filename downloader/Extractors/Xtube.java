@@ -104,7 +104,7 @@ public class Xtube extends GenericExtractor implements Searchable{
         while(!got) {
             if (count > li.size()) break;
             int i = randomNum.nextInt(li.size()); count++;
-            String link = "https://www.xtube.com" + li.get(i).select("a").get(0).attr("href");
+            String link = addHost(li.get(i).select("a").get(0).attr("href"),"www.xtube.com");
             try {verify(getPage(link,false));} catch (GenericDownloaderException ex) {continue;}
             String title = li.get(i).select("h3").text();
                 
@@ -126,7 +126,7 @@ public class Xtube extends GenericExtractor implements Searchable{
         
         while(count-- > 0) {
             int i = rand.nextInt(li.size());
-            String link = "http://www.xtube.com" + li.get(i).select("a").get(0).attr("href");
+            String link = addHost(li.get(i).select("a").get(0).attr("href"),"www.xtube.com");
             try {verify(getPage(link,false));} catch (GenericDownloaderException ex) {continue;}
             String thumbLink = li.get(i).select("img").get(0).attr("src"); 
             if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,SKIP))) //if file not already in cache download it

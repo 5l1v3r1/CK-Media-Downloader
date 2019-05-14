@@ -67,7 +67,7 @@ public class Yourporn extends GenericExtractor implements Searchable{
         Vector<String> links = new Vector<>();
 	if (pagination.size() > 0)
             for(Element link: pagination)
-                links.addAll(getImages(getPage("http://pics.vc/"+ link.attr("href"),false)));
+                links.addAll(getImages(getPage(addHost(link.attr("href"),"pics.vc"),false)));
         else return getImages(page);
         return links;
     }
@@ -86,7 +86,7 @@ public class Yourporn extends GenericExtractor implements Searchable{
                 media.addThread(qualities, CommonUtils.getPicName(links.get(i)));
             }
         } else {
-            String video = "https://www.yourporn.sexy"+CommonUtils.eraseChar(page.select("span.vidsnfo").attr("data-vnfo").split("\"")[3],'\\');
+            String video = addHost(CommonUtils.eraseChar(page.select("span.vidsnfo").attr("data-vnfo").split("\"")[3],'\\'),"www.yourporn.sexy");
             //String video = "https://www.yourporn.sexy"+page.select("video.player_el").attr("src");
             Map<String,String> qualities = new HashMap<>();
             String test = video.replace("cdn", "cdn4");
@@ -159,7 +159,7 @@ public class Yourporn extends GenericExtractor implements Searchable{
             String link = null;
             for(Element a :post.get(i).select("a")) {
                 if(a.attr("href").matches("/post/\\S+.html"))
-                    link = "http://yourporn.sexy" + a.attr("href");
+                    link = addHost(a.attr("href"),"yourporn.sexy");
             }
             
             try {
@@ -180,7 +180,7 @@ public class Yourporn extends GenericExtractor implements Searchable{
         
 	while(count-- > 0) {
             int i = rand.nextInt(searchResults.size());
-            String link = "https://yourporn.sexy" + searchResults.get(i).select("div.post_control").select("a").attr("href");
+            String link = addHost(searchResults.get(i).select("div.post_control").select("a").attr("href"),"yourporn.sexy");
             if (!CommonUtils.testPage(link)) continue; //test to avoid error 404
             try {verify(getPage(link,false)); } catch (GenericDownloaderException e) {continue;}
             try {
@@ -207,7 +207,7 @@ public class Yourporn extends GenericExtractor implements Searchable{
                 media.addThread(qualities, CommonUtils.getPicName(links.get(i)));
             }
         } else {
-            String video = "https://www.yourporn.sexy"+CommonUtils.eraseChar(page.select("span.vidsnfo").attr("data-vnfo").split("\"")[3],'\\');
+            String video = addHost(CommonUtils.eraseChar(page.select("span.vidsnfo").attr("data-vnfo").split("\"")[3],'\\'),"yourporn.sexy");
             Map<String,String> qualities = new HashMap<>();
             String test = video.replace("cdn", "cdn4");
             Pattern p = Pattern.compile("(.+/)s(\\d+)-1(/.+)");

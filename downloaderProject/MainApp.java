@@ -408,8 +408,7 @@ public class MainApp extends Application {
         actionPaneHolder = (AnchorPane)scene.lookup("#currentView");
         displayPane(DOWNLOADPANE);
        
-        Label userLabel = (Label) scene.lookup("#username");
-        userLabel.setText(username);
+        ((Label)scene.lookup("#username")).setText(username);
       
         settings.init(); setupDownloadHistoryPane();
         downloadHistoryList.setSettings(settings);
@@ -448,7 +447,6 @@ public class MainApp extends Application {
         window.show();
         
         loadSuggestions();
-        
         ExecutorService x = Executors.newSingleThreadExecutor();
         x.execute(clippy); x.shutdown();
         //startGarbageSuggester();
@@ -478,6 +476,7 @@ public class MainApp extends Application {
     }
     
     public static int log(video v) {
+        if (!active) return -2;
         if (habits != null) {
             int code = habits.addSuggestion(v);
             try {DataIO.saveCollectedData(habits);} catch(IOException e) {CommonUtils.log("Failed to save habits","MainApp");}

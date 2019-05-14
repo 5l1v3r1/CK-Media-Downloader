@@ -100,7 +100,7 @@ public class Imgur extends GenericExtractor {
 		String title = (String)details.get("title");
         	for(int i = 0; i < count; i++) {
                     String name = title.length() < 1 ? ((JSONObject)images.get(i)).get("hash")+" "+String.valueOf(i+1)+((JSONObject)images.get(i)).get("ext") : title + " " + String.valueOf(i+1);
-                    String link = "https://i.imgur.com/"+ ((JSONObject)images.get(i)).get("hash")+""+((JSONObject)images.get(i)).get("ext"); 
+                    String link = addHost(((JSONObject)images.get(i)).get("hash")+""+((JSONObject)images.get(i)).get("ext"),"i.imgur.com"); 
                     Map<String,String> qualities = new HashMap<>();
                     qualities.put("single",link); media.setAlbumName(videoName);
                     media.addThread(qualities,name);
@@ -116,7 +116,7 @@ public class Imgur extends GenericExtractor {
         String title = (String)details.get("title");
                
         String name = title.length() < 1 ? details.get("hash")+""+details.get("ext") : title;
-        String link = "https://i.imgur.com/"+ details.get("hash")+""+details.get("ext"); 
+        String link = addHost(details.get("hash")+""+details.get("ext"),"i.imgur.com"); 
         Map<String,String> qualities = new HashMap<>(); MediaDefinition media = new MediaDefinition();
         qualities.put("single",link); media.addThread(qualities,name);
         return media;

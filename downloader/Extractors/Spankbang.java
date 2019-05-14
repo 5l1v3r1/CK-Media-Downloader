@@ -130,17 +130,17 @@ public class Spankbang extends GenericQueryExtractor implements Playlist, Search
         
 	Elements searchResults = page.select("div.video-item");
 	for(int i = 0; i < searchResults.size(); i++)  {
-            if (!CommonUtils.testPage("https://spankbang.com"+searchResults.get(i).select("a.thumb").attr("href"))) continue; //test to avoid error 404
-            try {verify(getPage("https://spankbang.com"+searchResults.get(i).select("a.thumb").attr("href"),false)); } catch (GenericDownloaderException e) {continue;}
-            thequery.addLink("https://spankbang.com"+searchResults.get(i).select("a.thumb").attr("href"));
+            String link = addHost(searchResults.get(i).select("a.thumb").attr("href"),"spankbang.com");
+            if (!CommonUtils.testPage(link)) continue; //test to avoid error 404
+            try {verify(getPage(link,false)); } catch (GenericDownloaderException e) {continue;}
+            thequery.addLink(link);
             String thumbLink = "https:"+searchResults.get(i).select("a.thumb").select("img").attr("data-src"); //src for pc
             if (!CommonUtils.checkImageCache(CommonUtils.parseName(thumbLink,".jpg"))) //if file not already in cache download it
                 if (CommonUtils.saveFile(thumbLink, CommonUtils.parseName(thumbLink,".jpg"),MainApp.imageCache) != -2)
                     throw new IOException("Failed to completely download page");
-            String link = "https://spankbang.com"+searchResults.get(i).select("a.thumb").attr("href");
             thequery.addThumbnail(new File(MainApp.imageCache+File.separator+CommonUtils.parseName(thumbLink,".jpg")));
             thequery.addPreview(parse(thequery.getLink(i)));
-            thequery.addName(downloadVideoName("https://spankbang.com"+searchResults.get(i).select("a.thumb").attr("href")));
+            thequery.addName(downloadVideoName(addHost(searchResults.get(i).select("a.thumb").attr("href"),"spankbang.com")));
             thequery.addSize(getSize(link));
 	}
         return thequery;
@@ -210,7 +210,7 @@ public class Spankbang extends GenericQueryExtractor implements Playlist, Search
         
         while(count-- > 0){
             int i = rand.nextInt(li.size());
-            String link = "https://spankbang.com" + li.get(i).select("a.thumb").attr("href");
+            String link = addHost(li.get(i).select("a.thumb").attr("href"),"spankbang.com");
             try {verify(getPage(link,false));} catch (GenericDownloaderException e) {continue;}
             String title = li.get(i).select("div.inf").select("a").text();
             try {if (title.length() < 1) title = downloadVideoName(link);} catch (Exception e) {continue;}
@@ -231,15 +231,16 @@ public class Spankbang extends GenericQueryExtractor implements Playlist, Search
 
 	while(count-- > 0) {
             int i = rand.nextInt(searchResults.size());
-            if (!CommonUtils.testPage("https://spankbang.com"+searchResults.get(i).select("a.thumb").attr("href"))) continue; //test to avoid error 404
-            try {verify(getPage("https://spankbang.com"+searchResults.get(i).select("a.thumb").attr("href"),false)); } catch (GenericDownloaderException e) {continue;}
+            String link = addHost(searchResults.get(i).select("a.thumb").attr("href"),"spankbang.com");
+            if (!CommonUtils.testPage(link)) continue; //test to avoid error 404
+            try {verify(getPage(link,false)); } catch (GenericDownloaderException e) {continue;}
             String thumbLink = "https:"+searchResults.get(i).select("a.thumb").select("img").attr("data-src"); //src for pc
             if (!CommonUtils.checkImageCache(CommonUtils.parseName(thumbLink,".jpg"))) //if file not already in cache download it
                 if (CommonUtils.saveFile(thumbLink, CommonUtils.parseName(thumbLink,".jpg"),MainApp.imageCache) != -2)
                     throw new IOException("Failed to completely download page");
             try {
-                long size = getSize("https://spankbang.com"+searchResults.get(i).select("a.thumb").attr("href"));
-                v = new video("https://spankbang.com"+searchResults.get(i).select("a.thumb").attr("href"),downloadVideoName("https://spankbang.com"+searchResults.get(i).select("a.thumb").attr("href")),new File(MainApp.imageCache+File.separator+CommonUtils.parseName(thumbLink,".jpg")),size);
+                long size = getSize(link);
+                v = new video(link,downloadVideoName(link),new File(MainApp.imageCache+File.separator+CommonUtils.parseName(thumbLink,".jpg")),size);
             } catch (Exception e) {
                 v = null; continue;
             }
@@ -263,7 +264,7 @@ public class Spankbang extends GenericQueryExtractor implements Playlist, Search
         Elements div = page.select("div.results").select("div.video-item");
         Vector<String> list = new Vector<>();
         for(int i = 0; i < div.size(); i++)
-            list.add("https://spankbang.com" + div.get(i).select("a").get(0).attr("href"));
+            list.add(addHost(div.get(i).select("a").get(0).attr("href"),"spankbang.com"));
         return list;
     }
     

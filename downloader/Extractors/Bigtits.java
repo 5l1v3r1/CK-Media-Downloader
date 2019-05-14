@@ -113,7 +113,7 @@ public class Bigtits extends GenericExtractor implements Searchable{
             if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,SKIP))) //if file not already in cache download it
                 if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,SKIP),MainApp.imageCache) != -2)
                     throw new IOException("Failed to completely download page");
-            String link = "http://www.bigtits.com" + li.get(i).select("div.thumb_container").select("a").attr("href");
+            String link = addHost(li.get(i).select("div.thumb_container").select("a").attr("href"),"www.bigtits.com");
             String name = li.get(i).select("div.thumb_container").select("a").select("img").attr("title");
             if (link.isEmpty() || name.isEmpty()) continue;
             Document linkPage = getPage(link,false);

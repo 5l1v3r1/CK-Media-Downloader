@@ -78,7 +78,7 @@ public class Anysex extends GenericExtractor implements Searchable{
             String link = null;
             for(Element a :results.get(i).select("a")) {
                 if(a.attr("href").matches("/\\d+/"))
-                    link = "http://anysex.com" + a.attr("href");
+                    link = addHost(a.attr("href"),"anysex.com");
             } 
             
             try {
@@ -100,7 +100,7 @@ public class Anysex extends GenericExtractor implements Searchable{
             Element li = lis.get(rand.nextInt(lis.size()));
             if (li.select("a").isEmpty()) continue;
             if (!CommonUtils.testPage(li.select("a").attr("href"))) continue; //test to avoid error 404
-            String link = "https://anysex.com" + li.select("a").attr("href");
+            String link = addHost(li.select("a").attr("href"),"anysex.com");
             try { v = new video(link,downloadVideoName(link),downloadThumb(link),getSize(link)); } catch (Exception e) {continue;}
             break; //if u made it this far u already have a vaild video
 	}
