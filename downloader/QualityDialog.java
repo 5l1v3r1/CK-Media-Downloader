@@ -10,10 +10,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -76,6 +73,7 @@ public class QualityDialog {
             qualityList.getStyleClass().clear(); qualityList.getStyleClass().add("qualityList");
             List<Pane> items = new ArrayList<>();
             List<String> q = CommonUtils.getSortedFormats(qualities.keySet());
+            ((ArrayList)items).ensureCapacity(q.size());
             for(String s: q)
                 if (qualities.get(s) != null)
                     if (qualities.get(s).length() > 0)

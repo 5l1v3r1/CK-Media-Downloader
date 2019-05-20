@@ -69,7 +69,7 @@ public class MainApp extends Application {
     private static QueryManager query;
     private static Scene scene;
     private static boolean dontLoad;
-    private static final String VERSION = "build 32.5", TITLE = "Video Downloader "+VERSION;
+    private static final String VERSION = "build 33", TITLE = "Video Downloader "+VERSION;
     
     private static final int WIDTH = 895, HEIGHT = 550, XS = 100, PANES = 7;
     public static Pane[] actionPanes = new Pane[PANES];
@@ -504,6 +504,7 @@ public class MainApp extends Application {
                 else if (habits.suggestions() > 20 && habits.suggestions() <= 35) pull = 3;
                 else if (habits.suggestions() > 35 && habits.suggestions() <= 50) pull = 4;
                 else if (habits.suggestions() > 50) pull = 5;
+                dm.reserve(pull);
                 for(int i = 0; i < pull; i++) {
                     video temp = habits.next(); 
                     if (temp != null)

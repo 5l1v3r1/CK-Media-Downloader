@@ -147,7 +147,7 @@ public class QueryManager {
             setSearch(search);
         }
         
-        public void setSearch(String search) {
+        final public void setSearch(String search) {
             this.search = search;
             results = new GenericQuery();
         }
@@ -209,6 +209,7 @@ public class QueryManager {
                         results.addQuery(extractor[i].query(search));
                 updateView();
                 generateHistory(extractor);
+                MainApp.log(search, null);
             } catch (SocketTimeoutException e) {
                 MainApp.createMessageDialog("A Page took too long to respond");
             } catch(UncheckedIOException e ){

@@ -472,6 +472,8 @@ public class DownloaderItem {
                     m.put(temp.get(temp.keySet().iterator().next()), media.getThreadName(j++));
             }
             Iterator<String> k = m.keySet().iterator();
+            downloadLinks.ensureCapacity(m.keySet().size());
+            downloadNames.ensureCapacity(m.keySet().size());
             while(k.hasNext()) { //download threads with chosen qualities
                 String tempLink = k.next();
                 downloadLinks.add(tempLink);

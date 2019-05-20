@@ -18,7 +18,8 @@ import ChrisPackage.Star;
 import downloader.CommonUtils;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
-import downloader.Extractors.*;
+import downloader.Extractors.Searchable;
+import downloader.Extractors.GenericExtractor;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.lang.reflect.Constructor;
@@ -127,6 +128,7 @@ public class DataCollection implements Externalizable{
                     if (parseStar(words[i]))
                         words[i] = null;
         }
+        pure.ensureCapacity(words.length);
         for(String s: words)
             if (s != null)
                 pure.add(s);

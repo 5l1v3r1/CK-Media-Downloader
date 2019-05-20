@@ -72,6 +72,10 @@ public class DownloadManager {
         this.streamer = s;
     }
     
+    public void reserve(int i) {
+        ((ArrayList)downloadItems).ensureCapacity(i);
+    }
+    
     public void changeTheme(boolean enable) {
         for(int i = 0; i < downloadsView.getItems().size(); i++) {
             if ((downloadsView.getItems().get(i)).getStylesheets() != null) (downloadsView.getItems().get(i)).getStylesheets().clear();
@@ -218,6 +222,8 @@ public class DownloadManager {
                                     result = MainApp.log(d.getSide());
                                     if (result == 2)
                                         count = count > 3 ? 3 : count;
+                                    else if (result == 1)
+                                        count = count > 2 ? 2 : count;
                                     CommonUtils.log("result: "+result, this);
                                     CommonUtils.log("times "+count, this);
                                     if (count-- < 0) break;
