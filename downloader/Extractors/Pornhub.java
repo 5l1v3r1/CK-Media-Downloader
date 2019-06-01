@@ -43,7 +43,7 @@ import org.jsoup.select.Elements;
  * @author christopher
  */
 public class Pornhub extends GenericQueryExtractor implements Playlist, Searchable{
-    private static final int SKIP = 4;
+    private static final int SKIP = 4, REPEAT = 10;
     private String playlistUrl = null;
     
     public Pornhub() { //this contructor is used for when you jus want to query
@@ -370,12 +370,13 @@ public class Pornhub extends GenericQueryExtractor implements Playlist, Searchab
     }
     
     private video getRelated() throws IOException, GenericDownloaderException{
-        return getRelated(0);
+        return getRelated(REPEAT);
     }
     
     private video getRelated(int tries) throws IOException, GenericDownloaderException{
         CommonUtils.log("chose related",this);
         if (url == null) return null;
+        if (tries-- < 1) return null;
         
         video v = null;
         try {
@@ -398,18 +399,19 @@ public class Pornhub extends GenericQueryExtractor implements Playlist, Searchab
                 break;
             }
         } catch (NullPointerException e) {
-            if (tries < 1) return getRecommended(1);
+            if (tries < 1) return getRecommended(tries);
         }
-        return v == null ? getRecommended() : v;
+        return v == null ? getRecommended(tries) : v;
     }
     
     private video getRecommended() throws IOException, GenericDownloaderException {
-        return getRecommended(0);
+        return getRecommended(REPEAT);
     }
     
     private video getRecommended(int tries) throws IOException, GenericDownloaderException{
         CommonUtils.log("chose recommeded",this);
         if (url == null) return null;
+        if (tries-- < 1) return null;
         
         video v = null;
         try {
@@ -432,9 +434,9 @@ public class Pornhub extends GenericQueryExtractor implements Playlist, Searchab
                 try {v = new video(link,title,downloadThumb(link),getSize(link)); }catch (Exception e) {}
             }
         } catch (NullPointerException e) {
-            if (tries < 1) return getRelated(1);
+            return getRelated(tries);
         }
-        return v == null ? getRelated() : v;
+        return v == null ? getRelated(tries) : v;
     }
 
     @Override public video search(String str) throws IOException, GenericDownloaderException {

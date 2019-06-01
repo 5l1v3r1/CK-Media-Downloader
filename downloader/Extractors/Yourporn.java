@@ -54,8 +54,9 @@ public class Yourporn extends GenericExtractor implements Searchable{
         Elements imgs = page.select("img.photo_el_img");
         Vector<String> links = new Vector<>();
         
-	for(Element img :imgs)
+        imgs.forEach((img) -> {
             links.add(img.attr("src").replaceAll("/s/","/n/"));
+        });
         return links;
     }
 	
@@ -161,7 +162,7 @@ public class Yourporn extends GenericExtractor implements Searchable{
                 if(a.attr("href").matches("/post/\\S+.html"))
                     link = addHost(a.attr("href"),"sxyprn.com");
             }
-            CommonUtils.log(link,"asdasd");
+            
             try {
                 File thumb = downloadThumb(link);
                 v = new video(link,downloadVideoName(link),thumb,getSize(link));

@@ -76,13 +76,27 @@ public class Xhamster extends GenericQueryExtractor implements Searchable{
     
     @Override public MediaDefinition getVideo() throws IOException,SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
         Document page = getPage(url,false,true);
-        Map<String,String> qualities =  getQualities(page.toString().substring(page.toString().indexOf("mp4\":[")+5));
- 
-	//String video = page.select("a.player-container__no-player.xplayer.xplayer-fallback-image.xh-helper-hidden").attr("href");
-        
         MediaDefinition media = new MediaDefinition();
-        media.addThread(qualities,videoName);
+        
+        if (!isAlbum(url)) {
+            Map<String,String> qualities = getQualities(page.toString().substring(page.toString().indexOf("mp4\":[")+5));
 
+            //String video = page.select("a.player-container__no-player.xplayer.xplayer-fallback-image.xh-helper-hidden").attr("href");
+            media.addThread(qualities,videoName);
+        } else {
+            //https://xhamster.com/photos/gallery/julie-anderson-977633
+            final int max = Integer.parseInt(page.select("span.page-title__count").text());
+            Elements imgs = page.select("div.image-thumb"); int next = 2;
+            while(imgs.size() < max)
+                imgs.addAll(getPage(url+"/"+next++,false,true).select("div.image-thumb"));
+            for(int i = 0; i < imgs.size(); i++) {
+                Map<String,String> pic = new HashMap<>();
+                String link = imgs.get(i).attr("data-lazy");
+                pic.put("single",link);
+                media.addThread(pic, videoName+"-"+link.split("/")[link.split("/").length -1]);
+            }
+            media.setAlbumName(videoName);
+        }
         return media;
     }
 
@@ -132,14 +146,14 @@ public class Xhamster extends GenericQueryExtractor implements Searchable{
     private static String downloadVideoName(String url) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
         Document page = getPage(url,false);
         
-        return Jsoup.parse(page.select("h1.entity-info-container__title").toString()).body().text();
+        return isAlbum(url) ? page.select("h1").text() : Jsoup.parse(page.select("h1.entity-info-container__title").toString()).body().text();
     } 
 	
     //getVideo thumbnail
     private static File downloadThumb(String url) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
         Document page = getPage(url,true);
         
-	String thumb = page.select("header").select("img").attr("src");
+	String thumb = !isAlbum(url) ? page.select("header").select("img").attr("src") : page.select("img.thumb").get(0).attr("src");
         
         if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
             CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache);
@@ -152,9 +166,14 @@ public class Xhamster extends GenericQueryExtractor implements Searchable{
             return url.replaceFirst(".m", "");
         else return url;
     }
+    
+    private static boolean isAlbum(String link) {
+        return link.matches("https?://(?:[\\S]+?[.])?xhamster[.](?:com|one)/photos/gallery/[^/]*-[\\d]+\\S*");
+    }
 
     @Override public video similar() throws IOException, GenericDownloaderException {
     	if (url == null) return null;
+        if (isAlbum(url)) return null;
         
         video v = null;
         Document page = getPage(url,false);
@@ -205,6 +224,6 @@ public class Xhamster extends GenericQueryExtractor implements Searchable{
 
     @Override protected String getValidRegex() {
         works = true;
-        return "https?://(?:[\\S]+?[.])?xhamster[.](?:com|one)/(?:movies/(?<id>[\\d]+)/(?<displayid>[^/]*)[.]html([?]\\S*)?|videos/(?<displayid2>[^/]*)-(?<id2>[\\d]+))\\S*"; 
+        return "https?://(?:[\\S]+?[.])?xhamster[.](?:com|one)/(?:movies/(?<id>[\\d]+)/(?<displayid>[^/]*)[.]html([?]\\S*)?|videos/(?<displayid2>[^/]*)-(?<id2>[\\d]+)|photos/gallery/(?<displayid3>[^/]*)-(?<id3>[\\d]+))\\S*"; 
     }
 }

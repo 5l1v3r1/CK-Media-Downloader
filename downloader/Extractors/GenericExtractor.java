@@ -232,22 +232,24 @@ public abstract class GenericExtractor {
     
     final static protected long getSize(MediaDefinition media) throws GenericDownloaderException, UncheckedIOException, IOException {
         long size = 0;
-        if (!media.isSingleThread()) { //if more than one thread
-            Iterator<Map<String,String>> i = media.iterator(); int j = 0;
-            while(i.hasNext()) { //get best quality from thread
-                Map<String,String> temp = i.next();
-                String highestQuality = temp.keySet().size() == 1 ? temp.keySet().iterator().next() : CommonUtils.getSortedFormats(temp.keySet()).get(0);
-                if(temp.get(highestQuality) != null || !temp.get(highestQuality).isEmpty()) {
-                    long s = CommonUtils.getContentSize(temp.get(highestQuality));
+        if (media != null) {
+            if (!media.isSingleThread()) { //if more than one thread
+                Iterator<Map<String,String>> i = media.iterator(); int j = 0;
+                while(i.hasNext()) { //get best quality from thread
+                    Map<String,String> temp = i.next();
+                    String highestQuality = temp.keySet().size() == 1 ? temp.keySet().iterator().next() : CommonUtils.getSortedFormats(temp.keySet()).get(0);
+                    if(temp.get(highestQuality) != null || !temp.get(highestQuality).isEmpty()) {
+                        long s = CommonUtils.getContentSize(temp.get(highestQuality));
+                        size += s < 0 ? 0 : s;
+                    }
+                }
+            } else {
+                Map<String,String> m = media.iterator().next();
+                String highestQuality = m.keySet().size() == 1 ? m.keySet().iterator().next() : CommonUtils.getSortedFormats(m.keySet()).get(0);
+                if(m.get(highestQuality) != null || !m.get(highestQuality).isEmpty()) {
+                    long s = CommonUtils.getContentSize(m.get(highestQuality));
                     size += s < 0 ? 0 : s;
                 }
-            }
-        } else {
-            Map<String,String> m = media.iterator().next();
-            String highestQuality = m.keySet().size() == 1 ? m.keySet().iterator().next() : CommonUtils.getSortedFormats(m.keySet()).get(0);
-            if(m.get(highestQuality) != null || !m.get(highestQuality).isEmpty()) {
-                long s = CommonUtils.getContentSize(m.get(highestQuality));
-                size += s < 0 ? 0 : s;
             }
         }
         return size;
@@ -260,7 +262,13 @@ public abstract class GenericExtractor {
     final static protected String getId(String link, String regex) {
         Pattern p = Pattern.compile(regex);
         Matcher m = p.matcher(link);
-        return !m.find() ? "" :  m.group("id") == null || m.group("id").isEmpty() ? m.group("id2"): m.group("id");
+        if (!m.find())
+            return "";
+        else if (m.group("id") != null && !m.group("id").isEmpty())
+            return m.group("id");
+        else if (m.group("id2") != null && !m.group("id2").isEmpty())
+            return m.group("id2");
+        else return m.group("id3");
     }
    
     final public String getId(String link) {

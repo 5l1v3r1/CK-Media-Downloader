@@ -50,6 +50,7 @@ public class Pornpics extends GenericExtractor{
             Map<String,String> qualities = new HashMap<>(); qualities.put("single",item.attr("href"));
             media.addThread(qualities, CommonUtils.getThumbName(item.attr("href"),SKIP));
         });
+        media.setAlbumName(videoName);
         return media;
     }
     

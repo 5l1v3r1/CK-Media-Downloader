@@ -179,10 +179,7 @@ public class DownloaderItem {
     
     private boolean getThumbnail() {
         ImageView view = (ImageView)root.lookup("#thumb");
-        if (v == null)
-            return setFromExtractor(view);
-        else
-            return setFromVideo(view);
+        return v == null ? setFromExtractor(view) : setFromVideo(view);
     }
     
     private void setStreamButton() {
