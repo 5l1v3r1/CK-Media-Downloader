@@ -392,14 +392,14 @@ public class Pornhub extends GenericQueryExtractor implements Playlist, Searchab
                 String link = addHost(li.get(i).select("div.phimage").select("a.img").attr("href"),"pornhub.com"); try {verify(getPage(link,false));} catch (GenericDownloaderException e) {continue;}
                 //if (!link.startsWith("http://pornhub.com") || !link.startsWith("https://pornhub.com")) link = "http://pornhub.com" + link;
                 if (!link.matches("https?://pornhub.com/view_video.php[?]viewkey=[\\S]+")) continue;
-                String title = li.get(i).select("div.phimage").select("a.img").attr("data-title");
+                String title = li.get(i).select("div.phimage").select("a.img").attr("title");
                 if (title.length() < 1) title = li.get(i).select("div.phimage").select("a.img").attr("data-title");
                 try {if (title.length() < 1) title = downloadVideoName(link);}catch(Exception e) {continue;}
                 try {v = new video(link,title,downloadThumb(link),getSize(link)); }catch (Exception e) {}
                 break;
             }
         } catch (NullPointerException e) {
-            if (tries < 1) return getRecommended(tries);
+            return getRecommended(tries);
         }
         return v == null ? getRecommended(tries) : v;
     }
@@ -428,10 +428,15 @@ public class Pornhub extends GenericQueryExtractor implements Playlist, Searchab
                 String link = addHost(li.get(i).select("div.phimage").select("a.img").attr("href"),"pornhub.com"); try {verify(getPageCookie(link,false));} catch (GenericDownloaderException e) {continue;}
                 //if (!link.startsWith("http://pornhub.com") || !link.startsWith("https://pornhub.com")) link = "http://pornhub.com" + link;
                 if (!link.matches("https?://pornhub.com/view_video.php[?]viewkey=[\\S]+")) continue;
-                String title = li.get(i).select("div.phimage").select("a.img").attr("data-title");
+                String title = li.get(i).select("div.phimage").select("a.img").attr("title");
                 if (title.length() < 1) title = li.get(i).select("div.phimage").select("a.img").attr("data-title");
                 try {if (title.length() < 1) title = downloadVideoName(link);}catch(Exception e) {continue;}
-                try {v = new video(link,title,downloadThumb(link),getSize(link)); }catch (Exception e) {}
+                String thumb = li.get(i).select("a.linkVideoThumb.img").select("img").attr("data-thumb_url");
+                if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP+1))) //if file not already in cache download it
+                    CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,SKIP+1),MainApp.imageCache);
+                File thumbFile = new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,SKIP+1));
+                try {v = new video(link,title,thumbFile,getSize(link)); }catch (Exception e) {}
+                break;
             }
         } catch (NullPointerException e) {
             return getRelated(tries);

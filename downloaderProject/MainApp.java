@@ -69,7 +69,7 @@ public class MainApp extends Application {
     private static QueryManager query;
     private static Scene scene;
     private static boolean dontLoad;
-    private static final String VERSION = "build 34", TITLE = "Video Downloader "+VERSION;
+    private static final String VERSION = "build 34.1", TITLE = "Video Downloader "+VERSION;
     
     private static final int WIDTH = 895, HEIGHT = 550, XS = 100, PANES = 7;
     public static Pane[] actionPanes = new Pane[PANES];
@@ -80,6 +80,7 @@ public class MainApp extends Application {
     private ClipboardListener clippy;
     public static mainLayoutController mainController;
     private static Stage window;
+    private static int load;
 
     private void getUserName() {
         username = System.getProperty("user.name");
@@ -421,11 +422,13 @@ public class MainApp extends Application {
             active = false;
             if (query != null)
                 query.release();
-            dm.release();
-            dm = null;
+            if (dm != null) {
+                dm.release();
+                dm = null;
+            }
             clippy.stop();
-            try {DataIO.saveCollectedData(habits);} catch(IOException e) {CommonUtils.log("Failed to save habits",this);}
-            writeJson();
+            try {DataIO.saveCollectedData(habits);
+            writeJson();} catch(IOException e) {CommonUtils.log("Failed to save habits",this);}
             habits = null;
             act = null;
             CommonUtils.log("Exiting",this);
@@ -446,6 +449,7 @@ public class MainApp extends Application {
         window.show();
         
         loadSuggestions();
+        
         ExecutorService x = Executors.newSingleThreadExecutor();
         x.execute(clippy); x.shutdown();
         //startGarbageSuggester();
@@ -499,16 +503,24 @@ public class MainApp extends Application {
         if (!dontLoad) {
             if (habits != null) {
                 int pull = 1;
-                if (habits.suggestions() > 10 && habits.suggestions() <= 20) pull = 2;
-                else if (habits.suggestions() > 20 && habits.suggestions() <= 35) pull = 3;
-                else if (habits.suggestions() > 35 && habits.suggestions() <= 50) pull = 4;
-                else if (habits.suggestions() > 50) pull = 5;
-                dm.reserve(pull+1);
-                for(int i = 0; i < pull; i++) {
-                    video temp = habits.next(); 
-                    if (temp != null)
-                        dm.addDownload(temp.getLink(),temp);
-                    else CommonUtils.log("no suggestions",this);
+                if (load < 0) {
+                    if (habits.suggestions() > 10 && habits.suggestions() <= 20) pull = 2;
+                    else if (habits.suggestions() > 20 && habits.suggestions() <= 35) pull = 3;
+                    else if (habits.suggestions() > 35 && habits.suggestions() <= 50) pull = 4;
+                    else if (habits.suggestions() > 50) pull = 5;
+                    dm.reserve(pull+1);
+                }
+                pull = load < 0 ? pull : load;
+                if (!habits.hasNext())
+                    CommonUtils.log("no suggestions",this);
+                else {
+                    for(int i = 0; i < pull; i++) {
+                        if (!habits.hasNext()) break;
+                        video temp = habits.next(); 
+                        if (temp != null)
+                            dm.addDownload(temp.getLink(),temp);
+                        else CommonUtils.log("no suggestions left",this);
+                    }
                 }
                 try {DataIO.saveCollectedData(habits);} catch(IOException e) {CommonUtils.log("Failed to save habits",this);}
                 writeJson();
@@ -523,11 +535,20 @@ public class MainApp extends Application {
     static SplashScreen splash;
     public static void main(String[] args) {
         dontLoad = false;
+        load = -1;
         if (args != null)
             if (args.length > 0)
-                if (args[0].toLowerCase().equals("suppress"))
-                    dontLoad = true;
+                parseArgs(args);
         splash = SplashScreen.getSplashScreen();
         launch(args); 
+    }
+    
+    private static void parseArgs(String[] args) {
+        for (String arg : args) {
+            if (arg.toLowerCase().equals("suppress"))
+                dontLoad = true;
+            if (arg.toLowerCase().matches("load=\\d+"))
+                load = Integer.parseInt(arg.split("=")[1]);
+        }
     }
 }

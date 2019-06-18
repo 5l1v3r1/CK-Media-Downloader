@@ -67,6 +67,10 @@ public class DataCollection implements Externalizable{
         }
         return list;
     }
+    
+    public boolean hasNext() {
+        return !videoQueue.isEmpty();
+    }
 	
     public video next() {
         return videoQueue.poll();

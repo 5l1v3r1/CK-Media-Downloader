@@ -28,7 +28,7 @@ import javafx.util.Duration;
  */
 public class StreamManager {
     private final Pane root;
-    private final Button play, stop, rewind15, skip15, skipMin, rewindMin; 
+    private final Button play, stop, rewind15, skip15, skipMin, rewindMin, mute; 
     private final Slider slide;
     private MediaPlayer player;
     private final int SKIP = 15, FASTSKIP = 60;
@@ -43,6 +43,7 @@ public class StreamManager {
         skipMin = (Button)root.lookup("#skipMin");
         slide = (Slider)root.lookup("#progress");
         slide.setMin(0.0);
+        mute = (Button)root.lookup("#mute");
         enableButtons(true);
     }
     
@@ -82,6 +83,7 @@ public class StreamManager {
         skipMin.setDisable(enable);
         rewind15.setDisable(enable);
         rewindMin.setDisable(enable);
+        mute.setDisable(enable);
     }
     
     public void setMedia(String url, String name) throws MalformedURLException, URISyntaxException, IOException {
@@ -89,6 +91,7 @@ public class StreamManager {
             player.dispose();
         player = new MediaPlayer(new Media(new URL(url.replace("https","http")).toURI().toString()));
         ((MediaView)root.lookup("#video")).setMediaPlayer(player);
+        CommonUtils.log("Preparing to stream: "+new URL(url.replace("https","http")).toURI().toString(),this);
         
         configurePlayer();
         
@@ -175,6 +178,11 @@ public class StreamManager {
         });
         rewindMin.setOnAction((ActionEvent) -> {
             player.seek(Duration.seconds(slide.getValue()).subtract(Duration.seconds(FASTSKIP)));
+        });
+        mute.setOnAction((ActionEvent) -> {
+            if (player.volumeProperty().get() == 0)
+                player.setVolume(1);
+            else player.setVolume(0);
         });
     }
     
