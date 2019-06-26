@@ -12,7 +12,6 @@ import downloader.Exceptions.GenericDownloaderException;
 import downloaderProject.MainApp;
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import org.jsoup.UncheckedIOException;
 import java.net.SocketTimeoutException;
 import java.util.HashMap;
@@ -26,9 +25,9 @@ import org.jsoup.select.Elements;
  * @author christopher
  */
 public class Instagram extends GenericExtractor{
-    private Document html;
     //https://www.instagram.com/p/BQ0eAlwhDrw
     //https://www.instagram.com/p/BnOu_cIgL7Y/?taken-by=calista.barrow
+    //https://www.instagram.com/p/BnR9FRNFh1I/ //multithread, multimedia post
     
     public Instagram() {
         
@@ -45,29 +44,9 @@ public class Instagram extends GenericExtractor{
     public Instagram(String url, File thumb, String videoName) {
         super(url,thumb,videoName);
     }
-    
-    public Instagram(Document page) throws MalformedURLException {
-        html = page;
-        this.url = getCanonicalLink(page);
-        String thumbLink = getMetaImage(page);
-        if(!CommonUtils.checkImageCache(CommonUtils.parseName(thumbLink,".jpg"))) //if file not already in cache download it
-            CommonUtils.saveFile(thumbLink,CommonUtils.parseName(thumbLink,".jpg"),MainApp.imageCache);
-        this.videoThumb = new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.parseName(thumbLink,".jpg"));
-        if (isVideo(page)) {
-            String videoLink = null;
-            Elements metas = page.select("meta");
-            for(int i = 0; i < metas.size(); i++) {
-                if(metas.get(i).attr("property").equals("og:video"))
-                    videoLink = metas.get(i).attr("content");
-            }
-            this.videoName = CommonUtils.parseName(videoLink, ".mp4");
-        } else this.videoName = videoThumb.getName();
-    }
 
     @Override public MediaDefinition getVideo() throws IOException,SocketTimeoutException, UncheckedIOException, GenericDownloaderException{
-        Document page;
-        if (html != null) page = this.html;
-        else page = getPage(url,false,true); MediaDefinition media = new MediaDefinition();
+        Document page = getPage(url,false,true); MediaDefinition media = new MediaDefinition();
         
 	if (isVideo(page)) { //download video
             String videoLink = null;
@@ -84,36 +63,43 @@ public class Instagram extends GenericExtractor{
             media.addThread(qualities,CommonUtils.parseName(picLink,".jpg"));
             return media;
         } else { //download pic/s
-           int occur, from = 0; boolean first = true; int count = 0;
-            if (page.toString().contains("\"is_video\":true")) {
-               while((occur = page.toString().indexOf("video_url",from)) != -1) {
-                    from = occur + 1; count++; 
-                    String link = CommonUtils.getLink(page.toString(), occur+12, '\"');
-                    Map<String,String> qualities = new HashMap<>(); qualities.put("single",link);
-                    if (link.contains(".mp4"))
-                         media.addThread(qualities, CommonUtils.parseName(link,".mp4"));
-                    else media.addThread(qualities, CommonUtils.parseName(link,".jpg"));
+            int occur, from = 0; boolean first = true; int count = 0;
+            while((occur = page.toString().indexOf("display_resources",from)) != -1) {
+                if (first) {first = false; from = occur + 1; continue;}
+                String link;
+                from = occur + 1; count++;
+                int to = page.toString().indexOf("display_resources",from);
+                to = to == -1 ? page.toString().length() : to;
+                if (page.toString().substring(from,to).contains("\"is_video\":true")) {
+                    occur = page.toString().indexOf("video_url");
+                    link = CommonUtils.getLink(page.toString(), occur+12, '\"');
+                } else {
+                    String brack = CommonUtils.getSBracket(page.toString(),occur); 
+                    link = parseBracket(brack);
                 } 
-            } else {
-                while((occur = page.toString().indexOf("display_resources",from)) != -1) {
-                    if (first) {first = false; from = occur + 1; continue;}
-                    from = occur + 1; count++; 
-                    String brack = CommonUtils.getSBracket(page.toString(),occur); String link = parseBracket(brack);
+                Map<String,String> qualities = new HashMap<>(); qualities.put("single",link);
+                if (link.contains(".mp4"))
+                    media.addThread(qualities, CommonUtils.parseName(link,".mp4"));
+                else media.addThread(qualities, CommonUtils.parseName(link,".jpg"));
+            } if (count < 1) { //if there really was jus one
+                occur = page.toString().indexOf("display_resources",0);
+                if(occur != -1) {
+                    String link;
+                    if (page.toString().contains("\"is_video\":true")) {
+                        occur = page.toString().indexOf("video_url");
+                        link = CommonUtils.getLink(page.toString(), occur+12, '\"');
+                    } else {
+                        String brack = CommonUtils.getSBracket(page.toString(),occur); 
+                        link = parseBracket(brack);
+                    } 
                     Map<String,String> qualities = new HashMap<>(); qualities.put("single",link);
                     if (link.contains(".mp4"))
-                         media.addThread(qualities, CommonUtils.parseName(link,".mp4"));
+                        media.addThread(qualities, CommonUtils.parseName(link,".mp4"));
                     else media.addThread(qualities, CommonUtils.parseName(link,".jpg"));
-                } if (count < 1) { //if there really was jus one
-                     occur = page.toString().indexOf("display_resources",0);
-                     if(occur != -1) {
-                         String brack = CommonUtils.getSBracket(page.toString(),occur); String link = parseBracket(brack);
-                         Map<String,String> qualities = new HashMap<>(); qualities.put("single",link);
-                         media.addThread(qualities, CommonUtils.parseName(link,".jpg"));
-                     } else  {
-                         String picLink = getMetaImage(page);
-                         Map<String,String> qualities = new HashMap<>(); qualities.put("single",picLink);
-                         media.addThread(qualities, CommonUtils.parseName(picLink,".jpg"));
-                    }
+                } else  {
+                    String picLink = getMetaImage(page);
+                    Map<String,String> qualities = new HashMap<>(); qualities.put("single",picLink);
+                    media.addThread(qualities, CommonUtils.parseName(picLink,".jpg"));
                 }
             }
            return media;

@@ -80,9 +80,9 @@ public class MainApp extends Application {
     private ClipboardListener clippy;
     public static mainLayoutController mainController;
     private static Stage window;
-    private static int load;
+    private static int load, search;
 
-    private void getUserName() {
+    private static void getUserName() {
         username = System.getProperty("user.name");
     }
     
@@ -97,7 +97,7 @@ public class MainApp extends Application {
         icon.setImage(new Image(in));
     }
     
-    private void determineOS() {
+    private static void determineOS() {
         String Os = System.getProperty("os.name");
         if((Os.contains("win") || Os.contains("Win")))
             OS = OsType.Windows;
@@ -107,7 +107,7 @@ public class MainApp extends Application {
         BYTE = OS == OsType.Windows ? 1024 : 1000;
     }
     
-    private void setCacheDir() {
+    private static void setCacheDir() {
         String home = System.getProperty("user.home");
         if (null == OS) { //assume unix system
             imageCache = new File(home+File.separator+".downloaderCache/images");
@@ -250,7 +250,7 @@ public class MainApp extends Application {
         }
     }
 
-    private void moveFiles(File directory, File destination) {
+    private static void moveFiles(File directory, File destination) {
         File[] files = directory.listFiles();
         
         if(files != null)
@@ -259,12 +259,12 @@ public class MainApp extends Application {
         directory.delete();
     }
     
-    private void moveFile(File file, File destination) {
+    private static void moveFile(File file, File destination) {
         if(file.exists()) 
             DataIO.moveFile(file, destination);
     }
     
-    private void cleanUp() {
+    private static void cleanUp() {
         if(OS == OsType.Windows) {
             //move files from old dirs to new locations
             if(new File("C:\\"+username+"\\downloadCache\\images").exists())
@@ -388,10 +388,6 @@ public class MainApp extends Application {
     
     @Override public void start(Stage primaryStage) {
     	window = primaryStage;
-        determineOS(); //determine what OS is running
-        getUserName(); //get the username
-        setCacheDir(); //set up cache (create it if it doesnt exist yet)
-        cleanUp(); //correct old version data
         
         loadView();
        
@@ -498,8 +494,17 @@ public class MainApp extends Application {
         }
     }
     
-    private void loadSuggestions() {
-        habits = DataIO.loadCollectedData();
+    private static void preSearch() {
+        if (habits != null)
+            for(int i = 0; i < search; i++)
+                try {
+                    habits.generateSuggestion();
+                } catch (GenericDownloaderException e) {
+                    CommonUtils.log(e.getMessage(),"MainApp:static");
+                }
+    }
+    
+    private static void loadSuggestions() {
         if (!dontLoad) {
             if (habits != null) {
                 int pull = 1;
@@ -512,17 +517,17 @@ public class MainApp extends Application {
                 }
                 pull = load < 0 ? pull : load;
                 if (!habits.hasNext())
-                    CommonUtils.log("no suggestions",this);
+                    CommonUtils.log("no suggestions","MainApp:static");
                 else {
                     for(int i = 0; i < pull; i++) {
                         if (!habits.hasNext()) break;
                         video temp = habits.next(); 
                         if (temp != null)
                             dm.addDownload(temp.getLink(),temp);
-                        else CommonUtils.log("no suggestions left",this);
+                        else CommonUtils.log("no suggestions left","MainApp:static");
                     }
                 }
-                try {DataIO.saveCollectedData(habits);} catch(IOException e) {CommonUtils.log("Failed to save habits",this);}
+                try {DataIO.saveCollectedData(habits);} catch(IOException e) {CommonUtils.log("Failed to save habits","MainApp:static");}
                 writeJson();
             } else {habits = new DataCollection(true);}
         }
@@ -534,12 +539,22 @@ public class MainApp extends Application {
     
     static SplashScreen splash;
     public static void main(String[] args) {
+        determineOS(); //determine what OS is running
+        getUserName(); //get the username
+        setCacheDir(); //set up cache (create it if it doesnt exist yet)
+        cleanUp(); //correct old version data
+        
         dontLoad = false;
         load = -1;
+        search = 0;
         if (args != null)
             if (args.length > 0)
                 parseArgs(args);
         splash = SplashScreen.getSplashScreen();
+        habits = DataIO.loadCollectedData();
+        habits = habits == null ? new DataCollection(true) : habits;
+        
+        preSearch();
         launch(args); 
     }
     
@@ -549,6 +564,8 @@ public class MainApp extends Application {
                 dontLoad = true;
             if (arg.toLowerCase().matches("load=\\d+"))
                 load = Integer.parseInt(arg.split("=")[1]);
+            if (arg.toLowerCase().matches("search=\\d+"))
+                search = Integer.parseInt(arg.split("=")[1]);
         }
     }
 }

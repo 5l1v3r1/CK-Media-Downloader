@@ -184,11 +184,15 @@ public class DataCollection implements Externalizable{
         }
     }
 	
-    private void generateSuggestion() throws GenericDownloaderException {
+    public void generateSuggestion() throws GenericDownloaderException {
         final Map<String, Integer> keywordChart = keywords.entrySet().stream().sorted(Map.Entry.<String, Integer>comparingByValue().reversed()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
         final Map<String, Integer> StarChart = frequentStars.entrySet().stream().sorted(Map.Entry.<String, Integer>comparingByValue().reversed()).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
         Iterator<String> i = keywordChart.keySet().iterator();
         Iterator<String> j = StarChart.keySet().iterator();
+        if (!i.hasNext() && !j.hasNext()) {
+            CommonUtils.log("No data captured",this);
+            return;
+        }
         if (i.hasNext() && j.hasNext()) {
             String top = i.next();
             CommonUtils.log("top: "+keywords.get(top)+" it: "+top,this);

@@ -54,7 +54,6 @@ import javafx.scene.control.ProgressBar;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javax.imageio.ImageIO;
-import org.jsoup.Jsoup;
 
 /**
  *
@@ -64,11 +63,10 @@ public class DownloaderItem {
     private String url;
     private Pane root;
     private GenericExtractor extractor;
-    private Site.Page pageType;
     private video v = null;
     private boolean loaded;
     private Vector<String> downloadLinks, downloadNames;
-    private String albumName, page;
+    private String albumName;
     
     public void release() {
         url = null;
@@ -76,7 +74,7 @@ public class DownloaderItem {
         extractor = null;
         v = null;
         downloadLinks = null;
-        page = albumName = null;
+        albumName = null;
         downloadLinks = downloadLinks = null;
     }
     
@@ -101,11 +99,7 @@ public class DownloaderItem {
     }
     
     private GenericExtractor getExtractor(video v) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
-    	if (v == null) {
-            if (page != null)
-                return ExtractorList.getExtractor(pageType, Jsoup.parse(page));
-            else return ExtractorList.getExtractor(url);
-        } else return ExtractorList.getExtractor(url,v.getThumbnail(),v.getName());
+        return v == null ? ExtractorList.getExtractor(url) : ExtractorList.getExtractor(url,v.getThumbnail(),v.getName());
     }
     
     private GenericExtractor getExtractor() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
@@ -211,7 +205,6 @@ public class DownloaderItem {
         close.getStyleClass().add("jfx-cancel");
         close.setOnAction(event -> {clearThis();});
         close.setDisable(false);
-        CommonUtils.log("set close",this);
     }
     
     private void setSaveBtn() {
@@ -278,14 +271,6 @@ public class DownloaderItem {
     
     public boolean wasLoaded() {
     	return loaded;
-    }
-    
-    public void setPage(String p) {
-        this.page = p;
-    }
-    
-    public void setPageType(Site.Page type) {
-        this.pageType = type;
     }
     
     public void setLink(String url) {

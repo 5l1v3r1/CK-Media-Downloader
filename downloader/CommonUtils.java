@@ -444,7 +444,9 @@ public class CommonUtils {
         } catch (FileNotFoundException ex) {
             log("Failed to save page: "+ex.getMessage(),"CommonUtils");
         }
-        MainApp.settings.cacheUpdate();
+        
+        if (MainApp.settings != null)
+            MainApp.settings.cacheUpdate();
     }
     
     public static void erasePage(String name) {
@@ -587,7 +589,8 @@ public class CommonUtils {
             if (s != null) s.addProgress("An error occurred: "+e.getMessage());
             return how;
         }
-        MainApp.settings.cacheUpdate();
+        if (MainApp.settings != null)
+            MainApp.settings.cacheUpdate();
         if (s != null) s.addProgress("Finished downloading");
         return -2;//if sucessful return -2
     }

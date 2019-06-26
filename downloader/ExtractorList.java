@@ -8,14 +8,11 @@ import downloader.Exceptions.GenericDownloaderException;
 import downloader.Exceptions.NotSupportedException;
 import downloader.Extractors.Default;
 import downloader.Extractors.GenericExtractor;
-import downloader.Extractors.Instagram;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
 import org.jsoup.UncheckedIOException;
-import org.jsoup.nodes.Document;
 
 /**
  *
@@ -66,14 +63,6 @@ public class ExtractorList {
         } catch (ClassNotFoundException | NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
             CommonUtils.log(e.getMessage(),"ExtractorList:getExtractor(string,file,string)");
             return null;
-        }
-    }
-    
-    public static GenericExtractor getExtractor(Site.Page type, Document page) throws MalformedURLException {
-        switch (type) {
-            case instagram: return new Instagram(page);
-            default:
-                return null;
         }
     }
     

@@ -8,7 +8,7 @@ package downloaderProject;
 import downloader.CommonUtils;
 import downloader.DataStructures.Settings;
 import downloader.DataStructures.historyItem;
-import static downloader.Site.QueryType;
+import static Queryer.QueryManager.QueryType;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.Vector;

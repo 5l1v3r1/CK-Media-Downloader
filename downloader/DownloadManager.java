@@ -114,12 +114,6 @@ public class DownloadManager {
         addDownload(download);
     }
     
-    public synchronized void addDownload(String page, Site.Page type) {
-        DownloaderItem download = new DownloaderItem();
-        download.setPage(page); download.setPageType(type);
-        addDownload(download);
-    }
-    
     private boolean isDup(DownloaderItem d) {
         for(int i = 0; i < downloadItems.size(); i++)
             if (ExtractorList.similar(downloadItems.get(i).getLink(),d.getLink()))

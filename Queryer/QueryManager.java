@@ -10,7 +10,6 @@ import downloader.DataStructures.GenericQuery;
 import downloader.DataStructures.historyItem;
 import downloader.DataStructures.video;
 import downloader.Extractors.GenericQueryExtractor;
-import static downloader.Site.QueryType;
 import downloaderProject.DataIO;
 import java.io.File;
 import java.io.FileInputStream;
@@ -50,6 +49,8 @@ import javafx.scene.layout.Pane;
  * @author christopher
  */
 public class QueryManager {
+    public static String[] QueryType = {"Spankbang", "Pornhub", "Xhamster", "Xvideos", "Youporn", "Redtube", "Thumbzilla", "Shesfreaky", "Tube8", "Spankwire", "Bigbootytube", "Ruleporn"};
+    
     private ExecutorService app;
     private Pane root;
     private ListView<Pane> queryPane;

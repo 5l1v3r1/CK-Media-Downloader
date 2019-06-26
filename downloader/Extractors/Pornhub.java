@@ -259,7 +259,7 @@ public class Pornhub extends GenericQueryExtractor implements Playlist, Searchab
     
     private static String getRNKEY(String page) {
         page = page.replace("document.cookie=", "return");
-        page = page.substring(page.indexOf("<!--")+4,page.indexOf("//-->"));
+        page = page.substring(page.indexOf("<!--")+4, page.indexOf("//-->"));
         ScriptEngine engine = new ScriptEngineManager().getEngineByName("JavaScript");
         try {
             engine.eval(page);
@@ -374,7 +374,6 @@ public class Pornhub extends GenericQueryExtractor implements Playlist, Searchab
     }
     
     private video getRelated(int tries) throws IOException, GenericDownloaderException{
-        CommonUtils.log("chose related",this);
         if (url == null) return null;
         if (tries-- < 1) return null;
         
@@ -409,7 +408,6 @@ public class Pornhub extends GenericQueryExtractor implements Playlist, Searchab
     }
     
     private video getRecommended(int tries) throws IOException, GenericDownloaderException{
-        CommonUtils.log("chose recommeded",this);
         if (url == null) return null;
         if (tries-- < 1) return null;
         
@@ -563,6 +561,6 @@ public class Pornhub extends GenericQueryExtractor implements Playlist, Searchab
 
     @Override protected String getValidRegex() {
         works = true;
-        return "https?://(?:www[.])?pornhub[.]com/((?:view_video[.]php[?]viewkey=)(?<id2>[\\S]+)|((?:photo|album|gif|playlist)/(?<id>[\\d]+)))"; 
+        return "https?://(?:www[.])?pornhub[.]com/((?:view_video[.]php[?]viewkey=)(?<id2>[\\S]+)|((?:photo|album|gif|playlist)/(?<id>[\\d]+)(?:[?]page=[\\d]+)?))"; 
     }
 }

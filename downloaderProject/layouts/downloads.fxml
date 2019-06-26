@@ -40,19 +40,4 @@
       </graphic>
       <tooltip><Tooltip text="Add previously saved media to list" /></tooltip>
       </Button>
-   <Button id="pastePageBtn" layoutX="114.0" layoutY="7.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#getDownloadPage" prefHeight="40.0" prefWidth="115.0" text="Paste Page">
-      <graphic>
-         <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
-            <image>
-               <Image url="@../../icons/icons8-paste-48.png" />
-            </image>
-         </ImageView>
-      </graphic>
-      <tooltip>
-         <Tooltip text="Paste page from clipboard" />
-      </tooltip>
-      <font>
-         <Font size="12.0" />
-      </font>
-   </Button>
 </Pane>

@@ -10,7 +10,6 @@ import com.jfoenix.controls.JFXDialog;
 import downloader.CommonUtils;
 import downloader.DataStructures.Device;
 import downloader.DataStructures.video;
-import downloader.Site;
 import java.awt.HeadlessException;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -72,25 +71,6 @@ public class mainLayoutController implements Initializable, Reactable{
             CommonUtils.log(e.getMessage(),this);
             //MainApp.createMessageDialog(e.getMessage());
             //e.printStackTrace();
-        }
-    }
-    
-    public void getDownloadPage() {
-        try { 
-            Toolkit tool = Toolkit.getDefaultToolkit();
-            Clipboard clip = tool.getSystemClipboard();
-            if (clip.getData(DataFlavor.stringFlavor) != null) {
-                String clipText = (String)clip.getData(DataFlavor.stringFlavor);
-                clipText = clipText.trim(); //trim off any white space that may be on the string
-                if (Site.getPageSite(clipText) == Site.Page.none) 
-                    CommonUtils.log("Was none",this); //invalid link
-                else
-                    MainApp.dm.addDownload(clipText, Site.getPageSite(clipText));
-            }
-        } catch(UnsupportedFlavorException e) {
-            CommonUtils.log("Unsupported clipboard entry: "+e.getMessage(),this);
-        }catch (HeadlessException | IOException e) {
-            CommonUtils.log(e.getMessage(),this);
         }
     }
     
@@ -232,10 +212,9 @@ public class mainLayoutController implements Initializable, Reactable{
         Vector<video> videos = DataIO.loadVideos();
         if(videos == null) 
             MainApp.createMessageDialog("No saved media");
-        else {
+        else
             for(int i = 0; i < videos.size(); i++)
-                MainApp.dm.addDownload(videos.get(i).getLink(),videos.get(i));
-        }
+                MainApp.dm.addDownload(videos.get(i).getLink(), videos.get(i));
     }
     
     public void clearSavedVideos() {
