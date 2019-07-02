@@ -205,23 +205,19 @@ public class DataIO {
     }
     
     public static void clearVideos() {
-        File save = new File(MainApp.saveDir.getAbsolutePath()+File.separator+"laterVideos.dat");
-        save.delete();
+        new File(MainApp.saveDir.getAbsolutePath()+File.separator+"laterVideos.dat").delete();
     }
     
     public static void clearDevices() {
-        File save = new File(MainApp.saveDir.getAbsolutePath()+File.separator+"devices.dat");
-        save.delete();
+        new File(MainApp.saveDir.getAbsolutePath()+File.separator+"devices.dat").delete();
     }
     
     public static void clearHistory() {
-        File save = new File(MainApp.saveDir.getAbsolutePath()+File.separator+"history.dat");
-        save.delete();
+        new File(MainApp.saveDir.getAbsolutePath()+File.separator+"history.dat").delete();
     }
     
     public static void clearDownloaded() {
-        File save = new File(MainApp.saveDir.getAbsolutePath()+File.separator+"downloaded.dat");
-        save.delete();
+        new File(MainApp.saveDir.getAbsolutePath()+File.separator+"downloaded.dat").delete();
     }
     
     public synchronized static int getDownloadedCount() {

@@ -38,7 +38,7 @@ import org.jsoup.Connection.Response;
  */
 
 public class Spankbang extends GenericQueryExtractor implements Playlist, Searchable{
-    private static final int SKIP = 3;
+    private static final byte SKIP = 3;
     private String playlistUrl = null;
     private final String JSONURL = "https://spankbang.com/api/videos/stream";
     

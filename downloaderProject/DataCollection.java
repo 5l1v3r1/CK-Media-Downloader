@@ -80,7 +80,7 @@ public class DataCollection implements Externalizable{
         return videoQueue.size();
     }
 	
-    public int addSuggestion(video v) {
+    public byte addSuggestion(video v) {
         if (v == null)
             return 1;
         else if (!videoQueue.contains(v)) {
@@ -225,7 +225,7 @@ public class DataCollection implements Externalizable{
         int max = randomNum.nextInt(8); //generate 1 - 8 words
         int starIndex = stars.keySet().size() > 3 ? randomNum.nextInt(stars.keySet().size() / 3) : 0; //generate from top stars (depending on size of list)
 		
-        int count = 0; Iterator<String> i = kwords.keySet().iterator();
+        byte count = 0; Iterator<String> i = kwords.keySet().iterator();
         StringBuilder words = new StringBuilder();
         while(i.hasNext()) {
             if (count >= max + 1) break;
@@ -247,7 +247,7 @@ public class DataCollection implements Externalizable{
         Random randomNum = new Random();
         int max = randomNum.nextInt(8) + 1; //generate 1 - 8
         CommonUtils.log("key size: "+kwords.keySet().size(),this);
-        int count = 0; Iterator<String> i = kwords.keySet().iterator();
+        byte count = 0; Iterator<String> i = kwords.keySet().iterator();
         StringBuilder words = new StringBuilder();
         while(i.hasNext()) { //generate at least 2 words to search with
             if (count >= max + 1) break;
@@ -267,7 +267,7 @@ public class DataCollection implements Externalizable{
             CommonUtils.log("Searching: "+x.getClass().getSimpleName(),this);
 	    CommonUtils.log("search: "+searchStr,this);
             try {
-                int retry = 8, result;
+                byte retry = 8, result;
                 do {
                     result = addSuggestion(x.search(searchStr));
                     if (result == 2)

@@ -16,7 +16,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 public class OperationStream {
     private final stopWatch duration;
     private final ArrayBlockingQueue<String> progress;
-    private final int buffSize = 50;
+    private final byte buffSize = 50;
             
     public OperationStream() {
         duration = new stopWatch();

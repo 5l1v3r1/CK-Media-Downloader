@@ -34,7 +34,7 @@ import org.jsoup.select.Elements;
  * @author christopher
  */
 public class Redtube extends GenericQueryExtractor implements Searchable{
-    private static final int SKIP = 5;
+    private static final byte SKIP = 5;
     
     public Redtube() { //this contructor is used for when you jus want to query
         

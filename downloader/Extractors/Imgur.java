@@ -32,7 +32,7 @@ import org.jsoup.select.Elements;
  * @author christopher
  */
 public class Imgur extends GenericExtractor {
-    private static final int SKIP = 1;
+    private static final byte SKIP = 1;
     
     public Imgur() { //this contructor is used for when you jus want to search
         

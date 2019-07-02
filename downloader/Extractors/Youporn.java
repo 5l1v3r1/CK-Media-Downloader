@@ -35,7 +35,7 @@ import org.jsoup.select.Elements;
  * @author christopher
  */
 public class Youporn extends GenericQueryExtractor implements Searchable{
-    private static final int SKIP = 6;
+    private static final byte SKIP = 6;
     
     public Youporn() { //used to when you only want to query
         

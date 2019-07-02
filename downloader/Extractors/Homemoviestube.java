@@ -25,7 +25,7 @@ import org.jsoup.select.Elements;
  * @author christopher
  */
 public class Homemoviestube extends GenericExtractor implements Searchable{
-    private static final int SKIP = 5;
+    private static final byte SKIP = 5;
     
     public Homemoviestube() { //this contructor is used for when you jus want to search
         

@@ -25,7 +25,7 @@ import org.jsoup.nodes.Document;
  * @author christopher
  */
 public class Default extends GenericExtractor {
-    private static int SKIP = 1;
+    private static final byte SKIP = 1;
     
     public Default() {
         

@@ -28,7 +28,7 @@ import org.jsoup.select.Elements;
  * @author christopher
  */
 public class Bigbootytube extends GenericQueryExtractor implements Searchable{
-    private static final int SKIP = 4;
+    private static final byte SKIP = 4;
     
     public Bigbootytube() { //this contructor is used for when you jus want to query
         

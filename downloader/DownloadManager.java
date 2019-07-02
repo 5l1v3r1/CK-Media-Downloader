@@ -36,7 +36,7 @@ public class DownloadManager {
     private List<DownloaderItem> downloadItems = new ArrayList<>();//list of downloader items that create panes
     private final ExecutorService downloadThreads, sideJobs;
     //private final int threads = 3;
-    private final int sideThreads = 4, TIMES = 1;
+    private final byte sideThreads = 4, TIMES = 1;
     private StreamManager streamer;
     private ListView<Pane> downloadsView;
     
@@ -127,6 +127,7 @@ public class DownloadManager {
             downloadsView.getItems().add(d.createItem());
         } catch (IOException e) {
             MainApp.createMessageDialog("An internal error occurred: 1");
+            CommonUtils.log(e.getMessage(),this);
         }
     }
     
@@ -192,7 +193,7 @@ public class DownloadManager {
     }
     
     private class search implements Runnable {
-        private DownloaderItem d;
+        private final DownloaderItem d;
         
         public search(DownloaderItem d) {
             this.d = d;
@@ -247,7 +248,7 @@ public class DownloadManager {
     }
     
     private class manager implements Runnable{
-        DownloaderItem item;
+        private final DownloaderItem item;
         
         public manager(DownloaderItem what) {
             this.item = what;

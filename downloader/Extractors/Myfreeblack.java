@@ -21,7 +21,7 @@ import org.jsoup.nodes.Document;
  * @author christopher
  */
 public class Myfreeblack extends GenericExtractor {
-    private static final int SKIP = 5;
+    private static final byte SKIP = 5;
     
     public Myfreeblack() { //this contructor is used for when you jus want to search
         

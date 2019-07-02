@@ -32,7 +32,7 @@ import org.jsoup.select.Elements;
  * @author christopher
  */
 public class Porn extends GenericExtractor implements Searchable{
-    private static final int SKIP = 6;
+    private static final byte SKIP = 6;
     
     public Porn() { //this contructor is used for when you jus want to search
         

@@ -511,7 +511,7 @@ public class DownloaderItem {
     private void download(String link, String name, OperationStream s, String albumName) throws MalformedURLException {
         //if albumName == null not an album
         if (!CommonUtils.isImage(name))
-            if (!CommonUtils.hasExtension(name, "mp4"))
+            if(!CommonUtils.hasExtension(name, "mp4"))
                 name = name + ".mp4"; //assume video
         name = CommonUtils.addId(name, extractor.getId());
         File folder = CommonUtils.isImage(name) ? MainApp.settings.preferences.getPictureFolder() : MainApp.settings.preferences.getVideoFolder();

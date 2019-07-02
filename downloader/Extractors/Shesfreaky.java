@@ -29,7 +29,7 @@ import org.jsoup.select.Elements;
  * @author christopher
  */
 public class Shesfreaky extends GenericQueryExtractor implements Searchable{
-    private static final int SKIP = 1;
+    private static final byte SKIP = 1;
     
     public Shesfreaky() { //this contructor is used for when you jus want to query
         

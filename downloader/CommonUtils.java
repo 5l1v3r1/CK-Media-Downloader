@@ -61,9 +61,9 @@ public class CommonUtils {
             int width = originImage.getWidth(), height = originImage.getHeight(), y, x = 0;
             int eWidth = width / col, eHeight = height / row;
             
-            for(int i = 0; i < row; i++) {
+            for(short i = 0; i < row; i++) {
                 y = 0;
-                for(int j = 0; j < col; j++) {
+                for(short j = 0; j < col; j++) {
                     BufferedImage subImg = originImage.getSubimage(y+yOffset, x, eWidth-widthOffset, eHeight);
                     File save = new File(MainApp.imageCache.getAbsolutePath()+File.separator+origin.getName()+String.valueOf(i)+String.valueOf(j)+".jpg");
                     ImageIO.write(subImg,"jpg",save); 

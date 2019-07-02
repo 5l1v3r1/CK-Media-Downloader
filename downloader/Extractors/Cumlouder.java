@@ -25,7 +25,7 @@ import org.jsoup.select.Elements;
  * @author christopher
  */
 public class Cumlouder extends GenericExtractor implements Searchable{
-    private static final int SKIP = 4;
+    private static final byte SKIP = 4;
     
     public Cumlouder() { //this contructor is used for when you jus want to search
         

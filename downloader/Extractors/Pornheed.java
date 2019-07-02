@@ -21,7 +21,7 @@ import org.jsoup.nodes.Document;
  * @author christopher
  */
 public class Pornheed extends GenericExtractor{
-    private static final int SKIP = 2;
+    private static final byte SKIP = 2;
     
     public Pornheed() { //this contructor is used for when you jus want to search
         

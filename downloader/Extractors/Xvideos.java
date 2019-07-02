@@ -35,8 +35,7 @@ import org.jsoup.select.Elements;
  * @author christopher
  */
 public class Xvideos extends GenericQueryExtractor implements Searchable{
-    private static final int SKIP = 2;
-    private static final int SCRIPT = 5;
+    private static final byte SKIP = 2, SCRIPT = 5;
     
     public Xvideos() { //this contructor is used for when you jus want to query
         

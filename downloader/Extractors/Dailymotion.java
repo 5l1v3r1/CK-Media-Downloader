@@ -33,7 +33,7 @@ import org.jsoup.nodes.Element;
  * @author christopher
  */
 public class Dailymotion extends GenericExtractor{
-    private static int SKIP = 1;
+    private static final byte SKIP = 1;
     
     public Dailymotion() { //this contructor is used for when you jus want to search
         

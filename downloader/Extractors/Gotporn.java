@@ -23,7 +23,7 @@ import org.jsoup.nodes.Document;
  * @author christopher
  */
 public class Gotporn extends GenericExtractor{
-    private static final int SKIP = 3;
+    private static final byte SKIP = 3;
     
     public Gotporn() { //this contructor is used for when you jus want to search
         

@@ -30,7 +30,7 @@ import org.jsoup.select.Elements;
  * @author christopher
  */
 public class Yourporn extends GenericExtractor implements Searchable{
-    private static final int SKIP = 2;
+    private static final byte SKIP = 2;
     
     public Yourporn() { //this contructor is used for when you jus want to search
         
@@ -90,7 +90,7 @@ public class Yourporn extends GenericExtractor implements Searchable{
             String video = addHost(CommonUtils.eraseChar(page.select("span.vidsnfo").attr("data-vnfo").split("\"")[3],'\\'),"sxyprn.com");
             //String video = "https://www.yourporn.sexy"+page.select("video.player_el").attr("src");
             Map<String,String> qualities = new HashMap<>();
-            String test = video.replace("cdn", "cdn4");
+            String test = video.replace("cdn", "cdn6");
             Pattern p = Pattern.compile("(.+/)s(\\d+)-1(/.+)"); //replace things like "s12-1", "s12"
             Matcher m = p.matcher(test);
             test = m.replaceAll("$1s$2$3");
@@ -210,7 +210,7 @@ public class Yourporn extends GenericExtractor implements Searchable{
         } else {
             String video = addHost(CommonUtils.eraseChar(page.select("span.vidsnfo").attr("data-vnfo").split("\"")[3],'\\'),"sxyprn.com");
             Map<String,String> qualities = new HashMap<>();
-            String test = video.replace("cdn", "cdn4");
+            String test = video.replace("cdn", "cdn6");
             Pattern p = Pattern.compile("(.+/)s(\\d+)-1(/.+)");
             Matcher m = p.matcher(test);
             test = m.replaceAll("$1s$2$3");

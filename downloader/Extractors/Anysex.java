@@ -25,7 +25,7 @@ import org.jsoup.select.Elements;
  * @author christopher
  */
 public class Anysex extends GenericExtractor implements Searchable{
-    private static final int SKIP = 4;
+    private static final byte SKIP = 4;
     
     public Anysex() { //this contructor is used for when you jus want to search
         

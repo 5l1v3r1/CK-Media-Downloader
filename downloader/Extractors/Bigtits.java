@@ -27,7 +27,7 @@ import org.jsoup.select.Elements;
  * @author christopher
  */
 public class Bigtits extends GenericExtractor implements Searchable{
-    private static final int SKIP = 2;
+    private static final byte SKIP = 2;
     
     public Bigtits() { //this contructor is used for when you jus want to search
         

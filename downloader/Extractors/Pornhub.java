@@ -43,7 +43,7 @@ import org.jsoup.select.Elements;
  * @author christopher
  */
 public class Pornhub extends GenericQueryExtractor implements Playlist, Searchable{
-    private static final int SKIP = 4, REPEAT = 10;
+    private static final byte SKIP = 4, REPEAT = 10;
     private String playlistUrl = null;
     
     public Pornhub() { //this contructor is used for when you jus want to query
@@ -83,7 +83,7 @@ public class Pornhub extends GenericQueryExtractor implements Playlist, Searchab
     
     private String getPic(String link) throws MalformedURLException, IOException, GenericDownloaderException {
         Document page = getPage(link,false);
-        while(page.toString().contains("RNKEY")) {
+        while(page.toString().contains("document.cookie=\"RNKEY=\"")) {
             addCookie("RNKEY",getRNKEY(page.toString()));
             page = getPageCookie(link,false,true);
         }
@@ -126,7 +126,7 @@ public class Pornhub extends GenericQueryExtractor implements Playlist, Searchab
             media.addThread(qualities,CommonUtils.clean(videoName)); return media;
         } else if (isAlbum(url)) {
             page = getPage(url,false,true);
-            while(page.toString().contains("RNKEY")) {
+            while(page.toString().contains("document.cookie=\"RNKEY=\"")) {
                 addCookie("RNKEY",getRNKEY(page.toString()));
                 addCookie("trial-step1-modal-shown", "null");
                 page = getPageCookie(url,false,true);
@@ -135,13 +135,13 @@ public class Pornhub extends GenericQueryExtractor implements Playlist, Searchab
             media.setAlbumName(this.videoName);
             for(int i = 0; i < items.size(); i++) {
                 Map<String,String> qualities = new HashMap<>();
-                String subLink = "https://www.pornhub.com" + items.get(i).select("a").attr("href");
+                String subLink = addHost(items.get(i).select("a").attr("href"),"pornhub.com");
                 qualities.put("single",getPic(subLink));
-                media.addThread(qualities, CommonUtils.getPicName(subLink));
+                media.addThread(qualities, CommonUtils.getPicName(subLink) + (qualities.get("single").endsWith("gif") ? ".gif" : ".jpg"));
             } return media;
         } else { //must be a video
             page = getPage(url,false,true);
-            while(page.toString().contains("RNKEY")) {
+            while(page.toString().contains("document.cookie=\"RNKEY=\"")) {
                 addCookie("RNKEY",getRNKEY(page.toString()));
                 addCookie("trial-step1-modal-shown", "null");
                 page = getPageCookie(url,false,true);
@@ -190,7 +190,7 @@ public class Pornhub extends GenericQueryExtractor implements Playlist, Searchab
         
         GenericQuery thequery = new GenericQuery();
         Document page = getPage(searchUrl,false);
-        while(page.toString().contains("RNKEY")) {
+        while(page.toString().contains("document.cookie=\"RNKEY=\"")) {
             addCookie("RNKEY",getRNKEY(page.toString()));
             addCookie("trial-step1-modal-shown", "null");
             page = getPageCookie(searchUrl,false,true);
@@ -198,13 +198,17 @@ public class Pornhub extends GenericQueryExtractor implements Playlist, Searchab
                 
 	Elements searchResults = page.select("ul.videos.search-video-thumbs").select("li");
 	for(int i = 0; i < searchResults.size(); i++)  {
-            String link = addHost("https://pornhub.com" + searchResults.get(i).select("a").attr("href"),"pornhub.com");
-            if (!link.matches("https://pornhub.com/view_video.php[?]viewkey=[\\S]+")) continue;
+            String link = addHost(searchResults.get(i).select("a").attr("href"),"pornhub.com");
+            if (!link.matches("https?://pornhub.com/view_video.php[?]viewkey=[\\S]+")) continue;
             if (!CommonUtils.testPage(link)) continue; //test to avoid error 404
             try {
                 Document linkPage = getPage(link,false);
-                while(linkPage.toString().contains("RNKEY")) {
-                    addCookie("RNKEY",getRNKEY(page.toString()));
+                while(linkPage.toString().contains("document.cookie=\"RNKEY=\"")) {
+                    try {
+                        addCookie("RNKEY",getRNKEY(page.toString()));
+                    } catch (PageParseException e) {
+                        break;
+                    }
                     addCookie("trial-step1-modal-shown", "null");
                     linkPage = getPageCookie(link,false,true);
                 }
@@ -232,8 +236,12 @@ public class Pornhub extends GenericQueryExtractor implements Playlist, Searchab
                 page = Jsoup.parse(CommonUtils.loadPage(MainApp.pageCache.getAbsolutePath()+File.separator+CommonUtils.getCacheName(url,true)));
             else {
                 page = getPageCookie(url,true);
-                while(page.toString().contains("RNKEY")) {
-                    addCookie("RNKEY",getRNKEY(page.toString()));
+                while(page.toString().contains("document.cookie=\"RNKEY=\"")) {
+                    try {
+                        addCookie("RNKEY",getRNKEY(page.toString()));
+                    } catch (PageParseException e) {
+                        break;
+                    }
                     addCookie("trial-step1-modal-shown", "null"); addCookie("atatusScript","hide");
                     addCookie("ua","5b8fd1d60da9f748d773c2f3fc6ec89e"); addCookie("bs","bm8unqfp3axtovr7u7xpil9rlrabd02g");
                     addCookie("ss","472939886686767906"); addCookie("RNLBSERVERID","ded6856");
@@ -257,9 +265,12 @@ public class Pornhub extends GenericQueryExtractor implements Playlist, Searchab
         return thumbs;
     }
     
-    private static String getRNKEY(String page) {
+    private static String getRNKEY(String page) throws PageParseException {
         page = page.replace("document.cookie=", "return");
-        page = page.substring(page.indexOf("<!--")+4, page.indexOf("//-->"));
+        int i = page.indexOf("<!--")+4, j = page.indexOf("//-->");
+        if (i < 0 || j < 0)
+            throw new PageParseException("fake rnkey request");
+        page = page.substring(i, j);
         ScriptEngine engine = new ScriptEngineManager().getEngineByName("JavaScript");
         try {
             engine.eval(page);
@@ -287,7 +298,7 @@ public class Pornhub extends GenericQueryExtractor implements Playlist, Searchab
      private static String downloadVideoName(String url) throws IOException , SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
         Document page = isAlbum(url) || isPhoto(url) ? getPage(url,false) : getPage(url,true);
         if (isAlbum(url) || isPhoto(url)) {
-            while(page.toString().contains("RNKEY"))
+            while(page.toString().contains("document.cookie=\"RNKEY=\""))
                 page = Jsoup.parse(Jsoup.connect(url).cookie("RNKEY", getRNKEY(page.toString())).userAgent(CommonUtils.PCCLIENT).get().html());
             CommonUtils.savePage(page.toString(), url, false);
         }
@@ -305,7 +316,7 @@ public class Pornhub extends GenericQueryExtractor implements Playlist, Searchab
             else img = div.select("div.centerImage").select("a").select("img").attr("src");
             return CommonUtils.getPicName(img);
         } else {
-            while(page.toString().contains("RNKEY"))
+            while(page.toString().contains("document.cookie=\"RNKEY=\""))
                 Jsoup.parse(Jsoup.connect(url).cookie("RNKEY", getRNKEY(page.toString())).userAgent(CommonUtils.MOBILECLIENT).get().html());
             page = Jsoup.parse(page.toString());
             CommonUtils.savePage(page.toString(), url, true);
@@ -319,14 +330,14 @@ public class Pornhub extends GenericQueryExtractor implements Playlist, Searchab
     private static File downloadThumb(String url) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception {
         Document page = isAlbum(url) || isPhoto(url) ? getPage(url,false) : getPage(url,true);
         if (isAlbum(url) || isPhoto(url)) {
-            while(page.toString().contains("RNKEY"))
+            while(page.toString().contains("document.cookie=\"RNKEY=\""))
                 page = Jsoup.parse(Jsoup.connect(url).cookie("RNKEY", getRNKEY(page.toString())).userAgent(CommonUtils.PCCLIENT).get().html());
             CommonUtils.savePage(page.toString(), url, false);
         }
         if (isAlbum(url)) {
             String subUrl = addHost(page.select("li.photoAlbumListContainer").get(0).select("a").attr("href"),"pornhub.com");
             Document subpage = getPage(subUrl,false);
-            while(subpage.toString().contains("RNKEY"))
+            while(subpage.toString().contains("document.cookie=\"RNKEY=\""))
                 subpage = Jsoup.parse(Jsoup.connect(subUrl).cookie("RNKEY", getRNKEY(subpage.toString())).userAgent(CommonUtils.PCCLIENT).get().html());
             CommonUtils.savePage(subpage.toString(), subUrl, false);
             Element div = subpage.getElementById("photoImageSection"); String img;
@@ -345,7 +356,7 @@ public class Pornhub extends GenericQueryExtractor implements Playlist, Searchab
                 CommonUtils.saveFile(img,CommonUtils.getThumbName(img,SKIP),MainApp.imageCache);
             return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(img,SKIP));
         } else {
-            while(page.toString().contains("RNKEY"))
+            while(page.toString().contains("document.cookie=\"RNKEY=\""))
                 page = Jsoup.parse(Jsoup.connect(url).cookie("RNKEY", getRNKEY(page.toString())).userAgent(CommonUtils.MOBILECLIENT).get().html());
             CommonUtils.savePage(page.toString(), url, true);
             verify(page);
@@ -380,7 +391,7 @@ public class Pornhub extends GenericQueryExtractor implements Playlist, Searchab
         video v = null;
         try {
             Document page = getPage(url,false);
-            while(page.toString().contains("RNKEY")) {
+            while(page.toString().contains("document.cookie=\"RNKEY=\"")) {
                 addCookie("RNKEY",getRNKEY(page.toString()));
                 page = getPageCookie(url,false,true);
             }
@@ -414,7 +425,7 @@ public class Pornhub extends GenericQueryExtractor implements Playlist, Searchab
         video v = null;
         try {
             Document page = getPage(url,false);
-            while(page.toString().contains("RNKEY")) {
+            while(page.toString().contains("document.cookie=\"RNKEY=\"")) {
                 addCookie("RNKEY",getRNKEY(page.toString()));
                 page = getPageCookie(url,false,true);
             }
@@ -447,7 +458,7 @@ public class Pornhub extends GenericQueryExtractor implements Playlist, Searchab
         String searchUrl = "https://pornhub.com/video/search?search="+str;
         
         Document page = getPage(searchUrl,false);
-        while(page.toString().contains("RNKEY")) {
+        while(page.toString().contains("document.cookie=\"RNKEY=\"")) {
             addCookie("RNKEY",getRNKEY(page.toString()));
             page = getPageCookie(searchUrl,false,true);
         }
@@ -461,7 +472,7 @@ public class Pornhub extends GenericQueryExtractor implements Playlist, Searchab
             if (!CommonUtils.testPage(addHost(searchResults.get(i).select("a").attr("href"),"pornhub.com"))) continue; //test to avoid error 404
             try {
                 Document pageLink = getPage(addHost(searchResults.get(i).select("a").attr("href"),"pornhub.com"),false);
-                while(pageLink.toString().contains("RNKEY")) {
+                while(pageLink.toString().contains("document.cookie=\"RNKEY=\"")) {
                     addCookie("RNKEY",getRNKEY(pageLink.toString()));
                     pageLink = getPageCookie(addHost(searchResults.get(i).select("a").attr("href"),"pornhub.com"),false,true);
                 }
@@ -488,7 +499,7 @@ public class Pornhub extends GenericQueryExtractor implements Playlist, Searchab
     
     private static String getFirstUrl(String url) throws IOException, PageNotFoundException, GenericDownloaderException {
         Document page = getPage(url,false);
-        while(page.toString().contains("RNKEY"))
+        while(page.toString().contains("document.cookie=\"RNKEY=\""))
             page = Jsoup.parse(Jsoup.connect(url).cookie("RNKEY", getRNKEY(page.toString())).userAgent(CommonUtils.PCCLIENT).get().html());
         Element ul = page.getElementById("videoPlaylist");
         if (ul == null)
@@ -505,7 +516,7 @@ public class Pornhub extends GenericQueryExtractor implements Playlist, Searchab
     
     @Override public Vector<String> getItems() throws IOException, PageNotFoundException, GenericDownloaderException {
         Document page = getPage(playlistUrl,false);
-        while(page.toString().contains("RNKEY")) {
+        while(page.toString().contains("document.cookie=\"RNKEY=\"")) {
             addCookie("RNKEY",getRNKEY(page.toString()));
             page = getPageCookie(playlistUrl,false,true);
         }
@@ -524,7 +535,7 @@ public class Pornhub extends GenericQueryExtractor implements Playlist, Searchab
     
     private static long getSize(String link) throws IOException, GenericDownloaderException{
         Document page = getPage(link,false,true);
-        while(page.toString().contains("RNKEY"))
+        while(page.toString().contains("document.cookie=\"RNKEY=\""))
             page = Jsoup.parse(Jsoup.connect(link).cookie("RNKEY", getRNKEY(page.toString())).userAgent(CommonUtils.PCCLIENT).get().html());
         verify(page);
         CommonUtils.savePage(page.toString(), link, false);
@@ -541,7 +552,7 @@ public class Pornhub extends GenericQueryExtractor implements Playlist, Searchab
                         subPage = Jsoup.parse(CommonUtils.loadPage(MainApp.pageCache.getAbsolutePath()+File.separator+CommonUtils.getCacheName(subLink,false)));
                     else {
                         subPage = Jsoup.parse(Jsoup.connect(subLink).userAgent(CommonUtils.PCCLIENT).get().html());
-                        while(subPage.toString().contains("RNKEY"))
+                        while(subPage.toString().contains("document.cookie=\"RNKEY=\""))
                             subPage = Jsoup.parse(Jsoup.connect(subLink).cookie("RNKEY", getRNKEY(subPage.toString())).cookie("trial-step1-modal-shown", "null").userAgent(CommonUtils.PCCLIENT).get().html());
                         CommonUtils.savePage(subPage.toString(), subLink, false);
                     }

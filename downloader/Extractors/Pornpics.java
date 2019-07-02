@@ -24,7 +24,7 @@ import org.jsoup.select.Elements;
  * @author christopher
  */
 public class Pornpics extends GenericExtractor{
-    private static final int SKIP = 2;
+    private static final byte SKIP = 2;
 
     public Pornpics() { //this contructor is used for when you jus want to search
         

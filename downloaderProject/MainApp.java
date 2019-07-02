@@ -73,7 +73,7 @@ public class MainApp extends Application {
     
     private static final int WIDTH = 895, HEIGHT = 550, XS = 100, PANES = 7;
     public static Pane[] actionPanes = new Pane[PANES];
-    public static final int DOWNLOADPANE = 0, BROWSERPANE = 1, SETTINGSPANE = 2, SHAREPANE = 3, DOWNLOADHISTORYPANE = 4, ACCOUNTPANE = 5, STREAMPANE = 6;
+    public static final byte DOWNLOADPANE = 0, BROWSERPANE = 1, SETTINGSPANE = 2, SHAREPANE = 3, DOWNLOADHISTORYPANE = 4, ACCOUNTPANE = 5, STREAMPANE = 6;
     public static int BYTE;
     
     public static ManageSettings settings;
@@ -539,6 +539,7 @@ public class MainApp extends Application {
     
     static SplashScreen splash;
     public static void main(String[] args) {
+        splash = SplashScreen.getSplashScreen();
         determineOS(); //determine what OS is running
         getUserName(); //get the username
         setCacheDir(); //set up cache (create it if it doesnt exist yet)
@@ -550,7 +551,7 @@ public class MainApp extends Application {
         if (args != null)
             if (args.length > 0)
                 parseArgs(args);
-        splash = SplashScreen.getSplashScreen();
+        
         habits = DataIO.loadCollectedData();
         habits = habits == null ? new DataCollection(true) : habits;
         

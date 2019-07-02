@@ -27,7 +27,7 @@ import org.jsoup.select.Elements;
  * @author christopher
  */
 public class Vporn extends GenericExtractor implements Searchable{
-    private static final int SKIP = 3;
+    private static final byte SKIP = 3;
     
     public Vporn() { //this contructor is used for when you jus want to search
         

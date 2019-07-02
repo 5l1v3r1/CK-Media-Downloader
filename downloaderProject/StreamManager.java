@@ -31,7 +31,7 @@ public class StreamManager {
     private final Button play, stop, rewind15, skip15, skipMin, rewindMin, mute; 
     private final Slider slide;
     private MediaPlayer player;
-    private final int SKIP = 15, FASTSKIP = 60;
+    private final byte SKIP = 15, FASTSKIP = 60;
     
     public StreamManager(Pane p) {
         this.root = p;
