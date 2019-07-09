@@ -184,8 +184,7 @@ public class Pornhub extends GenericQueryExtractor implements Playlist, Searchab
     }
 
     @Override public GenericQuery query(String search) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
-        search = search.trim(); 
-        search = search.replaceAll(" ", "+");
+        search = search.trim().replaceAll(" ", "+");
         String searchUrl = "https://pornhub.com/video/search?search="+search;
         
         GenericQuery thequery = new GenericQuery();

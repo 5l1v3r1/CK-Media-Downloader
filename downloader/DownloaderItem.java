@@ -99,7 +99,7 @@ public class DownloaderItem {
     }
     
     private GenericExtractor getExtractor(video v) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
-        return v == null ? ExtractorList.getExtractor(url) : ExtractorList.getExtractor(url,v.getThumbnail(),v.getName());
+        return v == null ? ExtractorList.getExtractor(url) : ExtractorList.getExtractor(v.getLink(),v.getThumbnail(),v.getName());
     }
     
     private GenericExtractor getExtractor() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
@@ -300,20 +300,32 @@ public class DownloaderItem {
     private ContextMenu initContextMenu() {
         ContextMenu menu = new ContextMenu();
         menu.getStyleClass().add("background");
-        final MenuItem[] item = new MenuItem[5];
-        item[0] = new MenuItem("copy url");
-        item[1] = new MenuItem("open in browser");
-        item[2] = new MenuItem("remove");
-        item[3] = new MenuItem("remove all");
-        item[4] = new MenuItem("export links to file");
+        final int iconSize = 20;
+        final MenuItem[] item = new MenuItem[6];
+        item[0] = new MenuItem("copy page url");
+        item[1] = new MenuItem("copy video url");
+        item[2] = new MenuItem("open in browser");
+        item[3] = new MenuItem("remove");
+        item[4] = new MenuItem("remove all");
+        item[5] = new MenuItem("export links to file");
+        
        
-        item[0].setGraphic(CommonUtils.getIcon("/icons/icons8-copy-link-48.png", 20, 20));
+        item[0].setGraphic(CommonUtils.getIcon("/icons/icons8-copy-link-48.png", iconSize, iconSize));
         item[0].setOnAction((ActionEvent) -> {
             Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
             clipboard.setContents(new StringSelection(url), new StringSelection(MainApp.username));
         });
-        item[1].setGraphic(CommonUtils.getIcon("/icons/icons8-open-in-browser-40.png", 20, 20));
+        item[1].setGraphic(CommonUtils.getIcon("/icons/icons8-copy-link-48.png", iconSize, iconSize));
         item[1].setOnAction((ActionEvent) -> {
+            Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+            try {
+                clipboard.setContents(new StringSelection(getStreamLink()), new StringSelection(MainApp.username));
+            } catch (Exception e) {
+                MainApp.createMessageDialog(e.getMessage());
+            }
+        });
+        item[2].setGraphic(CommonUtils.getIcon("/icons/icons8-open-in-browser-40.png", iconSize, iconSize));
+        item[2].setOnAction((ActionEvent) -> {
             if (Desktop.isDesktopSupported()) {
                 new Thread(() -> {
                     try {
@@ -328,16 +340,16 @@ public class DownloaderItem {
             } else
                 MainApp.createMessageDialog("Not supported");
         });
-        item[2].setGraphic(CommonUtils.getIcon("/icons/icons8-cancel-40.png", 20, 20));
-        item[2].setOnAction((ActionEvent) -> {
+        item[3].setGraphic(CommonUtils.getIcon("/icons/icons8-cancel-40.png", iconSize, iconSize));
+        item[3].setOnAction((ActionEvent) -> {
             clearThis();
         });
-        item[3].setGraphic(CommonUtils.getIcon("/icons/icons8-cancel-40.png", 20, 20));
-        item[3].setOnAction((ActionEvent) -> {
+        item[4].setGraphic(CommonUtils.getIcon("/icons/icons8-cancel-40.png", iconSize, iconSize));
+        item[4].setOnAction((ActionEvent) -> {
             MainApp.dm.removeAll();
         });
-        item[4].setGraphic(CommonUtils.getIcon("/icons/icons8-export-40.png", 20, 20));
-        item[4].setOnAction((ActionEvent) -> {
+        item[5].setGraphic(CommonUtils.getIcon("/icons/icons8-export-40.png", iconSize, iconSize));
+        item[5].setOnAction((ActionEvent) -> {
             MainApp.dm.exportAll();
         });
        
@@ -511,7 +523,7 @@ public class DownloaderItem {
     private void download(String link, String name, OperationStream s, String albumName) throws MalformedURLException {
         //if albumName == null not an album
         if (!CommonUtils.isImage(name))
-            if(!CommonUtils.hasExtension(name, "mp4"))
+            if (!CommonUtils.hasExtension(name, "mp4"))
                 name = name + ".mp4"; //assume video
         name = CommonUtils.addId(name, extractor.getId());
         File folder = CommonUtils.isImage(name) ? MainApp.settings.preferences.getPictureFolder() : MainApp.settings.preferences.getVideoFolder();

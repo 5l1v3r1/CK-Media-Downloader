@@ -9,6 +9,7 @@ import downloader.CommonUtils;
 import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
+import downloader.Exceptions.PageNotFoundException;
 import downloader.Exceptions.VideoDeletedException;
 import downloaderProject.MainApp;
 import java.io.File;
@@ -31,6 +32,7 @@ import org.jsoup.select.Elements;
  */
 public class Yourporn extends GenericExtractor implements Searchable{
     private static final byte SKIP = 2;
+    private int cdn = 3;
     
     public Yourporn() { //this contructor is used for when you jus want to search
         
@@ -90,10 +92,16 @@ public class Yourporn extends GenericExtractor implements Searchable{
             String video = addHost(CommonUtils.eraseChar(page.select("span.vidsnfo").attr("data-vnfo").split("\"")[3],'\\'),"sxyprn.com");
             //String video = "https://www.yourporn.sexy"+page.select("video.player_el").attr("src");
             Map<String,String> qualities = new HashMap<>();
-            String test = video.replace("cdn", "cdn6");
+            String test = video.replace("cdn", "cdn"+cdn);
             Pattern p = Pattern.compile("(.+/)s(\\d+)-1(/.+)"); //replace things like "s12-1", "s12"
             Matcher m = p.matcher(test);
             test = m.replaceAll("$1s$2$3");
+            while(CommonUtils.getContentSize(test) < 1024 * 1024 * 5) {
+                test = test.replace("cdn"+cdn, "cdn"+(cdn+1));
+                cdn++;
+                if (cdn > 20)
+                    break;
+            }
             qualities.put("single",test);
             media.addThread(qualities,videoName);
         }
@@ -141,6 +149,9 @@ public class Yourporn extends GenericExtractor implements Searchable{
             }
         else
             thumbLink = getImages(url).get(0);
+        
+        if (thumbLink.equals("https:null"))
+            throw new PageNotFoundException("Couldnt find a thumbnail");
         
         if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,SKIP))) //if file not already in cache download it
             CommonUtils.saveFile(thumbLink,CommonUtils.getThumbName(thumbLink,SKIP),MainApp.imageCache);

@@ -121,27 +121,24 @@ public class mainLayoutController implements Initializable, Reactable{
         try {
             //MainApp.createMessageDialog("Each link in the file should be on a new line");
             FileChooser choose = new FileChooser(); 
-            Vector<String> lines = new Vector<>();
             choose.setTitle("Select a file import links from");
             if((MainApp.settings.preferences.getImportFolder() != null) && (MainApp.settings.preferences.getImportFolder().exists() && (MainApp.settings.preferences.getImportFolder().isDirectory())))
                 choose.setInitialDirectory(MainApp.settings.preferences.getImportFolder());
             File selected = choose.showOpenDialog(null);
             if (selected != null) {
                 try (Scanner reader = new Scanner(selected)){
-                    while(reader.hasNextLine())
-                        lines.add(reader.nextLine());
+                    while(reader.hasNextLine()) {
+                        String temp = reader.nextLine().trim();
+                        CommonUtils.log(temp,this);
+                        MainApp.dm.addDownload(temp);
+                    }
                     reader.close();
                 } catch (FileNotFoundException e) {
                     MainApp.createMessageDialog("File doesn't exist");
                 }
-                for(int i = 0; i < lines.size(); i++) {
-                    CommonUtils.log(lines.get(i).trim(),this);
-                    MainApp.dm.addDownload(lines.get(i).trim());
-                }
                 MainApp.settings.preferences.setImportFolder(selected.getParentFile());
                 MainApp.settings.saveSettings();
             }
-            choose = null;
         } catch (Exception e) {
             e.printStackTrace();
             CommonUtils.log(e.getMessage(),this);
