@@ -27,6 +27,7 @@ import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -78,8 +79,9 @@ public class Spankbang extends GenericQueryExtractor implements Playlist, Search
             while(i.hasNext()) {
                 String id = i.next();
                 if (id.startsWith("stream_url_"))
-                    if (!((String)json.get(id)).isEmpty())
-                        quality.put(id.replace("stream_url_", ""),(String)json.get(id));
+                    if (!(json.get(id) instanceof String))
+                    //if (!((JSONArray)json.get(id)).isEmpty())
+                        quality.put(id.replace("stream_url_", ""),(String)((JSONArray)json.get(id)).get(0));
             }
         } catch (ParseException e) {
             throw new PageParseException(e.getMessage());

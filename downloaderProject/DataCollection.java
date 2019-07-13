@@ -26,8 +26,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 public class DataCollection implements Externalizable{
-    private static final long serialVersionUID = 1L;
-    private static final long VERSION = 2;
+    private static final long serialVersionUID = 1L, VERSION = 2;
     private transient Vector<String> starList, /*dictionary,*/ ignoreWords;
     private Map<String, Integer> keywords, frequentStars, frequentSites;
     private Queue<video> videoQueue; 
