@@ -147,6 +147,7 @@ public class DownloaderItem {
         } catch (FileNotFoundException e) {
             MainApp.createMessageDialog("(2)Couldnt get thumb from link: \n"+url);
             CommonUtils.log("Failed to load thumbnail code: 2",this);
+            e.printStackTrace();
             return false;
         } catch (UncheckedIOException e) {
             e.printStackTrace();
@@ -220,12 +221,18 @@ public class DownloaderItem {
                 
                 String name = v == null ? extractor.getVideoName() : v.getName();
                 File thumb = v == null ? extractor.getThumb() : v.getThumbnail();
-                DataIO.saveVideo(new video(url,name,thumb,size));
+                String duration;
+                if (v == null) {
+                    GameTime g = extractor.getDuration();
+                    duration = g == null ? "----" : g.toString();
+                } else 
+                    duration = v.getDuration();
+                DataIO.saveVideo(new video(url, name, thumb, size, duration));
                 MainApp.createMessageDialog("Media saved");
                 MainApp.settings.videoUpdate();
-            } catch (IOException e) {
+            } catch (IOException | GenericDownloaderException e) {
                 MainApp.createMessageDialog("Failed to save video for later");
-            }
+            } 
         });
     }
     
@@ -263,6 +270,7 @@ public class DownloaderItem {
         setName();
         setCloseBtn();
         setStreamButton();
+        setDuration();
        
         CommonUtils.log("Found",this);
         setIndeteminate(false);
@@ -375,6 +383,9 @@ public class DownloaderItem {
     private void downloadThis() {
         try {
             determineLink();
+            if (downloadLinks != null)
+                if (!downloadLinks.isEmpty())
+                    MainApp.dm.startDownload(this);
         } catch (SocketException e) {
             displayStatus(e.getMessage());
         } catch(SocketTimeoutException e) {
@@ -383,12 +394,10 @@ public class DownloaderItem {
             displayStatus(e.getMessage());
         } catch (GenericDownloaderException e) {
             displayStatus(e.getMessage());
+            MainApp.createMessageDialog(e.getMessage());
         } catch (Exception e) {
             displayStatus(e.getMessage());
         }
-        if (downloadLinks != null)
-            if (!downloadLinks.isEmpty())
-                MainApp.dm.startDownload(this);
     }
     
     private void clearThis() {
@@ -543,7 +552,7 @@ public class DownloaderItem {
         }while(stop != -2); //retry download if failed
         MainApp.createNotification("Download Success","Finished Downloading "+name);
         File saved = albumName != null ? new File(folder + File.separator + albumName + File.separator + CommonUtils.clean(name)) : new File(folder + File.separator + CommonUtils.clean(name));
-        MainApp.downloadHistoryList.add(new downloadedMedia(CommonUtils.clean(name),extractor.getThumb(),saved,extractor.getClass().getSimpleName()));
+        MainApp.downloadHistoryList.add(new downloadedMedia(CommonUtils.clean(name),extractor.getThumb(),saved,extractor.getClass().getSimpleName(), CommonUtils.getCurrentTimeStamp()));
     }
     
     private void setSize(final long size) {
@@ -558,6 +567,27 @@ public class DownloaderItem {
         final long s = size;
         Platform.runLater(() -> {
             ((Label)root.lookup("#size")).setText(MainApp.getSizeText(s));
+        });
+    }
+    
+    private void setDuration() {
+        String duration;
+        try {
+            if (v == null) {
+                GameTime g = extractor.getDuration();
+                duration = g == null || g.getSec() == 0 ? "----" : g.toString();
+            } else {
+                if (v.getDuration() == null)
+                    duration = "----";
+                else duration = v.getDuration().equals("00") ? "----" : v.getDuration();
+            }
+        } catch (IOException | GenericDownloaderException e) {
+            CommonUtils.log(e.getMessage(), this);
+            duration = "----";
+        }
+        final String d = duration;
+        Platform.runLater(() -> {
+            ((Label)root.lookup("#duration")).setText("Duration "+d);
         });
     }
     
@@ -580,11 +610,17 @@ public class DownloaderItem {
         });
     }
     
+    boolean set = false;
     private void updateEta(String s) {
         Platform.runLater(() -> {
             if (root != null) {
-                if (root.lookup("#eta") != null)
-                    ((Label)root.lookup("#eta")).setText("ETA "+s);
+                if (!set) {
+                    Image image = new Image(System.class.getResourceAsStream("/icons/icons8-submit-progress-480.png"));
+                    ((ImageView)root.lookup("#timeIcon")).setImage(image);
+                    set = true;
+                }
+                if (root.lookup("#duration") != null)
+                    ((Label)root.lookup("#duration")).setText("ETA "+s);
             }
         });
     }

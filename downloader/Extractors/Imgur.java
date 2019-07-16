@@ -5,6 +5,7 @@
  */
 package downloader.Extractors;
 
+import ChrisPackage.GameTime;
 import downloader.CommonUtils;
 import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
@@ -131,6 +132,10 @@ public class Imgur extends GenericExtractor {
         } catch (ParseException e) {
             throw new PageParseException(e.getMessage());
         }
+    }
+    
+    @Override public GameTime getDuration() {
+        return null;
     }
 
     @Override public video similar() throws IOException {

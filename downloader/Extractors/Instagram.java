@@ -5,6 +5,7 @@
  */
 package downloader.Extractors;
 
+import ChrisPackage.GameTime;
 import downloader.CommonUtils;
 import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
@@ -163,6 +164,10 @@ public class Instagram extends GenericExtractor{
     }
 
     @Override public video similar() {
+        return null;
+    }
+    
+    @Override public GameTime getDuration() {
         return null;
     }
 

@@ -103,8 +103,7 @@ public class DownloadHistory {
             loader.setLocation(MainApp.class.getResource("layouts/downloadedItem.fxml"));
             item = loader.load();
             item.getStylesheets().clear();
-            Label name = (Label)item.lookup("#mediaName");
-            name.setText(d.getName());
+            ((Label)item.lookup("#mediaName")).setText(d.getName());
             ImageView thumb = (ImageView)item.lookup("#mediaThumb");
             if (d.getDownloaded().equals("Instagram")) thumb.preserveRatioProperty().setValue(true);
             try {
@@ -121,8 +120,7 @@ public class DownloadHistory {
             } catch (IOException e) {
                 MainApp.createMessageDialog("Failed to load thumb: "+d.getThumb().getName()+"\n"+e.getMessage());
             }
-            Button viewMedia = (Button)item.lookup("#view");
-            viewMedia.setOnAction(event -> {
+            ((Button)item.lookup("#view")).setOnAction(event -> {
                 if (Desktop.isDesktopSupported()) {
                     new Thread(() -> {
                         try {
@@ -137,8 +135,7 @@ public class DownloadHistory {
                 } else
                     MainApp.createMessageDialog("Not supported");
             });
-            Button viewFolder = (Button)item.lookup("#openFolder");
-            viewFolder.setOnAction(event -> {
+            ((Button)item.lookup("#openFolder")).setOnAction(event -> {
                 if (Desktop.isDesktopSupported()) {
                     new Thread(() -> {
                         try {
@@ -153,12 +150,10 @@ public class DownloadHistory {
                 } else
                     MainApp.createMessageDialog("Not supported");
             });
-            if (d.exists()) {
-                Label size = (Label)item.lookup("#mediaSize");
-                size.setText(d.getSize());
-            }
-            Label site = (Label)item.lookup("#mediaSite");
-            site.setText(d.getDownloaded());
+            if (d.exists())
+                ((Label)item.lookup("#mediaSize")).setText(d.getSize());
+            ((Label)item.lookup("#mediaSite")).setText(d.getDownloaded());
+            ((Label)item.lookup("#timestamp")).setText(d.getDate());
         } catch (IOException e) {
             MainApp.createMessageDialog("Failed to load download history: "+e.getMessage());
         }

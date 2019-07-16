@@ -5,6 +5,7 @@
  */
 package downloader.Extractors;
 
+import ChrisPackage.GameTime;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -144,6 +145,7 @@ public class Spankbang extends GenericQueryExtractor implements Playlist, Search
             thequery.addPreview(parse(thequery.getLink(i)));
             thequery.addName(downloadVideoName(addHost(searchResults.get(i).select("a.thumb").attr("href"),"spankbang.com")));
             thequery.addSize(getSize(link));
+            thequery.addDuration(getDuration(link).toString());
 	}
         return thequery;
     }
@@ -216,7 +218,7 @@ public class Spankbang extends GenericQueryExtractor implements Playlist, Search
             try {verify(getPage(link,false));} catch (GenericDownloaderException e) {continue;}
             String title = li.get(i).select("div.inf").select("a").text();
             try {if (title.length() < 1) title = downloadVideoName(link);} catch (Exception e) {continue;}
-                try {v = new video(link,title,downloadThumb(link),getSize(link)); }catch(Exception e) {continue;}
+                try {v = new video(link,title,downloadThumb(link),getSize(link), getDuration(link).toString()); }catch(Exception e) {continue;}
                 break;
             }
         return v;
@@ -242,7 +244,7 @@ public class Spankbang extends GenericQueryExtractor implements Playlist, Search
                     throw new IOException("Failed to completely download page");
             try {
                 long size = getSize(link);
-                v = new video(link,downloadVideoName(link),new File(MainApp.imageCache+File.separator+CommonUtils.parseName(thumbLink,".jpg")),size);
+                v = new video(link,downloadVideoName(link),new File(MainApp.imageCache+File.separator+CommonUtils.parseName(thumbLink,".jpg")),size, getDuration(link).toString());
             } catch (Exception e) {
                 v = null; continue;
             }
@@ -254,7 +256,7 @@ public class Spankbang extends GenericQueryExtractor implements Playlist, Search
     private static String getFirstUrl(String url) throws IOException, GenericDownloaderException {
         Document page = getPage(url,false);
         Elements div = page.select("div.results").select("div.video-item");
-        return "https://spankbang.com" + div.get(0).select("a").get(0).attr("href");
+        return addHost(div.get(0).select("a").get(0).attr("href"),"spankbang.com");
     }
     
     @Override public boolean isPlaylist() {
@@ -285,6 +287,17 @@ public class Spankbang extends GenericQueryExtractor implements Playlist, Search
         MediaDefinition media = new MediaDefinition();
         media.addThread(getQualities(CommonUtils.sendPost(JSONURL,params.toString(),false,url,"application/json")),videoName);
         return getSize(media);
+    }
+    
+    private GameTime getDuration(String link) throws IOException, GenericDownloaderException {
+        long secs = getSeconds(getPage(link,false).select("span.i-length").text());
+        GameTime g = new GameTime();
+        g.addSec(secs);
+        return g;
+    }
+    
+    @Override public GameTime getDuration() throws IOException, GenericDownloaderException {
+        return getDuration(url);
     }
 
     @Override  protected String getValidRegex() {

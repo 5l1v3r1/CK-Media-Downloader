@@ -5,6 +5,7 @@
  */
 package downloader.Extractors;
 
+import ChrisPackage.GameTime;
 import downloader.CommonUtils;
 import downloader.DataStructures.GenericQuery;
 import downloader.DataStructures.MediaDefinition;
@@ -103,6 +104,7 @@ public class Youporn extends GenericQueryExtractor implements Searchable{
             Document linkPage = getPage(link,false);
             String video = linkPage.getElementById("player-html5").attr("src");
             thequery.addSize(CommonUtils.getContentSize(video));
+            thequery.addDuration(getDuration(link).toString());
 	}
         return thequery;
     }
@@ -163,7 +165,7 @@ public class Youporn extends GenericQueryExtractor implements Searchable{
             
             try {
                 File thumb = downloadThumb(link);
-                v = new video(link,downloadVideoName(link),thumb,getSize(link));
+                v = new video(link,downloadVideoName(link),thumb,getSize(link),getDuration(link).toString());
             } catch (Exception e) {continue;}
             got = true;
         }
@@ -190,7 +192,7 @@ public class Youporn extends GenericQueryExtractor implements Searchable{
                     throw new IOException("Failed to completely download page");
             Document linkPage = getPage(link,false);
             String video = linkPage.getElementById("player-html5").attr("src");
-            v = new video(link,Jsoup.parse(searchResults.get(i).select("div.video-box-title").toString()).body().text(),new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumb)),CommonUtils.getContentSize(video));
+            v = new video(link,Jsoup.parse(searchResults.get(i).select("div.video-box-title").toString()).body().text(),new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumb)),CommonUtils.getContentSize(video),getDuration(link).toString());
             break; //if u made it this far u already have a vaild video
 	}
         return v;
@@ -203,6 +205,14 @@ public class Youporn extends GenericQueryExtractor implements Searchable{
         MediaDefinition media = new MediaDefinition();
         media.addThread(qualities,videoName);
         return getSize(media);
+    }
+    
+    private GameTime getDuration(String link) throws IOException, GenericDownloaderException {
+        return getMetaDuration(getPage(link,false));
+    }
+    
+    @Override public GameTime getDuration() throws IOException, GenericDownloaderException {
+        return getDuration(url);
     }
 
     @Override protected String getValidRegex() {

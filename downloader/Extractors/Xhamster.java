@@ -5,6 +5,7 @@
  */
 package downloader.Extractors;
 
+import ChrisPackage.GameTime;
 import downloader.CommonUtils;
 import downloader.DataStructures.GenericQuery;
 import downloader.DataStructures.MediaDefinition;
@@ -84,7 +85,7 @@ public class Xhamster extends GenericQueryExtractor implements Searchable{
             //String video = page.select("a.player-container__no-player.xplayer.xplayer-fallback-image.xh-helper-hidden").attr("href");
             media.addThread(qualities,videoName);
         } else {
-            //https://xhamster.com/photos/gallery/julie-anderson-977633
+            //https://xhamster.com/photos/gallery/julie-anderson-977633 https://xhamster.com/photos/gallery/12272844/297194743
             final int max = Integer.parseInt(page.select("span.page-title__count").text());
             Elements imgs = page.select("div.image-thumb"); int next = 2;
             while(imgs.size() < max)
@@ -110,8 +111,9 @@ public class Xhamster extends GenericQueryExtractor implements Searchable{
         
 	Elements searchResults = page.select("div.thumb-list__item.video-thumb");
 	for(int i = 0; i < searchResults.size(); i++)  {
-            if (!CommonUtils.testPage(searchResults.get(i).select("a").attr("href"))) continue; //test to avoid error 404
-            thequery.addLink(searchResults.get(i).select("a").attr("href"));
+            String link = searchResults.get(i).select("a").attr("href");
+            if (!CommonUtils.testPage(link)) continue; //test to avoid error 404
+            thequery.addLink(link);
             String thumbLink = searchResults.get(i).select("a").select("img").attr("src");
             if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,SKIP))) //if file not already in cache download it
                 if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,SKIP),MainApp.imageCache) != -2)
@@ -122,6 +124,7 @@ public class Xhamster extends GenericQueryExtractor implements Searchable{
             Document linkPage = getPage(searchResults.get(i).select("a").attr("href"),false);
             String video = linkPage.select("a.player-container__no-player.xplayer.xplayer-fallback-image.xh-helper-hidden").attr("href");
             thequery.addSize(CommonUtils.getContentSize(video));
+            thequery.addDuration(getDuration(link).toString());
 	}
         return thequery;
     }
@@ -146,14 +149,15 @@ public class Xhamster extends GenericQueryExtractor implements Searchable{
     private static String downloadVideoName(String url) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
         Document page = getPage(url,false);
         
-        return isAlbum(url) ? page.select("h1").text() : Jsoup.parse(page.select("h1.entity-info-container__title").toString()).body().text();
+        return page.select("h1").text();
+        //return isAlbum(url) ? page.select("h1").text() : Jsoup.parse(page.select("h1.entity-info-container__title").toString()).body().text();
     } 
 	
     //getVideo thumbnail
     private static File downloadThumb(String url) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
         Document page = getPage(url,true);
-        
-	String thumb = !isAlbum(url) ? page.select("header").select("img").attr("src") : page.select("img.thumb").get(0).attr("src");
+        //page.select("header").select("img").attr("src")
+	String thumb = !isAlbum(url) ? getMetaImage(page) : page.select("img.thumb").get(0).attr("src");
         
         if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
             CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache);
@@ -191,7 +195,7 @@ public class Xhamster extends GenericQueryExtractor implements Searchable{
             Document linkPage = getPage(link,false);
  
             String video = linkPage.select("a.player-container__no-player.xplayer.xplayer-fallback-image.xh-helper-hidden").attr("href");
-            v = new video(link,title,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumb,SKIP)),CommonUtils.getContentSize(video));
+            v = new video(link,title,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumb,SKIP)),CommonUtils.getContentSize(video), getDuration(link).toString());
             break;
         }
         return v;
@@ -215,11 +219,29 @@ public class Xhamster extends GenericQueryExtractor implements Searchable{
                     throw new IOException("Failed to completely download page");
             Document linkPage = getPage(searchResults.get(i).select("a").attr("href"),false);
  
-            String video = linkPage.select("a.player-container__no-player.xplayer.xplayer-fallback-image.xh-helper-hidden").attr("href");
-            v = new video(searchResults.get(i).select("a").attr("href"),Jsoup.parse(searchResults.get(i).select("div.video-thumb-info").select("a").toString()).body().text(),new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)),CommonUtils.getContentSize(video));
+            String video = linkPage.select("a.player-container__no-player.xplayer.xplayer-fallback-image.xh-helper-hidden").attr("href"),
+                    link = searchResults.get(i).select("a").attr("href");
+            v = new video(link,Jsoup.parse(searchResults.get(i).select("div.video-thumb-info").select("a").toString()).body().text(),new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)),CommonUtils.getContentSize(video), getDuration(link).toString());
             break; //if u made it this far u already have a vaild video
 	}
         return v;
+    }
+    
+    private GameTime getDuration(String link) throws IOException, GenericDownloaderException {
+        if (isAlbum(link))
+            return new GameTime();
+        else {
+            long secs = Integer.parseInt(getId(getPage(link,false).toString(),".*videoId\":"+getId(url, getValidRegex())+",\"duration\":(?<id>\\d+).*"));
+            GameTime g = new GameTime();
+            g.addSec(secs);
+            return g;
+        }
+    }
+    
+    @Override public GameTime getDuration() throws IOException, GenericDownloaderException {
+        if (isAlbum(url))
+            return new GameTime();
+        else return getDuration(url);
     }
 
     @Override protected String getValidRegex() {

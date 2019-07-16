@@ -5,6 +5,7 @@
  */
 package downloader.Extractors;
 
+import ChrisPackage.GameTime;
 import downloader.CommonUtils;
 import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
@@ -94,13 +95,28 @@ public abstract class GenericExtractor {
         return page;
     }
     
-    private Connection addCookies(Connection c) {
-        Iterator<String> i = cookieJar.keySet().iterator();
+    protected static Document getPageCookie(String url, boolean mobile, Map<String, String> cookies) throws IOException, PageNotFoundException {
+        Document page; String html;
+        try {
+            html = mobile ? addCookies(Jsoup.connect(url), cookies).followRedirects(true).userAgent(CommonUtils.MOBILECLIENT).get().html() : addCookies(Jsoup.connect(url), cookies).followRedirects(true).userAgent(CommonUtils.PCCLIENT).get().html();
+            page = Jsoup.parse(html);
+        } catch (HttpStatusException e) {
+            throw new PageNotFoundException(e.getMessage());
+        }
+        return page;
+    }
+    
+    private static Connection addCookies(Connection c, Map<String, String> cookies) {
+        Iterator<String> i = cookies.keySet().iterator();
         while(i.hasNext()) {
             String cookie = i.next();
-            c = c.cookie(cookie, cookieJar.get(cookie));
+            c = c.cookie(cookie, cookies.get(cookie));
         }
         return c;
+    }
+    
+    private Connection addCookies(Connection c) {
+        return addCookies(c, cookieJar);
     } 
     
     protected static String getCanonicalLink(Document page) {
@@ -108,6 +124,20 @@ public abstract class GenericExtractor {
             if(link.attr("rel").equals("canonical"))
                 return link.attr("href");
         return null;
+    }
+    
+    protected static GameTime getMetaDuration(Document page) {
+        Elements metas = page.select("meta");
+        long secs = 0;
+        for(Element meta :metas) {
+            if (meta.attr("property").contains("video:duration") || meta.attr("property").contains("og:duration")) {
+                secs = Integer.parseInt(meta.attr("content"));
+                break;
+            }
+        }
+        GameTime g = new GameTime();
+        g.addSec(secs);
+        return g;
     }
     
     protected static String getMetaImage(Document page) {
@@ -229,6 +259,7 @@ public abstract class GenericExtractor {
     public abstract MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException;
     public abstract video similar() throws IOException, GenericDownloaderException; //get a video from the related items list
     protected abstract String getValidRegex();
+    public abstract GameTime getDuration() throws IOException, GenericDownloaderException;
     
     final static protected long getSize(MediaDefinition media) throws GenericDownloaderException, UncheckedIOException, IOException {
         long size = 0;
@@ -259,12 +290,36 @@ public abstract class GenericExtractor {
         return getSize(getVideo());
     }
     
+    final static protected long getSeconds(String t) {
+        Pattern p = Pattern.compile(CommonUtils.TIMEREGEX1);
+        Matcher m = p.matcher(t);
+        long secs = 0;
+        if (!m.find()) {
+            p = Pattern.compile(CommonUtils.TIMEREGEX2);
+            m = p.matcher(t);
+            if (!m.find()) {
+                p = Pattern.compile(CommonUtils.TIMEREGEX3);
+                m = p.matcher(t);
+                if (!m.find())
+                    return 0;
+            }
+        }
+        secs += Integer.parseInt(m.group("secs"));
+        if (m.group("mins") != null)
+            secs += Integer.parseInt(m.group("mins")) * 60;
+        if (m.group("hrs") != null)
+            secs += Integer.parseInt(m.group("hrs")) * 60 * 60;
+        if (m.group("days") != null)
+            secs += Integer.parseInt(m.group("days")) * 24 * 60 * 60;
+        return secs;
+    }
+    
     final static protected String getId(String link, String regex) {
         Pattern p = Pattern.compile(regex);
         Matcher m = p.matcher(link);
-        if (!m.find())
+        if (!m.find()) {
             return "";
-        else if (m.group("id") != null && !m.group("id").isEmpty())
+        } else if (m.group("id") != null && !m.group("id").isEmpty())
             return m.group("id");
         else if (m.group("id2") != null && !m.group("id2").isEmpty())
             return m.group("id2");

@@ -5,6 +5,7 @@
  */
 package downloader.Extractors;
 
+import ChrisPackage.GameTime;
 import downloader.CommonUtils;
 import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
@@ -61,7 +62,7 @@ public class Homemoviestube extends GenericExtractor implements Searchable{
     //getVideo thumbnail
     private static File downloadThumb(String url) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
         Document page = getPage(url,false);
-        String thumbLink = getMetaImage(page);
+        String thumbLink = addHost(getMetaImage(page),"");
          
         if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,SKIP))) //if file not already in cache download it
             CommonUtils.saveFile(thumbLink,CommonUtils.getThumbName(thumbLink,SKIP),MainApp.imageCache);
@@ -80,7 +81,7 @@ public class Homemoviestube extends GenericExtractor implements Searchable{
             int i = randomNum.nextInt(li.size()); count++;
             String link = li.get(i).select("a").get(0).attr("href");
             if (link.matches("http://www.homemoviestube.com/videos/[\\d]+/[\\S]+.html"))
-                try {v = new video(link,downloadVideoName(link),downloadThumb(link),getSize(link)); } catch(Exception e) {continue;}
+                try {v = new video(link,downloadVideoName(link),downloadThumb(link),getSize(link), "----"); } catch(Exception e) {continue;}
             else continue;
             break;
         }
@@ -100,7 +101,7 @@ public class Homemoviestube extends GenericExtractor implements Searchable{
             if (!div.select("a").get(0).attr("href").matches("http://www.homemoviestube.com/videos/[\\d]+/[\\S]+.html")) continue;         
             if (!CommonUtils.testPage(div.select("a").get(0).attr("href"))) continue; //test to avoid error 404
             String link = div.select("a").get(0).attr("href");
-            try { v = new video(link,downloadVideoName(link),downloadThumb(link),getSize(link)); } catch (Exception e) {continue;}
+            try { v = new video(link,downloadVideoName(link),downloadThumb(link),getSize(link), "----"); } catch (Exception e) {continue;}
             break; //if u made it this far u already have a vaild video
 	}
         return v;
@@ -110,6 +111,13 @@ public class Homemoviestube extends GenericExtractor implements Searchable{
         Document page = getPage(link,false,true);
         Map<String,String> q = getDefaultVideo(page);
         return CommonUtils.getContentSize(q.get(q.keySet().iterator().next()));
+    }
+    
+    @Override public GameTime getDuration() throws IOException, GenericDownloaderException {
+        long secs = getSeconds(getPage(url,false).select("span.desc").text());
+        GameTime g = new GameTime();
+        g.addSec(secs);
+        return g;
     }
 
     @Override protected String getValidRegex() {

@@ -5,6 +5,7 @@
  */
 package downloader.Extractors;
 
+import ChrisPackage.GameTime;
 import downloader.CommonUtils;
 import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
@@ -89,7 +90,7 @@ public class Befuck extends GenericExtractor implements Searchable{
             String link = li.get(i).select("a").attr("href");
             String name = li.get(i).select("figcaption").text();
             if (link.isEmpty() || name.isEmpty()) continue;
-            v = new video(link,name,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)),getSize(link));
+            v = new video(link,name,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)),getSize(link),"----");
             break;
         }
         
@@ -100,6 +101,10 @@ public class Befuck extends GenericExtractor implements Searchable{
         Document page = getPage(link,false,true);
         Map<String,String> q = getDefaultVideo(page);
         return CommonUtils.getContentSize(q.get(q.keySet().iterator().next()));
+    }
+    
+    @Override public GameTime getDuration() {
+        return null;
     }
 
     @Override protected String getValidRegex() {

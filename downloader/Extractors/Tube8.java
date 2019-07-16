@@ -5,6 +5,7 @@
  */
 package downloader.Extractors;
 
+import ChrisPackage.GameTime;
 import downloader.CommonUtils;
 import downloader.DataStructures.GenericQuery;
 import downloader.DataStructures.MediaDefinition;
@@ -77,6 +78,7 @@ public class Tube8 extends GenericQueryExtractor implements Searchable{
             thequery.addName(title);
             long size; try { size = getSize(link); } catch (GenericDownloaderException | IOException e) {size = -1;}
             thequery.addSize(size);
+            thequery.addDuration(getDuration(link).toString());
 	}
         return thequery;
     }
@@ -157,7 +159,7 @@ public class Tube8 extends GenericQueryExtractor implements Searchable{
             int i = randomNum.nextInt(li.size()); count++;
             String link = li.get(i).select("a").get(0).attr("href");
             String title = li.get(i).select("p.video_title").select("a").text();
-            try {v = new video(link,title,downloadThumb(link),getSize(link));}catch(Exception e) {continue;}
+            try {v = new video(link,title,downloadThumb(link),getSize(link), getDuration(link).toString());}catch(Exception e) {continue;}
             break;
         }
         return v;
@@ -181,7 +183,7 @@ public class Tube8 extends GenericQueryExtractor implements Searchable{
             if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
                 if (CommonUtils.saveFile(thumb, CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache) != -2)
                     throw new IOException("Failed to completely download page");
-            try { v = new video(link,title,new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,SKIP)),getSize(link)); } catch (GenericDownloaderException | IOException e) {}
+            try { v = new video(link,title,new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,SKIP)),getSize(link), getDuration(link).toString()); } catch (GenericDownloaderException | IOException e) {}
             break; //if u made it this far u already have a vaild video
 	}
         return v;
@@ -194,6 +196,14 @@ public class Tube8 extends GenericQueryExtractor implements Searchable{
         MediaDefinition media = new MediaDefinition();
         media.addThread(quality,videoName);
         return getSize(media);
+    }
+    
+    private GameTime getDuration(String link) throws IOException, GenericDownloaderException {
+        return getMetaDuration(getPage(link,false));
+    }
+    
+    @Override public GameTime getDuration() throws IOException, GenericDownloaderException {
+        return getDuration(url);
     }
 
     @Override protected String getValidRegex() {

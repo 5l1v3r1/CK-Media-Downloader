@@ -5,6 +5,7 @@
  */
 package downloader.Extractors;
 
+import ChrisPackage.GameTime;
 import downloader.CommonUtils;
 import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
@@ -77,6 +78,10 @@ public class Bigboobsalert extends GenericExtractor{
         if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink))) //if file not already in cache download it
             CommonUtils.saveFile(thumbLink,CommonUtils.getThumbName(thumbLink),MainApp.imageCache);
         return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumbLink));
+    }
+    
+    @Override public GameTime getDuration() {
+        return null;
     }
 
     @Override public video similar() {

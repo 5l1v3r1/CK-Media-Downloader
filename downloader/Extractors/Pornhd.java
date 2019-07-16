@@ -5,6 +5,7 @@
  */
 package downloader.Extractors;
 
+import ChrisPackage.GameTime;
 import downloader.CommonUtils;
 import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
@@ -86,7 +87,7 @@ public class Pornhd extends GenericExtractor{
             int i = randomNum.nextInt(li.size()); count++;
             String link = addHost(li.get(i).select("a.thumb.videoThumb.popTrigger").attr("href"),"pornhd.com");
             String title = li.get(i).select("a.title").text();
-            try {v = new video(link,title,downloadThumb(link),getSize(link)); } catch(Exception e) {continue;}
+            try {v = new video(link,title,downloadThumb(link),getSize(link),"----"); } catch(Exception e) {continue;}
             break;
         }
         return v;
@@ -104,6 +105,10 @@ public class Pornhd extends GenericExtractor{
 	}
         media.addThread(qualities, videoName); //video name is not used so doesnt matter
         return getSize(media);
+    }
+    
+    @Override public GameTime getDuration() {
+        return null;
     }
 
     @Override protected String getValidRegex() {

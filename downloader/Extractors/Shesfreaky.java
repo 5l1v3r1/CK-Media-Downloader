@@ -5,6 +5,7 @@
  */
 package downloader.Extractors;
 
+import ChrisPackage.GameTime;
 import downloader.CommonUtils;
 import downloader.DataStructures.GenericQuery;
 import downloader.DataStructures.MediaDefinition;
@@ -90,6 +91,7 @@ public class Shesfreaky extends GenericQueryExtractor implements Searchable{
             thequery.addPreview(parse(link));
             thequery.addName(title);
             thequery.addSize(getSize(link));
+            thequery.addDuration(getDuration(link).toString());
          }
          return thequery;
     }
@@ -162,7 +164,7 @@ public class Shesfreaky extends GenericQueryExtractor implements Searchable{
             String link = li.get(i).select("a").attr("href");
             try {verify(getPage(url,false)); } catch(GenericDownloaderException e) {continue;}
             String title = li.get(i).select("em").attr("title");
-            try {v = new video(link,title,downloadThumb(link),getSize(link));} catch(Exception e) {continue;}
+            try {v = new video(link,title,downloadThumb(link),getSize(link),getDuration(link).toString());} catch(Exception e) {continue;}
             break;
         }
         return v;
@@ -190,7 +192,7 @@ public class Shesfreaky extends GenericQueryExtractor implements Searchable{
             if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
                 if (CommonUtils.saveFile(thumb, CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache) != -2)
                     throw new IOException("Failed to completely download page");
-            v = new video(link,title,new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,SKIP)),getSize(link));
+            v = new video(link,title,new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,SKIP)),getSize(link),getDuration(link).toString());
             break; //if u made it this far u already have a vaild video
          }
          return v;
@@ -200,6 +202,21 @@ public class Shesfreaky extends GenericQueryExtractor implements Searchable{
         Document page = getPage(link,false,true);
         Map<String,String> q = getDefaultVideo(page);
         return CommonUtils.getContentSize(q.get(q.keySet().iterator().next()));
+    }
+    
+    private GameTime getDuration(String link) throws IOException, GenericDownloaderException {
+        GameTime g = new GameTime();
+        try {
+            long secs = getSeconds(getPage(link,false).getElementById("n-vid-detail-right").select("p").get(0).text());
+            g.addSec(secs);
+        } catch (NullPointerException e) {
+            CommonUtils.log(e.getMessage(), this);
+        }
+        return g;
+    }
+    
+    @Override public GameTime getDuration() throws IOException, GenericDownloaderException {
+        return getDuration(url);
     }
 
     @Override protected String getValidRegex() {

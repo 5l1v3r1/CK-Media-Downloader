@@ -5,6 +5,7 @@
  */
 package downloader.Extractors;
 
+import ChrisPackage.GameTime;
 import downloader.CommonUtils;
 import downloader.DataStructures.GenericQuery;
 import downloader.DataStructures.MediaDefinition;
@@ -102,6 +103,7 @@ public class Redtube extends GenericQueryExtractor implements Searchable{
             thequery.addThumbnail(new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,SKIP)));
             thequery.addPreview(parse(link));
             thequery.addName(title);
+            thequery.addDuration(getDuration(link).toString());
             try {thequery.addSize(getSize(link));}catch(GenericDownloaderException | IOException e) { thequery.addSize(-1);}
 	}
         return thequery;
@@ -161,7 +163,7 @@ public class Redtube extends GenericQueryExtractor implements Searchable{
         	int i = randomNum.nextInt(li.size()); count++;
         	String link = addHost(li.get(i).select("a").get(0).attr("href"),"www.redtube.com");
             String title = li.get(i).select("div.video_title").select("a").text();
-                try {v = new video(link,title,downloadThumb(link),getSize(link)); } catch(Exception e) {} 
+                try {v = new video(link,title,downloadThumb(link),getSize(link),getDuration(link).toString()); } catch(Exception e) {} 
                 break;
             }
         return v;
@@ -185,7 +187,7 @@ public class Redtube extends GenericQueryExtractor implements Searchable{
                 if (CommonUtils.saveFile(thumb, CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache) != -2)
                     throw new IOException("Failed to completely download page");
             String link = addHost(searchResults.get(i).select("a").attr("href"),"www.redtube.com");
-            try {v = new video(link,Jsoup.parse(searchResults.get(i).select("div.video_title").toString()).body().text(),new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,SKIP)),getSize(link)); } catch(GenericDownloaderException | IOException e) {}
+            try {v = new video(link,Jsoup.parse(searchResults.get(i).select("div.video_title").toString()).body().text(),new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,SKIP)),getSize(link), getDuration(link).toString()); } catch(GenericDownloaderException | IOException e) {}
             break; //if u made it this far u already have a vaild video
         }
         return v;
@@ -200,6 +202,14 @@ public class Redtube extends GenericQueryExtractor implements Searchable{
         MediaDefinition media = new MediaDefinition();
         media.addThread(qualities, videoName);
         return getSize(media);
+    }
+    
+    private GameTime getDuration(String link) throws IOException, GenericDownloaderException {
+        return getMetaDuration(getPage(link, false));
+    }
+    
+    @Override public GameTime getDuration() throws IOException, GenericDownloaderException {
+        return getDuration(url);
     }
 
     @Override protected String getValidRegex() {

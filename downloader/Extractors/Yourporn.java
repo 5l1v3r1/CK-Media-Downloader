@@ -5,6 +5,7 @@
  */
 package downloader.Extractors;
 
+import ChrisPackage.GameTime;
 import downloader.CommonUtils;
 import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
@@ -32,7 +33,7 @@ import org.jsoup.select.Elements;
  */
 public class Yourporn extends GenericExtractor implements Searchable{
     private static final byte SKIP = 2;
-    private int cdn = 3;
+    private byte cdn = 3;
     
     public Yourporn() { //this contructor is used for when you jus want to search
         
@@ -97,7 +98,7 @@ public class Yourporn extends GenericExtractor implements Searchable{
             Matcher m = p.matcher(test);
             test = m.replaceAll("$1s$2$3");
             while(CommonUtils.getContentSize(test) < 1024 * 1024 * 5) {
-                test = test.replace("cdn"+cdn, "cdn"+(cdn+1));
+                test = new String(test.replace("cdn"+cdn, "cdn"+(cdn+1)));
                 cdn++;
                 if (cdn > 20)
                     break;
@@ -176,7 +177,7 @@ public class Yourporn extends GenericExtractor implements Searchable{
             
             try {
                 File thumb = downloadThumb(link);
-                v = new video(link,downloadVideoName(link),thumb,getSize(link));
+                v = new video(link,downloadVideoName(link),thumb,getSize(link),getDuration(link).toString());
                 got = true;
             } catch (Exception e) { }   
         }
@@ -196,7 +197,7 @@ public class Yourporn extends GenericExtractor implements Searchable{
             if (!CommonUtils.testPage(link)) continue; //test to avoid error 404
             try {verify(getPage(link,false)); } catch (GenericDownloaderException e) {continue;}
             try {
-                v = new video(link,downloadVideoName(link),downloadThumb(link),getSize(link));
+                v = new video(link,downloadVideoName(link),downloadThumb(link),getSize(link),getDuration(link).toString());
             } catch (Exception e) {
                 v = null; continue;
             }
@@ -221,14 +222,34 @@ public class Yourporn extends GenericExtractor implements Searchable{
         } else {
             String video = addHost(CommonUtils.eraseChar(page.select("span.vidsnfo").attr("data-vnfo").split("\"")[3],'\\'),"sxyprn.com");
             Map<String,String> qualities = new HashMap<>();
-            String test = video.replace("cdn", "cdn6");
+            String test = video.replace("cdn", "cdn"+cdn);
             Pattern p = Pattern.compile("(.+/)s(\\d+)-1(/.+)");
             Matcher m = p.matcher(test);
             test = m.replaceAll("$1s$2$3");
+            while(CommonUtils.getContentSize(test) < 1024 * 1024 * 5) {
+                test = new String(test.replace("cdn"+cdn, "cdn"+(cdn+1)));
+                cdn++;
+                if (cdn > 20)
+                    break;
+            }
             qualities.put("single",test);
             media.addThread(qualities,videoName);
         }
         return getSize(media);
+    }
+    
+    private GameTime getDuration(String link) throws IOException, GenericDownloaderException {
+        if (isAlbum(link))
+            return new GameTime();
+        else {
+            GameTime g = new GameTime();
+            g.addSec(getSeconds(getId(getPage(link,false).toString(),"duration\\s*:\\s*<[^>]+>(?<id>[\\d:]+)")));
+            return g;
+        }
+    }
+    
+    @Override public GameTime getDuration() throws IOException, GenericDownloaderException {
+        return getDuration(url);
     }
 
     @Override protected String getValidRegex() {

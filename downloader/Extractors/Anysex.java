@@ -5,6 +5,7 @@
  */
 package downloader.Extractors;
 
+import ChrisPackage.GameTime;
 import downloader.CommonUtils;
 import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
@@ -83,7 +84,7 @@ public class Anysex extends GenericExtractor implements Searchable{
             
             try {
                 File thumb = downloadThumb(link);
-                v = new video(link,downloadVideoName(link),thumb,getSize(link));
+                v = new video(link,downloadVideoName(link),thumb,getSize(link), getDuration(link).toString());
             } catch (Exception e) {continue;}
             got = true;
         }
@@ -101,7 +102,7 @@ public class Anysex extends GenericExtractor implements Searchable{
             if (li.select("a").isEmpty()) continue;
             if (!CommonUtils.testPage(li.select("a").attr("href"))) continue; //test to avoid error 404
             String link = addHost(li.select("a").attr("href"),"anysex.com");
-            try { v = new video(link,downloadVideoName(link),downloadThumb(link),getSize(link)); } catch (Exception e) {continue;}
+            try { v = new video(link,downloadVideoName(link),downloadThumb(link),getSize(link), getDuration(link).toString()); } catch (Exception e) {continue;}
             break; //if u made it this far u already have a vaild video
 	}
         return v;
@@ -111,6 +112,17 @@ public class Anysex extends GenericExtractor implements Searchable{
         Document page = getPage(link,false,true);
         Map<String,String> q = getDefaultVideo(page);
         return CommonUtils.getContentSize(q.get(q.keySet().iterator().next()));
+    }
+    
+    private GameTime getDuration(String link) throws IOException, GenericDownloaderException {
+        long secs = getSeconds(getPage(link, false).select("q").text());
+        GameTime g = new GameTime();
+        g.addSec(secs);
+        return g;
+    }
+    
+    @Override public GameTime getDuration() throws IOException, GenericDownloaderException {
+        return getDuration(url);
     }
     
     @Override protected String getValidRegex() {

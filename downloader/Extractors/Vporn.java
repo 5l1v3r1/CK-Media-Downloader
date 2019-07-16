@@ -5,6 +5,7 @@
  */
 package downloader.Extractors;
 
+import ChrisPackage.GameTime;
 import downloader.CommonUtils;
 import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
@@ -92,7 +93,7 @@ public class Vporn extends GenericExtractor implements Searchable{
             if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
             	if (CommonUtils.saveFile(thumb, CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache) != -2)
             		continue;//throw new IOException("Failed to completely download page");
-                try { v = new video(link,title,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumb,SKIP)),getSize(link)); } catch (GenericDownloaderException | IOException e) {}
+                try { v = new video(link,title,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumb,SKIP)),getSize(link),getDuration(link).toString()); } catch (GenericDownloaderException | IOException e) {}
                 break;
             }
         return v;
@@ -118,7 +119,7 @@ public class Vporn extends GenericExtractor implements Searchable{
                     throw new IOException("Failed to completely download page");
             String name = li.get(i).select("div.thumb-info").select("span").get(0).text();
             if (link.isEmpty() || name.isEmpty()) continue;
-            try { v = new video(link,name,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)),getSize(link)); } catch(GenericDownloaderException | IOException e) {}
+            try { v = new video(link,name,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)),getSize(link), getDuration(link).toString()); } catch(GenericDownloaderException | IOException e) {}
             break;
         }
         
@@ -136,6 +137,17 @@ public class Vporn extends GenericExtractor implements Searchable{
         MediaDefinition media = new MediaDefinition();
         media.addThread(qualities,videoName);
         return getSize(media);
+    }
+    
+    private GameTime getDuration(String link) throws IOException, GenericDownloaderException {
+        long secs = getSeconds(getPage(link,false).select("span.video-duration.hide-sm-down").text());
+        GameTime g = new GameTime();
+        g.addSec(secs);
+        return g;
+    }
+    
+    @Override public GameTime getDuration() throws IOException, GenericDownloaderException {
+        return getDuration(url);
     }
 
     @Override protected String getValidRegex() {

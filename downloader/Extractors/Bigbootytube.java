@@ -5,6 +5,7 @@
  */
 package downloader.Extractors;
 
+import ChrisPackage.GameTime;
 import downloader.CommonUtils;
 import downloader.DataStructures.GenericQuery;
 import downloader.DataStructures.MediaDefinition;
@@ -48,7 +49,7 @@ public class Bigbootytube extends GenericQueryExtractor implements Searchable{
     
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException{
         Document page = getPage(url,false,true);
-        String video = CommonUtils.getLink(page.toString(),page.toString().indexOf("video_url:")+12,'\'');
+        String video = addHost(CommonUtils.getLink(page.toString(),page.toString().indexOf("video_url:")+12,'\''), "");
         Map<String,String> qualities = new HashMap<>(); qualities.put("single",video);
         MediaDefinition media = new MediaDefinition(); media.addThread(qualities,videoName);
         
@@ -70,7 +71,7 @@ public class Bigbootytube extends GenericQueryExtractor implements Searchable{
 	for(int i = 0; i < searchResults.size(); i++)  {
             if (!CommonUtils.testPage(searchResults.get(i).attr("href"))) continue; //test to avoid error 404
             //try {verify(page);} catch (GenericDownloaderException e) {continue;}
-            thequery.addLink(searchResults.get(i).attr("href"));
+            thequery.addLink(addHost(searchResults.get(i).attr("href"), "bigbootytube.xxx"));
             thequery.addThumbnail(downloadThumb(thequery.getLink(i)));
             String thumbBase = CommonUtils.getLink(searchResults.get(i).toString(), searchResults.get(i).toString().indexOf("onmouseover=\"KT_rotationStart(this, \'")+37, '\'');
             stop = Integer.parseInt(CommonUtils.getLink(searchResults.get(i).toString(), searchResults.get(i).toString().indexOf("onmouseover=\"KT_rotationStart(this, \'")+37+thumbBase.length()+3,')'));
@@ -79,6 +80,7 @@ public class Bigbootytube extends GenericQueryExtractor implements Searchable{
             Document linkPage = getPage(searchResults.get(i).attr("href"),false);
             String video = CommonUtils.getLink(linkPage.toString(),linkPage.toString().indexOf("video_url:")+12,'\'');
             thequery.addSize(CommonUtils.getContentSize(video));
+            thequery.addDuration(getDuration(thequery.getLink(i)).toString());
 	}
         return thequery;
     }
@@ -106,7 +108,7 @@ public class Bigbootytube extends GenericQueryExtractor implements Searchable{
     //getVideo thumbnail
     private static File downloadThumb(String url) throws IOException, SocketTimeoutException, UncheckedIOException, Exception {
         Document page = getPage(url,false);
-        String thumb = CommonUtils.getLink(page.toString(),page.toString().indexOf("preview_url:")+14,'\'');
+        String thumb = addHost(CommonUtils.getLink(page.toString(),page.toString().indexOf("preview_url:")+14,'\''), "");
         if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
             CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache);
         return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,SKIP));
@@ -122,7 +124,7 @@ public class Bigbootytube extends GenericQueryExtractor implements Searchable{
         while(!got) {
         	if (count > li.size()) break;
         	int i = randomNum.nextInt(li.size()); count++;
-        	String link = li.get(i).select("a.thumb-img").attr("href");
+        	String link = addHost(li.get(i).select("a.thumb-img").attr("href"), "bigbootytube.xxx");
             String thumb = li.get(i).select("a.thumb-img").select("img").attr("src");
             String title = li.get(i).select("div.thumb-title").select("h3").select("a").text();
             if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
@@ -130,7 +132,7 @@ public class Bigbootytube extends GenericQueryExtractor implements Searchable{
             		continue;//throw new IOException("Failed to completely download page");
                 Document linkPage = getPage(link,false);
                 String video = CommonUtils.getLink(linkPage.toString(),linkPage.toString().indexOf("video_url:")+12,'\'');
-                v = new video(link,title,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumb,SKIP)),CommonUtils.getContentSize(video));
+                v = new video(link,title,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumb,SKIP)),CommonUtils.getContentSize(video),getDuration(link).toString());
                 break;
             }
         return v;
@@ -151,12 +153,23 @@ public class Bigbootytube extends GenericQueryExtractor implements Searchable{
             //try {verify(page);} catch (GenericDownloaderException e) {continue;}
             try {
                 Document linkPage = getPage(searchResults.get(i).attr("href"),false);
-                String video = CommonUtils.getLink(linkPage.toString(),linkPage.toString().indexOf("video_url:")+12,'\'');
-                v = new video(searchResults.get(i).attr("href"),downloadVideoName(searchResults.get(i).attr("href")),downloadThumb(searchResults.get(i).attr("href")),CommonUtils.getContentSize(video));
+                String video = CommonUtils.getLink(linkPage.toString(),linkPage.toString().indexOf("video_url:")+12,'\''), link = addHost(searchResults.get(i).attr("href"), "bigbootytube.xxx");
+                v = new video(link,downloadVideoName(link),downloadThumb(link),CommonUtils.getContentSize(video),getDuration(link).toString());
             } catch(Exception e) { v = null; continue;}
             break; //if u made it this far u already have a vaild video
         }
         return v;        
+    }
+    
+    private GameTime getDuration(String link) throws IOException, GenericDownloaderException {
+        long secs = getSeconds(getPage(link,false).select("span.btn-ico").get(1).text());
+        GameTime g = new GameTime();
+        g.addSec(secs);
+        return g;
+    }
+    
+    @Override public GameTime getDuration() throws IOException, GenericDownloaderException {
+        return getDuration(url);
     }
 
     @Override protected String getValidRegex() {

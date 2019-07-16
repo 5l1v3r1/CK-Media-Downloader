@@ -16,6 +16,6 @@ public class PageNotFoundException extends GenericDownloaderException{
     }
     
     public PageNotFoundException(String page) {
-        super(page+" not Found");
+        super(page);
     }
 }

@@ -6,20 +6,31 @@
 package downloader.DataStructures;
 
 import downloaderProject.MainApp;
+import java.io.Externalizable;
 import java.io.File;
-import java.io.Serializable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 
 /**
  *
  * @author christopher
  */
-public class downloadedMedia implements Serializable{
-    private static final long serialVersionUID = -75282981916575898l;
-    private final String name, site; //add url?
-    private final File thumb, media;
+public class downloadedMedia implements Externalizable{
+    private static final long serialVersionUID = 2, VERSION = 2;
+    private String name, site, date;
+    private File thumb, media;
+    
+    public downloadedMedia() {
+        //for jvm
+    }
+    
+    public downloadedMedia(String name, File thumb, File media, String site, String date) {
+        this.name = name; this.thumb = thumb; this.media = media; this.site = site; this.date = date;
+    }
     
     public downloadedMedia(String name, File thumb, File media, String site) {
-        this.name = name; this.thumb = thumb; this.media = media; this.site = site;
+        this(name,thumb,media,site,"----");
     }
     
     public File getThumb() {
@@ -62,6 +73,10 @@ public class downloadedMedia implements Serializable{
         return "Downloaded from "+site;
     }
     
+    public String getDate() {
+        return date;
+    }
+    
     @Override public boolean equals(Object o) {
         if (o instanceof downloadedMedia) {
             downloadedMedia temp = (downloadedMedia)o;
@@ -71,5 +86,23 @@ public class downloadedMedia implements Serializable{
                 else return false;
             } else return false;
         } else return false;
+    }
+
+    @Override public void writeExternal(ObjectOutput out) throws IOException {
+        out.writeObject(VERSION);
+        out.writeObject(name);
+        out.writeObject(site);
+        out.writeObject(thumb);
+        out.writeObject(media);
+        out.writeObject(date);
+    }
+
+    @Override public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+        in.readObject(); //ignore version for now
+        name = (String)in.readObject();
+        site = (String)in.readObject();
+        thumb = (File)in.readObject();
+        media = (File)in.readObject();
+        date = (String)in.readObject();
     }
 }

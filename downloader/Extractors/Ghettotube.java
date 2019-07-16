@@ -5,6 +5,7 @@
  */
 package downloader.Extractors;
 
+import ChrisPackage.GameTime;
 import downloader.CommonUtils;
 import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
@@ -136,14 +137,34 @@ public class Ghettotube extends GenericExtractor implements Searchable{
                 Document linkPage =  Jsoup.parse(Jsoup.connect(link).userAgent(CommonUtils.PCCLIENT).get().html());
                  Elements scripts = linkPage.select("div.play").select("script");
                 String video = CommonUtils.getLink(scripts.get(scripts.size()-1).toString(), scripts.get(scripts.size()-1).toString().indexOf("file:")+7, '\"');
-        	v = new video(link,name,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)),CommonUtils.getContentSize(video));
+        	v = new video(link,name,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)),CommonUtils.getContentSize(video), getDuration().toString());
         	break;
         }
         return v;
     }
+    
+    private GameTime getDuration(String link) throws IOException, GenericDownloaderException {
+        Elements spans = getPage(link, false).select("div.ubox-addedby").select("span");
+        String t = "00";
+        for(int i = 0; i < spans.size(); i++) {
+            if (spans.get(i).text().contains(":")) {
+                t = spans.get(i).text();
+                break;
+            }
+        }
+        long secs = getSeconds(t);
+        GameTime g = new GameTime();
+        g.addSec(secs);
+        return g;
+    }
+    
+    @Override public GameTime getDuration() throws IOException, GenericDownloaderException{
+        return getDuration(url);
+    }
 
     @Override protected String getValidRegex() {
         works = true;
-        return "https?://(?:www[.])?ghettotube[.]com/video/(?<id>[\\S]+)[.]html"; 
+        //https://www.ghettotube.com/video/passionate-black-slut-with-bubble-butt-having-deep-penetration-from-behind-xYtVxjSue23.html
+        return "https?://(?:www[.])?ghettotube[.]com/video/[\\S]+-(?<id>\\S+)[.]html"; 
     }
 }

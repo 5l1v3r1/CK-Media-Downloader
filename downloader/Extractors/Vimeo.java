@@ -5,6 +5,7 @@
  */
 package downloader.Extractors;
 
+import ChrisPackage.GameTime;
 import downloader.CommonUtils;
 import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
@@ -144,6 +145,12 @@ public class Vimeo extends GenericExtractor{
         
         return v;
     }*/
+    
+    @Override public GameTime getDuration() throws IOException, GenericDownloaderException {
+        GameTime g = new GameTime();
+        g.addSec(Integer.parseInt(getId(getPage(url,false).toString(),".*duration\":[{]\"raw\"[:](?<id>\\d+).*")));
+        return g;
+    }
 
     @Override protected String getValidRegex() {
         works = true;

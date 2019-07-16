@@ -5,6 +5,7 @@
  */
 package downloader.Extractors;
 
+import ChrisPackage.GameTime;
 import downloader.CommonUtils;
 import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
@@ -68,6 +69,10 @@ public class Vodlocker extends GenericExtractor{
 
     @Override public video similar() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+    @Override public GameTime getDuration() {
+        return null;
     }
 
     @Override protected String getValidRegex() {

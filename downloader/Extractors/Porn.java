@@ -5,6 +5,7 @@
  */
 package downloader.Extractors;
 
+import ChrisPackage.GameTime;
 import downloader.CommonUtils;
 import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
@@ -54,7 +55,7 @@ public class Porn extends GenericExtractor implements Searchable{
         Map<String, String> links = new HashMap<>();
         
         try {
-            src = src.replaceAll("id:\"","\"id\":\"").replaceAll("url","\"url\"").replaceAll("active","\"active\"").replaceAll("false","\"false\"").replaceAll("true","\"true\"");
+            src = src.replaceAll("id:\"","\"id\":\"").replaceAll("url","\"url\"").replaceAll("active","\"active\"").replaceAll("false","\"false\"").replaceAll("true","\"true\"").replaceAll("definition", "\"definition\"");
             CommonUtils.log(src,"Porn");
             JSONArray json = (JSONArray)new JSONParser().parse(src);
             Iterator<JSONObject> i = json.iterator();
@@ -113,7 +114,7 @@ public class Porn extends GenericExtractor implements Searchable{
             if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
                 CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache);
             File thumbFile = new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,SKIP));
-            try {v = new video(link,title,thumbFile,getSize(link)); } catch(GenericDownloaderException | IOException e) {continue;}
+            try {v = new video(link,title,thumbFile,getSize(link), getDuration().toString()); } catch(GenericDownloaderException | IOException e) {continue;}
             break;
         }
         return v;
@@ -134,7 +135,7 @@ public class Porn extends GenericExtractor implements Searchable{
             if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
                 CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache);
             File thumbFile = new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,SKIP));
-            try { v = new video(link,div.select("div.thumb").select("a").attr("title"),thumbFile,getSize(link)); } catch (GenericDownloaderException | IOException e) {continue;}
+            try { v = new video(link,div.select("div.thumb").select("a").attr("title"),thumbFile,getSize(link), getDuration().toString()); } catch (GenericDownloaderException | IOException e) {continue;}
             break; //if u made it this far u already have a vaild video
 	}
         return v;
@@ -148,6 +149,17 @@ public class Porn extends GenericExtractor implements Searchable{
         media.addThread(qualities,videoName);
         
         return getSize(media);
+    }
+    
+    private GameTime getDuration(String link) throws IOException, GenericDownloaderException {
+        long secs = getSeconds(getPage(link,false).select("span.length").text());
+        GameTime g = new GameTime();
+        g.addSec(secs);
+        return g;
+    }
+    
+    @Override public GameTime getDuration() throws IOException, GenericDownloaderException {
+        return getDuration(url);
     }
 
     @Override protected String getValidRegex() {

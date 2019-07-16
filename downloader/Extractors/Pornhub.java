@@ -5,6 +5,7 @@
  */
 package downloader.Extractors;
 
+import ChrisPackage.GameTime;
 import downloader.CommonUtils;
 import downloader.DataStructures.GenericQuery;
 import downloader.DataStructures.MediaDefinition;
@@ -160,7 +161,7 @@ public class Pornhub extends GenericQueryExtractor implements Playlist, Searchab
     
     private static void verify(Document page) throws GenericDownloaderException {
         if(Jsoup.parse(page.select("title").toString()).text().equals("Page Not Found"))
-            throw new PageNotFoundException(page.location());
+            throw new PageNotFoundException(page.location()+" not found");
         if (!page.select("div.privateContainer").isEmpty())
                 throw new PrivateVideoException();
         Element e;
@@ -200,8 +201,9 @@ public class Pornhub extends GenericQueryExtractor implements Playlist, Searchab
             String link = addHost(searchResults.get(i).select("a").attr("href"),"pornhub.com");
             if (!link.matches("https?://pornhub.com/view_video.php[?]viewkey=[\\S]+")) continue;
             if (!CommonUtils.testPage(link)) continue; //test to avoid error 404
+            Document linkPage;
             try {
-                Document linkPage = getPage(link,false);
+                linkPage = getPage(link,false);
                 while(linkPage.toString().contains("document.cookie=\"RNKEY=\"")) {
                     try {
                         addCookie("RNKEY",getRNKEY(page.toString()));
@@ -221,6 +223,8 @@ public class Pornhub extends GenericQueryExtractor implements Playlist, Searchab
             thequery.addThumbnail(new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)));
             thequery.addPreview(parse(link));
             thequery.addName(searchResults.get(i).select("a").attr("title"));
+            thequery.addSize(getSize(link));
+            thequery.addDuration(getMetaDuration(linkPage).toString());
 	}
         return thequery;
     }
@@ -404,7 +408,7 @@ public class Pornhub extends GenericQueryExtractor implements Playlist, Searchab
                 String title = li.get(i).select("div.phimage").select("a.img").attr("title");
                 if (title.length() < 1) title = li.get(i).select("div.phimage").select("a.img").attr("data-title");
                 try {if (title.length() < 1) title = downloadVideoName(link);}catch(Exception e) {continue;}
-                try {v = new video(link,title,downloadThumb(link),getSize(link)); }catch (Exception e) {}
+                try {v = new video(link,title,downloadThumb(link),getSize(link),getDuration(link).toString()); }catch (Exception e) {}
                 break;
             }
         } catch (NullPointerException e) {
@@ -443,7 +447,7 @@ public class Pornhub extends GenericQueryExtractor implements Playlist, Searchab
                 if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP+1))) //if file not already in cache download it
                     CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,SKIP+1),MainApp.imageCache);
                 File thumbFile = new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,SKIP+1));
-                try {v = new video(link,title,thumbFile,getSize(link)); }catch (Exception e) {}
+                try {v = new video(link,title,thumbFile,getSize(link),getDuration(link).toString()); }catch (Exception e) {}
                 break;
             }
         } catch (NullPointerException e) {
@@ -482,7 +486,7 @@ public class Pornhub extends GenericQueryExtractor implements Playlist, Searchab
                 if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,SKIP),MainApp.imageCache) != -2)
                     throw new IOException("Failed to completely download page");
             String link = addHost(searchResults.get(i).select("a").attr("href"),"pornhub.com");
-            try { v = new video(link,searchResults.get(i).select("a").attr("title"),new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)),getSize(link)); } catch (GenericDownloaderException | IOException e) {continue;}
+            try { v = new video(link,searchResults.get(i).select("a").attr("title"),new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)),getSize(link), getDuration(link).toString()); } catch (GenericDownloaderException | IOException e) {continue;}
             break; //if u made it this far u already have a vaild video
 	}
         return v;
@@ -567,6 +571,29 @@ public class Pornhub extends GenericQueryExtractor implements Playlist, Searchab
             media.addThread(quality,"name");
             return getSize(media);
         }
+    }
+    
+    private GameTime getDuration(String link) throws IOException, GenericDownloaderException {
+        try {
+            Document page = getPage(link,false);
+            while(page.toString().contains("document.cookie=\"RNKEY=\"")) {
+                addCookie("RNKEY",getRNKEY(page.toString()));
+                addCookie("trial-step1-modal-shown", "null");
+                page = getPageCookie(link,false,true);
+            }
+            return getMetaDuration(page);
+        } catch (PageParseException e) {
+            CommonUtils.log(e.getMessage(), this);
+            return null;
+        }
+    }
+    
+    @Override public GameTime getDuration() throws IOException, GenericDownloaderException {
+        if (url == null) return new GameTime();
+        if(isAlbum(url) || isPhoto(url))
+            return new GameTime();
+        else
+            return getDuration(url);
     }
 
     @Override protected String getValidRegex() {

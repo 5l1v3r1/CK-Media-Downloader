@@ -5,6 +5,7 @@
  */
 package downloader.Extractors;
 
+import ChrisPackage.GameTime;
 import downloader.CommonUtils;
 import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
@@ -87,6 +88,10 @@ public class Vidoza extends GenericExtractor {
 
     @Override public video similar() throws IOException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+    @Override public GameTime getDuration() {
+        return null;
     }
 
     @Override protected String getValidRegex() {

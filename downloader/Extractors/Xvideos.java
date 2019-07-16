@@ -5,6 +5,7 @@
  */
 package downloader.Extractors;
 
+import ChrisPackage.GameTime;
 import downloader.CommonUtils;
 import downloader.DataStructures.GenericQuery;
 import downloader.DataStructures.MediaDefinition;
@@ -103,6 +104,7 @@ public class Xvideos extends GenericQueryExtractor implements Searchable{
             thequery.addName(downloadVideoName(link));
             long size; try { size = getSize(link); } catch (GenericDownloaderException | IOException e) {size = -1;}
             thequery.addSize(size);
+            thequery.addDuration(getDuration(link).toString());
 	}
         return thequery;
     }
@@ -215,7 +217,7 @@ public class Xvideos extends GenericQueryExtractor implements Searchable{
                 if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
                     if (CommonUtils.saveFile(thumb, CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache) != -2)
                         continue;//throw new IOException("Error downloading file");
-                try { v = new video(link,title,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumb,SKIP)),getSize(link)); } catch(Exception e) {continue;}
+                try { v = new video(link,title,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumb,SKIP)),getSize(link), getDuration(link).toString()); } catch(Exception e) {continue;}
                 break;
             }
         } catch (ParseException e) {
@@ -248,7 +250,7 @@ public class Xvideos extends GenericQueryExtractor implements Searchable{
                 if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,SKIP),MainApp.imageCache) != -2)
                     throw new IOException("Error downloading file");
             try {
-                v = new video(link,downloadVideoName(link),new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)),getSize(link));
+                v = new video(link,downloadVideoName(link),new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)),getSize(link),getDuration(link).toString());
             } catch(Exception e) { v = null; continue;}
             break; //if u made it this far u already have a vaild video
 	}
@@ -272,6 +274,14 @@ public class Xvideos extends GenericQueryExtractor implements Searchable{
         MediaDefinition media = new MediaDefinition();
         media.addThread(qualities,videoName);
         return getSize(media);
+    }
+    
+    private GameTime getDuration(String link) throws IOException, GenericDownloaderException {
+        return getMetaDuration(getPage(link,false));
+    }
+    
+    @Override public GameTime getDuration() throws IOException, GenericDownloaderException {
+        return getDuration(url);
     }
 
     @Override protected String getValidRegex() {

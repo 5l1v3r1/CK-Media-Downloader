@@ -5,7 +5,10 @@
  */
 package downloader.DataStructures;
 
-import java.io.Serializable;
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,9 +16,9 @@ import java.util.List;
  *
  * @author christopher
  */
-public class historyItem implements Serializable{
-    private static final long serialVersionUID = 1L;
-    private String search;
+public class historyItem implements Externalizable{
+    private static final long serialVersionUID = 1L, VERSION = 2;
+    private String search, date;
     private List<String> sites;
     private GenericQuery searchRef;
     
@@ -50,6 +53,10 @@ public class historyItem implements Serializable{
         else return null;
     }
     
+    public String getDate() {
+        return date;
+    }
+    
     public GenericQuery getSearchResult() {
         return searchRef;
     }
@@ -58,10 +65,30 @@ public class historyItem implements Serializable{
         this.searchRef = q;
     }
     
+    public void setDate(String s) {
+        date = s;
+    }
+    
     @Override public boolean equals(Object o) {
         if (o instanceof historyItem) {
             historyItem temp = (historyItem)o;
-            return (temp.search.equals(this.search)) && (temp.sites.equals(this.sites)) && (temp.searchRef.equals(this.searchRef));
+            return (temp.search.equals(this.search)) && (temp.sites.equals(this.sites)) && (temp.searchRef.equals(this.searchRef) && temp.date.equals(this.date));
         } else return false;
+    }
+
+    @Override public void writeExternal(ObjectOutput out) throws IOException {
+        out.writeObject(VERSION);
+        out.writeObject(search);
+        out.writeObject(date);
+        out.writeObject(sites);
+        out.writeObject(searchRef);
+    }
+
+    @Override public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+        in.readObject(); //skip version for now
+        search = (String)in.readObject();
+        date = (String)in.readObject();
+        sites = (List<String>)in.readObject();
+        searchRef = (GenericQuery)in.readObject();
     }
 }

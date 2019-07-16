@@ -25,7 +25,7 @@ import java.io.FileNotFoundException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
-public class DataCollection implements Externalizable{
+public class DataCollection implements Externalizable {
     private static final long serialVersionUID = 1L, VERSION = 2;
     private transient Vector<String> starList, /*dictionary,*/ ignoreWords;
     private Map<String, Integer> keywords, frequentStars, frequentSites;
@@ -347,12 +347,12 @@ public class DataCollection implements Externalizable{
                 Star next = i.next();
                 frequentStars.put(next.getName(),star.get(next));
             }
-            try {videoQueue = (LinkedList<video>)in.readObject(); }catch (IOException e){ videoQueue = new LinkedList<video>();}
+            videoQueue = (LinkedList<video>)in.readObject();
             frequentSites = (HashMap<String, Integer>)in.readObject();
         } else if (id == 2) {
             keywords = (HashMap<String, Integer>)in.readObject();
             frequentStars = (HashMap<String, Integer>)in.readObject();
-            try {videoQueue = (LinkedList<video>)in.readObject(); }catch (IOException e){ videoQueue = new LinkedList<video>();}
+            videoQueue = (LinkedList<video>)in.readObject();
             frequentSites = (HashMap<String, Integer>)in.readObject();
         }
     }

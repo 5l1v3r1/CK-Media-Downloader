@@ -5,6 +5,7 @@
  */
 package downloader.Extractors;
 
+import ChrisPackage.GameTime;
 import downloader.CommonUtils;
 import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
@@ -18,8 +19,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -53,25 +52,22 @@ public class Drtuber extends GenericExtractor implements Searchable{
     }
     
     private Map<String,String> getQualities(String link) throws PageParseException, IOException {
-        Pattern pattern = Pattern.compile("https?://(?:(?:www|m).)?drtuber.com/video/([\\d]+)/[\\S]+");
-        Matcher matcher = pattern.matcher(link);
-        if(matcher.matches()) {
-           String id = matcher.group(1);
-           String rawJson = Jsoup.connect("http://www.drtuber.com/player_config_json/"+id+"?vid="+id).ignoreContentType(true).execute().body();
-            try {
-                Map<String,String> q = new HashMap<>();
-                JSONObject json = (JSONObject)new JSONParser().parse(rawJson);
-                JSONObject formats = ((JSONObject)json.get("files"));
-                Iterator<String> i = formats.keySet().iterator();
-                while(i.hasNext()) {
-                    String format = i.next();
-                    q.put(format,(String)formats.get(format));
-                }
-                return q;
-            } catch (ParseException e) {
-               throw new PageParseException(e.getMessage());
+        String id = link.split("/")[4];
+        CommonUtils.log("http://www.drtuber.com/player_config_json/"+id+"?vid="+id, this);
+        String rawJson = Jsoup.connect("http://www.drtuber.com/player_config_json/"+id+"?vid="+id).ignoreContentType(true).execute().body();
+        try {
+            Map<String,String> q = new HashMap<>();
+            JSONObject json = (JSONObject)new JSONParser().parse(rawJson);
+            JSONObject formats = ((JSONObject)json.get("files"));
+            Iterator<String> i = formats.keySet().iterator();
+            while(i.hasNext()) {
+                String format = i.next();
+                q.put(format,(String)formats.get(format));
             }
-        } else throw new PageParseException("Couldnt match video url");
+            return q;
+        } catch (ParseException e) {
+            throw new PageParseException(e.getMessage());
+        }
     }
     
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {        
@@ -100,27 +96,23 @@ public class Drtuber extends GenericExtractor implements Searchable{
 
     @Override public video similar() throws PageParseException, IOException {
         if (url == null) return null;
-        Pattern pattern = Pattern.compile("https?://(?:(?:www|m).)?drtuber.com/video/([\\d]+)/[\\S]+");
-        Matcher matcher = pattern.matcher(url); video v = null;
-        if(matcher.matches()) {
-           String id = matcher.group(1);
-           String rawJson = Jsoup.connect("http://www.drtuber.com/player_config_json/"+id+"?vid="+id).ignoreContentType(true).execute().body();
-            try {
-                JSONObject json = (JSONObject)new JSONParser().parse(rawJson);
-                JSONArray related = (JSONArray)((JSONObject)json.get("lists")).get("related");
-                boolean got = false; Random rand = new Random(); int count = related.size();
-                while(count-- > 0) {
-                    if (got) break;
-                    JSONObject item = (JSONObject)related.get(rand.nextInt(related.size()));
-                    String title = String.valueOf(item.get("title"));
-                    String link = "http://www.drtuber.com/video/"+String.valueOf(item.get("VID")) + "/" + title.replaceAll(" ","-");
-                    try {v = new video(link,title,downloadThumb(link),getSize(link));} catch (Exception e){}
-                    got = true;
-                }
-            } catch (ParseException e) {
-               throw new PageParseException(e.getMessage());
+        String id = url.split("/")[4]; video v = null;
+        String rawJson = Jsoup.connect("http://www.drtuber.com/player_config_json/"+id+"?vid="+id).ignoreContentType(true).execute().body();
+        try {
+            JSONObject json = (JSONObject)new JSONParser().parse(rawJson);
+            JSONArray related = (JSONArray)((JSONObject)json.get("lists")).get("related");
+            boolean got = false; Random rand = new Random(); int count = related.size();
+            while(count-- > 0) {
+                if (got) break;
+                JSONObject item = (JSONObject)related.get(rand.nextInt(related.size()));
+                String title = String.valueOf(item.get("title"));
+                String link = "http://www.drtuber.com/video/"+String.valueOf(item.get("VID")) + "/" + title.replaceAll(" ","-");
+                try {v = new video(link,title,downloadThumb(link),getSize(link), getDuration(link).toString());} catch (Exception e){}
+                got = true;
             }
-        } else throw new PageParseException("Couldnt match video url");
+        } catch (ParseException e) {
+            throw new PageParseException(e.getMessage());
+        }
         return v;
     }
 
@@ -136,7 +128,7 @@ public class Drtuber extends GenericExtractor implements Searchable{
             if (!CommonUtils.testPage(link)) continue; //test to avoid error 404
             //try {verify(getPage(link,false)); } catch (GenericDownloaderException e) {continue;}
             try {
-                v = new video(link,downloadVideoName(link),downloadThumb(link),getSize(link));
+                v = new video(link,downloadVideoName(link),downloadThumb(link),getSize(link),getDuration(link).toString());
             } catch (Exception e) {
                 v = null; continue;
             }
@@ -150,6 +142,24 @@ public class Drtuber extends GenericExtractor implements Searchable{
         media.addThread(getQualities(link),videoName);
         
         return getSize(media);
+    }
+    
+    private GameTime getDuration(String link) throws IOException {
+        String id = link.split("/")[4]; long secs = 0;
+        String rawJson = Jsoup.connect("http://www.drtuber.com/player_config_json/"+id+"?vid="+id).ignoreContentType(true).execute().body();
+        try {
+            JSONObject json = (JSONObject)new JSONParser().parse(rawJson);
+            secs = Integer.parseInt(((String)json.get("duration")));
+        } catch (ParseException e) {
+            CommonUtils.log(e.getMessage(), this);
+        }
+        GameTime g = new GameTime();
+        g.addSec(secs);
+        return g;
+    }
+    
+    @Override public GameTime getDuration() throws IOException {
+        return getDuration(url);
     }
 
     @Override protected String getValidRegex() {

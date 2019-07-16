@@ -5,6 +5,7 @@
  */
 package downloader.Extractors;
 
+import ChrisPackage.GameTime;
 import downloader.CommonUtils;
 import downloader.DataStructures.GenericQuery;
 import downloader.DataStructures.MediaDefinition;
@@ -80,6 +81,7 @@ public class Ruleporn extends GenericQueryExtractor implements Searchable{
             thequery.addPreview(parse(thequery.getLink(i)));
             thequery.addName(searchResults.get(i).select("span.title").text());
             thequery.addSize(getSize(searchResults.get(i).select("a").get(0).attr("href")));
+            thequery.addDuration(getDuration(thequery.getLink(i)).toString());
 	}
         return thequery;
     }
@@ -137,7 +139,7 @@ public class Ruleporn extends GenericQueryExtractor implements Searchable{
             if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb))) //if file not already in cache download it
             	if (CommonUtils.saveFile(thumb, CommonUtils.getThumbName(thumb),MainApp.imageCache) != -2)
             		continue;//throw new IOException("Failed to completely download page");
-                v = new video(link,title,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumb)),getSize(link));
+                v = new video(link,title,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumb)),getSize(link), getDuration(link).toString());
                 break;
             }
         return v;
@@ -161,7 +163,7 @@ public class Ruleporn extends GenericQueryExtractor implements Searchable{
                 if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink),MainApp.imageCache) != -2)
                     throw new IOException("Failed to completely download page");
             String link = searchResults.get(i).select("a").get(0).attr("href");
-            v = new video(link,searchResults.get(i).select("span.title").text(),new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink)),getSize(link));
+            v = new video(link,searchResults.get(i).select("span.title").text(),new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink)),getSize(link),getDuration(link).toString());
             break; //if u made it this far u already have a vaild video
 	}
         return v;
@@ -171,6 +173,17 @@ public class Ruleporn extends GenericQueryExtractor implements Searchable{
         Document page = getPage(link,false,true);
         Map<String,String> q = getDefaultVideo(page);
         return CommonUtils.getContentSize(q.get(q.keySet().iterator().next()));
+    }
+    
+    private GameTime getDuration(String link) throws IOException, GenericDownloaderException {
+        long secs = getSeconds(getPage(link,false).select("div.stats-container").select("span.sub-label").text());
+        GameTime g = new GameTime();
+        g.addSec(secs);
+        return g;
+    }
+    
+    @Override public GameTime getDuration() throws IOException, GenericDownloaderException {
+        return getDuration(url);
     }
 
     @Override protected String getValidRegex() {

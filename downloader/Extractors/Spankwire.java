@@ -5,6 +5,7 @@
  */
 package downloader.Extractors;
 
+import ChrisPackage.GameTime;
 import downloader.CommonUtils;
 import downloader.DataStructures.GenericQuery;
 import downloader.DataStructures.MediaDefinition;
@@ -73,6 +74,7 @@ public class Spankwire extends GenericQueryExtractor implements Searchable{
             thequery.addName(Jsoup.parse(searchResults.get(i).select("div.video_thumb_wrapper__thumb-wrapper__title_video").select("a").toString()).body().text());
             long size = -1; try { size = getSize(link); } catch (GenericDownloaderException | IOException e) {}
             thequery.addSize(size);
+            thequery.addDuration(getDuration(link).toString());
 	}
         return thequery;
     }
@@ -155,7 +157,7 @@ public class Spankwire extends GenericQueryExtractor implements Searchable{
             JSONObject json = (JSONObject)new JSONParser().parse(rawJson);
             String link = addHost((String)((JSONObject)json.get("related")).get("url"),"spankwire.com");
             video v;
-            try {v = new video(link,downloadVideoName(link),downloadThumb(link),getSize(link)); }catch (Exception e) { throw new PageParseException("["+this.getClass().getSimpleName()+"]"+e.getMessage());}
+            try {v = new video(link,downloadVideoName(link),downloadThumb(link),getSize(link), getDuration(link).toString()); }catch (Exception e) { throw new PageParseException("["+this.getClass().getSimpleName()+"]"+e.getMessage());}
             return v;
         } catch (ParseException e) {
             throw new PageParseException(e.getMessage());
@@ -181,7 +183,7 @@ public class Spankwire extends GenericQueryExtractor implements Searchable{
                 if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,SKIP),MainApp.imageCache) != -2)
                     throw new IOException("Failed to completely download page");
             long size; try { size = getSize(link); } catch (GenericDownloaderException | IOException e) {continue;}
-            v = new video(link,Jsoup.parse(searchResults.get(i).select("div.video_thumb_wrapper__thumb-wrapper__title_video").select("a").toString()).body().text(),new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)),size);
+            v = new video(link,Jsoup.parse(searchResults.get(i).select("div.video_thumb_wrapper__thumb-wrapper__title_video").select("a").toString()).body().text(),new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)),size, getDuration(link).toString());
             break; //if u made it this far u already have a vaild video
 	}
         return v;
@@ -191,6 +193,22 @@ public class Spankwire extends GenericQueryExtractor implements Searchable{
         MediaDefinition media = new MediaDefinition();
         media.addThread(getQualities(link),videoName);
         return getSize(media);
+    }
+    
+    private GameTime getDuration(String link) throws IOException, GenericDownloaderException {
+        String rawJson = Jsoup.connect("http://www.spankwire.com/api/video/"+getId(link,getRegex())+".json").ignoreContentType(true).execute().body();
+        GameTime g = new GameTime();
+        try {
+            JSONObject json = (JSONObject)new JSONParser().parse(rawJson);
+            g.addSec((long)json.get("duration"));
+        } catch (ParseException e) {
+            CommonUtils.log(e.getMessage(), this);
+        }
+        return g;
+    }
+    
+    @Override public GameTime getDuration() throws IOException, GenericDownloaderException {
+        return getDuration(url);
     }
 
     @Override protected String getValidRegex() {

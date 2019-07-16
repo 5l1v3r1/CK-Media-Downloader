@@ -128,8 +128,8 @@ public class ManageSettings {
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(MainApp.class.getResource("layouts/historyItemLayout.fxml"));
             historyPane = loader.load(); historyPane.getStylesheets().clear();
-            Label search = (Label)historyPane.lookup("#searchString");
-            search.setText("   "+h.Search());
+            ((Label)historyPane.lookup("#searchString")).setText("   "+h.Search());
+            ((Label)historyPane.lookup("#timestamp")).setText("   "+h.getDate());
             Label[] sites = new Label[h.siteCount()-1];
             Label site = (Label)historyPane.lookup("#site");
             site.setText(h.getSite(0));

@@ -5,6 +5,7 @@
  */
 package downloader.Extractors;
 
+import ChrisPackage.GameTime;
 import downloader.CommonUtils;
 import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
@@ -28,7 +29,7 @@ public class Default extends GenericExtractor {
     private static final byte SKIP = 1;
     
     public Default() {
-        
+        //https://91porn.com/view_video.php?viewkey=7e42283b4f5ab36da134
     }
 
     public Default(String url) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
@@ -46,13 +47,20 @@ public class Default extends GenericExtractor {
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
         Document page = getPage(url,false,true);
      
+        
+        CommonUtils.log("Getting video with default extractor", this);
         MediaDefinition media = new MediaDefinition();
         try {
             Map<String,String> v = getDefaultVideo(page);
-            if (v == null) throw new PageNotFoundException("Could not find a video");
+            if (v == null || v.isEmpty()) 
+                throw new PageNotFoundException("video not found");
+            else if (v.containsKey("single")) {
+                if (v.get("single") == null || v.get("single").matches("https?://"))
+                    throw new PageNotFoundException("video not found");
+            }
             media.addThread(v,videoName);
         } catch (NullPointerException e) {
-            throw new PageNotFoundException("Could not find a video");
+            throw new PageNotFoundException("video not found");
         }
 
         return media;
@@ -94,6 +102,10 @@ public class Default extends GenericExtractor {
 
     @Override public video similar() throws IOException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+    @Override public GameTime getDuration() throws IOException, GenericDownloaderException {
+        return getMetaDuration(getPage(url,false));
     }
 
     @Override protected String getValidRegex() {

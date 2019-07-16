@@ -5,6 +5,7 @@
  */
 package downloader.Extractors;
 
+import ChrisPackage.GameTime;
 import downloader.CommonUtils;
 import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
@@ -119,15 +120,33 @@ public class Bigtits extends GenericExtractor implements Searchable{
             Document linkPage = getPage(link,false);
             Element div = linkPage.getElementById("playerCont");
             String video = CommonUtils.getLink(div.toString(), div.toString().indexOf("<source src=")+13, '\"');
-            v = new video(link,name,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)),CommonUtils.getContentSize(video));
+            v = new video(link,name,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)),CommonUtils.getContentSize(video),getDuration(link).toString());
             break;
         }
         
         return v;
     }
+    
+    private GameTime getDuration(String link) throws IOException, GenericDownloaderException {
+        Elements spans = getPage(link, false).select("span");
+        long secs = 0;
+        for(Element span : spans) {
+            if(span.toString().contains("Duration:")) {
+                secs = getSeconds(span.select("em").text());
+                break;
+            }
+        }
+        GameTime g = new GameTime();
+        g.addSec(secs);
+        return g;
+    }
+    
+    @Override public GameTime getDuration() throws IOException, GenericDownloaderException {
+        return getDuration(url);
+    }
 
     @Override protected String getValidRegex() {
-        works = true;
+        works = false;
         return "https?://(?:www[.])?bigtits[.]com/videos/watch/[\\S]+/(?<id>[\\d]+)"; 
     }
 }

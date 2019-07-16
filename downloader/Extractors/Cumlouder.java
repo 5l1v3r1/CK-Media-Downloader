@@ -5,6 +5,7 @@
  */
 package downloader.Extractors;
 
+import ChrisPackage.GameTime;
 import downloader.CommonUtils;
 import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
@@ -86,7 +87,7 @@ public class Cumlouder extends GenericExtractor implements Searchable{
             if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
             	if (CommonUtils.saveFile(thumb, CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache) != -2)
             		continue;//throw new IOException("Failed to completely download page");
-                v = new video(link,title,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumb,SKIP)),getSize(link));
+                v = new video(link,title,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumb,SKIP)),getSize(link),getDuration().toString());
                 break;
             }
         return v;
@@ -111,7 +112,7 @@ public class Cumlouder extends GenericExtractor implements Searchable{
             String link = addHost(li.get(i).select("a").attr("href"),"www.cumlouder.com");
             String name = li.get(i).select("img.thumb").attr("title");
             if (link.isEmpty() || name.isEmpty()) continue;
-            v = new video(link,name,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)),getSize(link));
+            v = new video(link,name,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)),getSize(link),getDuration().toString());
             break;
         }
         
@@ -123,9 +124,20 @@ public class Cumlouder extends GenericExtractor implements Searchable{
         Map<String,String> q = getDefaultVideo(page);
         return CommonUtils.getContentSize(q.get(q.keySet().iterator().next()));
     }
+    
+    private GameTime getDuration(String link) throws IOException, GenericDownloaderException {
+        long secs = getSeconds(getPage(link, false).select("div.duracion").text());
+        GameTime g = new GameTime();
+        g.addSec(secs);
+        return g;
+    }
+    
+    @Override public GameTime getDuration() throws IOException, GenericDownloaderException {
+        return getDuration(url);
+    }
 
     @Override protected String getValidRegex() {
         works = true;
-        return "https?://(?:www[.])?cumlouder[.]com/porn-video/(<id>[\\S]+)[/]?"; 
+        return "https?://(?:www[.])?cumlouder[.]com/porn-video/(?<id>[^/]+)/?"; 
     }
 }

@@ -189,6 +189,7 @@ public class QueryManager {
                 if(e != null)
                     history.addSite(e.getClass().getSimpleName());
             history.setSearchResult(results);
+            history.setDate(CommonUtils.getCurrentTimeStamp());
             try {
                 DataIO.saveHistory(history);
             } catch (FileNotFoundException e) {
@@ -288,7 +289,7 @@ public class QueryManager {
             
             ((Button)pane.lookup("#later")).setOnAction((ActionEvent) -> {
                 try {
-                    DataIO.saveVideo(new video(results.getLink(which),results.getName(which),results.getThumbnail(which),results.getSize(which),results.getPreview(which)));
+                    DataIO.saveVideo(new video(results.getLink(which),results.getName(which),results.getThumbnail(which),results.getSize(which), results.getDuration(which), results.getPreview(which)));
                     MainApp.createMessageDialog("Video saved");
                     MainApp.settings.videoUpdate();
                 } catch (IOException e) {
@@ -330,7 +331,7 @@ public class QueryManager {
             Platform.runLater(() -> {
                 ObservableList<Pane> panes = queryPane.getItems();
                 try {
-                    Vector<Image>images = getImages();
+                    Vector<Image> images = getImages();
                     for(int i = 0; i < images.size(); i++)
                         panes.add(createPane(images.get(i), i)); //add pane of video thumb and download button etc.
                     setOnclickAction(); //on click of a list item show thumbnails of video

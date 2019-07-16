@@ -26,8 +26,10 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Formatter;
 import java.util.Iterator;
 import java.util.List;
@@ -45,7 +47,10 @@ import org.jsoup.Jsoup;
  */
 public class CommonUtils {
     public static final String PCCLIENT = "Mozilla/5.0 (X11; Linux x86_64; rv:59.0) Gecko/20100101 Firefox/59.0", 
-    MOBILECLIENT = "Mozilla/5.0 (Linux; Android 4.4.4; Nexus 5 Build/KTU84P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.57 Mobile Safari/537.36";
+    MOBILECLIENT = "Mozilla/5.0 (Linux; Android 4.4.4; Nexus 5 Build/KTU84P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.57 Mobile Safari/537.36",
+    TIMEREGEX3 = "(?:(?:(?:(?<days>[0-9]+):)?(?<hrs>[0-9]+):)?(?<mins>[0-9]+):)?(?<secs>[0-9]+)",
+    TIMEREGEX1 = "(?:(?:(?:(?<days>[0-9]+)\\s*days?\\s*)?(?<hrs>[0-9]+)\\s*hrs?\\s*)?(?<mins>[0-9]+)\\s*mins?\\s*)?(?<secs>[0-9]+)\\s*secs?\\s*",
+    TIMEREGEX2 = ".*(?<mins>\\d+) minutes and (?<secs>\\d+) seconds.*";
     private static final int BYTE = isWindows() ? 1024 : 1000, BUFFSIZE = BYTE * 600; //1 x 600kb
     
     private static boolean isWindows() {
@@ -277,6 +282,11 @@ public class CommonUtils {
         pure.append(index);
         pure.append(".jpg");
         return pure.toString();
+    }
+    
+    public static String getCurrentTimeStamp() {
+        Date now = new Date();
+        return new SimpleDateFormat("HH:mm:ss").format(now)+" "+new SimpleDateFormat("yyyy/MM/dd").format(now);
     }
     
     public static int getFormatWeight(String format) {

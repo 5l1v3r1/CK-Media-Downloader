@@ -5,6 +5,7 @@
  */
 package downloader.Extractors;
 
+import ChrisPackage.GameTime;
 import downloader.CommonUtils;
 import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
@@ -150,6 +151,10 @@ public class Dailymotion extends GenericExtractor{
         
         return v;*/
     //}
+    
+    @Override public GameTime getDuration() throws IOException, GenericDownloaderException {
+        return getMetaDuration(getPage(url, false));
+    }
 
     @Override protected String getValidRegex() {
         works = true;

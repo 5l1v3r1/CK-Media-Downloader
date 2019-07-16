@@ -5,6 +5,7 @@
  */
 package downloader.Extractors;
 
+import ChrisPackage.GameTime;
 import downloader.CommonUtils;
 import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
@@ -101,7 +102,7 @@ public class Justporno extends GenericExtractor implements Searchable{
             if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
             	if (CommonUtils.saveFile(thumb, CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache) != -2)
             		continue;//throw new IOException("Failed to completely download page");
-                v = new video(link,title,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumb,SKIP)),getSize(link));
+                v = new video(link,title,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumb,SKIP)),getSize(link), "----");
                 break;
             }
         return v;
@@ -126,7 +127,7 @@ public class Justporno extends GenericExtractor implements Searchable{
             String link = li.get(i).select("a").attr("href");
             String name = li.get(i).select("a").attr("title");
             if (link.isEmpty() || name.isEmpty()) continue;
-            v = new video(link,name,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)),getSize(link));
+            v = new video(link,name,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)),getSize(link), "----");
             break;
         }
         
@@ -145,6 +146,10 @@ public class Justporno extends GenericExtractor implements Searchable{
             q.put("single",video); 
         }
         return CommonUtils.getContentSize(q.get(q.keySet().iterator().next()));
+    }
+    
+    @Override public GameTime getDuration() {
+        return null;
     }
 
     @Override protected String getValidRegex() {

@@ -5,6 +5,7 @@
  */
 package downloader.Extractors;
 
+import ChrisPackage.GameTime;
 import downloader.CommonUtils;
 import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
@@ -108,7 +109,7 @@ public class Xtube extends GenericExtractor implements Searchable{
             try {verify(getPage(link,false));} catch (GenericDownloaderException ex) {continue;}
             String title = li.get(i).select("h3").text();
                 
-            try {v = new video(link,title,downloadThumb(link),getSize(link));}catch(Exception e) {continue;}
+            try {v = new video(link,title,downloadThumb(link),getSize(link), getDuration(link).toString());}catch(Exception e) {continue;}
             break;
         }
         return v;
@@ -134,7 +135,7 @@ public class Xtube extends GenericExtractor implements Searchable{
                     throw new IOException("Failed to completely download page");
             String name = li.get(i).select("h3").text();
             if (link.isEmpty() || name.isEmpty()) continue;
-            try { v = new video(link,name,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)),getSize(link)); } catch(GenericDownloaderException | IOException e)  {}
+            try { v = new video(link,name,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)),getSize(link), getDuration(link).toString()); } catch(GenericDownloaderException | IOException e)  {}
             break;
         }
         
@@ -148,6 +149,16 @@ public class Xtube extends GenericExtractor implements Searchable{
         MediaDefinition media = new MediaDefinition();
         media.addThread(quality,videoName);
         return getSize(media);
+    }
+    
+    private GameTime getDuration(String link) throws IOException, GenericDownloaderException {
+        GameTime g = new GameTime();
+        g.addSec(Integer.parseInt(getId(getPage(link,false).toString(),".*duration:(?<id>[\\d]+).*")));
+        return g;
+    }
+    
+    @Override public GameTime getDuration() throws IOException, GenericDownloaderException {
+        return getDuration(url);
     }
 
     @Override protected String getValidRegex() {

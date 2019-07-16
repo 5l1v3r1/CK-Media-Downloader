@@ -6,11 +6,11 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.Pane?>
 
-<Pane id="item" prefHeight="77.0" prefWidth="665.0" styleClass="background" stylesheets="@darkPane.css" xmlns:fx="http://javafx.com/fxml/1">
+<Pane id="item" prefHeight="77.0" prefWidth="665.0" styleClass="background" stylesheets="@darkPane.css">
    <children>
-      <ImageView id="mediaThumb" fx:id="mediaThumb" fitHeight="77.0" fitWidth="90.0" pickOnBounds="true" />
-      <Label id="mediaName" fx:id="mediaName" layoutX="96.0" layoutY="5.0" prefHeight="36.0" prefWidth="555.0" text="Label" />
-      <Button id="view" fx:id="view" layoutX="96.0" layoutY="43.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="90.0" text="Open">
+      <ImageView id="mediaThumb" fitHeight="77.0" fitWidth="90.0" pickOnBounds="true" />
+      <Label id="mediaName" layoutX="96.0" layoutY="5.0" prefHeight="34.0" prefWidth="555.0" text="Label" />
+      <Button id="view" layoutX="96.0" layoutY="43.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="90.0" text="Open">
          <graphic>
             <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                <image>
@@ -19,19 +19,19 @@
             </ImageView>
          </graphic>
       </Button>
-      <ImageView fitHeight="20.0" fitWidth="20.0" layoutX="319.0" layoutY="49.0" pickOnBounds="true" preserveRatio="true">
+      <ImageView fitHeight="20.0" fitWidth="20.0" layoutX="325.0" layoutY="49.0" pickOnBounds="true" preserveRatio="true">
          <image>
             <Image url="@../../../icons/icons8-database-40.png" />
          </image>
       </ImageView>
-      <Label id="mediaSize" fx:id="mediaSize" layoutX="340.0" layoutY="49.0" prefHeight="20.0" prefWidth="74.0" text="unknown" />
-      <ImageView fitHeight="20.0" fitWidth="20.0" layoutX="415.0" layoutY="49.0" pickOnBounds="true" preserveRatio="true">
+      <Label id="mediaSize" layoutX="346.0" layoutY="49.0" prefHeight="20.0" prefWidth="85.0" text="unknown" />
+      <ImageView fitHeight="20.0" fitWidth="20.0" layoutX="461.0" layoutY="34.0" pickOnBounds="true" preserveRatio="true">
          <image>
             <Image url="@../../../icons/icons8-info-40.png" />
          </image>
       </ImageView>
-      <Label id="mediaSite" fx:id="mediaSite" layoutX="437.0" layoutY="49.0" prefHeight="20.0" prefWidth="226.0" text="Site" />
-      <Button id="openFolder" fx:id="openFolder" layoutX="189.0" layoutY="43.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="128.0" text="Open Folder">
+      <Label id="mediaSite" alignment="CENTER" layoutX="446.0" layoutY="53.0" prefHeight="20.0" prefWidth="216.0" text="Site" textAlignment="RIGHT" />
+      <Button id="openFolder" layoutX="189.0" layoutY="43.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="128.0" text="Open Folder">
          <graphic>
             <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                <image>
@@ -40,5 +40,6 @@
             </ImageView>
          </graphic>
       </Button>
+      <Label id="timestamp" alignment="CENTER" layoutX="476.0" layoutY="36.0" prefHeight="20.0" prefWidth="160.0" text="hh:mm:ss yy/mm/dd" />
    </children>
 </Pane>

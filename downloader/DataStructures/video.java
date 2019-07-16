@@ -19,25 +19,26 @@ import java.util.Vector;
 
 //this class is to save video info for download later
 public class video implements Externalizable{
-    private static final long serialVersionUID = 1L, version = 2L;
+    private static final long serialVersionUID = 1L, version = 3L;
     private File thumbnail;
     private Vector<File> preview;
-    private String link, name;
+    private String link, name, duration;
     private long size;
     
     public video() { //to satisfy externalizable
     	
     }
     
-    public video(String link, String name, File thumbnail, long size) {
-        this(link,name,thumbnail,size,null);
+    public video(String link, String name, File thumbnail, long size, String duration) {
+        this(link,name,thumbnail,size, duration, null);
     }
     
-    public video(String link, String name, File thumbnail, long size, Vector<File> preview) {
+    public video(String link, String name, File thumbnail, long size, String duration, Vector<File> preview) {
         this.link = link.split(" ")[0]; this.name = name;
         this.thumbnail = thumbnail;
         this.preview = preview;
         this.size = size;
+        this.duration = duration;
     }    
     
     public long getSize() {
@@ -81,6 +82,10 @@ public class video implements Externalizable{
         return name;
     }
     
+    public String getDuration() {
+        return duration;
+    }
+    
     public Vector<File> getDependencies() {
         Vector<File> f = new Vector<>();
         f.add(thumbnail);
@@ -105,21 +110,27 @@ public class video implements Externalizable{
         out.writeObject(link);
         out.writeObject(name);
         out.writeObject(size);
+        out.writeObject(duration);
     }
 
     @Override public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         long v = (long)in.readObject();
         if (v == 1) {
-            thumbnail = (File)in.readObject();
-            preview = (Vector<File>)in.readObject();
-            link = (String)in.readObject();
-            name = (String)in.readObject();
+            loadPre(in);
         } else if (v == 2) {
-            thumbnail = (File)in.readObject();
-            preview = (Vector<File>)in.readObject();
-            link = (String)in.readObject();
-            name = (String)in.readObject();
+            loadPre(in);
             size = (long)in.readObject();
+        } else if (v == 3) {
+            loadPre(in);
+            size = (long)in.readObject();
+            duration = (String)in.readObject();
         }
+    }
+    
+    private void loadPre(ObjectInput in) throws IOException, ClassNotFoundException {
+        thumbnail = (File)in.readObject();
+        preview = (Vector<File>)in.readObject();
+        link = (String)in.readObject();
+        name = (String)in.readObject();
     }
 }

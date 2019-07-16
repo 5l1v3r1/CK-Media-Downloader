@@ -5,6 +5,7 @@
  */
 package downloader.Extractors;
 
+import ChrisPackage.GameTime;
 import downloader.CommonUtils;
 import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
@@ -21,7 +22,7 @@ import org.jsoup.nodes.Document;
  * @author christopher
  */
 public class Pornheed extends GenericExtractor{
-    private static final byte SKIP = 2;
+    private static final byte SKIP = 1;
     
     public Pornheed() { //this contructor is used for when you jus want to search
         
@@ -72,6 +73,10 @@ public class Pornheed extends GenericExtractor{
 
     @Override public video similar() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+    @Override public GameTime getDuration() {
+        return null;
     }
 
     @Override protected String getValidRegex() {
