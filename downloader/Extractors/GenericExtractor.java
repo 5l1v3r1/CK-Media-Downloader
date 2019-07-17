@@ -317,9 +317,9 @@ public abstract class GenericExtractor {
     final static protected String getId(String link, String regex) {
         Pattern p = Pattern.compile(regex);
         Matcher m = p.matcher(link);
-        if (!m.find()) {
+        if (!m.find())
             return "";
-        } else if (m.group("id") != null && !m.group("id").isEmpty())
+        else if (m.group("id") != null && !m.group("id").isEmpty())
             return m.group("id");
         else if (m.group("id2") != null && !m.group("id2").isEmpty())
             return m.group("id2");

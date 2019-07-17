@@ -114,7 +114,7 @@ public class Porn extends GenericExtractor implements Searchable{
             if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
                 CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache);
             File thumbFile = new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,SKIP));
-            try {v = new video(link,title,thumbFile,getSize(link), getDuration().toString()); } catch(GenericDownloaderException | IOException e) {continue;}
+            try {v = new video(link,title,thumbFile,getSize(link), getDuration(link).toString()); } catch(GenericDownloaderException | IOException e) {continue;}
             break;
         }
         return v;
@@ -135,7 +135,7 @@ public class Porn extends GenericExtractor implements Searchable{
             if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
                 CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache);
             File thumbFile = new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,SKIP));
-            try { v = new video(link,div.select("div.thumb").select("a").attr("title"),thumbFile,getSize(link), getDuration().toString()); } catch (GenericDownloaderException | IOException e) {continue;}
+            try { v = new video(link,div.select("div.thumb").select("a").attr("title"),thumbFile,getSize(link), getDuration(link).toString()); } catch (GenericDownloaderException | IOException e) {continue;}
             break; //if u made it this far u already have a vaild video
 	}
         return v;

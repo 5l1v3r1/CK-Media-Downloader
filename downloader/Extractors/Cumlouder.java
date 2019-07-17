@@ -87,7 +87,7 @@ public class Cumlouder extends GenericExtractor implements Searchable{
             if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
             	if (CommonUtils.saveFile(thumb, CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache) != -2)
             		continue;//throw new IOException("Failed to completely download page");
-                v = new video(link,title,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumb,SKIP)),getSize(link),getDuration().toString());
+                v = new video(link,title,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumb,SKIP)),getSize(link),getDuration(link).toString());
                 break;
             }
         return v;
@@ -112,7 +112,7 @@ public class Cumlouder extends GenericExtractor implements Searchable{
             String link = addHost(li.get(i).select("a").attr("href"),"www.cumlouder.com");
             String name = li.get(i).select("img.thumb").attr("title");
             if (link.isEmpty() || name.isEmpty()) continue;
-            v = new video(link,name,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)),getSize(link),getDuration().toString());
+            v = new video(link,name,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)),getSize(link),getDuration(link).toString());
             break;
         }
         

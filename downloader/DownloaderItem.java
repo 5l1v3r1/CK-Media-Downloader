@@ -225,8 +225,11 @@ public class DownloaderItem {
                 if (v == null) {
                     GameTime g = extractor.getDuration();
                     duration = g == null ? "----" : g.toString();
-                } else 
-                    duration = v.getDuration();
+                } else {
+                    if (v.getDuration() == null)
+                        duration = "----";
+                    else duration = v.getDuration().equals("00") ? "----" : v.getDuration();
+                }
                 DataIO.saveVideo(new video(url, name, thumb, size, duration));
                 MainApp.createMessageDialog("Media saved");
                 MainApp.settings.videoUpdate();

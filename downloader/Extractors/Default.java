@@ -29,7 +29,7 @@ public class Default extends GenericExtractor {
     private static final byte SKIP = 1;
     
     public Default() {
-        //https://91porn.com/view_video.php?viewkey=7e42283b4f5ab36da134
+        
     }
 
     public Default(String url) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
@@ -47,7 +47,6 @@ public class Default extends GenericExtractor {
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
         Document page = getPage(url,false,true);
      
-        
         CommonUtils.log("Getting video with default extractor", this);
         MediaDefinition media = new MediaDefinition();
         try {

@@ -137,7 +137,7 @@ public class Ghettotube extends GenericExtractor implements Searchable{
                 Document linkPage =  Jsoup.parse(Jsoup.connect(link).userAgent(CommonUtils.PCCLIENT).get().html());
                  Elements scripts = linkPage.select("div.play").select("script");
                 String video = CommonUtils.getLink(scripts.get(scripts.size()-1).toString(), scripts.get(scripts.size()-1).toString().indexOf("file:")+7, '\"');
-        	v = new video(link,name,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)),CommonUtils.getContentSize(video), getDuration().toString());
+        	v = new video(link,name,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)),CommonUtils.getContentSize(video), getDuration(link).toString());
         	break;
         }
         return v;
@@ -164,7 +164,6 @@ public class Ghettotube extends GenericExtractor implements Searchable{
 
     @Override protected String getValidRegex() {
         works = true;
-        //https://www.ghettotube.com/video/passionate-black-slut-with-bubble-butt-having-deep-penetration-from-behind-xYtVxjSue23.html
         return "https?://(?:www[.])?ghettotube[.]com/video/[\\S]+-(?<id>\\S+)[.]html"; 
     }
 }
