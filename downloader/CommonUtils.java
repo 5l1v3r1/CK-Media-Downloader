@@ -33,6 +33,7 @@ import java.util.Date;
 import java.util.Formatter;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.Vector;
@@ -386,23 +387,28 @@ public class CommonUtils {
     }
     
     public static long getContentSize(String url) {
-        return getContentSize(url,false,10);
+        return getContentSize(url,null,10);
     }
     
-    public static long getContentSize(String url, boolean forbidden, int t) {
+    public static long getContentSize(String url, String cookies) {
+        return getContentSize(url,cookies,10);
+    }
+    
+    public static long getContentSize(String url, String cookieString, int t) {
         if (url == null) return -5;
         try {
             URLConnection connection = new URL(url).openConnection();
             connection.setRequestProperty("User-Agent", PCCLIENT);
+            if (cookieString != null && !cookieString.isEmpty())
+                connection.setRequestProperty("Cookie", cookieString);
             int response = ((HttpURLConnection)connection).getResponseCode();
             //if redirect
-            if ((response == HttpURLConnection.HTTP_SEE_OTHER) || (response == HttpURLConnection.HTTP_MOVED_TEMP) || (response == HttpURLConnection.HTTP_MOVED_PERM) || (response == 403 && forbidden)) {
+            if ((response == HttpURLConnection.HTTP_SEE_OTHER) || (response == HttpURLConnection.HTTP_MOVED_TEMP) || (response == HttpURLConnection.HTTP_MOVED_PERM)) {
                 String location = connection.getHeaderField("Location");
                 if (location != null) {
                     if (location.startsWith("/")) 
                         location = "https://"+location;
-                    return getContentSize(location, true, t-1);
-                    //https://www.pornhd.com/videos/154232/latina-ella-knox-massive1-boobs-almost-suffocate-a-bloke-hd-porn-video
+                    return getContentSize(location, cookieString, t-1);
                 }
             }
             return connection.getContentLengthLong();
@@ -496,27 +502,37 @@ public class CommonUtils {
         return re.toString();
     }
     
-    public static long saveFile(String link, String saveName, File path) throws MalformedURLException{
-        return saveFile(link,saveName,path.getAbsolutePath());
+    public static String StringCookies(Map<String, String> cookies) {
+        if (cookies == null && cookies.isEmpty())
+            return "";
+        else {
+            StringBuilder string = new StringBuilder();
+            Iterator<String> i = cookies.keySet().iterator();
+            while(i.hasNext()) {
+                String temp = i.next();
+                string.append(temp+"="+cookies.get(temp)+";");
+            }
+            return string.toString();
+        }
     }
     
     public static long saveFile(String link, String saveName, File path, OperationStream s) throws MalformedURLException{
-        return saveFile(link, saveName, path.getAbsolutePath(), s);
+        return saveFile(link, saveName, path.getAbsolutePath(), s, null);
     }
     
-    public static long saveFile(String link, String saveName, String path) throws MalformedURLException{
-        return saveFile(link, saveName, path, null);
+    public static long saveFile(String link, String saveName, File path, OperationStream s, String cookies) throws MalformedURLException {
+        return saveFile(link,saveName,path.getAbsolutePath(),s,cookies);
+    }
+    
+    public static long saveFile(String link, String saveName, File path) throws MalformedURLException{
+        return saveFile(link,saveName,path.getAbsolutePath(), null);
     }
     
     public static long saveFile(String link, String saveName, String path, OperationStream s) throws MalformedURLException{
-        return saveFile(link, saveName, path, s, false);
+        return saveFile(link,saveName,path, s, null);
     }
     
-    public static long saveFile(String link, String saveName, File path, OperationStream s, boolean forbid) throws MalformedURLException{
-        return saveFile(link, saveName, path.getAbsolutePath(), s, forbid);
-    }
-    
-    public static long saveFile(String link, String saveName, String path, OperationStream s, boolean forbid) throws MalformedURLException{
+    public static long saveFile(String link, String saveName, String path, OperationStream s, String cookieString) throws MalformedURLException{
 	BufferedInputStream in;
 	FileOutputStream out;
         File dir = new File(path);
@@ -530,9 +546,11 @@ public class CommonUtils {
             how = save.exists() ? save.length() : 0;
             connection.setRequestProperty("User-Agent", PCCLIENT);
             connection.setRequestProperty("Range","bytes="+how+"-");
+            if (cookieString != null && !cookieString.isEmpty())
+                connection.setRequestProperty("Cookie", cookieString);
             int response = ((HttpURLConnection)connection).getResponseCode();
             //if redirect
-            if ((response == HttpURLConnection.HTTP_SEE_OTHER) || (response == HttpURLConnection.HTTP_MOVED_TEMP) || (response == HttpURLConnection.HTTP_MOVED_PERM) || (response == 403 && forbid)) {
+            if ((response == HttpURLConnection.HTTP_SEE_OTHER) || (response == HttpURLConnection.HTTP_MOVED_TEMP) || (response == HttpURLConnection.HTTP_MOVED_PERM)) {
                 String location = connection.getHeaderField("Location");
                 if (location != null) {
                     location = location.startsWith("//") ? "http:"+location : location;
@@ -604,4 +622,6 @@ public class CommonUtils {
         if (s != null) s.addProgress("Finished downloading");
         return -2;//if sucessful return -2
     }
+    
+    
 }

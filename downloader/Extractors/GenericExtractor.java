@@ -51,10 +51,6 @@ public abstract class GenericExtractor {
         this.cookieJar = new HashMap<>();
     }
     
-    protected static Response getPageResponse(String url, boolean mobile) throws IOException {
-        return mobile ? Jsoup.connect(url).userAgent(CommonUtils.MOBILECLIENT).header("Cookie","Country=US").execute() : Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).header("Cookie","Country=US").execute();
-    }
-    
     protected static Document getPage(String url, boolean mobile) throws IOException, GenericDownloaderException {
         return getPage(url,mobile,false);
     }
@@ -83,11 +79,12 @@ public abstract class GenericExtractor {
         Document page;
         if (CommonUtils.checkPageCache(CommonUtils.getCacheName(url,mobile)) && !force) //check to see if page was downloaded previous 
             page = Jsoup.parse(CommonUtils.loadPage(MainApp.pageCache.getAbsolutePath()+File.separator+CommonUtils.getCacheName(url,mobile))); //load if not force redownload
-        else { String html;
+        else {
             try {
-               html = mobile ? addCookies(Jsoup.connect(url)).followRedirects(true).userAgent(CommonUtils.MOBILECLIENT).get().html() : addCookies(Jsoup.connect(url)).followRedirects(true).userAgent(CommonUtils.PCCLIENT).get().html();
-               page = Jsoup.parse(html);
-               CommonUtils.savePage(html, url, mobile);
+               Response r = mobile ? addCookies(Jsoup.connect(url)).followRedirects(true).userAgent(CommonUtils.MOBILECLIENT).execute() : addCookies(Jsoup.connect(url)).followRedirects(true).userAgent(CommonUtils.PCCLIENT).execute();
+               cookieJar.putAll(r.cookies());
+               page = r.parse();
+               CommonUtils.savePage(page.toString(), url, mobile);
             } catch (HttpStatusException e) {
                 throw new PageNotFoundException(e.getMessage());
             }
@@ -117,7 +114,23 @@ public abstract class GenericExtractor {
     
     private Connection addCookies(Connection c) {
         return addCookies(c, cookieJar);
-    } 
+    }    
+    
+    protected void addCookie(String cookieName, String cookie) {
+        cookieJar.put(cookieName, cookie);
+    }
+    
+    public String getCookies() {
+        return CommonUtils.StringCookies(cookieJar);
+    }
+    
+    public boolean cookieEmpty() {
+        return cookieJar.isEmpty();
+    }
+    
+    protected void clearCookies() {
+        cookieJar.clear();
+    }
     
     protected static String getCanonicalLink(Document page) {
         for(Element link: page.select("link"))
@@ -247,21 +260,15 @@ public abstract class GenericExtractor {
         return works;
     }
     
-    protected void addCookie(String cookieName, String cookie) {
-        cookieJar.put(cookieName, cookie);
-    }
-    
-    protected void clearCookies() {
-        cookieJar.clear();
-    }
-    
     //should probably implement a getVideo(url)
     public abstract MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException;
     public abstract video similar() throws IOException, GenericDownloaderException; //get a video from the related items list
     protected abstract String getValidRegex();
     public abstract GameTime getDuration() throws IOException, GenericDownloaderException;
+    //to get tags and categories to use to suggest videos
+    //public abstract Vector<String> getKeywords() throws IOException, GenericDownloaderException;
     
-    final static protected long getSize(MediaDefinition media) throws GenericDownloaderException, UncheckedIOException, IOException {
+    final static protected long getSize(MediaDefinition media, String cookieString) throws GenericDownloaderException, UncheckedIOException, IOException {
         long size = 0;
         if (media != null) {
             if (!media.isSingleThread()) { //if more than one thread
@@ -270,7 +277,7 @@ public abstract class GenericExtractor {
                     Map<String,String> temp = i.next();
                     String highestQuality = temp.keySet().size() == 1 ? temp.keySet().iterator().next() : CommonUtils.getSortedFormats(temp.keySet()).get(0);
                     if(temp.get(highestQuality) != null || !temp.get(highestQuality).isEmpty()) {
-                        long s = CommonUtils.getContentSize(temp.get(highestQuality));
+                        long s =  CommonUtils.getContentSize(temp.get(highestQuality), cookieString);
                         size += s < 0 ? 0 : s;
                     }
                 }
@@ -278,7 +285,7 @@ public abstract class GenericExtractor {
                 Map<String,String> m = media.iterator().next();
                 String highestQuality = m.keySet().size() == 1 ? m.keySet().iterator().next() : CommonUtils.getSortedFormats(m.keySet()).get(0);
                 if(m.get(highestQuality) != null || !m.get(highestQuality).isEmpty()) {
-                    long s = CommonUtils.getContentSize(m.get(highestQuality));
+                    long s = CommonUtils.getContentSize(m.get(highestQuality), cookieString);
                     size += s < 0 ? 0 : s;
                 }
             }
@@ -286,8 +293,12 @@ public abstract class GenericExtractor {
         return size;
     }
     
+    final static protected long getSize(MediaDefinition media) throws GenericDownloaderException, UncheckedIOException, IOException {
+        return getSize(media, null);
+    }
+    
     final public long getSize() throws GenericDownloaderException, UncheckedIOException, IOException {
-        return getSize(getVideo());
+        return getSize(getVideo(), CommonUtils.StringCookies(cookieJar));
     }
     
     final static protected long getSeconds(String t) {

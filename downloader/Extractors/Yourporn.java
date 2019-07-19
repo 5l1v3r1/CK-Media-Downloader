@@ -34,6 +34,7 @@ import org.jsoup.select.Elements;
 public class Yourporn extends GenericExtractor implements Searchable{
     private static final byte SKIP = 2;
     private byte cdn = 3;
+    private static final int mb = 5242880;
     
     public Yourporn() { //this contructor is used for when you jus want to search
         
@@ -97,8 +98,8 @@ public class Yourporn extends GenericExtractor implements Searchable{
             Pattern p = Pattern.compile("(.+/)s(\\d+)-1(/.+)"); //replace things like "s12-1", "s12"
             Matcher m = p.matcher(test);
             test = m.replaceAll("$1s$2$3");
-            while(CommonUtils.getContentSize(test) < 1024 * 1024 * 5) {
-                test = new String(test.replace("cdn"+cdn, "cdn"+(cdn+1)));
+            while(CommonUtils.getContentSize(test) < mb) {
+                test = test.replace("cdn"+cdn, "cdn"+(cdn+1));
                 cdn++;
                 if (cdn > 20)
                     break;
@@ -226,8 +227,8 @@ public class Yourporn extends GenericExtractor implements Searchable{
             Pattern p = Pattern.compile("(.+/)s(\\d+)-1(/.+)");
             Matcher m = p.matcher(test);
             test = m.replaceAll("$1s$2$3");
-            while(CommonUtils.getContentSize(test) < 1024 * 1024 * 5) {
-                test = new String(test.replace("cdn"+cdn, "cdn"+(cdn+1)));
+            while(CommonUtils.getContentSize(test) < mb) {
+                test = test.replace("cdn"+cdn, "cdn"+(cdn+1));
                 cdn++;
                 if (cdn > 20)
                     break;

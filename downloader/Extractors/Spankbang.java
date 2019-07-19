@@ -32,7 +32,6 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import org.jsoup.Connection.Response;
 
 /**
  *
@@ -91,8 +90,7 @@ public class Spankbang extends GenericQueryExtractor implements Playlist, Search
     }
     
     @Override public MediaDefinition getVideo() throws MalformedURLException, IOException,SocketTimeoutException, UncheckedIOException, GenericDownloaderException{        
-        Response r = getPageResponse(url, false);
-        Document page = r.parse();
+        Document page = getPageCookie(url, false, true);
         verify(page);
         
         /*qualities.put("240P",getQuality(page.toString().substring(page.toString().indexOf("var stream_url_240p")+24)));
@@ -103,7 +101,7 @@ public class Spankbang extends GenericQueryExtractor implements Playlist, Search
         qualities.put("4K",getQuality(page.toString().substring(page.toString().indexOf("var stream_url_4k")+22)));*/
         
         String streamKey = page.getElementById("video").attr("data-streamkey");
-        String cookie = r.cookie("sb_csrf_session");
+        String cookie = cookieJar.get("sb_csrf_session");
         
         StringBuilder params = new StringBuilder();
         params.append("sb_csrf_session="+URLEncoder.encode(cookie)+"&data=0&");
@@ -273,12 +271,11 @@ public class Spankbang extends GenericQueryExtractor implements Playlist, Search
     }
     
     private long getSize(String link) throws IOException, GenericDownloaderException {
-        Response r = getPageResponse(link, false);
-        Document page = r.parse();
+        Document page = getPageCookie(link, false, true);
         verify(page);
         
         String streamKey = page.getElementById("video").attr("data-streamkey");
-        String cookie = r.cookie("sb_csrf_session");
+        String cookie = cookieJar.get("sb_csrf_session");
         
         StringBuilder params = new StringBuilder();
         params.append("sb_csrf_session="+URLEncoder.encode(cookie)+"&data=0&");

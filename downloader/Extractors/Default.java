@@ -95,6 +95,7 @@ public class Default extends GenericExtractor {
     }
     
     private static void verify(Document page) throws IOException, GenericDownloaderException {
+        CommonUtils.log("Checking for a video with default extractor", "Default");
         if (page.select("video").isEmpty())
             throw new PageNotFoundException("Could not find a video");
     }

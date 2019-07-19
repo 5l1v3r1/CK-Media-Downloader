@@ -46,7 +46,7 @@ public class Pornhd extends GenericExtractor{
     }
 
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException{
-        Document page = getPage(url,false,true);
+        Document page = getPageCookie(url,false,true);
 
 	String[] rawData = CommonUtils.getBracket(page.toString(), page.toString().indexOf("sources: {")).split("\"");
 	Map<String,String> qualities = new HashMap<>(); MediaDefinition media = new MediaDefinition();
@@ -55,6 +55,7 @@ public class Pornhd extends GenericExtractor{
             qualities.put(rawData[i], addHost(CommonUtils.eraseChar(rawData[i+2],'\\'),"pornhd.com"));
             i+=3;
 	}
+        //https://www.pornhd.com/videos/154232/latina-ella-knox-massive1-boobs-almost-suffocate-a-bloke-hd-porn-video
         media.addThread(qualities, videoName);
         return media;
     }
@@ -94,7 +95,7 @@ public class Pornhd extends GenericExtractor{
     }
     
     private long getSize(String link) throws IOException, GenericDownloaderException {
-        Document page = getPage(link,false,true);
+        Document page = getPageCookie(link,false,true);
 
 	String[] rawData = CommonUtils.getBracket(page.toString(), page.toString().indexOf("sources: {")).split("\"");
 	Map<String,String> qualities = new HashMap<>(); MediaDefinition media = new MediaDefinition();
@@ -104,6 +105,7 @@ public class Pornhd extends GenericExtractor{
             i+=3;
 	}
         media.addThread(qualities, videoName); //video name is not used so doesnt matter
+        
         return getSize(media);
     }
     
@@ -112,7 +114,7 @@ public class Pornhd extends GenericExtractor{
     }
 
     @Override protected String getValidRegex() {
-        works = false;
-        return "https?://(?:www[.])?pornhd[.]com/videos/(?<id>[\\d]+)/[\\S]+"; 
+        works = true;
+        return "https?://(?:www[.])?pornhd[.]com/videos/(?<id>[\\d]+)(/[\\S]+)?/?"; 
     }
 }

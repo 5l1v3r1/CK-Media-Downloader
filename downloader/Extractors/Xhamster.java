@@ -87,12 +87,12 @@ public class Xhamster extends GenericQueryExtractor implements Searchable{
         } else {
             //https://xhamster.com/photos/gallery/julie-anderson-977633 https://xhamster.com/photos/gallery/12272844/297194743
             final int max = Integer.parseInt(page.select("span.page-title__count").text());
-            Elements imgs = page.select("div.image-thumb"); int next = 2;
-            while(imgs.size() < max)
-                imgs.addAll(getPage(url+"/"+next++,false,true).select("div.image-thumb"));
-            for(int i = 0; i < imgs.size(); i++) {
+            Elements a = page.getElementById("photo-slider").select("a"); int next = 2;
+            while(a.size() < max) //pagination
+                a.addAll(getPage(url+"/"+next++,false,true).getElementById("photo-slider").select("a"));
+            for(int i = 0; i < a.size(); i++) {
                 Map<String,String> pic = new HashMap<>();
-                String link = imgs.get(i).attr("data-lazy");
+                String link = a.get(i).attr("href");
                 pic.put("single",link);
                 media.addThread(pic, videoName+"-"+link.split("/")[link.split("/").length -1]);
             }
@@ -157,7 +157,7 @@ public class Xhamster extends GenericQueryExtractor implements Searchable{
     private static File downloadThumb(String url) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
         Document page = getPage(url,true);
         //page.select("header").select("img").attr("src")
-	String thumb = !isAlbum(url) ? getMetaImage(page) : page.select("img.thumb").get(0).attr("src");
+	String thumb = getMetaImage(page); //!isAlbum(url) ? getMetaImage(page) : page.select("img.thumb").get(0).attr("src");
         
         if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
             CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache);
@@ -246,6 +246,6 @@ public class Xhamster extends GenericQueryExtractor implements Searchable{
 
     @Override protected String getValidRegex() {
         works = true;
-        return "https?://(?:[\\S]+?[.])?xhamster[.](?:com|one)/(?:movies/(?<id>[\\d]+)/(?<displayid>[^/]*)[.]html([?]\\S*)?|videos/(?<displayid2>[^/]*)-(?<id2>[\\d]+)|photos/gallery/(?<displayid3>[^/]*)-(?<id3>[\\d]+))\\S*"; 
+        return "https?://(?:[\\S]+?[.])?xhamster[.](?:com|one)/(?:movies/(?<id>[\\d]+)/(?<displayid>[^/]*)[.]html([?]\\S*)?|videos/(?<displayid2>[^/]*)-(?<id2>[\\d]+)|photos/gallery/(?<displayid3>[^/]*)-(?<id3>[\\d]+))"; 
     }
 }

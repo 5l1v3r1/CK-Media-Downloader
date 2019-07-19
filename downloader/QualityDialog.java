@@ -31,7 +31,7 @@ import javafx.stage.StageStyle;
 public class QualityDialog {
     private static final int HEIGHT = 240, WIDTH = 400;
     private static ToggleGroup group;
-    private String choice = null;
+    private String choice = null, cookieString;
     
     public QualityDialog() {
         group = new ToggleGroup();
@@ -52,8 +52,9 @@ public class QualityDialog {
         return s;
     }
     
-    public String display(Map<String,String> qualities, String mediaName) {
+    public String display(Map<String,String> qualities, String mediaName, String cookieString) {
         Pane pane;
+        this.cookieString = cookieString;
         try {
             Stage dialog = createStage(); dialog.setResizable(false); dialog.initStyle(StageStyle.UNDECORATED);
             pane = FXMLLoader.load(this.getClass().getResource("qualityDialog.fxml"));
@@ -108,7 +109,7 @@ public class QualityDialog {
         RadioButton b = (RadioButton)p.lookup("#button");
         b.setId(quality); b.setToggleGroup(group);
         ((Label)p.lookup("#qualityName")).setText(quality);
-        ((Label)p.lookup("#size")).setText(MainApp.getSizeText(CommonUtils.getContentSize(link)));
+        ((Label)p.lookup("#size")).setText(MainApp.getSizeText(CommonUtils.getContentSize(link, cookieString)));
         return p;
     }
 }

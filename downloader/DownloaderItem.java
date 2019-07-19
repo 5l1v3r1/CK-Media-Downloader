@@ -471,7 +471,7 @@ public class DownloaderItem {
                 Map<String,String> temp = i.next();
                 if (temp.keySet().size() > 1) { //if more than one quality avaliable
                    QualityDialog d = new QualityDialog();
-                    String quality = d.display(temp, media.getThreadName(0));
+                    String quality = d.display(temp, media.getThreadName(0), extractor.getCookies());
                     if (quality != null)
                         m.put(m.get(quality), media.getThreadName(j++));
                 } else //get the single avaliable quality
@@ -491,7 +491,7 @@ public class DownloaderItem {
             String link = null;
             if (m.keySet().size() > 1) { //if more than one quality avaliable
                 QualityDialog d = new QualityDialog();
-                String quality = d.display(m,media.getThreadName(0));
+                String quality = d.display(m,media.getThreadName(0), extractor.getCookies());
                 if (quality != null)
                     link = m.get(quality);
             } else //get the single avaliable quality
@@ -545,7 +545,7 @@ public class DownloaderItem {
         do {
             if (retries < 1) break;
             if (s != null) s.addProgress("Trying "+CommonUtils.clean(name));
-            stop = albumName != null ? CommonUtils.saveFile(link,CommonUtils.clean(name),folder+File.separator+albumName,s) : CommonUtils.saveFile(link,CommonUtils.clean(name),folder,s, true);
+            stop = albumName != null ? CommonUtils.saveFile(link,CommonUtils.clean(name),folder+File.separator+albumName,s, extractor.getCookies()) : CommonUtils.saveFile(link,CommonUtils.clean(name),folder,s,  extractor.getCookies());
             try {
                 Thread.sleep(4000);
             } catch (InterruptedException ex) {
