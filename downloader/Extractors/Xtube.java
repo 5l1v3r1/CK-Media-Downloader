@@ -19,6 +19,7 @@ import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.Vector;
 import org.jsoup.Jsoup;
 
 import org.jsoup.nodes.Document;
@@ -159,6 +160,19 @@ public class Xtube extends GenericExtractor implements Searchable{
     
     @Override public GameTime getDuration() throws IOException, GenericDownloaderException {
         return getDuration(url);
+    }
+    
+    @Override public Vector<String> getKeywords() throws IOException, GenericDownloaderException {
+        if (url == null) return null;
+        Vector<String> words = new Vector<>();
+        Document page =  getPage(url, false);
+        page.select("div.categories").select("a").forEach(a -> words.add(a.text()));
+        page.select("div.tags").select("a").forEach(a -> words.add(a.text()));
+        return words;
+    }
+
+    @Override public Vector<String> getStars() throws IOException, GenericDownloaderException {
+        return null;
     }
 
     @Override protected String getValidRegex() {

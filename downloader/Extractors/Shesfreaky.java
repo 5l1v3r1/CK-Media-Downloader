@@ -181,7 +181,7 @@ public class Shesfreaky extends GenericQueryExtractor implements Searchable{
         int count = searchResults.size(); Random rand = new Random(); 
          
         while(count-- > 0) {
-            int i = rand.nextInt();
+            int i = rand.nextInt(searchResults.size());
             String link = searchResults.get(i).select("a").attr("href");
             if (!CommonUtils.testPage(link)) continue; //test to avoid error 404
             try {verify(getPage(link,false));} catch (GenericDownloaderException e) {continue;}
@@ -217,6 +217,17 @@ public class Shesfreaky extends GenericQueryExtractor implements Searchable{
     
     @Override public GameTime getDuration() throws IOException, GenericDownloaderException {
         return getDuration(url);
+    }
+    
+    @Override public Vector<String> getKeywords() throws IOException, GenericDownloaderException {
+        if (url == null) return null;
+        Vector<String> words = new Vector<>();
+        getPage(url, false).select("p.categories").select("a").forEach(a -> words.add(a.text()));
+        return words;
+    }
+
+    @Override public Vector<String> getStars() throws IOException, GenericDownloaderException {
+        return null;
     }
 
     @Override protected String getValidRegex() {

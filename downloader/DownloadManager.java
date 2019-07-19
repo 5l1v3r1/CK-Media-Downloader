@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Formatter;
 import java.util.List;
 import java.util.Random;
+import java.util.Vector;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -225,12 +226,18 @@ public class DownloadManager {
                                 } while(result != 0); //if video was already there repeat
                                 if(!MainApp.active) break;
                             }
+                            MainApp.log(d.getKeywords());
+                            Vector<String> stars = d.getStars();
+                            if (stars != null)
+                                for(int i = 0; i < stars.size(); i++)
+                                    MainApp.log(stars.get(i));
                         }
                     } catch (GenericDownloaderException e) {
                         CommonUtils.log("Couldnt load side &&|| search",this);
                         CommonUtils.log(e.getMessage(),this);
                     } catch (Exception e) {
                         CommonUtils.log(e.getMessage(), "search:innerExeption");
+                        e.printStackTrace();
                         //dont remove download if it has it only because of search || side
                     }
                 }

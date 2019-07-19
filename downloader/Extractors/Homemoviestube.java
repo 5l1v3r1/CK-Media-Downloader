@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.Map;
 import java.util.Random;
+import java.util.Vector;
 import org.jsoup.UncheckedIOException;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -118,6 +119,20 @@ public class Homemoviestube extends GenericExtractor implements Searchable{
         GameTime g = new GameTime();
         g.addSec(secs);
         return g;
+    }
+    
+    @Override public Vector<String> getKeywords() throws IOException, GenericDownloaderException {
+        Elements a = getPage(url, false).select("ul.item-list-stat").select("a");
+        Vector<String> words = new Vector<>();
+        a.forEach(s -> {
+           if (s.attr("href").matches("//www.homemoviestube.com/search/[\\S]+/page1.html|/channels/[\\d]+/[\\S]+/page1.html"))
+               words.add(s.text());
+        });
+        return words;
+    }
+
+    @Override public Vector<String> getStars() throws IOException, GenericDownloaderException {
+        return null;
     }
 
     @Override protected String getValidRegex() {

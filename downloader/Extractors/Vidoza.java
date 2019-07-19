@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Vector;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -91,6 +92,14 @@ public class Vidoza extends GenericExtractor {
     }
     
     @Override public GameTime getDuration() {
+        return null;
+    }
+    
+    @Override public Vector<String> getKeywords() throws IOException, GenericDownloaderException {
+        return null;
+    }
+
+    @Override public Vector<String> getStars() throws IOException, GenericDownloaderException {
         return null;
     }
 

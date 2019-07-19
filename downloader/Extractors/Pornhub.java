@@ -595,6 +595,29 @@ public class Pornhub extends GenericQueryExtractor implements Playlist, Searchab
         else
             return getDuration(url);
     }
+    
+    @Override public Vector<String> getKeywords() throws IOException, GenericDownloaderException {
+        if (url == null || isAlbum(url) || isPhoto(url)) return null;
+        Vector<String> words = new Vector<>();
+        Document page = getPage(url, false);
+        Elements current = page.select("div.tagsWrapper").select("a");
+        for(int i = 0; i < current.size() - 1; i++)
+            words.add(current.get(i).text());
+        current = page.select("div.categoriesWrapper").select("a");
+        for(int i = 0; i < current.size() - 1; i++)
+            words.add(current.get(i).text());
+        return words;
+    }
+
+    @Override public Vector<String> getStars() throws IOException, GenericDownloaderException {
+        if (url == null || isAlbum(url) || isPhoto(url)) return null;
+        Vector<String> words = new Vector<>();
+        getPage(url, false).select("div.pornstarsWrapper").select("a").forEach(a -> {
+            if (a.attr("href").matches("/pornstar/[\\S]+"))
+                words.add(a.attr("data-mxptext"));
+        });
+        return words;
+    }
 
     @Override protected String getValidRegex() {
         works = true;

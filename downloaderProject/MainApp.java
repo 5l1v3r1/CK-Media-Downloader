@@ -69,7 +69,7 @@ public class MainApp extends Application {
     private static QueryManager query;
     private static Scene scene;
     private static boolean dontLoad;
-    private static final String VERSION = "build 35.2", TITLE = "Video Downloader "+VERSION;
+    private static final String VERSION = "build 35.3", TITLE = "Video Downloader "+VERSION;
     
     private static final int WIDTH = 895, HEIGHT = 550, XS = 100, PANES = 7;
     public static Pane[] actionPanes = new Pane[PANES];
@@ -482,6 +482,24 @@ public class MainApp extends Application {
             writeJson();
             return code;
         } else return -1;
+    }
+    
+    public static void log(Vector<String> keywords) throws GenericDownloaderException {
+        if (habits != null) {
+            habits.add(keywords);
+            keywords.forEach(s -> CommonUtils.log(s, "keyowrds"));
+            try {DataIO.saveCollectedData(habits);} catch(IOException e) {CommonUtils.log("Failed to save habits","MainApp");}
+            writeJson();
+        }
+    }
+    
+    public static void log(String star) throws GenericDownloaderException {
+        if (habits != null) {
+            habits.addStar(star);
+            CommonUtils.log(star, "star");
+            try {DataIO.saveCollectedData(habits);} catch(IOException e) {CommonUtils.log("Failed to save habits","MainApp");}
+            writeJson();
+        }
     }
     
     private static void writeJson() {

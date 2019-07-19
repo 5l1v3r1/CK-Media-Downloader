@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Vector;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -34,7 +35,7 @@ public class Vimeo extends GenericExtractor{
     private static final byte SKIP = 2;
     
     public Vimeo() { //this contructor is used for when you jus want to search
-        
+        //https://vimeo.com/41572389
     }
     
     public Vimeo(String url)throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
@@ -150,6 +151,20 @@ public class Vimeo extends GenericExtractor{
         GameTime g = new GameTime();
         g.addSec(Integer.parseInt(getId(getPage(url,false).toString(),".*duration\":[{]\"raw\"[:](?<id>\\d+).*")));
         return g;
+    }
+    
+    @Override public Vector<String> getKeywords() throws IOException, GenericDownloaderException {
+        if (url == null) return null;
+        Vector<String> words = new Vector<>();
+        getPage(url, false).select("meta").forEach(meta -> {
+           if (meta.attr("property").equals("video:tag"))
+               words.add(meta.attr("content"));
+        });
+        return words;
+    }
+
+    @Override public Vector<String> getStars() throws IOException, GenericDownloaderException {
+        return null;
     }
 
     @Override protected String getValidRegex() {

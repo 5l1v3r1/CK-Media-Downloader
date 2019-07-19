@@ -231,7 +231,7 @@ public class Xhamster extends GenericQueryExtractor implements Searchable{
         if (isAlbum(link))
             return new GameTime();
         else {
-            long secs = Integer.parseInt(getId(getPage(link,false).toString(),".*videoId\":"+getId(url, getValidRegex())+",\"duration\":(?<id>\\d+).*"));
+            long secs = Integer.parseInt(getId(getPage(link,false).toString(),".*videoId\":"+getId(link, getValidRegex())+",\"duration\":(?<id>\\d+).*"));
             GameTime g = new GameTime();
             g.addSec(secs);
             return g;
@@ -242,6 +242,19 @@ public class Xhamster extends GenericQueryExtractor implements Searchable{
         if (isAlbum(url))
             return new GameTime();
         else return getDuration(url);
+    }
+    
+    @Override public Vector<String> getKeywords() throws IOException, GenericDownloaderException {
+        if (url == null || isAlbum(url)) return null;
+        Vector<String> words = new Vector<>();
+        Elements a = getPage(url, false).select("a.categories-container__item");
+        for(int i = 1; i < a.size(); i++)
+            words.add(a.get(i).text());
+        return words;
+    }
+
+    @Override public Vector<String> getStars() throws IOException, GenericDownloaderException {
+        return null;
     }
 
     @Override protected String getValidRegex() {

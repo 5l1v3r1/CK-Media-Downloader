@@ -19,6 +19,7 @@ import org.jsoup.UncheckedIOException;
 import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Vector;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -265,8 +266,8 @@ public abstract class GenericExtractor {
     public abstract video similar() throws IOException, GenericDownloaderException; //get a video from the related items list
     protected abstract String getValidRegex();
     public abstract GameTime getDuration() throws IOException, GenericDownloaderException;
-    //to get tags and categories to use to suggest videos
-    //public abstract Vector<String> getKeywords() throws IOException, GenericDownloaderException;
+    public abstract Vector<String> getKeywords() throws IOException, GenericDownloaderException; //categories && tags
+    public abstract Vector<String> getStars() throws IOException, GenericDownloaderException;
     
     final static protected long getSize(MediaDefinition media, String cookieString) throws GenericDownloaderException, UncheckedIOException, IOException {
         long size = 0;
@@ -277,7 +278,7 @@ public abstract class GenericExtractor {
                     Map<String,String> temp = i.next();
                     String highestQuality = temp.keySet().size() == 1 ? temp.keySet().iterator().next() : CommonUtils.getSortedFormats(temp.keySet()).get(0);
                     if(temp.get(highestQuality) != null || !temp.get(highestQuality).isEmpty()) {
-                        long s =  CommonUtils.getContentSize(temp.get(highestQuality), cookieString);
+                        long s = CommonUtils.getContentSize(temp.get(highestQuality), cookieString);
                         size += s < 0 ? 0 : s;
                     }
                 }

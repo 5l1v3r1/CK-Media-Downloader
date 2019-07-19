@@ -170,6 +170,14 @@ public class Instagram extends GenericExtractor{
     @Override public GameTime getDuration() {
         return null;
     }
+    
+    @Override public Vector<String> getKeywords() throws IOException, GenericDownloaderException {
+        return null;
+    }
+
+    @Override public Vector<String> getStars() throws IOException, GenericDownloaderException {
+        return null;
+    }
 
     @Override protected String getValidRegex() {
         works = true;

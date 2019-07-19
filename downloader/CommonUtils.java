@@ -120,6 +120,17 @@ public class CommonUtils {
         return pure.toString();
     }
     
+    public static String filter(String s) {
+        StringBuilder pure = new StringBuilder();
+        for(int i = 0; i < s.length(); i++) {
+            if (s.charAt(i) == '\"')
+                pure.append("\\\"");
+            else if ((s.charAt(i) > 31 && s.charAt(i) < 127) || Character.isLetterOrDigit(s.charAt(i)))
+                pure.append(s.charAt(i));
+        }
+        return pure.toString();
+    }
+    
     public static String getPureDigit(String s) {
         StringBuilder pure = new StringBuilder();
         for(int i = 0; i < s.length(); i++)
@@ -408,21 +419,26 @@ public class CommonUtils {
                 if (location != null) {
                     if (location.startsWith("/")) 
                         location = "https://"+location;
+                    if (location.contains("www.eporner.com"))
+                        location = location.split("[?]")[0];
                     return getContentSize(location, cookieString, t-1);
                 }
             }
             return connection.getContentLengthLong();
         } catch (SocketException e){
             e.printStackTrace();
-            log(e.getMessage(),"CommonUtils");
+            log(e.getMessage(),"CommonUtils:getContentSize");
+            log(url, "CommonUtils:getContentSize");
             return -2;
         } catch (IOException e) {
             e.printStackTrace();
-            log(e.getMessage(),"CommonUtils");
+            log(e.getMessage(),"CommonUtils:getContentSize");
+            log(url, "CommonUtils:getContentSize");
             return -3;
         } catch (Exception e) {
             e.printStackTrace();
-            log(e.getMessage(),"CommonUtils");
+            log(e.getMessage(),"CommonUtils:getContentSize");
+            log(url, "CommonUtils:getContentSize");
             return -4;
         }
     }
@@ -554,6 +570,8 @@ public class CommonUtils {
                 String location = connection.getHeaderField("Location");
                 if (location != null) {
                     location = location.startsWith("//") ? "http:"+location : location;
+                    if (location.contains("www.eporner.com"))
+                        location = location.split("[?]")[0];
                     connection = new URL(location).openConnection();
                     //String cookies = connection.getHeaderField("Set-Cookie");
                     //connection.setRequestProperty("Cookie", cookies);

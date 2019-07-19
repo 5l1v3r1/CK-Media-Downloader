@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Vector;
 import org.jsoup.UncheckedIOException;
 import org.jsoup.nodes.Document;
 
@@ -74,6 +75,17 @@ public class Gotporn extends GenericExtractor{
     }
     
     @Override public GameTime getDuration() {
+        return null;
+    }
+    
+    @Override public Vector<String> getKeywords() throws IOException, GenericDownloaderException {
+        if (url == null) return null;
+        Vector<String> words = new Vector<>();
+        getPage(url, false).select("ul.suggestions-container.tag-suggestions").select("a").forEach(a -> words.add(a.text()));
+        return words;
+    }
+
+    @Override public Vector<String> getStars() throws IOException, GenericDownloaderException {
         return null;
     }
 

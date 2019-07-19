@@ -14,6 +14,7 @@ import downloaderProject.MainApp;
 import java.io.File;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
+import java.util.Vector;
 import org.jsoup.UncheckedIOException;
 import org.jsoup.nodes.Document;
 
@@ -70,9 +71,20 @@ public class Myfreeblack extends GenericExtractor {
     @Override public GameTime getDuration() {
         return null;
     }
+    
+    @Override public Vector<String> getKeywords() throws IOException, GenericDownloaderException {
+        if (url == null) return null;
+        Vector<String> words = new Vector<>();
+        getPage(url, false).select("div.name-ctn").select("span.tag").forEach(span -> words.add(span.text()));
+        return words;
+    }
+
+    @Override public Vector<String> getStars() throws IOException, GenericDownloaderException {
+        return null;
+    }
 
     @Override protected String getValidRegex() {
-        works = true;
+        works = false;
         return "https?://(?:www[.])?myfreeblack[.]com/porn/(?<id>[\\d]+)(?:/[\\S]+)?";
     }
 }

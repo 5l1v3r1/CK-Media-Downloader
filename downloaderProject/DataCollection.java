@@ -48,11 +48,18 @@ public class DataCollection implements Externalizable {
     }
 	
     private void loadLibs() {
-        starList = DataIO.loadStarList(); Collections.sort(starList);
+        if (starList == null) {
+            starList = DataIO.loadStarList(); 
+            Collections.sort(starList);
+        }
         //dictionary = DataIO.loadDictionary(); Collections.sort(dictionary);
-        try { ignoreWords = DataIO.loadIgnoreWords(); }catch (FileNotFoundException e) {}
-        ignoreWords.add("a"); ignoreWords.add("the"); ignoreWords.add("an");
-        Collections.sort(ignoreWords, String.CASE_INSENSITIVE_ORDER);
+        try { 
+            if (ignoreWords == null) {
+                ignoreWords = DataIO.loadIgnoreWords(); 
+                ignoreWords.add("a"); ignoreWords.add("the"); ignoreWords.add("an");
+                Collections.sort(ignoreWords, String.CASE_INSENSITIVE_ORDER);
+            }
+        }catch (FileNotFoundException e) {}
     }
         
     public Vector<File> getExempt() { 
@@ -96,9 +103,18 @@ public class DataCollection implements Externalizable {
         //pull out articles, pronouns, conjuctions and prepositions
         //and ensure the string is actually a word (just in case some video name is ujljkhvjh ljh lj)
         //i dare ya to search that, it was actually the name of one but thats not a helpful search keyword
-        words = parse(words);
+        words = parse(words); //pull out ignore words 
         //add remaining nouns, adjectives, adverbs, verbs and interjections as adjectives
         for(String s:words) addKeyword(s);
+        generateSuggestion();
+    }
+    
+    public void add(Vector<String> metaData) throws GenericDownloaderException {
+        if (metaData != null && !metaData.isEmpty()) {
+            loadLibs();
+            metaData = parse(metaData);
+            for(String s:metaData) addKeyword(s);
+        }
         generateSuggestion();
     }
 	
@@ -157,17 +173,19 @@ public class DataCollection implements Externalizable {
         return pure;
     }
 	
-    private void addStar(String name) {
-        if (frequentStars.containsKey(name))
-            frequentStars.put(name, frequentStars.get(name) + 1);
-        else
-            frequentStars.put(name, 1);
+    public void addStar(String name) {
+        if (name != null && !name.isEmpty()) {
+            if (frequentStars.containsKey(name))
+                frequentStars.put(name, frequentStars.get(name) + 1);
+            else
+                frequentStars.put(name, 1);
+        }
     }
 	
     private void addKeyword(String word) {
         if (word.matches(".+\\d+_n.+")) return;
         if (word.matches("\\d+")) return;
-        word = word.replaceAll("\\s", "");
+        word = CommonUtils.filter(word);
         if (keywords.containsKey(word))
             keywords.put(word, keywords.get(word) + 1);
         else
@@ -221,7 +239,7 @@ public class DataCollection implements Externalizable {
 	
     private void generateSearch(Map<String,Integer> kwords, Map<String,Integer> stars) throws GenericDownloaderException {
         Random randomNum = new Random();
-        int max = randomNum.nextInt(8); //generate 1 - 8 words
+        int max = randomNum.nextInt(4); //generate 1 - 4 words
         int starIndex = stars.keySet().size() > 3 ? randomNum.nextInt(stars.keySet().size() / 3) : 0; //generate from top stars (depending on size of list)
 		
         byte count = 0; Iterator<String> i = kwords.keySet().iterator();
@@ -244,11 +262,11 @@ public class DataCollection implements Externalizable {
         
     private void generateSearch(Map<String,Integer> kwords) throws GenericDownloaderException {
         Random randomNum = new Random();
-        int max = randomNum.nextInt(8) + 1; //generate 1 - 8
+        int max = randomNum.nextInt(4) + 1; //generate 1 - 4
         CommonUtils.log("key size: "+kwords.keySet().size(),this);
         byte count = 0; Iterator<String> i = kwords.keySet().iterator();
         StringBuilder words = new StringBuilder();
-        while(i.hasNext()) { //generate at least 2 words to search with
+        while(i.hasNext()) { //generate at least 4 words to search with
             if (count >= max + 1) break;
             words.append(i.next()+" ");
             count++;

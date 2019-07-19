@@ -98,6 +98,22 @@ public class DownloaderItem {
         } catch (UnsupportedOperationException | IOException e) {return null;}
     }
     
+    public Vector<String> getKeywords() throws GenericDownloaderException {
+        try {
+            if (extractor != null)
+                return extractor.getKeywords();
+            else return null;
+        } catch (UnsupportedOperationException | IOException e) {return null;}
+    }
+    
+    public Vector<String> getStars() throws GenericDownloaderException {
+        try {
+            if (extractor != null)
+                return extractor.getStars();
+            else return null;
+        } catch (UnsupportedOperationException | IOException e) {return null;}
+    }
+    
     private GenericExtractor getExtractor(video v) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
         return v == null ? ExtractorList.getExtractor(url) : ExtractorList.getExtractor(v.getLink(),v.getThumbnail(),v.getName());
     }
@@ -578,7 +594,7 @@ public class DownloaderItem {
         try {
             if (v == null) {
                 GameTime g = extractor.getDuration();
-                duration = g == null || g.getSec() == 0 ? "----" : g.toString();
+                duration = g == null || g.toString().equals("00") ? "----" : g.toString();
             } else {
                 if (v.getDuration() == null)
                     duration = "----";

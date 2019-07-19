@@ -185,6 +185,17 @@ public class Ruleporn extends GenericQueryExtractor implements Searchable{
     @Override public GameTime getDuration() throws IOException, GenericDownloaderException {
         return getDuration(url);
     }
+    
+    @Override public Vector<String> getKeywords() throws IOException, GenericDownloaderException {
+        if (url == null) return null;
+        Vector<String> words = new Vector<>();
+        getPage(url, false).select("div.tags-block").select("a").forEach(a -> words.add(a.text()));
+        return words;
+    }
+
+    @Override public Vector<String> getStars() throws IOException, GenericDownloaderException {
+        return null;
+    }
 
     @Override protected String getValidRegex() {
         works = true;

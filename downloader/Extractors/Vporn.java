@@ -18,6 +18,7 @@ import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.Vector;
 import org.jsoup.Jsoup;
 
 import org.jsoup.nodes.Document;
@@ -148,6 +149,24 @@ public class Vporn extends GenericExtractor implements Searchable{
     
     @Override public GameTime getDuration() throws IOException, GenericDownloaderException {
         return getDuration(url);
+    }
+    
+    private Vector<String> getlinks(String regex) throws IOException, GenericDownloaderException {
+        if (url == null) return null;
+        Vector<String> words = new Vector<>();
+        getPage(url, false).select("p.tags_p").select("a").forEach(a -> {
+            if (a.attr("href").matches(regex))
+                words.add(a.text());
+        });
+        return words;
+    }
+    
+    @Override public Vector<String> getKeywords() throws IOException, GenericDownloaderException {
+        return getlinks("/[\\S]+/");
+    }
+
+    @Override public Vector<String> getStars() throws IOException, GenericDownloaderException {
+        return getlinks("https://www.vporn.com/[\\S]+/");
     }
 
     @Override protected String getValidRegex() {

@@ -252,6 +252,14 @@ public class Yourporn extends GenericExtractor implements Searchable{
     @Override public GameTime getDuration() throws IOException, GenericDownloaderException {
         return getDuration(url);
     }
+    
+    @Override public Vector<String> getKeywords() throws IOException, GenericDownloaderException {
+        return null;
+    }
+
+    @Override public Vector<String> getStars() throws IOException, GenericDownloaderException {
+        return null;
+    }
 
     @Override protected String getValidRegex() {
         works = true;

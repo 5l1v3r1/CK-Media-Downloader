@@ -296,6 +296,25 @@ public class Spankbang extends GenericQueryExtractor implements Playlist, Search
     @Override public GameTime getDuration() throws IOException, GenericDownloaderException {
         return getDuration(url);
     }
+    
+    private Vector<String> getlist(String regex) throws IOException, GenericDownloaderException {
+        if (url == null) return null;
+        Vector<String> words = new Vector<>();
+        getPage(url, false).select("div.cat").select("a").forEach(a -> {
+            if (a.attr("href").matches(regex))
+                words.add(a.text());
+        });
+        return words;
+    }
+    
+    @Override public Vector<String> getKeywords() throws IOException, GenericDownloaderException {
+        return getlist("/(category|tag)/[\\S]+/");
+    }
+
+    @Override public Vector<String> getStars() throws IOException, GenericDownloaderException {
+        //3r/pornstar/maserati
+        return getlist("(?:/\\S+)?/pornstar/[\\S]+/?");
+    }
 
     @Override  protected String getValidRegex() {
         works = true;

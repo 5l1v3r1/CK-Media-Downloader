@@ -17,6 +17,7 @@ import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.Vector;
 
 import org.jsoup.Jsoup;
 import org.jsoup.UncheckedIOException;
@@ -149,6 +150,19 @@ public class Justporno extends GenericExtractor implements Searchable{
     }
     
     @Override public GameTime getDuration() {
+        return null;
+    }
+    
+    @Override public Vector<String> getKeywords() throws IOException, GenericDownloaderException {
+        if (url == null) return null;
+        Vector<String> words = new Vector<>();
+        String[] tokens = getPage(url, false).select("p.ptag").text().split(",");
+        for(String s : tokens)
+            words.add(s.trim());
+        return words;
+    }
+
+    @Override public Vector<String> getStars() throws IOException, GenericDownloaderException {
         return null;
     }
 

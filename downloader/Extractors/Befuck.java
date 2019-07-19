@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.Map;
 import java.util.Random;
+import java.util.Vector;
 import org.jsoup.Jsoup;
 import org.jsoup.UncheckedIOException;
 import org.jsoup.nodes.Document;
@@ -105,6 +106,23 @@ public class Befuck extends GenericExtractor implements Searchable{
     
     @Override public GameTime getDuration() {
         return null;
+    }
+    
+    @Override public Vector<String> getKeywords() throws IOException, GenericDownloaderException {
+        Vector<String> words = new Vector<>();
+        if (url != null) {
+            Document page = getPage(url, false);
+            page.select("p.cats").select("a").forEach((a) -> words.add(a.text()));
+            page.select("p.tags").select("a").forEach((a) -> words.add(a.text()));
+        }
+        return words;
+    }
+    
+    @Override public Vector<String> getStars() throws IOException, GenericDownloaderException {
+        Vector<String> words = new Vector<>();
+        if (url != null)
+            words.add(getPage(url, false).select("p.models").select("a").text());
+        return words;
     }
 
     @Override protected String getValidRegex() {

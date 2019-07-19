@@ -18,6 +18,7 @@ import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.Vector;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -144,9 +145,20 @@ public class Bigtits extends GenericExtractor implements Searchable{
     @Override public GameTime getDuration() throws IOException, GenericDownloaderException {
         return getDuration(url);
     }
+    
+    @Override public Vector<String> getKeywords() throws IOException, GenericDownloaderException {
+        if (url == null) return null;
+        Vector<String> words = new Vector<>();
+        getPage(url, false).select("div.info").select("div.item").select("a").forEach(c -> words.add(c.text()));
+        return words;
+    }
+
+    @Override public Vector<String> getStars() throws IOException, GenericDownloaderException {
+        return null;
+    }
 
     @Override protected String getValidRegex() {
         works = false;
-        return "https?://(?:www[.])?bigtits[.]com/videos/watch/[\\S]+/(?<id>[\\d]+)"; 
+        return "https?://(?:www[.])?bigtits[.]com/videos/watch/[\\S]+/(?<id>[\\d]+)/?"; 
     }
 }

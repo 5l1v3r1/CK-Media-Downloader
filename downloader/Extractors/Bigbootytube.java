@@ -122,10 +122,10 @@ public class Bigbootytube extends GenericQueryExtractor implements Searchable{
         Elements li = page.select("div.list-thumbs").get(0).select("li");
         Random randomNum = new Random(); int count = 0; boolean got = false; if (li.isEmpty()) got = true;
         while(!got) {
-        	if (count > li.size()) break;
-        	int i = randomNum.nextInt(li.size()); count++;
-        	String link = addHost(li.get(i).select("a.thumb-img").attr("href"), "bigbootytube.xxx");
-            String thumb = li.get(i).select("a.thumb-img").select("img").attr("src");
+            if (count > li.size()) break;
+            int i = randomNum.nextInt(li.size()); count++;
+            String link = addHost(li.get(i).select("a.thumb-img").attr("href"), "bigbootytube.xxx");
+            String thumb = configureUrl(li.get(i).select("a.thumb-img").select("img").attr("src"));
             String title = li.get(i).select("div.thumb-title").select("h3").select("a").text();
             if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
             	if (CommonUtils.saveFile(thumb, CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache) != -2)
@@ -170,6 +170,23 @@ public class Bigbootytube extends GenericQueryExtractor implements Searchable{
     
     @Override public GameTime getDuration() throws IOException, GenericDownloaderException {
         return getDuration(url);
+    }
+    
+    private Vector<String> getlist(int i) throws IOException, GenericDownloaderException {
+        if (url == null)
+            return null;
+        Vector<String> words = new Vector<>();
+        Elements a = getPage(url, false).select("ul.list-baiges").select("li").get(i).select("a");
+        a.forEach(s -> words.add(s.text()));
+        return words;
+    }
+    
+    @Override public Vector<String> getKeywords() throws IOException, GenericDownloaderException {
+        return getlist(1);
+    }
+
+    @Override public Vector<String> getStars() throws IOException, GenericDownloaderException {
+        return getlist(0);
     }
 
     @Override protected String getValidRegex() {

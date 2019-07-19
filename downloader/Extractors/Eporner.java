@@ -16,7 +16,7 @@ import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
-import org.jsoup.Jsoup;
+import java.util.Vector;
 import org.jsoup.UncheckedIOException;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -45,12 +45,12 @@ public class Eporner extends GenericExtractor{
     }
 
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
-        Document page = Jsoup.parse(Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html());
+        Document page = getPageCookie(url, false);
         Elements tr = page.getElementById("hd-porn-dload").select("table").select("tr");
         Map<String,String> qualities = new HashMap<>();
         
         for(int i = 0; i < tr.size(); i++)
-            qualities.put(tr.get(i).select("td").select("strong").text().replace(":",""), "https://www.eporner.com" + tr.get(i).select("td").select("a").attr("href"));
+            qualities.put(tr.get(i).select("td").select("strong").text().replace(":",""), addHost(tr.get(i).select("td").select("a").attr("href"), "www.eporner.com"));
             //qualities.put(tr.get(i).select("td").select("span").text().replace(":",""), "https://s13-n5-nl-cdn.eporner.com/142123122312/5c42773c13880" + tr.get(i).select("td").select("a").attr("href"));
         
         MediaDefinition media = new MediaDefinition();
@@ -77,6 +77,28 @@ public class Eporner extends GenericExtractor{
     
     @Override public GameTime getDuration() {
         return null;
+    }
+    
+    private Vector<String> getList(String regex)throws IOException, GenericDownloaderException {
+        if (url == null) return null;
+        Vector<String> words = new Vector<>();
+        try {
+            Elements a = getPage(url, false).getElementById("hd-porn-tags").select("a");
+            for(int i = 0; i < a.size() - 1; i++)
+                if (a.get(i).attr("href").matches(regex))
+                    words.add(a.get(i).text());
+        } catch (NullPointerException e) {
+            return null;
+        }
+        return words;
+    }
+    
+    @Override public Vector<String> getKeywords() throws IOException, GenericDownloaderException {
+        return getList("/(category|search)/[\\S]+/");
+    }
+
+    @Override public Vector<String> getStars() throws IOException, GenericDownloaderException {
+        return getList("/pornstar/[\\S]+/");
     }
 
     @Override protected String getValidRegex() {

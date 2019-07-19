@@ -221,11 +221,28 @@ public class Thumbzilla extends GenericQueryExtractor implements Searchable{
     
     private GameTime getDuration(String link) throws IOException, GenericDownloaderException {
         //would have to redirect to ph
-        return new GameTime();
+        return null;
     }
     
     @Override public GameTime getDuration() throws IOException, GenericDownloaderException {
         return getDuration(url);
+    }
+    
+    @Override public Vector<String> getKeywords() throws IOException, GenericDownloaderException {
+        Document page = getPage(url, false);
+        if (url == null) return null;
+        Vector<String> words = new Vector<>();
+        page.select("span.categories").select("a").forEach(a -> words.add(a.text()));
+        page.select("span.tags").select("a").forEach(a -> words.add(a.text()));
+        return words;
+    }
+
+    @Override public Vector<String> getStars() throws IOException, GenericDownloaderException {
+        Document page = getPage(url, false);
+        if (url == null) return null;
+        Vector<String> words = new Vector<>();
+        page.select("span.stars").select("a").forEach(a -> words.add(a.text()));
+        return words;
     }
 
     @Override protected String getValidRegex() {

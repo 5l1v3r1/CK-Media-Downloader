@@ -22,6 +22,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 import java.util.Vector;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -214,6 +215,39 @@ public class Spankwire extends GenericQueryExtractor implements Searchable{
     @Override protected String getValidRegex() {
         works = true;
         return getRegex();
+    }
+    
+    @Override public Vector<String> getKeywords() throws IOException, GenericDownloaderException {
+        if (url == null) return null;
+        Vector<String> words = new Vector<>();
+        String rawJson = Jsoup.connect("http://www.spankwire.com/api/video/"+getId(url,getRegex())+".json").ignoreContentType(true).execute().body();
+        try {
+            JSONObject json = (JSONObject)new JSONParser().parse(rawJson);
+            Iterator<JSONObject> i = ((JSONArray)json.get("categories")).iterator();
+            while(i.hasNext())
+                words.add((String)i.next().get("name"));
+            i = ((JSONArray)json.get("tags")).iterator();
+            while(i.hasNext())
+                words.add((String)i.next().get("name"));
+        } catch (ParseException e) {
+            CommonUtils.log(e.getMessage(), this);
+        }
+        return words;
+    }
+
+    @Override public Vector<String> getStars() throws IOException, GenericDownloaderException {
+        if (url == null) return null;
+        Vector<String> words = new Vector<>();
+        String rawJson = Jsoup.connect("http://www.spankwire.com/api/video/"+getId(url,getRegex())+".json").ignoreContentType(true).execute().body();
+        try {
+            JSONObject json = (JSONObject)new JSONParser().parse(rawJson);
+            Iterator<JSONObject> i = ((JSONArray)json.get("pornstars")).iterator();
+            while(i.hasNext())
+                words.add((String)i.next().get("name"));
+        } catch (ParseException e) {
+            CommonUtils.log(e.getMessage(), this);
+        }
+        return words;
     }
     
     private static String getRegex() {

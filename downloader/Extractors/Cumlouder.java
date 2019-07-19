@@ -17,6 +17,7 @@ import org.jsoup.UncheckedIOException;
 import java.net.SocketTimeoutException;
 import java.util.Map;
 import java.util.Random;
+import java.util.Vector;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -79,10 +80,10 @@ public class Cumlouder extends GenericExtractor implements Searchable{
         Elements li = page.getElementById("related_videos").select("div").get(0).select("a.muestra-escena");
         Random randomNum = new Random(); int count = 0; boolean got = li.isEmpty();
         while(!got) {
-        	if (count > li.size()) break;
-        	int i = randomNum.nextInt(li.size()); count++;
-        	String link = addHost(li.get(i).attr("href"),"www.cumlouder.com");
-            String thumb = li.get(i).select("img.thumb").attr("src");
+            if (count > li.size()) break;
+            int i = randomNum.nextInt(li.size()); count++;
+            String link = addHost(li.get(i).attr("href"),"www.cumlouder.com");
+            String thumb = li.get(i).select("img.thumb").attr("data-lazy");
             String title = li.get(i).select("img.thumb").attr("title");
             if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
             	if (CommonUtils.saveFile(thumb, CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache) != -2)
@@ -134,6 +135,26 @@ public class Cumlouder extends GenericExtractor implements Searchable{
     
     @Override public GameTime getDuration() throws IOException, GenericDownloaderException {
         return getDuration(url);
+    }
+    
+    @Override public Vector<String> getKeywords() throws IOException, GenericDownloaderException {
+        if (url == null) return null;
+        Vector<String> words = new Vector<>();
+        Elements li = getPage(url, false).select("ul.tags").select("li");
+        if (!li.isEmpty())
+            li.select("a.tag-link").forEach(c -> words.add(c.text()));
+        else return null;
+        return words;
+    }
+
+    @Override public Vector<String> getStars() throws IOException, GenericDownloaderException {
+        if (url == null) return null;
+        Vector<String> stars = new Vector<>();
+        Elements ul = getPage(url, false).select("ul.pornstars");
+        if (!ul.isEmpty())
+            ul.select("a.pornstar-link").forEach(c -> stars.add(c.text()));
+        else return null;
+        return stars;
     }
 
     @Override protected String getValidRegex() {

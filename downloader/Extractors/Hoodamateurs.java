@@ -14,6 +14,7 @@ import downloaderProject.MainApp;
 import java.io.File;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
+import java.util.Vector;
 import org.jsoup.UncheckedIOException;
 import org.jsoup.nodes.Document;
 
@@ -70,6 +71,20 @@ public class Hoodamateurs extends GenericExtractor {
     
     @Override public GameTime getDuration() throws IOException, GenericDownloaderException {
         return getMetaDuration(getPage(url,false));
+    }
+    
+    @Override public Vector<String> getKeywords() throws IOException, GenericDownloaderException {
+        if (url == null) return null;
+        Vector<String> words = new Vector<>();
+        getPage(url, false).select("a").forEach(a -> {
+           if (a.attr("href").matches("/tag/[\\S]+/"))
+               words.add(a.text());
+        });
+        return words;
+    }
+
+    @Override public Vector<String> getStars() throws IOException, GenericDownloaderException {
+        return null;
     }
 
     @Override protected String getValidRegex() {

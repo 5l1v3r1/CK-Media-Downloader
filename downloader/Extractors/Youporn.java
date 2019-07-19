@@ -214,6 +214,26 @@ public class Youporn extends GenericQueryExtractor implements Searchable{
     @Override public GameTime getDuration() throws IOException, GenericDownloaderException {
         return getDuration(url);
     }
+    
+    private Vector<String> getlist(String select) throws IOException, GenericDownloaderException {
+        if (url == null) return null;
+        Vector<String> words = new Vector<>();
+        getPage(url, false).select("div.categoriesWrapper").select("a").forEach(a -> {
+           if (a.attr("data-espnode").equals(select))
+               words.add(a.text());
+        });
+        return words;
+    }
+    
+    @Override public Vector<String> getKeywords() throws IOException, GenericDownloaderException {
+        Vector<String> list = getlist("category_tag");
+        list.addAll(getlist("porntag_tag"));
+        return list;
+    }
+
+    @Override public Vector<String> getStars() throws IOException, GenericDownloaderException {
+        return getlist("pornstar_tag");
+    }
 
     @Override protected String getValidRegex() {
         works = true;

@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.IOException;
 import org.jsoup.UncheckedIOException;
 import java.net.SocketTimeoutException;
+import java.util.Vector;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
@@ -71,6 +72,14 @@ public class Watchenga extends GenericExtractor{
     }
     
     @Override public GameTime getDuration() {
+        return null;
+    }
+    
+    @Override public Vector<String> getKeywords() throws IOException, GenericDownloaderException {
+        return null;
+    }
+
+    @Override public Vector<String> getStars() throws IOException, GenericDownloaderException {
         return null;
     }
 

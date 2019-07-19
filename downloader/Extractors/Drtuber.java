@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
+import java.util.Vector;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -53,7 +54,6 @@ public class Drtuber extends GenericExtractor implements Searchable{
     
     private Map<String,String> getQualities(String link) throws PageParseException, IOException {
         String id = link.split("/")[4];
-        CommonUtils.log("http://www.drtuber.com/player_config_json/"+id+"?vid="+id, this);
         String rawJson = Jsoup.connect("http://www.drtuber.com/player_config_json/"+id+"?vid="+id).ignoreContentType(true).execute().body();
         try {
             Map<String,String> q = new HashMap<>();
@@ -160,6 +160,21 @@ public class Drtuber extends GenericExtractor implements Searchable{
     
     @Override public GameTime getDuration() throws IOException {
         return getDuration(url);
+    }
+    
+    private Vector<String> getlist(String selector) throws IOException, GenericDownloaderException {
+        if (url == null) return null;
+        Vector<String> words = new Vector<>();
+        getPage(url, false).select(selector).select("a").forEach(a -> words.add(a.text()));
+        return words;
+    }
+    
+    @Override public Vector<String> getKeywords() throws IOException, GenericDownloaderException {
+        return getlist("div.categories_list");
+    }
+
+    @Override public Vector<String> getStars() throws IOException, GenericDownloaderException {
+        return getlist("span.autor.models");
     }
 
     @Override protected String getValidRegex() {

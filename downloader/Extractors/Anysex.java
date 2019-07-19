@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.Map;
 import java.util.Random;
+import java.util.Vector;
 import org.jsoup.UncheckedIOException;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -123,6 +124,27 @@ public class Anysex extends GenericExtractor implements Searchable{
     
     @Override public GameTime getDuration() throws IOException, GenericDownloaderException {
         return getDuration(url);
+    }
+    
+    @Override public Vector<String> getKeywords() throws IOException, GenericDownloaderException {
+        Vector<String> words = new Vector<>();
+        if (url != null) {
+            Elements metas = getPage(url, false).select("meta");
+            for(Element meta :metas)
+                if (meta.attr("itemprop").equals("genre"))
+                    words.add(meta.attr("content"));
+        }
+        return words;
+    }
+    
+    @Override public Vector<String> getStars() throws IOException, GenericDownloaderException {
+        Vector<String> words = new Vector<>();
+        if (url != null) {
+            Elements div = getPage(url, false).select("div.info_row.info_row_last");
+            if (div.toString().contains("Models:"))
+                words.add(div.select("span.last").select("meta").get(0).attr("content"));
+        }
+        return words;
     }
     
     @Override protected String getValidRegex() {

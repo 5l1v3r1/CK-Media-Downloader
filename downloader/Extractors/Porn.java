@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
+import java.util.Vector;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -56,7 +57,6 @@ public class Porn extends GenericExtractor implements Searchable{
         
         try {
             src = src.replaceAll("id:\"","\"id\":\"").replaceAll("url","\"url\"").replaceAll("active","\"active\"").replaceAll("false","\"false\"").replaceAll("true","\"true\"").replaceAll("definition", "\"definition\"");
-            CommonUtils.log(src,"Porn");
             JSONArray json = (JSONArray)new JSONParser().parse(src);
             Iterator<JSONObject> i = json.iterator();
             while(i.hasNext()) {
@@ -160,6 +160,17 @@ public class Porn extends GenericExtractor implements Searchable{
     
     @Override public GameTime getDuration() throws IOException, GenericDownloaderException {
         return getDuration(url);
+    }
+    
+    @Override public Vector<String> getKeywords() throws IOException, GenericDownloaderException {
+        if (url == null) return null;
+        Vector<String> words = new Vector<>();
+        getPage(url, false).select("div.meta-tags").select("p").get(1).select("a").forEach(a -> words.add(a.text()));;
+        return words;
+    }
+
+    @Override public Vector<String> getStars() throws IOException, GenericDownloaderException {
+        return null;
     }
 
     @Override protected String getValidRegex() {
