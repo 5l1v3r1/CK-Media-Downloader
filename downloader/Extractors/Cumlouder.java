@@ -46,26 +46,20 @@ public class Cumlouder extends GenericExtractor implements Searchable{
     }
 
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
-        Document page = getPage(url,false,true);
-        
         MediaDefinition media = new MediaDefinition();
-        media.addThread(getDefaultVideo(page),videoName);
+        media.addThread(getDefaultVideo(getPage(url,false,true)),videoName);
         
         return media;
         //super.downloadVideo(video,this.videoName,s);
     }
     
     private static String downloadVideoName(String url) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
-       Document page = getPage(url,false);
-        
-        return Jsoup.parse(page.select("div.video-top").select("h1").text()).body().text();
+        return Jsoup.parse(getPage(url,false).select("div.video-top").select("h1").text()).body().text();
     } 
 	
     //getVideo thumbnail
     private static File downloadThumb(String url) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
-        Document page = getPage(url,false);
-        
-        String thumb = page.select("video").get(0).attr("poster");
+        String thumb = getPage(url,false).select("video").get(0).attr("poster");
         
         if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
             CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache);
@@ -75,13 +69,11 @@ public class Cumlouder extends GenericExtractor implements Searchable{
     @Override public video similar() throws IOException, GenericDownloaderException{
     	if (url == null) return null;
         
-        video v = null;
-        Document page = getPage(url,false);
-        Elements li = page.getElementById("related_videos").select("div").get(0).select("a.muestra-escena");
-        Random randomNum = new Random(); int count = 0; boolean got = li.isEmpty();
+        Elements li = getPage(url,false).getElementById("related_videos").select("div").get(0).select("a.muestra-escena");
+        Random randomNum = new Random(); int count = 0; boolean got = li.isEmpty(); video v = null;
         while(!got) {
             if (count > li.size()) break;
-            int i = randomNum.nextInt(li.size()); count++;
+            byte i = (byte)randomNum.nextInt(li.size()); count++;
             String link = addHost(li.get(i).attr("href"),"www.cumlouder.com");
             String thumb = li.get(i).select("img.thumb").attr("data-lazy");
             String title = li.get(i).select("img.thumb").attr("title");
@@ -95,17 +87,13 @@ public class Cumlouder extends GenericExtractor implements Searchable{
     }
 
     @Override public video search(String str) throws IOException, GenericDownloaderException {
-    	str = str.trim(); str = str.replaceAll(" ", "%20");
-    	String searchUrl = "https://www.cumlouder.com/search?q="+str;
+    	String searchUrl = "https://www.cumlouder.com/search?q="+str.trim().replaceAll(" ", "%20");
     	
-    	Document page = getPage(searchUrl,false);
-        video v = null;
-        
-        Elements li = page.select("div.medida").select("a.muestra-escena");
-        int count = li.size(); Random rand = new Random();
+        Elements li = getPage(searchUrl,false).select("div.medida").select("a.muestra-escena");
+        int count = li.size(); Random rand = new Random(); video v = null;
         
         while(count-- > 0) {
-            int i = rand.nextInt(li.size());
+            byte i = (byte)rand.nextInt(li.size());
             String thumbLink = li.get(i).select("img.thumb").attr("src"); 
             if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,SKIP))) //if file not already in cache download it
                 if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,SKIP),MainApp.imageCache) != -2)
@@ -121,8 +109,7 @@ public class Cumlouder extends GenericExtractor implements Searchable{
     }
     
     private long getSize(String link) throws IOException, GenericDownloaderException {
-        Document page = getPage(link,false,true);
-        Map<String,String> q = getDefaultVideo(page);
+        Map<String,String> q = getDefaultVideo(getPage(link,false,true));
         return CommonUtils.getContentSize(q.get(q.keySet().iterator().next()));
     }
     

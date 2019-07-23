@@ -75,10 +75,10 @@ public class Justporno extends GenericExtractor implements Searchable{
         Document page = getPage(url,false);
         String thumb;
         if (!page.select("video").isEmpty()) {
-            thumb = page.select("video").attr("poster"); if (thumb.length() < 1) return null;
-            thumb = thumb.startsWith("http") ? thumb : "https:" + thumb;
+            thumb = configureUrl(page.select("video").attr("poster"));
+            if (thumb.isEmpty()) return null;
         } else 
-            thumb = CommonUtils.getLink(page.toString(),page.toString().indexOf("preview_url: '")+14,'\'');
+            thumb = configureUrl(CommonUtils.getLink(page.toString(),page.toString().indexOf("preview_url: '")+14,'\''));
         
         if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
             CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache);
@@ -88,13 +88,11 @@ public class Justporno extends GenericExtractor implements Searchable{
     @Override public video similar() throws IOException, GenericDownloaderException {
     	if (url == null) return null;
         
-        video v = null;
-        Document page = getPage(url,false);
-        Elements li = page.select("div.thumb-box").select("li"); Random rand = new Random();
-        int count = li.size(); 
+        Elements li = getPage(url,false).select("div.thumb-box").select("li"); 
+        Random rand = new Random(); int count = li.size(); video v = null;
         
         while(count-- > 0) {
-            int i = rand.nextInt(li.size());
+            byte i = (byte)rand.nextInt(li.size());
             String link = li.get(i).select("a").attr("href");
             String thumb = li.get(i).select("img").attr("src");
             if (thumb.length() < 1) li.get(i).select("img").attr("data-original");
@@ -110,18 +108,14 @@ public class Justporno extends GenericExtractor implements Searchable{
     }
 
     @Override public video search(String str) throws IOException, GenericDownloaderException {
-    	str = str.trim(); str = str.replaceAll(" ", "+");
-    	String searchUrl = "http://justporno.tv/search?query="+str;
-    	
-    	Document page = getPage(searchUrl,false);
-        video v = null;
+    	String searchUrl = "http://justporno.tv/search?query="+str.trim().replaceAll(" ", "+");
         
-        Elements li = page.select("ul").select("li"); int count = li.size(); Random rand = new Random();
+        Elements li = getPage(searchUrl,false).select("ul").select("li"); 
+        int count = li.size(); Random rand = new Random(); video v = null;
         
         while (count-- > 0) {
-            int i = rand.nextInt(li.size());
-            String thumbLink = li.get(i).select("img").attr("src"); 
-            thumbLink = thumbLink.startsWith("http") ? thumbLink : "https:" + thumbLink; 
+            byte i = (byte)rand.nextInt(li.size());
+            String thumbLink = configureUrl(li.get(i).select("img").attr("src")); 
             if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,SKIP))) //if file not already in cache download it
                 if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,SKIP),MainApp.imageCache) != -2)
                     throw new IOException("Failed to completely download page");

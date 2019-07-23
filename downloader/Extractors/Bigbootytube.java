@@ -59,15 +59,10 @@ public class Bigbootytube extends GenericQueryExtractor implements Searchable{
     
     int stop;
     @Override public GenericQuery query(String search) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
-        search = search.trim(); 
-        
-        search = search.replaceAll(" ", "+");
-        String searchUrl = "http://www.bigbootytube.xxx/search/?q="+search;
+        String searchUrl = "http://www.bigbootytube.xxx/search/?q="+search.trim().replaceAll(" ", "+");
         
         GenericQuery thequery = new GenericQuery();
-        Document page = getPage(searchUrl,false);
-        
-	Elements searchResults = page.select("div.list-thumbs").get(0).select("li").select("div.thumb").select("div.thumb-content").select("a.thumb-img");
+	Elements searchResults = getPage(searchUrl,false).select("div.list-thumbs").get(0).select("li").select("div.thumb").select("div.thumb-content").select("a.thumb-img");
 	for(int i = 0; i < searchResults.size(); i++)  {
             if (!CommonUtils.testPage(searchResults.get(i).attr("href"))) continue; //test to avoid error 404
             //try {verify(page);} catch (GenericDownloaderException e) {continue;}
@@ -89,7 +84,7 @@ public class Bigbootytube extends GenericQueryExtractor implements Searchable{
     @Override protected Vector<File> parse(String url) throws IOException, SocketTimeoutException, UncheckedIOException{ 
         Vector<File> thumbs = new Vector<>();
         
-        for(int i = 1; i <= stop; i++) {
+        for(byte i = 1; i <= stop; i++) {
             String thumbLink = url+String.valueOf(i)+".jpg";
             if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,SKIP))) //if file not already in cache download it
                 CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,SKIP),MainApp.imageCache);
@@ -100,9 +95,7 @@ public class Bigbootytube extends GenericQueryExtractor implements Searchable{
     }
    
     private static String downloadVideoName(String url) throws IOException , SocketTimeoutException, UncheckedIOException, Exception{
-        Document page = getPage(url,false);
-	
-	return Jsoup.parse(page.select("h1").toString()).body().text();
+	return Jsoup.parse(getPage(url,false).select("h1").toString()).body().text();
     } 
 	
     //getVideo thumbnail
@@ -117,19 +110,18 @@ public class Bigbootytube extends GenericQueryExtractor implements Searchable{
     @Override public video similar() throws IOException, GenericDownloaderException {
     	if (url == null) return null;
         
-        video v = null;
-        Document page = getPage(url,false);
-        Elements li = page.select("div.list-thumbs").get(0).select("li");
-        Random randomNum = new Random(); int count = 0; boolean got = false; if (li.isEmpty()) got = true;
+        
+        Elements li = getPage(url,false).select("div.list-thumbs").get(0).select("li");
+        Random randomNum = new Random(); int count = 0; boolean got = li.isEmpty(); video v = null;
         while(!got) {
             if (count > li.size()) break;
-            int i = randomNum.nextInt(li.size()); count++;
+            byte i = (byte)randomNum.nextInt(li.size()); count++;
             String link = addHost(li.get(i).select("a.thumb-img").attr("href"), "bigbootytube.xxx");
             String thumb = configureUrl(li.get(i).select("a.thumb-img").select("img").attr("src"));
             String title = li.get(i).select("div.thumb-title").select("h3").select("a").text();
             if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
             	if (CommonUtils.saveFile(thumb, CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache) != -2)
-            		continue;//throw new IOException("Failed to completely download page");
+                    continue;//throw new IOException("Failed to completely download page");
                 Document linkPage = getPage(link,false);
                 String video = CommonUtils.getLink(linkPage.toString(),linkPage.toString().indexOf("video_url:")+12,'\'');
                 v = new video(link,title,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumb,SKIP)),CommonUtils.getContentSize(video),getDuration(link).toString());
@@ -138,17 +130,13 @@ public class Bigbootytube extends GenericQueryExtractor implements Searchable{
         return v;
     }
 
-    @Override public video search(String str) throws IOException, GenericDownloaderException{
-        str = str.trim(); 
-        str = str.replaceAll(" ", "+");
-        String searchUrl = "http://www.bigbootytube.xxx/search/?q="+str;
+    @Override public video search(String str) throws IOException, GenericDownloaderException {
+        String searchUrl = "http://www.bigbootytube.xxx/search/?q="+str.trim().replaceAll(" ", "+");
         
-        Document page = getPage(searchUrl,false); video v = null;
-        
-	Elements searchResults = page.select("div.list-thumbs").get(0).select("li").select("div.thumb").select("div.thumb-content").select("a.thumb-img");
-        Random rand = new Random(); int count = searchResults.size();
+	Elements searchResults = getPage(searchUrl,false).select("div.list-thumbs").get(0).select("li").select("div.thumb").select("div.thumb-content").select("a.thumb-img");
+        Random rand = new Random(); int count = searchResults.size(); video v = null;
 	while(count-- > 0) {
-            int i = rand.nextInt(searchResults.size());
+            byte i = (byte)rand.nextInt(searchResults.size());
             if (!CommonUtils.testPage(searchResults.get(i).attr("href"))) continue; //test to avoid error 404
             //try {verify(page);} catch (GenericDownloaderException e) {continue;}
             try {

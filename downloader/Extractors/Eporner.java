@@ -45,11 +45,10 @@ public class Eporner extends GenericExtractor{
     }
 
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
-        Document page = getPageCookie(url, false);
-        Elements tr = page.getElementById("hd-porn-dload").select("table").select("tr");
+        Elements tr = getPageCookie(url, false).getElementById("hd-porn-dload").select("table").select("tr");
         Map<String,String> qualities = new HashMap<>();
         
-        for(int i = 0; i < tr.size(); i++)
+        for(byte i = 0; i < tr.size(); i++)
             qualities.put(tr.get(i).select("td").select("strong").text().replace(":",""), addHost(tr.get(i).select("td").select("a").attr("href"), "www.eporner.com"));
             //qualities.put(tr.get(i).select("td").select("span").text().replace(":",""), "https://s13-n5-nl-cdn.eporner.com/142123122312/5c42773c13880" + tr.get(i).select("td").select("a").attr("href"));
         
@@ -59,13 +58,11 @@ public class Eporner extends GenericExtractor{
     }
     
     private static String downloadVideoName(String url) throws IOException , SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
-        Document page = getPage(url,false);
-        return page.getElementById("undervideomenu").select("h1").text();
+        return getPage(url,false).getElementById("undervideomenu").select("h1").text();
     }
     
     private static File downloadThumb(String url) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception {
-        Document page = getPage(url,false);
-        String thumb = getMetaImage(page, true);
+        String thumb = getMetaImage(getPage(url,false), true);
         if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
             CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache);
         return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,SKIP));

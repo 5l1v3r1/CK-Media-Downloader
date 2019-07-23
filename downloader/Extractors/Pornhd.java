@@ -27,7 +27,7 @@ import org.jsoup.select.Elements;
  *
  * @author christopher
  */
-public class Pornhd extends GenericExtractor{
+public class Pornhd extends GenericExtractor implements Searchable{
     private static final byte SKIP = 3;
     
     public Pornhd() { //this contructor is used for when you jus want to search
@@ -62,9 +62,7 @@ public class Pornhd extends GenericExtractor{
     }
     
     private static String downloadVideoName(String url) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
-       Document page = getPage(url,false);
-        
-        String title = page.select("div.section-title").select("h1").toString();
+        String title = getPage(url,false).select("div.section-title").select("h1").toString();
 	return title.substring(4,title.indexOf("<",4)-1);
     } 
 	
@@ -80,18 +78,42 @@ public class Pornhd extends GenericExtractor{
     @Override public video similar() throws IOException, GenericDownloaderException {
     	if (url == null) return null;
         
-        video v = null;
-        Document page = getPage(url,false);
-        Elements li = page.select("ul.thumbs").select("li");
-        Random randomNum = new Random(); int count = 0; boolean got = li.isEmpty();
+        
+        Elements li = getPageCookie(url,false).select("ul.thumbs").select("li");
+        Random randomNum = new Random(); int count = 0; boolean got = li.isEmpty(); video v = null;
         while(!got) {
             if (count > li.size()) break;
-            int i = randomNum.nextInt(li.size()); count++;
+            byte i = (byte)randomNum.nextInt(li.size()); count++;
             String link = addHost(li.get(i).select("a.thumb.videoThumb.popTrigger").attr("href"),"pornhd.com");
             String title = li.get(i).select("a.title").text();
             try {v = new video(link,title,downloadThumb(link),getSize(link),"----"); } catch(Exception e) {continue;}
             break;
         }
+        return v;
+    }
+    
+    @Override public video search(String str) throws IOException, GenericDownloaderException {
+        String searchUrl = "https://www.pornhd.com/search?search="+str.trim().replaceAll(" ", "%20");
+        
+	Elements searchResults = getPageCookie(searchUrl,false).select("a.thumb.videoThumb.popTrigger"); 
+        int count = searchResults.size(); Random rand = new Random(); video v = null;
+
+	while(count-- > 0) {
+            byte i = (byte)rand.nextInt(searchResults.size());
+            String link = addHost(searchResults.get(i).select("a.thumb").attr("href"),"pornhd.com");
+            if (!CommonUtils.testPage(link)) continue; //test to avoid error 404
+            String thumbLink = searchResults.get(i).select("img").attr("src"); //src for pc
+            if (!CommonUtils.checkImageCache(CommonUtils.parseName(thumbLink,".jpg"))) //if file not already in cache download it
+                if (CommonUtils.saveFile(thumbLink, CommonUtils.parseName(thumbLink,".jpg"),MainApp.imageCache) != -2)
+                    throw new IOException("Failed to completely download page");
+            try {
+                long size = getSize(link);
+                v = new video(link,downloadVideoName(link),new File(MainApp.imageCache+File.separator+CommonUtils.parseName(thumbLink,".jpg")),size, "----");
+            } catch (Exception e) {
+                v = null; continue;
+            }
+            break; //if u made it this far u already have a vaild video
+	}
         return v;
     }
     
@@ -107,7 +129,7 @@ public class Pornhd extends GenericExtractor{
 	}
         media.addThread(qualities, videoName); //video name is not used so doesnt matter
         
-        return getSize(media);
+        return getSize(media, CommonUtils.StringCookies(cookieJar));
     }
     
     @Override public GameTime getDuration() {

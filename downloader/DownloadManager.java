@@ -109,10 +109,12 @@ public class DownloadManager {
         addDownload(download);
     }
     
-    public synchronized void addDownload(String link, video v) {
-        DownloaderItem download = new DownloaderItem();
-        download.setLink(link); download.setVideo(v);
-        addDownload(download);
+    public synchronized void addDownload(video v) {
+        if (v != null) {
+            DownloaderItem download = new DownloaderItem();
+            download.setLink(v.getLink()); download.setVideo(v);
+            addDownload(download);
+        }
     }
     
     private boolean isDup(DownloaderItem d) {
@@ -209,8 +211,8 @@ public class DownloadManager {
                 } else { //wasnt loaded
                     try {
                         if (!d.wasLoaded()) {
-                            int stop = new Random().nextInt(TIMES) + 1;
-                            for(int i = 0; i < stop; i++) {
+                            byte stop = (byte)(new Random().nextInt(TIMES) + 1);
+                            for(byte i = 0; i < stop; i++) {
                                 MainApp.log(d.getName(),d.getSite()); //generate suggestion from search algo with provided info
                                 int result, count = 8;
                                 do { //add similar video as suggestion
@@ -229,7 +231,7 @@ public class DownloadManager {
                             MainApp.log(d.getKeywords());
                             Vector<String> stars = d.getStars();
                             if (stars != null)
-                                for(int i = 0; i < stars.size(); i++)
+                                for(byte i = 0; i < stars.size(); i++)
                                     MainApp.log(stars.get(i));
                         }
                     } catch (GenericDownloaderException e) {

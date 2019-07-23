@@ -45,25 +45,20 @@ public class Befuck extends GenericExtractor implements Searchable{
         super(url,thumb,videoName);
     }
     
-    @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException{
-        Document page = getPage(url,false,true);
-        
+    @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
         MediaDefinition media = new MediaDefinition();
-        media.addThread(getDefaultVideo(page),videoName);
+        media.addThread(getDefaultVideo(getPage(url,false,true)),videoName);
         
         return media;
     }
    
-    private static String downloadVideoName(String url) throws IOException , SocketTimeoutException, UncheckedIOException, Exception{
-        Document page = getPage(url,false);
-	
-	return Jsoup.parse(page.select("div.desc").select("span").get(0).toString()).body().text();
+    private static String downloadVideoName(String url) throws IOException , SocketTimeoutException, UncheckedIOException, Exception {
+	return Jsoup.parse(getPage(url,false).select("div.desc").select("span").get(0).toString()).body().text();
     } 
 	
     //getVideo thumbnail
     private static File downloadThumb(String url) throws IOException, SocketTimeoutException, UncheckedIOException, Exception {
-        Document page = getPage(url,false);
-        String thumb = page.select("video").attr("poster");
+        String thumb = getPage(url,false).select("video").attr("poster");
         if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
             CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache);
         return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,SKIP));
@@ -74,16 +69,13 @@ public class Befuck extends GenericExtractor implements Searchable{
     }
 
     @Override public video search(String str) throws IOException, GenericDownloaderException {
-    	str = str.trim(); str = str.replaceAll(" ", "+");
-    	String searchUrl = "https://befuck.com/search/"+str;
+    	String searchUrl = "https://befuck.com/search/"+str.trim().replaceAll(" ", "+");
     	
-    	Document page = getPage(searchUrl,false);
-        video v = null;
-        
-        Elements li = page.select("figure"); Random rand = new Random(); int count = li.size();
+        Elements li = getPage(searchUrl,false).select("figure"); 
+        Random rand = new Random(); int count = li.size(); video v = null;
         
         while(count-- > 0) {
-            int i = rand.nextInt(li.size());
+            byte i = (byte)rand.nextInt(li.size());
             String thumbLink = li.get(i).select("img").attr("data-src"); 
             if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,SKIP))) //if file not already in cache download it
                 if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,SKIP),MainApp.imageCache) != -2)
@@ -99,8 +91,7 @@ public class Befuck extends GenericExtractor implements Searchable{
     }
     
     private long getSize(String link) throws IOException, GenericDownloaderException {
-        Document page = getPage(link,false,true);
-        Map<String,String> q = getDefaultVideo(page);
+        Map<String,String> q = getDefaultVideo(getPage(link,false,true));
         return CommonUtils.getContentSize(q.get(q.keySet().iterator().next()));
     }
     

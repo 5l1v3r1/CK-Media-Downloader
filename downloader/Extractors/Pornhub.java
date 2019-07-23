@@ -185,8 +185,7 @@ public class Pornhub extends GenericQueryExtractor implements Playlist, Searchab
     }
 
     @Override public GenericQuery query(String search) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
-        search = search.trim().replaceAll(" ", "+");
-        String searchUrl = "https://pornhub.com/video/search?search="+search;
+        String searchUrl = "https://pornhub.com/video/search?search="+search.trim().replaceAll(" ", "+");
         
         GenericQuery thequery = new GenericQuery();
         Document page = getPage(searchUrl,false);
@@ -457,8 +456,7 @@ public class Pornhub extends GenericQueryExtractor implements Playlist, Searchab
     }
 
     @Override public video search(String str) throws IOException, GenericDownloaderException {
-        str = str.trim(); str = str.replaceAll(" ", "+");
-        String searchUrl = "https://pornhub.com/video/search?search="+str;
+        String searchUrl = "https://pornhub.com/video/search?search="+str.trim().replaceAll(" ", "+");
         
         Document page = getPage(searchUrl,false);
         while(page.toString().contains("document.cookie=\"RNKEY=\"")) {
@@ -471,7 +469,7 @@ public class Pornhub extends GenericQueryExtractor implements Playlist, Searchab
         int count = searchResults.size(); Random rand = new Random();
         
 	while(count-- > 0){
-            int i = rand.nextInt(count);
+            byte i = (byte)rand.nextInt(count);
             if (!CommonUtils.testPage(addHost(searchResults.get(i).select("a").attr("href"),"pornhub.com"))) continue; //test to avoid error 404
             try {
                 Document pageLink = getPage(addHost(searchResults.get(i).select("a").attr("href"),"pornhub.com"),false);

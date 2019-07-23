@@ -71,24 +71,19 @@ public class Drtuber extends GenericExtractor implements Searchable{
     }
     
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {        
-        Map<String,String> qualities = getQualities(url);
-        
         MediaDefinition media = new MediaDefinition();
-        media.addThread(qualities,videoName);
+        media.addThread(getQualities(url),videoName);
         
         return media;
     }
    
     private static String downloadVideoName(String url) throws IOException , SocketTimeoutException, UncheckedIOException, Exception{
-        Document page = getPage(url,false);
-	
-	return Jsoup.parse(page.select("h1.title").toString()).body().text();
+	return Jsoup.parse(getPage(url,false).select("h1.title").toString()).body().text();
     } 
 	
     //getVideo thumbnail
     private static File downloadThumb(String url) throws IOException, SocketTimeoutException, UncheckedIOException, Exception {
-       Document page = getPage(url,false);
-        String thumb = page.select("video").attr("poster");
+        String thumb = getPage(url,false).select("video").attr("poster");
         if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
             CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache);
         return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,SKIP));
@@ -118,12 +113,12 @@ public class Drtuber extends GenericExtractor implements Searchable{
 
     @Override public video search(String str) throws IOException, GenericDownloaderException {
     	String searchUrl = "https://www.drtuber.com/search/videos/"+str.trim().replaceAll(" ", "%20");
-        Document page = getPage(searchUrl,false); video v = null;
-        Elements searchResults = page.getElementById("search_results").select("a");
-        Random rand = new Random(); int count = searchResults.size();
+
+        Elements searchResults = getPage(searchUrl,false).getElementById("search_results").select("a");
+        Random rand = new Random(); int count = searchResults.size(); video v = null;
         
 	while (count-- > 0) {
-            int i = rand.nextInt(searchResults.size());
+            byte i = (byte)rand.nextInt(searchResults.size());
             String link = addHost(searchResults.get(i).attr("href"),"www.drtuber.com");
             if (!CommonUtils.testPage(link)) continue; //test to avoid error 404
             //try {verify(getPage(link,false)); } catch (GenericDownloaderException e) {continue;}

@@ -46,10 +46,8 @@ public class Anysex extends GenericExtractor implements Searchable{
     }
 
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
-        Document page = getPage(url,false,true);
-     
         MediaDefinition media = new MediaDefinition();
-        media.addThread(getDefaultVideo(page),videoName);
+        media.addThread(getDefaultVideo(getPage(url,false,true)),videoName);
 
         return media;
     }
@@ -60,8 +58,7 @@ public class Anysex extends GenericExtractor implements Searchable{
 	
     //getVideo thumbnail
     private static File downloadThumb(String url) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
-        Document page = getPage(url,false);
-        String thumbLink = getMetaImage(page);
+        String thumbLink = getMetaImage(getPage(url,false));
          
         if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,SKIP))) //if file not already in cache download it
             CommonUtils.saveFile(thumbLink,CommonUtils.getThumbName(thumbLink,SKIP),MainApp.imageCache);
@@ -76,7 +73,7 @@ public class Anysex extends GenericExtractor implements Searchable{
         video v = null; int limit = results.size() > 100 ? results.size() / 10 : results.size() < 10 ? results.size() : results.size() / 5; 
         while(!got) {
             if (count > results.size()) break;
-            int i = randomNum.nextInt(limit); count++;
+            byte i = (byte)randomNum.nextInt(limit); count++;
             String link = null;
             for(Element a :results.get(i).select("a")) {
                 if(a.attr("href").matches("/\\d+/"))
@@ -94,9 +91,8 @@ public class Anysex extends GenericExtractor implements Searchable{
 
     @Override public video search(String str) throws IOException, GenericDownloaderException {
         String searchUrl = "https://anysex.com/search/?q="+str.replaceAll(" ", "+");
-	Document page = getPage(searchUrl,false);
 
-	Elements lis = page.select("ul.box").select("li.item"); video v = null;
+	Elements lis = getPage(searchUrl,false).select("ul.box").select("li.item"); video v = null;
         Random rand = new Random(); int count = lis.size();
 	while(count-- > 0) {
             Element li = lis.get(rand.nextInt(lis.size()));

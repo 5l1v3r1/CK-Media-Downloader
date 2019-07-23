@@ -103,13 +103,13 @@ public class Dailymotion extends GenericExtractor{
     
     private static String downloadVideoName(String url) throws IOException , SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
         Document page = getPage(url,false);
-         verify(page);
-         String title = getTitle(page);
-         if (title != null) {
-        	 if (title.toLowerCase().contains("- video dailymotion"))
-        		 return title.substring(0,title.length() - 20);
-        	 else return title;
-         } else return "DailyMotion Video";
+        verify(page);
+        String title = getTitle(page);
+        if (title != null) {
+            if (title.toLowerCase().contains("- video dailymotion"))
+                return title.substring(0,title.length() - 20);
+            else return title;
+        } else return "DailyMotion Video";
     } 
 	
     //getVideo thumbnail

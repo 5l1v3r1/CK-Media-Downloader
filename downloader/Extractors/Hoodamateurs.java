@@ -44,10 +44,8 @@ public class Hoodamateurs extends GenericExtractor {
     }
 
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
-        Document page = getPage(url,false,true);
-     
         MediaDefinition media = new MediaDefinition();
-        media.addThread(getDefaultVideo(page),videoName);
+        media.addThread(getDefaultVideo(getPage(url,false,true)),videoName);
 
         return media;
     }
@@ -58,7 +56,7 @@ public class Hoodamateurs extends GenericExtractor {
 	
     //getVideo thumbnail
     private static File downloadThumb(String url) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
-        String thumbLink = "http://www.hoodamateurs.com" + getPage(url,false).select("video").attr("poster");
+        String thumbLink = addHost(getPage(url,false).select("video").attr("poster"), "www.hoodamateurs.com");
         
         if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,SKIP))) //if file not already in cache download it
             CommonUtils.saveFile(thumbLink,CommonUtils.getThumbName(thumbLink,SKIP),MainApp.imageCache);

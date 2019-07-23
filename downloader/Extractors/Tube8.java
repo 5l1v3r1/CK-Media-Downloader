@@ -53,17 +53,12 @@ public class Tube8 extends GenericQueryExtractor implements Searchable{
         super(url,thumb,videoName);
     }
 
-    @Override
-    public GenericQuery query(String search) throws IOException, SocketTimeoutException, UncheckedIOException, Exception {
-        search = search.trim(); 
-        search = search.replaceAll(" ", "+");
-        String searchUrl = "https://www.tube8.com/searches.html?q=/"+search+"/";
+    @Override public GenericQuery query(String search) throws IOException, SocketTimeoutException, UncheckedIOException, Exception {
+        String searchUrl = "https://www.tube8.com/searches.html?q=/"+search.trim().replaceAll(" ", "+")+"/";
         GenericQuery thequery = new GenericQuery();
         
-        Document page = getPage(searchUrl,false);
-		
-	Elements searchResults = page.select("div.video_box");
-	for(int i = 0; i < searchResults.size(); i++) {
+	Elements searchResults = getPage(searchUrl,false).select("div.video_box");
+	for(byte i = 0; i < searchResults.size(); i++) {
             if (!CommonUtils.testPage(searchResults.get(i).select("p.video_title").select("a").attr("href"))) continue; //test to avoid error 404
             String link = searchResults.get(i).select("p.video_title").select("a").attr("href");
             String title = searchResults.get(i).select("p.video_title").select("a").attr("title");
@@ -83,8 +78,7 @@ public class Tube8 extends GenericQueryExtractor implements Searchable{
         return thequery;
     }
 
-    @Override
-    protected Vector<File> parse(String url) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
+    @Override protected Vector<File> parse(String url) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
         Vector<File> thumbs = new Vector<>();
         
         Document page = getPage(url,false);
@@ -93,7 +87,7 @@ public class Tube8 extends GenericQueryExtractor implements Searchable{
         String temp = CommonUtils.getBracket(page.toString(),page.toString().indexOf("timeline_preview_url",page.toString().indexOf("var flashvars")));
         int max = Integer.parseInt(temp.substring(1, temp.length()-1));
         
-        for(int i = 0; i <= max; i++) {
+        for(byte i = 0; i <= max; i++) {
             String link = CommonUtils.replaceIndex(mainLink,i,String.valueOf(max));
             if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(link,SKIP+1)))
                 CommonUtils.saveFile(link, CommonUtils.getThumbName(link,SKIP+1), MainApp.imageCache);
@@ -131,9 +125,7 @@ public class Tube8 extends GenericQueryExtractor implements Searchable{
     }
     
     private static String downloadVideoName(String url) throws IOException, SocketTimeoutException, UncheckedIOException, Exception {
-        Document page = getPage(url,false);
-
-	return Jsoup.parse(page.select("h1").toString()).body().text();
+	return Jsoup.parse(getPage(url,false).select("h1").toString()).body().text();
     } 
 	
     //getVideo thumbnail
@@ -150,10 +142,8 @@ public class Tube8 extends GenericQueryExtractor implements Searchable{
     @Override public video similar() throws IOException, GenericDownloaderException {
     	if (url == null) return null;
         
-        video v = null;
-        Document page = getPage(url,false);
-        Elements li = page.select("div.gridList.videosList").select("div.video_box");
-        Random randomNum = new Random(); int count = 0; boolean got = li.isEmpty();
+        Elements li = getPage(url,false).select("div.gridList.videosList").select("div.video_box");
+        Random randomNum = new Random(); int count = 0; boolean got = li.isEmpty(); video v = null;
         while(!got) {
             if (count > li.size()) break;
             int i = randomNum.nextInt(li.size()); count++;
@@ -166,16 +156,13 @@ public class Tube8 extends GenericQueryExtractor implements Searchable{
     }
 
     @Override public video search(String str) throws IOException, GenericDownloaderException {
-        str = str.trim(); 
-        str = str.replaceAll(" ", "+");
-        String searchUrl = "https://www.tube8.com/searches.html?q=/"+str+"/";
+        String searchUrl = "https://www.tube8.com/searches.html?q=/"+str.trim().replaceAll(" ", "+")+"/";
         
-        Document page = getPage(searchUrl,false); video v = null;
-	Elements searchResults = page.select("div.video_box");
-        int count = searchResults.size(); Random rand = new Random();
+	Elements searchResults = getPage(searchUrl,false).select("div.video_box");
+        int count = searchResults.size(); Random rand = new Random(); video v = null;
         
 	while(count-- > 0) {
-            int i = rand.nextInt(searchResults.size());
+            byte i = (byte)rand.nextInt(searchResults.size());
             if (!CommonUtils.testPage(searchResults.get(i).select("p.video_title").select("a").attr("href"))) continue; //test to avoid error 404
             String link = searchResults.get(i).select("p.video_title").select("a").attr("href");
             String title = searchResults.get(i).select("p.video_title").select("a").attr("title");

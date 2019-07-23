@@ -49,8 +49,7 @@ public class Gotporn extends GenericExtractor{
 	
     //getVideo thumbnail
     private static File downloadThumb(String url) throws IOException, SocketTimeoutException, UncheckedIOException, Exception {
-        Document page = getPage(url,false);
-        String thumb = getMetaImage(page);
+        String thumb = getMetaImage(getPage(url,false));
         
         if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
             CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache);

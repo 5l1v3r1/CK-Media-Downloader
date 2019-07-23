@@ -186,11 +186,10 @@ public class Yourporn extends GenericExtractor implements Searchable{
     }
 
     @Override public video search(String str) throws IOException, GenericDownloaderException{
-        String searchUrl = "https://sxyprn.com/"+str.trim().replaceAll(" ", "+")+".html";
-        Document page = getPage(searchUrl,false); video v = null;
+        String searchUrl = addHost(str.trim().replaceAll(" ", "+")+".html", "sxyprn.com");
         
-        Elements searchResults = page.select("div.search_results").select("div.post_el_small");
-        int count = searchResults.size(); Random rand = new Random();
+        Elements searchResults = getPage(searchUrl,false).select("div.search_results").select("div.post_el_small");
+        int count = searchResults.size(); Random rand = new Random(); video v = null;
         
 	while(count-- > 0) {
             int i = rand.nextInt(searchResults.size());

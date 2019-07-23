@@ -62,8 +62,7 @@ public class Homemoviestube extends GenericExtractor implements Searchable{
 	
     //getVideo thumbnail
     private static File downloadThumb(String url) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
-        Document page = getPage(url,false);
-        String thumbLink = addHost(getMetaImage(page),"");
+        String thumbLink = addHost(getMetaImage(getPage(url,false)),"");
          
         if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,SKIP))) //if file not already in cache download it
             CommonUtils.saveFile(thumbLink,CommonUtils.getThumbName(thumbLink,SKIP),MainApp.imageCache);
@@ -73,15 +72,14 @@ public class Homemoviestube extends GenericExtractor implements Searchable{
     @Override public video similar() throws IOException, GenericDownloaderException {
         if (url == null) return null;
         
-        video v = null;
-        Document page = getPage(url,false);
-        Elements li = page.getElementById("videoTabs").getElementById("ctab1").select("div.film-item.col-lg-4.col-md-75.col-sm-10.col-xs-10");
-        Random randomNum = new Random(); int count = 0; boolean got = li.isEmpty();
+        
+        Elements li = getPage(url,false).getElementById("videoTabs").getElementById("ctab1").select("div.film-item.col-lg-4.col-md-75.col-sm-10.col-xs-10");
+        Random randomNum = new Random(); int count = 0; boolean got = li.isEmpty(); video v = null;
         while(!got) {
             if (count > li.size()) break;
-            int i = randomNum.nextInt(li.size()); count++;
+            byte i = (byte)randomNum.nextInt(li.size()); count++;
             String link = li.get(i).select("a").get(0).attr("href");
-            if (link.matches("http://www.homemoviestube.com/videos/[\\d]+/[\\S]+.html"))
+            if (link.matches(getValidRegex()))
                 try {v = new video(link,downloadVideoName(link),downloadThumb(link),getSize(link), "----"); } catch(Exception e) {continue;}
             else continue;
             break;
@@ -91,15 +89,14 @@ public class Homemoviestube extends GenericExtractor implements Searchable{
 
     @Override public video search(String str) throws IOException, GenericDownloaderException {
         String searchUrl = "http://www.homemoviestube.com/search/"+str.replaceAll(" ", "-")+"/page1.html";
-	Document page = getPage(searchUrl,false);
 
-	Elements divs = page.select("div.film-item.col-lg-4.col-md-75.col-sm-10.col-xs-10"); video v = null;
+	Elements divs = getPage(searchUrl,false).select("div.film-item.col-lg-4.col-md-75.col-sm-10.col-xs-10"); video v = null;
         int count = divs.size(); Random rand = new Random();
         
 	while(count-- > 0) {
             Element div = divs.get(rand.nextInt(divs.size()));
             if (div.select("a").isEmpty()) continue;
-            if (!div.select("a").get(0).attr("href").matches("http://www.homemoviestube.com/videos/[\\d]+/[\\S]+.html")) continue;         
+            if (!div.select("a").get(0).attr("href").matches(getValidRegex())) continue;         
             if (!CommonUtils.testPage(div.select("a").get(0).attr("href"))) continue; //test to avoid error 404
             String link = div.select("a").get(0).attr("href");
             try { v = new video(link,downloadVideoName(link),downloadThumb(link),getSize(link), "----"); } catch (Exception e) {continue;}

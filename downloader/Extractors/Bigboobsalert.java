@@ -48,9 +48,8 @@ public class Bigboobsalert extends GenericExtractor{
     }
 
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
-        Document page = getPage(url,false,true);
-        
-        Elements links = page.select("table.bg5").select("a"); MediaDefinition media = new MediaDefinition();
+        Elements links = getPage(url,false,true).select("table.bg5").select("a"); 
+        MediaDefinition media = new MediaDefinition();
         for(Element link: links) {
             if (!link.attr("href").matches("pics/[\\S]+[.]jpg")) continue;
             Map<String,String> qualities = new HashMap<>();
@@ -68,10 +67,8 @@ public class Bigboobsalert extends GenericExtractor{
 	
     //getVideo thumbnail
     private static File downloadThumb(String url) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
-        Document page = getPage(url,false);
-        
         String thumbLink = "";
-        Elements a = page.select("table.bg5").select("a");
+        Elements a = getPage(url,false).select("table.bg5").select("a");
         for(Element link: a) {
             if (!link.attr("href").matches("pics/[\\S]+[.]jpg")) continue;
             thumbLink = addHost(link.attr("href"),"www.bigboobsalert.com"); break;

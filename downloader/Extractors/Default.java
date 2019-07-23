@@ -46,12 +46,10 @@ public class Default extends GenericExtractor {
     }
     
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
-        Document page = getPage(url,false,true);
-     
         CommonUtils.log("Getting video with default extractor", this);
         MediaDefinition media = new MediaDefinition();
         try {
-            Map<String,String> v = getDefaultVideo(page);
+            Map<String,String> v = getDefaultVideo(getPage(url,false,true));
             if (v == null || v.isEmpty()) 
                 throw new PageNotFoundException("video not found");
             else if (v.containsKey("single")) {
@@ -82,8 +80,7 @@ public class Default extends GenericExtractor {
             Document page = getPage(url,false);
             verify(page);
             String thumbLink = getVideoPoster(page);
-            thumbLink = thumbLink == null || thumbLink.isEmpty() ? getMetaImage(page) : thumbLink;
-            thumbLink = thumbLink.startsWith("//") ? "http:" + thumbLink : thumbLink;
+            thumbLink = configureUrl(thumbLink == null || thumbLink.isEmpty() ? getMetaImage(page) : thumbLink);
             thumbLink = !thumbLink.startsWith("http") && thumbLink.startsWith("/") ? "http://" +getDomain(url) + thumbLink : thumbLink;
             thumbLink = !thumbLink.startsWith("http") && !thumbLink.startsWith("/") ? "http://" +getDomain(url) + "/" + thumbLink : thumbLink;
 

@@ -71,16 +71,14 @@ public class Youjizz extends GenericExtractor implements Searchable{
     }
     
     private static String downloadVideoName(String url) throws IOException, SocketTimeoutException, UncheckedIOException, Exception {
-        Document page = getPage(url,false);
-
-	return Jsoup.parse(page.select("title").toString()).text();
+	return Jsoup.parse(getPage(url,false).select("title").toString()).text();
     } 
 	
     //getVideo thumbnail
     private static File downloadThumb(String url) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
          Document page = getPage(url,false);
         
-        String thumb = "https://"+CommonUtils.getLink(page.toString(),page.toString().indexOf("posterImage: '//") + 16, '\'');
+        String thumb = configureUrl(CommonUtils.getLink(page.toString(),page.toString().indexOf("posterImage: '//") + 16, '\''));
         
         if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
             CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache);
@@ -91,8 +89,7 @@ public class Youjizz extends GenericExtractor implements Searchable{
     	if (url == null) return null;
         
         video v = null;
-        Document page = getPage(url,false);
-        Elements li = page.getElementById("related").select("div.video-thumb");
+        Elements li = getPage(url,false).getElementById("related").select("div.video-thumb");
         Random randomNum = new Random(); int count = 0; boolean got = li.isEmpty();
         while(!got) {
             if (count > li.size()) break;
@@ -112,13 +109,10 @@ public class Youjizz extends GenericExtractor implements Searchable{
     }
 
     @Override public video search(String str) throws IOException, GenericDownloaderException{
-    	str = str.trim(); str = str.replaceAll(" ", "-");
-    	String searchUrl = "https://www.youjizz.com/search/"+str+"-1.html?";
-    	
-    	Document page = getPage(searchUrl,false);
-        video v = null;
+    	String searchUrl = "https://www.youjizz.com/search/"+str.trim().replaceAll(" ", "-")+"-1.html?";
         
-        Elements li = page.select("div.video-thumb"); int count = li.size(); Random rand = new Random();
+        Elements li = getPage(searchUrl,false).select("div.video-thumb"); int count = li.size(); 
+        Random rand = new Random(); video v = null;
         
         while(count-- > 0) {
             int i = rand.nextInt(li.size());

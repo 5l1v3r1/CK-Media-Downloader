@@ -45,8 +45,7 @@ public class Pornpics extends GenericExtractor{
     }
 
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException{
-        Document page = getPage(url,false,true);
-        Elements a = page.select("a.rel-link");
+        Elements a = getPage(url,false,true).select("a.rel-link");
         MediaDefinition media = new MediaDefinition();
         a.forEach((item) -> {
             Map<String,String> qualities = new HashMap<>(); qualities.put("single",item.attr("href"));
@@ -57,14 +56,12 @@ public class Pornpics extends GenericExtractor{
     }
     
     private static String downloadVideoName(String url) throws IOException , SocketTimeoutException, UncheckedIOException, GenericDownloaderException,Exception{
-        Document page = getPage(url,false);
-        return page.select("title").text().replace(" - PornPics.com","");
+        return getPage(url,false).select("title").text().replace(" - PornPics.com","");
     } 
 	
     //getVideo thumbnail
     private static File downloadThumb(String url) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
-        Document page = getPage(url,false);
-        String thumbLink = page.select("a.rel-link").get(0).attr("href");
+        String thumbLink = getPage(url,false).select("a.rel-link").get(0).attr("href");
          
         if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,SKIP))) //if file not already in cache download it
             CommonUtils.saveFile(thumbLink,CommonUtils.getThumbName(thumbLink,SKIP),MainApp.imageCache);

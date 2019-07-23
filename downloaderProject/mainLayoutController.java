@@ -211,7 +211,7 @@ public class mainLayoutController implements Initializable, Reactable{
             MainApp.createMessageDialog("No saved media");
         else
             for(int i = 0; i < videos.size(); i++)
-                MainApp.dm.addDownload(videos.get(i).getLink(), videos.get(i));
+                MainApp.dm.addDownload(videos.get(i));
     }
     
     public void clearSavedVideos() {

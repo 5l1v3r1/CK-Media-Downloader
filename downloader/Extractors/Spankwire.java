@@ -54,15 +54,11 @@ public class Spankwire extends GenericQueryExtractor implements Searchable{
     }
 
     @Override public GenericQuery query(String search) throws IOException, SocketTimeoutException, UncheckedIOException, Exception {
-        search = search.trim(); 
-        search = search.replaceAll(" ", "%2B");
-        String searchUrl = "https://spankwire.com/search/straight/keyword/"+search;
+        String searchUrl = "https://spankwire.com/search/straight/keyword/"+search.trim().replaceAll(" ", "%2B");
         
         GenericQuery thequery = new GenericQuery();
-        Document page = getPage(searchUrl,false);
-        
-	Elements searchResults = page.select("li.js-li-thumbs");
-	for(int i = 0; i < searchResults.size(); i++)  {
+	Elements searchResults = getPage(searchUrl,false).select("li.js-li-thumbs");
+	for(byte i = 0; i < searchResults.size(); i++)  {
             String link = addHost(searchResults.get(i).select("a").get(0).attr("href"),"spankwire.com");
             if (!CommonUtils.testPage(link)) continue; //test to avoid error 404
             thequery.addLink(link);
@@ -134,8 +130,7 @@ public class Spankwire extends GenericQueryExtractor implements Searchable{
     }
     
     private static String downloadVideoName(String url) throws IOException , SocketTimeoutException, UncheckedIOException,Exception{
-        Document page = getPage(url,false);
-	return Jsoup.parse(page.select("h1").get(0).toString()).body().text().trim();
+	return Jsoup.parse(getPage(url,false).select("h1").get(0).toString()).body().text().trim();
     } 
 	
     //getVideo thumbnail
@@ -165,21 +160,17 @@ public class Spankwire extends GenericQueryExtractor implements Searchable{
         }
     }
 
-    @Override public video search(String str) throws IOException, GenericDownloaderException{
-        str = str.trim(); 
-        str = str.replaceAll(" ", "%2B");
-        String searchUrl = "https://spankwire.com/search/straight/keyword/"+str;
+    @Override public video search(String str) throws IOException, GenericDownloaderException {
+        String searchUrl = "https://spankwire.com/search/straight/keyword/"+str.trim().replaceAll(" ", "%2B");
         
-        Document page = getPage(searchUrl,false); video v = null;
-        
-	Elements searchResults = page.select("li.js-li-thumbs");
-        int count = searchResults.size(); Random rand = new Random();
+	Elements searchResults = getPage(searchUrl,false).select("li.js-li-thumbs");
+        int count = searchResults.size(); Random rand = new Random(); video v = null;
         
 	while(count-- > 0) {
             int i = rand.nextInt(searchResults.size());
             String link = addHost(searchResults.get(i).select("a").get(0).attr("href"),"spankwire.com");
             if (!CommonUtils.testPage(link)) continue; //test to avoid error 404
-            String thumbLink = "https:"+searchResults.get(i).select("img").attr("data-original");
+            String thumbLink = configureUrl(searchResults.get(i).select("img").attr("data-original"));
             if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,SKIP))) //if file not already in cache download it
                 if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,SKIP),MainApp.imageCache) != -2)
                     throw new IOException("Failed to completely download page");

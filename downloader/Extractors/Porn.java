@@ -88,10 +88,9 @@ public class Porn extends GenericExtractor implements Searchable{
     //getVideo thumbnail
     private static File downloadThumb(String url) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
         Document page = getPage(url,false);
-        String thumbLink;
 	String preThumb = CommonUtils.getLink(page.toString(),page.toString().indexOf("thumbCDN")+10,'\"');
 	String postThumb = CommonUtils.getLink(page.toString(),page.toString().indexOf("poster",page.toString().indexOf("thumbCDN")+10)+8,'\"');
-        thumbLink = preThumb + postThumb;
+        String thumbLink = preThumb + postThumb;
          
         if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,SKIP))) //if file not already in cache download it
             CommonUtils.saveFile(thumbLink,CommonUtils.getThumbName(thumbLink,SKIP),MainApp.imageCache);
@@ -101,13 +100,12 @@ public class Porn extends GenericExtractor implements Searchable{
     @Override public video similar() throws IOException, GenericDownloaderException {
         if (url == null) return null;
         
-        video v = null;
-        Document page = getPage(url,false);
-        Elements divs = page.select("section.thumb-list.videos").select("div.item.rollable");
-        Random randomNum = new Random(); int count = 0; boolean got = false; if (divs.isEmpty()) got = true;
+        
+        Elements divs = getPage(url,false).select("section.thumb-list.videos").select("div.item.rollable");
+        Random randomNum = new Random(); int count = 0; boolean got = divs.isEmpty(); video v = null;
         while(!got) {
             if (count > divs.size()) break;
-            int i = randomNum.nextInt(divs.size()); count++;
+            byte i = (byte)randomNum.nextInt(divs.size()); count++;
             String link = addHost(divs.get(i).select("div.thumb").select("a").attr("href"),"www.porn.com");
             String title = divs.get(i).select("div.thumb").select("a").attr("title");
             String thumb = divs.get(i).select("div.thumb").select("img").attr("src");
@@ -122,10 +120,9 @@ public class Porn extends GenericExtractor implements Searchable{
 
     @Override public video search(String str) throws IOException, GenericDownloaderException {
         String searchUrl = "https://www.porn.com/videos/search?q="+str.replaceAll(" ", "+");
-	Document page = getPage(searchUrl,false);
 
-        Elements divs = page.select("section.thumb-list.videos").select("div.item.rollable"); video v = null;
-        int count = divs.size(); Random rand = new Random();
+        Elements divs = getPage(searchUrl,false).select("section.thumb-list.videos").select("div.item.rollable"); 
+        int count = divs.size(); Random rand = new Random(); video v = null;
         
 	while(count-- > 0) {
             Element div = divs.get(rand.nextInt(divs.size()));

@@ -60,13 +60,12 @@ import javax.imageio.ImageIO;
  * @author christopher
  */
 public class DownloaderItem {
-    private String url;
+    private String url, albumName;
     private Pane root;
     private GenericExtractor extractor;
     private video v = null;
     private boolean loaded;
     private Vector<String> downloadLinks, downloadNames;
-    private String albumName;
     
     public void release() {
         url = null;

@@ -48,10 +48,9 @@ public class Bigtits extends GenericExtractor implements Searchable{
     }
 
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
-        Document page = getPage(url,false,true);
-        Element div = page.getElementById("playerCont");
+        Element div = getPage(url,false,true).getElementById("playerCont");
 	String video = CommonUtils.getLink(div.toString(), div.toString().indexOf("<source src=")+13, '\"');
-        Map<String,String> qualities = new HashMap<>();qualities.put("single",video); 
+        Map<String,String> qualities = new HashMap<>(); qualities.put("single",video); 
         MediaDefinition media = new MediaDefinition(); media.addThread(qualities, videoName);
         
         return media;
@@ -59,16 +58,14 @@ public class Bigtits extends GenericExtractor implements Searchable{
     }
    
     private static String downloadVideoName(String url) throws IOException , SocketTimeoutException, UncheckedIOException, Exception{
-        Document page = getPage(url,false);
-	String temp = Jsoup.parse(page.select("div.vid_title").select("h1").toString()).body().text();
+	String temp = Jsoup.parse(getPage(url,false).select("div.vid_title").select("h1").toString()).body().text();
 	
 	return temp.substring(temp.lastIndexOf('>')+2);
     } 
 	
     //getVideo thumbnail
     private static File downloadThumb(String url) throws IOException, SocketTimeoutException, UncheckedIOException, Exception {
-        Document page = getPage(url,false);
-        Element div = page.getElementById("playerCont");
+        Element div = getPage(url,false).getElementById("playerCont");
         String thumb = CommonUtils.getLink(div.toString(),div.toString().indexOf("poster:")+9,'\"');
         
         if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
@@ -101,16 +98,13 @@ public class Bigtits extends GenericExtractor implements Searchable{
     }
 
     @Override public video search(String str) throws IOException, GenericDownloaderException {
-    	str = str.trim(); str = str.replaceAll(" ", "+");
-    	String searchUrl = "http://www.bigtits.com/search?q="+str;
-    	
-    	Document page = getPage(searchUrl,false);
-        video v = null;
+    	String searchUrl = "http://www.bigtits.com/search?q="+str.trim().replaceAll(" ", "+");
         
-        Elements li = page.select("ul.videos").select("li"); int count = li.size(); Random rand = new Random();
+        Elements li = getPage(searchUrl,false).select("ul.videos").select("li"); 
+        int count = li.size(); Random rand = new Random(); video v = null;
         
         while(count-- > 0) {
-            int i = rand.nextInt(li.size());
+            byte i = (byte)rand.nextInt(li.size());
             String thumbLink = li.get(i).select("div.thumb_container").select("a").select("img").attr("src"); 
             if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,SKIP))) //if file not already in cache download it
                 if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,SKIP),MainApp.imageCache) != -2)
@@ -118,8 +112,7 @@ public class Bigtits extends GenericExtractor implements Searchable{
             String link = addHost(li.get(i).select("div.thumb_container").select("a").attr("href"),"www.bigtits.com");
             String name = li.get(i).select("div.thumb_container").select("a").select("img").attr("title");
             if (link.isEmpty() || name.isEmpty()) continue;
-            Document linkPage = getPage(link,false);
-            Element div = linkPage.getElementById("playerCont");
+            Element div = getPage(link,false).getElementById("playerCont");
             String video = CommonUtils.getLink(div.toString(), div.toString().indexOf("<source src=")+13, '\"');
             v = new video(link,name,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)),CommonUtils.getContentSize(video),getDuration(link).toString());
             break;

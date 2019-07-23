@@ -86,7 +86,7 @@ public class ExtractorList {
             }
             if (ex1 == null || ex2 == null) {
                 return false;
-            }else if (ex1.getClass().getName().equals(ex2.getClass().getName())) {
+            } else if (ex1.getClass().getName().equals(ex2.getClass().getName())) {
                 String id1 = ex1.getId(s).isEmpty() || ex1.getId(s) == null ? s : ex1.getId(s);
                 String id2 = ex2.getId(s2).isEmpty() || ex2.getId(s2) == null ? s2 : ex2.getId(s2);
                 return id1.equals(id2);

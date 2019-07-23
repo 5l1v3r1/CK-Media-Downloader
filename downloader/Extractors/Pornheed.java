@@ -44,28 +44,21 @@ public class Pornheed extends GenericExtractor{
     }
 
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
-        Document page = getPage(url,false,true);
-     
-        String embed = page.getElementById("first").select("iframe").attr("src");
-        page = getPage(embed,false,true);
-        
+        String embed = getPage(url,false,true).getElementById("first").select("iframe").attr("src");
         MediaDefinition media = new MediaDefinition();
-        media.addThread(getDefaultVideo(page),videoName);
+        media.addThread(getDefaultVideo(getPage(embed,false,true)),videoName);
         return media;
     }
     
     private static String downloadVideoName(String url) throws IOException , SocketTimeoutException, UncheckedIOException, GenericDownloaderException,Exception{
-        Document page = getPage(url,false);
-        return page.select("h1").text();
+        return getPage(url,false).select("h1").text();
     } 
 	
     //getVideo thumbnail
     private static File downloadThumb(String url) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
-         Document page = getPage(url,false);
-         String embed = page.getElementById("first").select("iframe").attr("src");
-        page = getPage(embed,false,true);
+        String embed = getPage(url,false).getElementById("first").select("iframe").attr("src");
         
-	String thumbLink = page.select("video").attr("poster");
+	String thumbLink = getPage(embed,false,true).select("video").attr("poster");
          
         if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,SKIP))) //if file not already in cache download it
             CommonUtils.saveFile(thumbLink,CommonUtils.getThumbName(thumbLink,SKIP),MainApp.imageCache);

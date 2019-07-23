@@ -102,14 +102,10 @@ public class Xhamster extends GenericQueryExtractor implements Searchable{
     }
 
     @Override public GenericQuery query(String search) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
-        search = search.trim(); 
-        search = search.replaceAll(" ", "+");
-        String searchUrl = "https://xhamster.com/search?q="+search;
+        String searchUrl = "https://xhamster.com/search?q="+search.trim().replaceAll(" ", "+");
         GenericQuery thequery = new GenericQuery();
         
-        Document page = getPage(searchUrl,false);
-        
-	Elements searchResults = page.select("div.thumb-list__item.video-thumb");
+	Elements searchResults = getPage(searchUrl,false).select("div.thumb-list__item.video-thumb");
 	for(int i = 0; i < searchResults.size(); i++)  {
             String link = searchResults.get(i).select("a").attr("href");
             if (!CommonUtils.testPage(link)) continue; //test to avoid error 404
@@ -132,9 +128,7 @@ public class Xhamster extends GenericQueryExtractor implements Searchable{
      //get preview thumbnails
     @Override protected Vector<File> parse(String url) throws IOException, SocketTimeoutException, GenericDownloaderException {
         Vector<File> thumbs = new Vector<>();
-        Document page = getPage(url,true);
-        
-        Elements previewImg = page.select("div.item").select("img"); //div containing imgs tags
+        Elements previewImg = getPage(url,true).select("div.item").select("img"); //div containing imgs tags
 			
         Iterator<Element> img = previewImg.iterator();
         while(img.hasNext()) { //loop through all img tags
@@ -147,17 +141,14 @@ public class Xhamster extends GenericQueryExtractor implements Searchable{
     }
     
     private static String downloadVideoName(String url) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
-        Document page = getPage(url,false);
-        
-        return page.select("h1").text();
+        return getPage(url,false).select("h1").text();
         //return isAlbum(url) ? page.select("h1").text() : Jsoup.parse(page.select("h1.entity-info-container__title").toString()).body().text();
     } 
 	
     //getVideo thumbnail
     private static File downloadThumb(String url) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
-        Document page = getPage(url,true);
         //page.select("header").select("img").attr("src")
-	String thumb = getMetaImage(page); //!isAlbum(url) ? getMetaImage(page) : page.select("img.thumb").get(0).attr("src");
+	String thumb = getMetaImage(getPage(url,true)); //!isAlbum(url) ? getMetaImage(page) : page.select("img.thumb").get(0).attr("src");
         
         if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
             CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache);
@@ -180,8 +171,7 @@ public class Xhamster extends GenericQueryExtractor implements Searchable{
         if (isAlbum(url)) return null;
         
         video v = null;
-        Document page = getPage(url,false);
-        Elements li = page.select("div.thumb-list__item.video-thumb");
+        Elements li =  getPage(url,false).select("div.thumb-list__item.video-thumb");
         Random randomNum = new Random(); int count = 0; boolean got = li.isEmpty();
         while(!got) {
             if (count > li.size()) break;
@@ -202,13 +192,11 @@ public class Xhamster extends GenericQueryExtractor implements Searchable{
     }
 
     @Override public video search(String str) throws IOException, GenericDownloaderException {
-        str = str.trim(); 
-        str = str.replaceAll(" ", "+");
-        String searchUrl = "https://xhamster.com/search?q="+str;
+        String searchUrl = "https://xhamster.com/search?q="+str.trim().replaceAll(" ", "+");
         
-        Document page = getPage(searchUrl,false); video v = null;
-	Elements searchResults = page.select("div.thumb-list__item.video-thumb");
-        int count = searchResults.size(); Random rand = new Random();
+        
+	Elements searchResults = getPage(searchUrl,false).select("div.thumb-list__item.video-thumb");
+        int count = searchResults.size(); Random rand = new Random(); video v = null;
         
 	while(count-- > 0) {
             int i = rand.nextInt(searchResults.size());

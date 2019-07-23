@@ -91,17 +91,13 @@ public class Thumbzilla extends GenericQueryExtractor implements Searchable{
     }
     
     @Override public GenericQuery query(String search) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
-        search = search.trim(); 
-        search = search.replaceAll(" ", "+");
-        String searchUrl = "https://www.thumbzilla.com/video/search?q="+search;
+        String searchUrl = "https://www.thumbzilla.com/video/search?q="+search.trim().replaceAll(" ", "+");
         GenericQuery thequery = new GenericQuery();
         
-        Document page = getPage(searchUrl,false);
-        
-	Elements searchResults = page.select("a.js-thumb");
+	Elements searchResults = getPage(searchUrl,false).select("a.js-thumb");
 	for(int i = 0; i < searchResults.size(); i++)  {
             String link = addHost(searchResults.get(i).attr("href"),"www.thumbzilla.com");
-            if (!link.matches("https://(www.)?thumbzilla.com/video/([\\S]+)/[\\S]+")) continue;
+            if (!link.matches(getValidRegex())) continue;
             if (!CommonUtils.testPage(link)) continue; //test to avoid error 404
             try {verify(getPage(link,false,true));} catch (GenericDownloaderException e) {continue;}
             thequery.addLink(link);
@@ -120,12 +116,10 @@ public class Thumbzilla extends GenericQueryExtractor implements Searchable{
     }
 
     @Override protected Vector<File> parse(String url) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
-        Document page = getPage(url,false);
-        
-        String thumb = page.select("img.mainImage.playVideo.removeWhenPlaying").attr("src");
+        String thumb = getPage(url,false).select("img.mainImage.playVideo.removeWhenPlaying").attr("src");
         Vector<File> thumbs = new Vector<>();
         
-        for(int i = 1; i <= 16; i++) { //there are usually 16 thumbs (according to my tests)
+        for(byte i = 1; i <= 16; i++) { //there are usually 16 thumbs (according to my tests)
             String link = CommonUtils.changeIndex(thumb,i);
             if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(link,SKIP)))
                 CommonUtils.saveFile(link,CommonUtils.getThumbName(link, SKIP),MainApp.imageCache);
@@ -159,15 +153,14 @@ public class Thumbzilla extends GenericQueryExtractor implements Searchable{
     @Override public video similar() throws IOException, GenericDownloaderException{
     	if (url == null) return null;
         
-        video v = null;
-        Document page = getPage(url,false);
-        Elements li = page.select("ul.responsiveListing").select("li");
-        Random randomNum = new Random(); int count = 0; boolean got = li.isEmpty();
+        
+        Elements li = getPage(url,false).select("ul.responsiveListing").select("li");
+        Random randomNum = new Random(); int count = 0; boolean got = li.isEmpty(); video v = null;
         while(!got) {
             if (count > li.size()) break;
             int i = randomNum.nextInt(li.size()); count++;
             String link = addHost(li.get(i).select("a").attr("href"),"www.thumbzilla.com");
-            if (!link.matches("https://(www.)?thumbzilla.com/video/([\\S]+)/[\\S]+")) continue;
+            if (!link.matches(getValidRegex())) continue;
             String title = li.get(i).select("span.info").select("span.title").text();
             try {v = new video(link,title,downloadThumb(link),getSize(link), getDuration(link).toString()); } catch(Exception e) {continue;}
             break;
@@ -176,18 +169,15 @@ public class Thumbzilla extends GenericQueryExtractor implements Searchable{
     }
 
     @Override public video search(String str) throws IOException, GenericDownloaderException {
-        str = str.trim(); 
-        str = str.replaceAll(" ", "+");
-        String searchUrl = "https://www.thumbzilla.com/video/search?q="+str;
+        String searchUrl = "https://www.thumbzilla.com/video/search?q="+str.trim().replaceAll(" ", "+");
         
-        Document page = getPage(searchUrl,false); video v = null;
-	Elements searchResults = page.select("a.js-thumb");
-        int count = searchResults.size(); Random rand = new Random();
+	Elements searchResults = getPage(searchUrl,false).select("a.js-thumb");
+        int count = searchResults.size(); Random rand = new Random(); video v = null;
         
 	while(count-- > 0){
-            int i = rand.nextInt(searchResults.size());
+            int i = (byte)rand.nextInt(searchResults.size());
             String link = addHost(searchResults.get(i).attr("href"),"www.thumbzilla.com");
-            if (!link.matches("https://(www.)?thumbzilla.com/video/([\\S]+)/[\\S]+")) continue;
+            if (!link.matches(getValidRegex())) continue;
             if (!CommonUtils.testPage(link)) continue; //test to avoid error 404
             try { verify(getPage(link, false, true)); } catch (GenericDownloaderException e) {continue;}
             String thumbLink = searchResults.get(i).select("img").attr("data-src");
@@ -238,10 +228,9 @@ public class Thumbzilla extends GenericQueryExtractor implements Searchable{
     }
 
     @Override public Vector<String> getStars() throws IOException, GenericDownloaderException {
-        Document page = getPage(url, false);
         if (url == null) return null;
         Vector<String> words = new Vector<>();
-        page.select("span.stars").select("a").forEach(a -> words.add(a.text()));
+        getPage(url, false).select("span.stars").select("a").forEach(a -> words.add(a.text()));
         return words;
     }
 

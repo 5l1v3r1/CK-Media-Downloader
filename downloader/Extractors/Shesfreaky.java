@@ -66,23 +66,17 @@ public class Shesfreaky extends GenericQueryExtractor implements Searchable{
            throw new PageNotFoundException();
     }
     
-    @Override public GenericQuery query(String search) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
-        search = search.trim(); 
-        search = search.replaceAll(" ", "-");
-        String searchUrl = "https://www.shesfreaky.com/search/videos/"+search+"/page1.html";
+    @Override public GenericQuery query(String search) throws IOException, SocketTimeoutException, UncheckedIOException, Exception {
+        String searchUrl = "https://www.shesfreaky.com/search/videos/"+search.trim().replaceAll(" ", "-")+"/page1.html";
         GenericQuery thequery = new GenericQuery();
         
-        Document page = getPage(searchUrl,false);
-         
-         Elements searchResults = page.select("div.blockItem.blockItemBox");
-         for(int i = 0; i < searchResults.size(); i++) {
+        Elements searchResults = getPage(searchUrl,false).select("div.blockItem.blockItemBox");
+        for(byte i = 0; i < searchResults.size(); i++) {
             String link = searchResults.get(i).select("a").attr("href");
             if (!CommonUtils.testPage(link)) continue; //test to avoid error 404
             try {verify(getPage(link,false));} catch (GenericDownloaderException e) {continue;}
             String title = searchResults.get(i).select("span.details").select("em").attr("title");
-            String thumb = searchResults.get(i).select("span.thumb").select("img").attr("data-src");
-            if (!thumb.startsWith("https:"))
-                thumb = "https:" + thumb;
+            String thumb = configureUrl(searchResults.get(i).select("span.thumb").select("img").attr("data-src"));
             thequery.addLink(link);
             if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
                 if (CommonUtils.saveFile(thumb, CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache) != -2)
@@ -109,42 +103,35 @@ public class Shesfreaky extends GenericQueryExtractor implements Searchable{
          }
          
          if (thumbLinks != null) {
-            for(int i = 0; i < thumbLinks.size(); i++) {
-                String link = thumbLinks.get(i).select("a").select("img").attr("src");
-                if (!link.startsWith("https:"))
-                    link = "https:" + link;
-                 if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(link,SKIP))) //if file not already in cache download it
+            for(byte i = 0; i < thumbLinks.size(); i++) {
+                String link = configureUrl(thumbLinks.get(i).select("a").select("img").attr("src"));
+                if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(link,SKIP))) //if file not already in cache download it
                    CommonUtils.saveFile(link,CommonUtils.getThumbName(link,SKIP),MainApp.imageCache);
-               thumbs.add(new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(link,SKIP)));
+                thumbs.add(new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(link,SKIP)));
             }
          }
          return thumbs;
     }
     
     private static String downloadVideoName(String url) throws IOException , SocketTimeoutException, UncheckedIOException, Exception{
-         Document page = getPage(url,false);
-         verify(page);
+        Document page = getPage(url,false);
+        verify(page);
 	return Jsoup.parse(page.getElementById("n-vid-details").select("h2").toString()).body().text();
     } 
 	
     //getVideo thumbnail
     private static File downloadThumb(String url) throws IOException, SocketTimeoutException, UncheckedIOException, Exception {
-        Document page;
-        page = getPage(url,false);
+        Document page = getPage(url,false);
         verify(page);
-        String thumbLink = "https:"+page.select("video").attr("poster");
-        if (thumbLink.equals("https:")) {
+        String thumbLink = configureUrl(page.select("video").attr("poster"));
+        if (thumbLink.isEmpty()) {
             Elements thumbLinks;
             try {
                thumbLinks = page.getElementById("vidSeek").select("div.vidSeekThumb");
             } catch (NullPointerException e) { //different config
                 thumbLinks = page.select("div.row.vtt-thumbs").select("a");
             }
-
-            String link = thumbLinks.get(0).select("a").select("img").attr("src");
-            if (!link.startsWith("https:"))
-                link = "https:" + link;
-            thumbLink = link;
+            thumbLink = configureUrl(thumbLinks.get(0).select("a").select("img").attr("src"));
         }
         if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,SKIP))) //if file not already in cache download it
             CommonUtils.saveFile(thumbLink,CommonUtils.getThumbName(thumbLink,SKIP),MainApp.imageCache);
@@ -154,15 +141,14 @@ public class Shesfreaky extends GenericQueryExtractor implements Searchable{
     @Override public video similar() throws IOException, GenericDownloaderException {
     	if (url == null) return null;
         
-        video v = null;
-        Document page = getPage(url,false);
-        Elements li = page.select("div.relatedSection").get(0).select("div.blockItem.blockItemBox");
-        Random randomNum = new Random(); int count = 0; boolean got = li.isEmpty();
+        
+        Elements li = getPage(url,false).select("div.relatedSection").get(0).select("div.blockItem.blockItemBox");
+        Random randomNum = new Random(); int count = 0; boolean got = li.isEmpty(); video v = null;
         while(!got) {
             if (count > li.size()) break;
-            int i = randomNum.nextInt(li.size()); count++;
+            byte i = (byte)randomNum.nextInt(li.size()); count++;
             String link = li.get(i).select("a").attr("href");
-            try {verify(getPage(url,false)); } catch(GenericDownloaderException e) {continue;}
+            try {verify(getPage(link,false)); } catch(GenericDownloaderException e) {continue;}
             String title = li.get(i).select("em").attr("title");
             try {v = new video(link,title,downloadThumb(link),getSize(link),getDuration(link).toString());} catch(Exception e) {continue;}
             break;
@@ -171,24 +157,18 @@ public class Shesfreaky extends GenericQueryExtractor implements Searchable{
     }
 
     @Override public video search(String str) throws IOException, GenericDownloaderException {
-        str = str.trim(); 
-        str = str.replaceAll(" ", "-");
-        String searchUrl = "https://www.shesfreaky.com/search/videos/"+str+"/page1.html";
+        String searchUrl = "https://www.shesfreaky.com/search/videos/"+str.trim().replaceAll(" ", "-")+"/page1.html";
         
-        Document page = getPage(searchUrl,false); video v = null;
-         
-        Elements searchResults = page.select("div.blockItem.blockItemBox");
-        int count = searchResults.size(); Random rand = new Random(); 
+        Elements searchResults = getPage(searchUrl,false).select("div.blockItem.blockItemBox");
+        int count = searchResults.size(); Random rand = new Random(); video v = null;
          
         while(count-- > 0) {
-            int i = rand.nextInt(searchResults.size());
+            byte i = (byte)rand.nextInt(searchResults.size());
             String link = searchResults.get(i).select("a").attr("href");
             if (!CommonUtils.testPage(link)) continue; //test to avoid error 404
             try {verify(getPage(link,false));} catch (GenericDownloaderException e) {continue;}
             String title = searchResults.get(i).select("span.details").select("em").attr("title");
-            String thumb = searchResults.get(i).select("span.thumb").select("img").attr("data-src");
-            if (!thumb.startsWith("https:"))
-                thumb = "https:" + thumb;
+            String thumb = configureUrl(searchResults.get(i).select("span.thumb").select("img").attr("data-src"));
             if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
                 if (CommonUtils.saveFile(thumb, CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache) != -2)
                     throw new IOException("Failed to completely download page");
@@ -199,8 +179,7 @@ public class Shesfreaky extends GenericQueryExtractor implements Searchable{
     }
     
     private long getSize(String link) throws IOException, GenericDownloaderException {
-        Document page = getPage(link,false,true);
-        Map<String,String> q = getDefaultVideo(page);
+        Map<String,String> q = getDefaultVideo(getPage(link,false,true));
         return CommonUtils.getContentSize(q.get(q.keySet().iterator().next()));
     }
     

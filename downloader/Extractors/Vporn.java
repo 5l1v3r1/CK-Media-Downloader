@@ -49,11 +49,10 @@ public class Vporn extends GenericExtractor implements Searchable{
 
 
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException{
-        Document page = getPage(url,false,true);
-	Elements rawQualities = page.getElementById("vporn-video-player").select("source");
+	Elements rawQualities = getPage(url,false,true).getElementById("vporn-video-player").select("source");
 	Map<String,String> qualities = new HashMap<>();
 		
-	for(int i = 0; i < rawQualities.size(); i++)
+	for(byte i = 0; i < rawQualities.size(); i++)
             qualities.put(rawQualities.get(i).attr("label"),rawQualities.get(i).attr("src"));
         
         MediaDefinition media = new MediaDefinition();
@@ -63,16 +62,12 @@ public class Vporn extends GenericExtractor implements Searchable{
     }
     
      private static String downloadVideoName(String url) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
-        Document page = getPage(url,false);
-        
-        return Jsoup.parse(page.select("h1").toString()).body().text();
+        return Jsoup.parse(getPage(url,false).select("h1").toString()).body().text();
     } 
 	
     //getVideo thumbnail
     private static File downloadThumb(String url) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
-        Document page = getPage(url,false);
-        
-        String thumb = page.getElementById("vporn-video-player").attr("poster");
+        String thumb = getPage(url,false).getElementById("vporn-video-player").attr("poster");
         
         if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
             CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache);
@@ -82,8 +77,7 @@ public class Vporn extends GenericExtractor implements Searchable{
     @Override public video similar() throws IOException, GenericDownloaderException {
     	if (url == null) return null;
         video v = null;
-        Document page = getPage(url,false);
-        Elements li = page.select("div.thumblist.videos").select("div.video");
+        Elements li = getPage(url,false).select("div.thumblist.videos").select("div.video");
         Random randomNum = new Random(); int count = 0; boolean got = false; if (li.isEmpty()) got = true;
         while(!got) {
         	if (count > li.size()) break;
@@ -101,15 +95,11 @@ public class Vporn extends GenericExtractor implements Searchable{
     }
 
     @Override public video search(String str) throws IOException, GenericDownloaderException {
-    	str = str.trim(); str = str.replaceAll(" ", "+");
-    	String searchUrl = "https://www.vporn.com/search?q="+str;
-    	
-    	Document page = getPage(searchUrl,false);
-        video v = null;
+    	String searchUrl = "https://www.vporn.com/search?q="+str.trim().replaceAll(" ", "+");
         
         //is not a an actually li but...
-        Elements li = page.select("div.thumblist.videos").select("div.video");
-        int count = li.size(); Random rand = new Random();
+        Elements li = getPage(searchUrl,false).select("div.thumblist.videos").select("div.video");
+        int count = li.size(); Random rand = new Random(); video v = null;
         
         while(count-- >0) {
             int i = rand.nextInt(li.size());
@@ -128,11 +118,10 @@ public class Vporn extends GenericExtractor implements Searchable{
     }
     
     private long getSize(String link) throws IOException, GenericDownloaderException {
-        Document page = getPage(link,false,true);
-	Elements rawQualities = page.getElementById("vporn-video-player").select("source");
+	Elements rawQualities = getPage(link,false,true).getElementById("vporn-video-player").select("source");
 	Map<String,String> qualities = new HashMap<>();
 		
-	for(int i = 0; i < rawQualities.size(); i++)
+	for(byte i = 0; i < rawQualities.size(); i++)
             qualities.put(rawQualities.get(i).attr("label"),rawQualities.get(i).attr("src"));
         
         MediaDefinition media = new MediaDefinition();

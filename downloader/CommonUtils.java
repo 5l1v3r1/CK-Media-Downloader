@@ -519,7 +519,7 @@ public class CommonUtils {
     }
     
     public static String StringCookies(Map<String, String> cookies) {
-        if (cookies == null && cookies.isEmpty())
+        if (cookies == null || cookies.isEmpty())
             return "";
         else {
             StringBuilder string = new StringBuilder();
@@ -640,6 +640,4 @@ public class CommonUtils {
         if (s != null) s.addProgress("Finished downloading");
         return -2;//if sucessful return -2
     }
-    
-    
 }

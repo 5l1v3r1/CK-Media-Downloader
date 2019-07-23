@@ -61,8 +61,7 @@ public class Xtube extends GenericExtractor implements Searchable{
     }
     
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException{        
-        Document page = getPage(url,false,true);
-	Map<String,String> quality = getQualities(page.toString());
+	Map<String,String> quality = getQualities(getPage(url,false,true).toString());
         
         MediaDefinition media = new MediaDefinition();
         media.addThread(quality,videoName);
@@ -100,8 +99,7 @@ public class Xtube extends GenericExtractor implements Searchable{
     	if (url == null) return null;
         
         video v = null;
-        Document page = getPage(url,false);
-        Elements li = page.select("div.cntPanel.relatedVideosPanel").select("ul.row.smallSpace.rowSpace").select("li");
+        Elements li = getPage(url,false).select("div.cntPanel.relatedVideosPanel").select("ul.row.smallSpace.rowSpace").select("li");
         Random randomNum = new Random(); int count = 0; boolean got = li.isEmpty();
         while(!got) {
             if (count > li.size()) break;
@@ -117,14 +115,10 @@ public class Xtube extends GenericExtractor implements Searchable{
     }
 
     @Override public video search(String str) throws IOException, GenericDownloaderException{
-    	str = str.trim(); str = str.replaceAll(" ", "-");
-    	String searchUrl = "https://www.xtube.com/search/video/"+str;
-    	
-    	Document page = getPage(searchUrl,false);
-        video v = null;
+    	String searchUrl = "https://www.xtube.com/search/video/"+str.trim().replaceAll(" ", "-");
         
-        Elements li = page.select("li.deleteListElement.col-xs-24.col-s-12.col-xl-6.col10-xxl-2");
-        int count = li.size(); Random rand = new Random();
+        Elements li = getPage(searchUrl,false).select("li.deleteListElement.col-xs-24.col-s-12.col-xl-6.col10-xxl-2");
+        int count = li.size(); Random rand = new Random(); video v = null;
         
         while(count-- > 0) {
             int i = rand.nextInt(li.size());
@@ -144,8 +138,7 @@ public class Xtube extends GenericExtractor implements Searchable{
     }
     
     private long getSize(String link) throws IOException, GenericDownloaderException {
-        Document page = getPage(link,false,true);
-	Map<String,String> quality = getQualities(page.toString());
+	Map<String,String> quality = getQualities(getPage(link,false,true).toString());
         
         MediaDefinition media = new MediaDefinition();
         media.addThread(quality,videoName);

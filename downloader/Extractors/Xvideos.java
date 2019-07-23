@@ -59,7 +59,7 @@ public class Xvideos extends GenericQueryExtractor implements Searchable{
         verify(page);
         
         int use = SCRIPT;
-        for(int i = 0; i < page.select("script").size(); i++) {
+        for(byte i = 0; i < page.select("script").size(); i++) {
             if (page.select("script").get(i).toString().contains("var html5player = new HTML5Player('html5video',")) {
                 use = i; break;
             }
@@ -80,19 +80,15 @@ public class Xvideos extends GenericQueryExtractor implements Searchable{
     }
 
     @Override public GenericQuery query(String search) throws IOException, SocketTimeoutException, UncheckedIOException, Exception {
-        search = search.trim(); 
-        search = search.replaceAll(" ", "+");
+        search = search.trim().replaceAll(" ", "+"); 
         String searchUrl = "https://www.xvideos.com/?k="+search;
         GenericQuery thequery = new GenericQuery();
         
-        Document page = getPage(searchUrl,false);
-        
-	Elements searchResults = page.select("div.mozaique").select("div.thumb-block");
+	Elements searchResults = getPage(searchUrl,false).select("div.mozaique").select("div.thumb-block");
 	for(int i = 0; i < searchResults.size(); i++)  {
             String link = addHost(searchResults.get(i).select("div.thumb").select("a").attr("href"),"xvideos.com");
             if (!link.matches(getValidRegex())) continue;
             if (!CommonUtils.testPage(link)) continue; //test to avoid error 404
-            try {verify(page);} catch (GenericDownloaderException e) { continue;}
             String thumbLink = searchResults.get(i).select("div.thumb").select("a").select("img").attr("data-src");
             if (thumbLink.contains("THUMBNUM")) continue;
             thequery.addLink(link);
@@ -111,8 +107,8 @@ public class Xvideos extends GenericQueryExtractor implements Searchable{
     
     @Override protected Vector<File> parse(String url) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
        Document page = getPage(url,false);
-        int use = 5;
-        for(int i = 0; i < page.select("script").size(); i++) {
+        int use = SCRIPT;
+        for(byte i = 0; i < page.select("script").size(); i++) {
             if (page.select("script").get(i).toString().contains("var html5player = new HTML5Player('html5video',")) {
                 use = i; break;
             }
@@ -151,7 +147,6 @@ public class Xvideos extends GenericQueryExtractor implements Searchable{
     
     private static String downloadVideoName(String url) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
         Document page = getPage(url,false);
-        
         verify(page);
         
         int use = SCRIPT;
@@ -185,7 +180,7 @@ public class Xvideos extends GenericQueryExtractor implements Searchable{
         
         verify(page);
 	int use = SCRIPT;
-        for(int i = 0; i < page.select("script").size(); i++) {
+        for(byte i = 0; i < page.select("script").size(); i++) {
             if (page.select("script").get(i).toString().contains("var html5player = new HTML5Player('html5video',")) {
                 use = i; break;
             }
@@ -227,14 +222,10 @@ public class Xvideos extends GenericQueryExtractor implements Searchable{
     }
 
     @Override public video search(String str) throws IOException, GenericDownloaderException {
-        str = str.trim(); 
-        str = str.replaceAll(" ", "+");
-        String searchUrl = "https://www.xvideos.com/?k="+str;
+        String searchUrl = "https://www.xvideos.com/?k="+str.trim().replaceAll(" ", "+");
         
-        Document page = getPage(searchUrl,false); video v = null;
-        
-	Elements searchResults = page.select("div.mozaique").select("div.thumb-block");
-        int count = searchResults.size(); Random rand = new Random();
+	Elements searchResults = getPage(searchUrl,false).select("div.mozaique").select("div.thumb-block");
+        int count = searchResults.size(); Random rand = new Random(); video v = null;
         
 	while (count-- > 0) {
             int i = rand.nextInt(searchResults.size());
@@ -242,7 +233,7 @@ public class Xvideos extends GenericQueryExtractor implements Searchable{
             String link = addHost(searchResults.get(i).select("div.thumb").select("a").attr("href"),"xvideos.com");
             if (!link.matches(getValidRegex())) continue;
             if (!CommonUtils.testPage(link)) continue; //test to avoid error 404
-            try {verify(page);} catch (GenericDownloaderException e) { continue;}
+            //try {verify(page);} catch (GenericDownloaderException e) { continue;}
             String thumbLink = searchResults.get(i).select("div.thumb").select("a").select("img").attr("data-src");
             if (thumbLink.contains("THUMBNUM")) continue;
             
@@ -262,7 +253,7 @@ public class Xvideos extends GenericQueryExtractor implements Searchable{
         verify(page);
         
         int use = SCRIPT;
-        for(int i = 0; i < page.select("script").size(); i++) {
+        for(byte i = 0; i < page.select("script").size(); i++) {
             if (page.select("script").get(i).toString().contains("var html5player = new HTML5Player('html5video',")) {
                 use = i; break;
             }

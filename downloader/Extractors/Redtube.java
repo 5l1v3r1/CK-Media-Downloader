@@ -84,14 +84,10 @@ public class Redtube extends GenericQueryExtractor implements Searchable{
     }
     
     @Override public GenericQuery query(String search) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
-        search = search.trim(); 
-        search = search.replaceAll(" ", "+");
-        String searchUrl = "https://www.redtube.com/?search=/"+search+"/";
+        String searchUrl = "https://www.redtube.com/?search=/"+search.trim().replaceAll(" ", "+")+"/";
         GenericQuery thequery = new GenericQuery();
         
-        Document page = getPage(searchUrl,false);
-		
-	Elements searchResults = page.getElementById("search_results_block").select("li.videoblock_list");
+	Elements searchResults = getPage(searchUrl,false).getElementById("search_results_block").select("li.videoblock_list");
 	for(int i = 0; i < searchResults.size(); i++) {
             if (!CommonUtils.testPage(addHost(searchResults.get(i).select("a").attr("href"),"www.redtube.com"))) continue; //test to avoid error 404
             String link = addHost(searchResults.get(i).select("a").attr("href"),"www.redtube.com");
@@ -135,9 +131,7 @@ public class Redtube extends GenericQueryExtractor implements Searchable{
     }
     
     private static String downloadVideoName(String url) throws IOException, SocketTimeoutException, UncheckedIOException, Exception {
-        Document page = getPage(url,false);
-
-	return getTitle(page);
+	return getTitle(getPage(url,false));
     } 
 	
     //getVideo thumbnail
@@ -155,33 +149,28 @@ public class Redtube extends GenericQueryExtractor implements Searchable{
     @Override public video similar() throws IOException, GenericDownloaderException {
     	if (url == null) return null;
         
-        video v = null;
-        Document page = getPage(url,false);
-        Elements li = page.getElementById("related_videos_tab").select("li.videoblock_list");
-        Random randomNum = new Random(); int count = 0; boolean got = li.isEmpty();
+        
+        Elements li = getPage(url,false).getElementById("related_videos_tab").select("li.videoblock_list");
+        Random randomNum = new Random(); int count = 0; boolean got = li.isEmpty(); video v = null;
         while(!got) {
-        	if (count > li.size()) break;
-        	int i = randomNum.nextInt(li.size()); count++;
-        	String link = addHost(li.get(i).select("a").get(0).attr("href"),"www.redtube.com");
+            if (count > li.size()) break;
+            byte i = (byte)randomNum.nextInt(li.size()); count++;
+            String link = addHost(li.get(i).select("a").get(0).attr("href"),"www.redtube.com");
             String title = li.get(i).select("div.video_title").select("a").text();
-                try {v = new video(link,title,downloadThumb(link),getSize(link),getDuration(link).toString()); } catch(Exception e) {} 
-                break;
-            }
+            try {v = new video(link,title,downloadThumb(link),getSize(link),getDuration(link).toString()); } catch(Exception e) {} 
+            break;
+        }
         return v;
     }
 
     @Override public video search(String str) throws IOException, GenericDownloaderException {
-        str = str.trim(); 
-        str = str.replaceAll(" ", "+");
-        String searchUrl = "https://www.redtube.com/?search=/"+str+"/";
-        
-        Document page = getPage(searchUrl,false); video v = null;
-		
-	Elements searchResults = page.getElementById("search_results_block").select("li.videoblock_list");
-        int count = searchResults.size(); Random rand = new Random();
+        String searchUrl = "https://www.redtube.com/?search=/"+str.trim().replaceAll(" ", "+")+"/";
+        	
+	Elements searchResults = getPage(searchUrl,false).getElementById("search_results_block").select("li.videoblock_list");
+        int count = searchResults.size(); Random rand = new Random(); video v = null;
         
 	while(count-- > 0) {
-            int i = rand.nextInt(searchResults.size());
+            byte i = (byte)rand.nextInt(searchResults.size());
             if (!CommonUtils.testPage(addHost(searchResults.get(i).select("a").attr("href"),"www.redtube.com"))) continue; //test to avoid error 404
             String thumb = searchResults.get(i).select("span.video_thumb_wrap").select("img").attr("data-thumb_url");
             if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it

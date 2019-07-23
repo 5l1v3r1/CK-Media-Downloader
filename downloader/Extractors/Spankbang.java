@@ -122,14 +122,10 @@ public class Spankbang extends GenericQueryExtractor implements Playlist, Search
     }
     
     @Override public GenericQuery query(String search) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
-        search = search.trim(); 
-        search = search.replaceAll(" ", "+");
-        String searchUrl = "https://spankbang.com/s/"+search+"/";
+        String searchUrl = "https://spankbang.com/s/"+search.trim().replaceAll(" ", "+")+"/";
         GenericQuery thequery = new GenericQuery();
         
-        Document page = getPage(searchUrl,true);
-        
-	Elements searchResults = page.select("div.video-item");
+	Elements searchResults = getPage(searchUrl,true).select("div.video-item");
 	for(int i = 0; i < searchResults.size(); i++)  {
             String link = addHost(searchResults.get(i).select("a.thumb").attr("href"),"spankbang.com");
             if (!CommonUtils.testPage(link)) continue; //test to avoid error 404
@@ -152,9 +148,7 @@ public class Spankbang extends GenericQueryExtractor implements Playlist, Search
     @Override protected Vector<File> parse(String url) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
         Vector<File> thumbs = new Vector<>();
         try {
-            Document page = getPage(url,false);
-            
-            Elements previewImg = page.select("figure.thumbnails").select("img"); //div containing imgs tags
+            Elements previewImg = getPage(url,false).select("figure.thumbnails").select("img"); //div containing imgs tags
 			
             Iterator<Element> img = previewImg.iterator();
             while(img.hasNext()) { //loop through all img tags
@@ -204,9 +198,8 @@ public class Spankbang extends GenericQueryExtractor implements Playlist, Search
 
     @Override public video similar() throws IOException, GenericDownloaderException{
     	if (url == null) return null;
-        
-        video v = null;
-        Document page = getPage(url,false);
+
+        Document page = getPage(url,false); video v = null;
         Elements li = page.select("div.video-list.video-rotate").get(page.select("div.video-list.video-rotate").size()- 1).select("div.video-item");
         int count = li.size(); Random rand = new Random();
         
@@ -223,20 +216,17 @@ public class Spankbang extends GenericQueryExtractor implements Playlist, Search
     }
 
     @Override public video search(String str) throws IOException, GenericDownloaderException {
-        str = str.trim(); 
-        str = str.replaceAll(" ", "+");
-        String searchUrl = "https://spankbang.com/s/"+str+"/";
+        String searchUrl = "https://spankbang.com/s/"+str.trim().replaceAll(" ", "+")+"/";
         
-        Document page = getPage(searchUrl,true); video v = null;
-        
-	Elements searchResults = page.select("div.video-item"); int count = searchResults.size(); Random rand = new Random();
+	Elements searchResults = getPage(searchUrl,true).select("div.video-item"); 
+        int count = searchResults.size(); Random rand = new Random(); video v = null;
 
 	while(count-- > 0) {
-            int i = rand.nextInt(searchResults.size());
+            byte i = (byte)rand.nextInt(searchResults.size());
             String link = addHost(searchResults.get(i).select("a.thumb").attr("href"),"spankbang.com");
             if (!CommonUtils.testPage(link)) continue; //test to avoid error 404
             try {verify(getPage(link,false)); } catch (GenericDownloaderException e) {continue;}
-            String thumbLink = "https:"+searchResults.get(i).select("a.thumb").select("img").attr("data-src"); //src for pc
+            String thumbLink = configureUrl(searchResults.get(i).select("a.thumb").select("img").attr("data-src")); //src for pc
             if (!CommonUtils.checkImageCache(CommonUtils.parseName(thumbLink,".jpg"))) //if file not already in cache download it
                 if (CommonUtils.saveFile(thumbLink, CommonUtils.parseName(thumbLink,".jpg"),MainApp.imageCache) != -2)
                     throw new IOException("Failed to completely download page");
@@ -252,8 +242,7 @@ public class Spankbang extends GenericQueryExtractor implements Playlist, Search
     }
     
     private static String getFirstUrl(String url) throws IOException, GenericDownloaderException {
-        Document page = getPage(url,false);
-        Elements div = page.select("div.results").select("div.video-item");
+        Elements div = getPage(url,false).select("div.results").select("div.video-item");
         return addHost(div.get(0).select("a").get(0).attr("href"),"spankbang.com");
     }
     
@@ -262,8 +251,7 @@ public class Spankbang extends GenericQueryExtractor implements Playlist, Search
     }
 
     @Override public Vector<String> getItems() throws IOException, GenericDownloaderException {
-        Document page = getPage(playlistUrl,false);
-        Elements div = page.select("div.results").select("div.video-item");
+        Elements div = getPage(playlistUrl,false).select("div.results").select("div.video-item");
         Vector<String> list = new Vector<>();
         for(int i = 0; i < div.size(); i++)
             list.add(addHost(div.get(i).select("a").get(0).attr("href"),"spankbang.com"));

@@ -47,6 +47,7 @@ public class Ruleporn extends GenericQueryExtractor implements Searchable{
 
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException{
         Document page = getPage(url,false,true);
+        verify(page);
         MediaDefinition media = new MediaDefinition();
         media.addThread(getDefaultVideo(page),videoName);
         
@@ -61,14 +62,10 @@ public class Ruleporn extends GenericQueryExtractor implements Searchable{
     }
     
     @Override public GenericQuery query(String search) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
-        search = search.trim(); 
-        search = search.replaceAll(" ", "-");
-        String searchUrl = "https://ruleporn.com/search/"+search+"/";
-        
+        String searchUrl = "https://ruleporn.com/search/"+search.trim().replaceAll(" ", "-")+"/";
         GenericQuery thequery = new GenericQuery();
-        Document page = getPage(searchUrl,false);
         
-	Elements searchResults = page.select("div.row").select("div.item-inner-col.inner-col");
+	Elements searchResults = getPage(searchUrl,false).select("div.row").select("div.item-inner-col.inner-col");
 	for(int i = 0; i < searchResults.size(); i++)  {
             if (!CommonUtils.testPage(searchResults.get(i).select("a").get(0).attr("href"))) continue; //test to avoid error 404
             try {verify(getPage(searchResults.get(i).select("a").get(0).attr("href"),false));} catch (GenericDownloaderException e) {continue;}
@@ -91,8 +88,7 @@ public class Ruleporn extends GenericQueryExtractor implements Searchable{
         Vector<File> thumbs = new Vector<>();
         
         try {
-            Document page = getPage(url,true,false);
-            String base = page.select("video").attr("poster");
+            String base = getPage(url,true,false).select("video").attr("poster");
             for(int i = 0; i < 11; i++) {
                 String thumb = base.substring(0,base.indexOf("-")+1) + String.valueOf(i) + base.substring(base.indexOf("-")+2);
                 if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb))) //if file not already in cache download it
@@ -106,15 +102,13 @@ public class Ruleporn extends GenericQueryExtractor implements Searchable{
     }
     
     private static String downloadVideoName(String url) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
-        Document page = getPage(url,false);
-        
-        return page.select("div.item-tr-inner-col.inner-col").get(0).select("h1").text();
+        return getPage(url,false).select("div.item-tr-inner-col.inner-col").get(0).select("h1").text();
     } 
 	
     //getVideo thumbnail
     private static File downloadThumb(String url) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
-       Document page = getPage(url,false);
-        
+        Document page = getPage(url,false);
+        verify(page);
         String thumb = page.select("video").attr("poster");
         
         if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb))) //if file not already in cache download it
@@ -125,13 +119,11 @@ public class Ruleporn extends GenericQueryExtractor implements Searchable{
     @Override public video similar() throws IOException, GenericDownloaderException {
     	if (url == null) return null;
         
-        video v = null;
-        Document page = getPage(url,false);
-        Elements li = page.select("div.row").select("div.item-col.col");
+        Elements li = getPage(url,false).select("div.row").select("div.item-col.col"); video v = null;
         Random randomNum = new Random(); int count = 0; boolean got = false; if (li.isEmpty()) got = true;
         while(!got) {
             if (count > li.size()) break;
-            int i = randomNum.nextInt(li.size()); count++;
+            byte i = (byte)randomNum.nextInt(li.size()); count++;
             String link = li.get(i).select("a").attr("href");
             try {verify(getPage(link,false));} catch (GenericDownloaderException e) {continue;}
             String thumb = li.get(i).select("span.image").select("img").attr("src");
@@ -146,16 +138,13 @@ public class Ruleporn extends GenericQueryExtractor implements Searchable{
     }
 
     @Override public video search(String str) throws IOException, GenericDownloaderException {
-        str = str.trim(); 
-        str = str.replaceAll(" ", "-");
-        String searchUrl = "https://ruleporn.com/search/"+str+"/";
+        String searchUrl = "https://ruleporn.com/search/"+str.trim().replaceAll(" ", "-")+"/";
         
-        Document page = getPage(searchUrl,false); video v = null;
-	Elements searchResults = page.select("div.row").select("div.item-inner-col.inner-col");
-        int count = searchResults.size(); Random rand = new Random();
+	Elements searchResults = getPage(searchUrl,false).select("div.row").select("div.item-inner-col.inner-col");
+        int count = searchResults.size(); Random rand = new Random(); video v = null;
         
 	while(count-- > 0) {
-            int i = rand.nextInt();
+            byte i = (byte)rand.nextInt(searchResults.size());
             if (!CommonUtils.testPage(searchResults.get(i).select("a").get(0).attr("href"))) continue; //test to avoid error 404
             try {verify(getPage(searchResults.get(i).select("a").get(0).attr("href"),false));} catch (GenericDownloaderException e) {continue;}
             String thumbLink = searchResults.get(i).select("img").attr("src");
@@ -171,6 +160,7 @@ public class Ruleporn extends GenericQueryExtractor implements Searchable{
     
     private long getSize(String link) throws IOException, GenericDownloaderException{
         Document page = getPage(link,false,true);
+        verify(page);
         Map<String,String> q = getDefaultVideo(page);
         return CommonUtils.getContentSize(q.get(q.keySet().iterator().next()));
     }

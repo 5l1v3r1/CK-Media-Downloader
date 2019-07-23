@@ -82,14 +82,10 @@ public class Youporn extends GenericQueryExtractor implements Searchable{
     
     @Override public GenericQuery query(String search) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
         GenericQuery thequery = new GenericQuery();
-        search = search.trim(); 
-        search = search.replaceAll(" ", "+");
-        String searchUrl = "https://www.youporn.com/search?query="+search;
+        String searchUrl = "https://www.youporn.com/search?query="+search.trim().replaceAll(" ", "+");
         
-         Document page = getPage(searchUrl,false);
-        
-        Elements searchResults = page.select("div.video-box.four-column.video_block_wrapper");
-	for(int i = 0; i < searchResults.size(); i++) {
+        Elements searchResults = getPage(searchUrl,false).select("div.video-box.four-column.video_block_wrapper");
+	for(byte i = 0; i < searchResults.size(); i++) {
             String link = addHost(searchResults.get(i).select("a").attr("href"),"www.youporn.com");
             if (!CommonUtils.testPage(link)) continue; //test to avoid error 404
             thequery.addLink(link);
@@ -101,8 +97,7 @@ public class Youporn extends GenericQueryExtractor implements Searchable{
             thequery.addPreview(parse(link));
             String title = Jsoup.parse(searchResults.get(i).select("div.video-box-title").toString()).body().text();
             thequery.addName(title);
-            Document linkPage = getPage(link,false);
-            String video = linkPage.getElementById("player-html5").attr("src");
+            String video = getPage(link,false).getElementById("player-html5").attr("src");
             thequery.addSize(CommonUtils.getContentSize(video));
             thequery.addDuration(getDuration(link).toString());
 	}
@@ -120,7 +115,7 @@ public class Youporn extends GenericQueryExtractor implements Searchable{
 	String bigLink = CommonUtils.getLink(page.toString(),big+31,'"');
 	int thumbs = CommonUtils.getThumbs(page.toString(),num+20,';');
 		
-	for(int i = 1; i < thumbs+1; i++) {
+	for(byte i = 1; i < thumbs+1; i++) {
             if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(CommonUtils.replaceIndex(smallLink,i,"index")))) //if file not already in cache download it
                 CommonUtils.saveFile(CommonUtils.replaceIndex(smallLink,i,"index"), CommonUtils.getThumbName(CommonUtils.replaceIndex(smallLink,i,"index")),MainApp.imageCache);
             thumb.add(new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(CommonUtils.replaceIndex(smallLink,i,"index"))));
@@ -173,14 +168,10 @@ public class Youporn extends GenericQueryExtractor implements Searchable{
     }
 
     @Override public video search(String str) throws IOException, GenericDownloaderException {
-        str = str.trim(); 
-        str = str.replaceAll(" ", "+");
-        String searchUrl = "https://www.youporn.com/search?query="+str;
+        String searchUrl = "https://www.youporn.com/search?query="+str.trim().replaceAll(" ", "+");
         
-        Document page = getPage(searchUrl,false); video v = null;
-        
-        Elements searchResults = page.select("div.video-box.four-column.video_block_wrapper");
-        int count = searchResults.size(); Random rand = new Random();
+        Elements searchResults = getPage(searchUrl,false).select("div.video-box.four-column.video_block_wrapper");
+        int count = searchResults.size(); Random rand = new Random(); video v = null;
         
 	while(count-- > 0) {
             int i = rand.nextInt(searchResults.size());

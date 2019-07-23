@@ -84,9 +84,7 @@ public class Ghettotube extends GenericExtractor implements Searchable{
 	
     //getVideo thumbnail
     private static File downloadThumb(String url) throws IOException, SocketTimeoutException, UncheckedIOException, Exception {
-        Document page = getPage(url,false);
-        
-        Elements scripts = page.select("div.play").select("script");
+        Elements scripts = getPage(url,false).select("div.play").select("script");
         String thumb = CommonUtils.getLink(scripts.get(scripts.size()-1).toString(), scripts.get(scripts.size()-1).toString().indexOf("image:")+8, '\'');
         
         if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
@@ -119,27 +117,24 @@ public class Ghettotube extends GenericExtractor implements Searchable{
     }
 
     @Override public video search(String str) throws IOException, GenericDownloaderException {
-    	str = str.trim(); str = str.replaceAll(" ", "+");
-    	String searchUrl = "https://www.ghettotube.com/search/video/"+str;
+    	String searchUrl = "https://www.ghettotube.com/search/video/"+str.trim().replaceAll(" ", "+");
     	
-    	Document page = getPage(searchUrl,false);
         video v = null;
+        Elements li = getPage(searchUrl,false).select("div.thumb-list").select("div.item");
         
-        Elements li = page.select("div.thumb-list").select("div.item");
-        
-        for(int i = 0; i < li.size(); i++) {
-        	String thumbLink = li.get(i).select("img").attr("src"); 
-        	if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,SKIP))) //if file not already in cache download it
-                    if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,SKIP),MainApp.imageCache) != -2)
-                        throw new IOException("Failed to completely download page");
-        	String link = li.get(i).select("a").attr("href");
-        	String name = li.get(i).select("h2").select("a").text();
-        	if (link.isEmpty() || name.isEmpty()) continue;
-                Document linkPage =  Jsoup.parse(Jsoup.connect(link).userAgent(CommonUtils.PCCLIENT).get().html());
-                 Elements scripts = linkPage.select("div.play").select("script");
-                String video = CommonUtils.getLink(scripts.get(scripts.size()-1).toString(), scripts.get(scripts.size()-1).toString().indexOf("file:")+7, '\"');
-        	v = new video(link,name,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)),CommonUtils.getContentSize(video), getDuration(link).toString());
-        	break;
+        for(byte i = 0; i < li.size(); i++) {
+            String thumbLink = li.get(i).select("img").attr("src"); 
+            if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,SKIP))) //if file not already in cache download it
+                if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,SKIP),MainApp.imageCache) != -2)
+                    throw new IOException("Failed to completely download page");
+            String link = li.get(i).select("a").attr("href");
+            String name = li.get(i).select("h2").select("a").text();
+            if (link.isEmpty() || name.isEmpty()) continue;
+            Document linkPage =  Jsoup.parse(Jsoup.connect(link).userAgent(CommonUtils.PCCLIENT).get().html());
+            Elements scripts = linkPage.select("div.play").select("script");
+            String video = CommonUtils.getLink(scripts.get(scripts.size()-1).toString(), scripts.get(scripts.size()-1).toString().indexOf("file:")+7, '\"');
+            v = new video(link,name,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)),CommonUtils.getContentSize(video), getDuration(link).toString());
+            break;
         }
         return v;
     }
@@ -147,7 +142,7 @@ public class Ghettotube extends GenericExtractor implements Searchable{
     private GameTime getDuration(String link) throws IOException, GenericDownloaderException {
         Elements spans = getPage(link, false).select("div.ubox-addedby").select("span");
         String t = "00";
-        for(int i = 0; i < spans.size(); i++) {
+        for(byte i = 0; i < spans.size(); i++) {
             if (spans.get(i).text().contains(":")) {
                 t = spans.get(i).text();
                 break;

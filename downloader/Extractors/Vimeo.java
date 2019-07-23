@@ -90,9 +90,8 @@ public class Vimeo extends GenericExtractor{
     
     private static String downloadVideoName(String url) throws IOException , SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
         Document page = getPage(url,false);
-        verify(page);
-        String title = Jsoup.parse(page.select("title").get(0).toString()).text();        
-	return title.replace(" on Vimeo","");
+        verify(page);  
+	return Jsoup.parse(page.select("title").get(0).toString()).text().replace(" on Vimeo","");
     } 
 	
     //getVideo thumbnail

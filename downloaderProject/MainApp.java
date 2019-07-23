@@ -69,7 +69,7 @@ public class MainApp extends Application {
     private static QueryManager query;
     private static Scene scene;
     private static boolean dontLoad;
-    private static final String VERSION = "build 35.3", TITLE = "Video Downloader "+VERSION;
+    private static final String VERSION = "build 35.4", TITLE = "Video Downloader "+VERSION;
     
     private static final int WIDTH = 895, HEIGHT = 550, XS = 100, PANES = 7;
     public static Pane[] actionPanes = new Pane[PANES];
@@ -487,7 +487,6 @@ public class MainApp extends Application {
     public static void log(Vector<String> keywords) throws GenericDownloaderException {
         if (habits != null) {
             habits.add(keywords);
-            keywords.forEach(s -> CommonUtils.log(s, "keyowrds"));
             try {DataIO.saveCollectedData(habits);} catch(IOException e) {CommonUtils.log("Failed to save habits","MainApp");}
             writeJson();
         }
@@ -496,7 +495,6 @@ public class MainApp extends Application {
     public static void log(String star) throws GenericDownloaderException {
         if (habits != null) {
             habits.addStar(star);
-            CommonUtils.log(star, "star");
             try {DataIO.saveCollectedData(habits);} catch(IOException e) {CommonUtils.log("Failed to save habits","MainApp");}
             writeJson();
         }
@@ -538,11 +536,11 @@ public class MainApp extends Application {
                     CommonUtils.log("no suggestions","MainApp:static");
                 else {
                     for(int i = 0; i < pull; i++) {
-                        if (!habits.hasNext()) break;
-                        video temp = habits.next(); 
-                        if (temp != null)
-                            dm.addDownload(temp.getLink(),temp);
-                        else CommonUtils.log("no suggestions left","MainApp:static");
+                        if (!habits.hasNext()) {
+                            CommonUtils.log("no suggestions left","MainApp:static");
+                            break;
+                        }
+                        dm.addDownload(habits.next());
                     }
                 }
                 try {DataIO.saveCollectedData(habits);} catch(IOException e) {CommonUtils.log("Failed to save habits","MainApp:static");}
