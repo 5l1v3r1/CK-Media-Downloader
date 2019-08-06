@@ -47,6 +47,7 @@ public class ExtractorList {
         } catch (ClassNotFoundException | NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
             if (e.getCause() instanceof GenericDownloaderException) throw (GenericDownloaderException)e.getCause();
             CommonUtils.log(e.getMessage(),"ExtractorList:getExtractor(string)");
+            e.printStackTrace();
             return null;
         }
     }

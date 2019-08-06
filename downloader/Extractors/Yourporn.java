@@ -58,9 +58,7 @@ public class Yourporn extends GenericExtractor implements Searchable{
         Elements imgs = page.select("img.photo_el_img");
         Vector<String> links = new Vector<>();
         
-        imgs.forEach((img) -> {
-            links.add(img.attr("src").replaceAll("/s/","/n/"));
-        });
+        imgs.forEach((img) -> links.add(img.attr("src").replaceAll("/s/","/n/")));
         return links;
     }
 	

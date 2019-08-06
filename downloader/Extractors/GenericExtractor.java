@@ -326,6 +326,15 @@ public abstract class GenericExtractor {
         return secs;
     }
     
+    final static protected Vector<String> getMatches(String src, String regex, String group) {
+        Pattern p = Pattern.compile(regex);
+        Matcher m = p.matcher(src);
+        Vector<String> matches = new Vector<>();
+        while(m.find())
+            matches.add(m.group(group));
+        return matches;
+    }
+    
     final static protected String getId(String link, String regex) {
         Pattern p = Pattern.compile(regex);
         Matcher m = p.matcher(link);

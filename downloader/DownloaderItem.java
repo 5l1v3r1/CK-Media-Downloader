@@ -276,9 +276,7 @@ public class DownloaderItem {
        
         if (extractor instanceof Playlist) {
             if (((Playlist)extractor).isPlaylist())
-                ((Playlist)extractor).getItems().forEach((s) -> {
-                    MainApp.dm.addDownload(s);
-                });
+                ((Playlist)extractor).getItems().forEach((s) -> MainApp.dm.addDownload(s));
         }
        
         if (!getThumbnail()) {release(); return false;} //either link not supported or network error

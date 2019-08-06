@@ -26,7 +26,7 @@ import org.jsoup.select.Elements;
  * @author christopher
  */
 public class Instagram extends GenericExtractor{
-    //https://www.instagram.com/p/BQ0eAlwhDrw
+    //https://www.instagram.com/p/BQ0eAlwhDrw //multithread vids
     //https://www.instagram.com/p/BnOu_cIgL7Y/?taken-by=calista.barrow
     //https://www.instagram.com/p/BnR9FRNFh1I/ //multithread, multimedia post
     
@@ -63,47 +63,28 @@ public class Instagram extends GenericExtractor{
             Map<String,String> qualities = new HashMap<>(); qualities.put("single",picLink);
             media.addThread(qualities,CommonUtils.parseName(picLink,".jpg"));
             return media;
-        } else { //download pic/s
-            int occur, from = 0; boolean first = true; int count = 0;
-            while((occur = page.toString().indexOf("display_resources",from)) != -1) {
-                if (first) {first = false; from = occur + 1; continue;}
-                String link;
-                from = occur + 1; count++;
-                int to = page.toString().indexOf("display_resources",from);
-                to = to == -1 ? page.toString().length() : to;
-                if (page.toString().substring(from,to).contains("\"is_video\":true")) {
-                    occur = page.toString().indexOf("video_url");
-                    link = CommonUtils.getLink(page.toString(), occur+12, '\"');
-                } else {
-                    String brack = CommonUtils.getSBracket(page.toString(),occur); 
-                    link = parseBracket(brack);
-                } 
-                Map<String,String> qualities = new HashMap<>(); qualities.put("single",link);
-                if (link.contains(".mp4"))
-                    media.addThread(qualities, CommonUtils.parseName(link,".mp4"));
-                else media.addThread(qualities, CommonUtils.parseName(link,".jpg"));
-            } if (count < 1) { //if there really was jus one
-                occur = page.toString().indexOf("display_resources",0);
-                if(occur != -1) {
+        } else { //download pic/s &&|| vids
+            Vector<String> resources = getMatches(page.toString(), "display_resources[\"']:\\[(?<json>.+?}\\],.+?)\\]", "json");
+            if (!resources.isEmpty()) {
+                if (resources.size() != 1)
+                    resources.remove(0);
+                for(int i = 0; i < resources.size(); i++) {
                     String link;
-                    if (page.toString().contains("\"is_video\":true")) {
-                        occur = page.toString().indexOf("video_url");
-                        link = CommonUtils.getLink(page.toString(), occur+12, '\"');
-                    } else {
-                        String brack = CommonUtils.getSBracket(page.toString(),occur); 
-                        link = parseBracket(brack);
-                    } 
+                    if (resources.get(i).contains("\"is_video\":true"))
+                        link = CommonUtils.getLink(resources.get(i), resources.get(i).indexOf("video_url")+12, '\"');
+                    else
+                        link = parseBracket(resources.get(i).substring(0,resources.get(i).indexOf("]")));
                     Map<String,String> qualities = new HashMap<>(); qualities.put("single",link);
                     if (link.contains(".mp4"))
                         media.addThread(qualities, CommonUtils.parseName(link,".mp4"));
                     else media.addThread(qualities, CommonUtils.parseName(link,".jpg"));
-                } else  {
-                    String picLink = getMetaImage(page);
-                    Map<String,String> qualities = new HashMap<>(); qualities.put("single",picLink);
-                    media.addThread(qualities, CommonUtils.parseName(picLink,".jpg"));
                 }
+            } else {
+                String picLink = getMetaImage(page);
+                Map<String,String> qualities = new HashMap<>(); qualities.put("single",picLink);
+                media.addThread(qualities, CommonUtils.parseName(picLink,".jpg"));
             }
-           return media;
+            return media;
         }
     }
     

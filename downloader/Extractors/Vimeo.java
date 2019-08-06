@@ -31,19 +31,32 @@ import org.jsoup.nodes.Document;
  *
  * @author christopher
  */
-public class Vimeo extends GenericExtractor{
+public class Vimeo extends GenericExtractor implements Playlist{
     private static final byte SKIP = 2;
+    private String playlistUrl = null;
     
     public Vimeo() { //this contructor is used for when you jus want to search
         //https://vimeo.com/41572389
     }
     
     public Vimeo(String url)throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
-        this(url,downloadThumb(convertUrl(configureUrl(url))),downloadVideoName(convertUrl(configureUrl(url))));
+        if (isUserAlbum(url) || isAlbum(url)) {
+            this.playlistUrl = url;
+            this.url = getFirstUrl(url);
+        } else 
+            this.url = url;
+        this.videoThumb = downloadThumb(convertUrl(configureUrl(this.url)));
+        this.videoName = downloadVideoName(convertUrl(configureUrl(this.url)));
     }
     
     public Vimeo(String url, File thumb)throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
-        this(url,thumb,downloadVideoName(convertUrl(configureUrl(url))));
+        if (isUserAlbum(url) || isAlbum(url)) {
+            this.playlistUrl = url;
+            this.url = getFirstUrl(url);
+        } else 
+            this.url = url;
+        this.videoThumb = thumb;
+        this.videoName = downloadVideoName(convertUrl(configureUrl(this.url)));
     }
     
     public Vimeo(String url, File thumb, String videoName){
@@ -69,8 +82,8 @@ public class Vimeo extends GenericExtractor{
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
         Document page = getPage(url,false,true);
         verify(page); 
-        //thik this was jus suppose to be id...gonna change later
-        String newUrl = "https://player.vimeo.com/video/"+url.split("/")[url.split("/").length -1];
+        
+        String newUrl = "https://player.vimeo.com/video/"+getId();
         page = getPage(newUrl,false,true);
         verify(page);
         
@@ -115,7 +128,19 @@ public class Vimeo extends GenericExtractor{
     private static String convertUrl(String url) {
         return url.replace("player.vimeo.com/video/", "vimeo.com/");
     }
-
+    
+    private static String convertUserAlbum(String url) {
+        return url.matches("https?://(?:www)?vimeo[.]com/[\\S]+(?:/videos)?") ? url : url + "/videos";
+    }
+    
+    private static boolean isUserAlbum(String url) {
+        return url.matches("https?://(?:www)?vimeo[.]com/[\\S]+(?:/videos)?") && !url.matches("https?://(?:www)?vimeo[.]com/[\\d]+");
+    }
+    
+    private static boolean isAlbum(String url) {
+        return url.matches("https?://vimeo[.]com/(?:album|showcase)/(?<id>\\d+)(?:/video)");
+    }
+    
     @Override public video similar() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
@@ -146,9 +171,30 @@ public class Vimeo extends GenericExtractor{
         return v;
     }*/
     
+    private String getFirstUrl(String link) throws IOException, GenericDownloaderException {
+        String page = getPage(convertUserAlbum(link), false).toString();
+        return addHost(CommonUtils.getLink(page, page.indexOf("\"clip_id\"") + 10, ','),"vimeo.com");
+    }
+    
+    @Override public boolean isPlaylist() {
+        return playlistUrl != null;
+    }
+
+    @Override public Vector<String> getItems() throws IOException, GenericDownloaderException {
+        Vector<String> list = new Vector<>();
+        for(int i = 1; true; i++)
+            try {
+                String page = getPage(convertUserAlbum(playlistUrl)+"?page="+String.valueOf(i), false).toString();
+                getMatches(page,"\"clip_id\":(?<clipId>\\d+),","clipId").forEach(m -> list.add(addHost(m, "vimeo.com")));
+            } catch (PageNotFoundException e) {
+                break;
+            }
+        return list;
+    }
+    
     @Override public GameTime getDuration() throws IOException, GenericDownloaderException {
         GameTime g = new GameTime();
-        g.addSec(Integer.parseInt(getId(getPage(url,false).toString(),".*duration\":[{]\"raw\"[:](?<id>\\d+).*")));
+        g.addSec(Integer.parseInt(getId(getPage(convertUrl(url),false).toString(),".*duration\":[{]\"raw\"[:](?<id>\\d+).*")));
         return g;
     }
     
@@ -168,6 +214,7 @@ public class Vimeo extends GenericExtractor{
 
     @Override protected String getValidRegex() {
         works = true;
-        return "https?://(((?:www)?vimeo[.]com/(?<id>[\\d]+))|(player[.]vimeo[.]com/video/(?<id2>[\\d]+)))"; 
+        return "https?://(((((?:www)?vimeo[.]com)|(player[.]vimeo[.]com/video))/(?<id>[\\d]+))|"
+                + "(?:www)?vimeo[.]com/(?<id2>[\\S]+)(?:/videos)?)";
     }
 }

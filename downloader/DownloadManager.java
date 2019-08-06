@@ -228,11 +228,13 @@ public class DownloadManager {
                                 } while(result != 0); //if video was already there repeat
                                 if(!MainApp.active) break;
                             }
-                            MainApp.log(d.getKeywords());
-                            Vector<String> stars = d.getStars();
-                            if (stars != null)
-                                for(byte i = 0; i < stars.size(); i++)
-                                    MainApp.log(stars.get(i));
+                            if (MainApp.active) {
+                                MainApp.log(d.getKeywords());
+                                Vector<String> stars = d.getStars();
+                                if (stars != null)
+                                    for(byte i = 0; i < stars.size(); i++)
+                                        MainApp.log(stars.get(i));
+                            }
                         }
                     } catch (GenericDownloaderException e) {
                         CommonUtils.log("Couldnt load side &&|| search",this);
