@@ -113,7 +113,7 @@ public class Vimeo extends GenericExtractor implements Playlist{
         Document page = getPage(newUrl,false);
         verify(page); String thumb = null;
         try {
-            String thumbs = CommonUtils.getBracket(page.toString(), page.toString().indexOf("thumbs\":{"));
+            String thumbs = "{" + getId(page.toString(), "thumbs\":\\{(?<id>.+?)\\}") + "}";
             JSONObject thumbObject = (JSONObject)new JSONParser().parse(thumbs);
             thumb = (String)thumbObject.get("base");
         } catch (ParseException e) {

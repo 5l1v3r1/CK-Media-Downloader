@@ -50,7 +50,7 @@ public class Xtube extends GenericExtractor implements Searchable{
 
     private static Map<String,String> getQualities(String src) {
         String from = !src.contains("\"sources\":") ? "sources:" : "\"sources\":";
-        String[] pair = CommonUtils.getBracket(src,src.indexOf(from)).split(",");
+        String[] pair = CommonUtils.getBracket(src, src.indexOf(from)).split(",");
         
         Map<String, String> qualities = new HashMap<>();
         for (String p : pair) {

@@ -49,7 +49,7 @@ public class Pornhd extends GenericExtractor implements Searchable{
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException{
         Document page = getPageCookie(url,false,true);
 
-	String[] rawData = CommonUtils.getBracket(page.toString(), page.toString().indexOf("sources: {")).split("\"");
+	String[] rawData = getId(page.toString(),"sources: \\{(?<id>.+?)\\}").split("\"");
 	Map<String,String> qualities = new HashMap<>(); MediaDefinition media = new MediaDefinition();
 	for(int i = 0; i < rawData.length; i++) {
             if (i == 0) continue;
@@ -120,7 +120,7 @@ public class Pornhd extends GenericExtractor implements Searchable{
     private long getSize(String link) throws IOException, GenericDownloaderException {
         Document page = getPageCookie(link,false,true);
 
-	String[] rawData = CommonUtils.getBracket(page.toString(), page.toString().indexOf("sources: {")).split("\"");
+	String[] rawData = getId(page.toString(),"sources: \\{(?<id>.+?)\\}").split("\"");
 	Map<String,String> qualities = new HashMap<>(); MediaDefinition media = new MediaDefinition();
 	for(int i = 0; i < rawData.length; i++) {
             if (i == 0) continue;

@@ -50,7 +50,7 @@ public class DataCollection implements Externalizable {
     private void loadLibs() {
         if (starList == null) {
             starList = DataIO.loadStarList(); 
-            Collections.sort(starList);
+            Collections.sort(starList, String.CASE_INSENSITIVE_ORDER);
         }
         //dictionary = DataIO.loadDictionary(); Collections.sort(dictionary);
         try { 

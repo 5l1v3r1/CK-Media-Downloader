@@ -589,14 +589,14 @@ public class DownloaderItem {
     private void setDuration() {
         String duration;
         try {
+            String g;
             if (v == null) {
-                GameTime g = extractor.getDuration();
-                duration = g == null || g.toString().equals("00") ? "----" : g.toString();
-            } else {
-                if (v.getDuration() == null)
-                    duration = "----";
-                else duration = v.getDuration().equals("00") ? "----" : v.getDuration();
-            }
+                GameTime t = extractor.getDuration();
+                g = t == null ? null : t.toString();
+            } else 
+                g = v.getDuration();
+            duration = g == null || g.equals("00") ? "----" : g;
+            duration = duration.length() < 3 ? duration + " secs" : duration;
         } catch (IOException | GenericDownloaderException e) {
             CommonUtils.log(e.getMessage(), this);
             duration = "----";

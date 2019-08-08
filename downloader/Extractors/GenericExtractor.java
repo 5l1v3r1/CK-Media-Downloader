@@ -357,7 +357,7 @@ public abstract class GenericExtractor {
     
     
     final public boolean suitable(String url) {
-        return url.matches(getValidRegex()) && working();
+        return url == null ? false : url.matches(getValidRegex()) && working();
     }
 
     final protected static String addHost(String url, String host) {

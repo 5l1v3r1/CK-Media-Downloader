@@ -210,7 +210,7 @@ public class CommonUtils {
     public static int getThumbs(String src, int where, char terminate) {
 	StringBuilder pure = new StringBuilder();
 		
-	for(int i = where; src.charAt(i) != terminate; i++)
+	for(int i = where; src.charAt(i) != terminate && i < src.length(); i++)
             if (Character.isDigit(src.charAt(i)))
 		pure.append(src.charAt(i));
 	return Integer.parseInt(pure.toString());
@@ -226,18 +226,6 @@ public class CommonUtils {
             } else pure.append(src.charAt(i));
 	}
 	return pure.toString();
-    }
-    
-    public static String getUrl(String src, int where) {
-        StringBuilder pure = new StringBuilder();
-        
-        where = src.indexOf("videoUrl",where) + 11;
-        for(int i = where; i < src.length(); i++) {
-            if (src.charAt(i) == '\"')
-                break;
-            pure.append(src.charAt(i));
-        }
-        return pure.toString();
     }
     
     public static String getBracket(String src, int from) {
@@ -303,8 +291,12 @@ public class CommonUtils {
     
     public static int getFormatWeight(String format) {
         StringBuilder s = new StringBuilder();
-        if(format.equalsIgnoreCase("4k"))
+        if (format.equalsIgnoreCase("8k"))
+            return 4320;
+        else if(format.equalsIgnoreCase("4k"))
             return 2160;
+        else if (format.equalsIgnoreCase("3k"))
+            return 1620;
         else if(format.equals("high"))
             return 2;
         else if(format.equals("low") || format.equals("single"))
