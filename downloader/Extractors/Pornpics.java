@@ -18,7 +18,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 import org.jsoup.UncheckedIOException;
-import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
 /**
@@ -86,6 +85,7 @@ public class Pornpics extends GenericExtractor{
 
     @Override protected String getValidRegex() {
         works = true;
-        return "https?://(?:www[.])?pornpics[.]com/galleries/(?<id>[\\S]+)/"; 
+        return "https?://(?:www[.])?pornpics[.]com/galleries/(?<id>[\\S]+)/";
+        //https://www.pornpics.com/galleries/blonde-lesbian-cutie-hadley-viscara-has-massive-tits-and-loves-to-show-em-off/
     }
 }

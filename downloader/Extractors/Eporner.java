@@ -29,7 +29,7 @@ public class Eporner extends GenericExtractor{
     private static final byte SKIP = 6;
     
     public Eporner() { //this contructor is used for when you jus want to search
-        //https://eporner.com/hd-porn/IF2uT0kcojN/Blonde-Lass-Delicate-Hands/
+        
     }
 
     public Eporner(String url) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
@@ -45,12 +45,14 @@ public class Eporner extends GenericExtractor{
     }
 
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
-        Elements tr = getPageCookie(url, false).getElementById("hd-porn-dload").select("table").select("tr");
+        Elements a = getPageCookie(url, false).getElementById("hd-porn-dload").select("a");
         Map<String,String> qualities = new HashMap<>();
         
-        for(byte i = 0; i < tr.size(); i++)
-            qualities.put(tr.get(i).select("td").select("strong").text().replace(":",""), addHost(tr.get(i).select("td").select("a").attr("href"), "www.eporner.com"));
-            //qualities.put(tr.get(i).select("td").select("span").text().replace(":",""), "https://s13-n5-nl-cdn.eporner.com/142123122312/5c42773c13880" + tr.get(i).select("td").select("a").attr("href"));
+        for(byte i = 0; i < a.size(); i++) {
+            String link = a.get(i).attr("href"), regex = "/dload/\\S+/(?<id>\\d+)/\\d+-\\d+p.mp4";
+            if (link.matches(regex))
+                qualities.put(getId(link, regex), addHost(link, "www.eporner.com"));
+        }
         
         MediaDefinition media = new MediaDefinition();
         media.addThread(qualities,videoName);
@@ -58,7 +60,13 @@ public class Eporner extends GenericExtractor{
     }
     
     private static String downloadVideoName(String url) throws IOException , SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
-        return getPage(url,false).getElementById("undervideomenu").select("h1").text();
+        Document page = getPage(url,false);
+        //gotta fix this
+        if (page.getElementById("undervideomenu") != null)
+            return page.getElementById("undervideomenu").select("h1").text();
+        else if (page.getElementById("video-info") != null)
+            return page.getElementById("video-info").select("h1").text();
+        else return page.select("h1").text();
     }
     
     private static File downloadThumb(String url) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception {
@@ -99,7 +107,9 @@ public class Eporner extends GenericExtractor{
     }
 
     @Override protected String getValidRegex() {
-        works = true;
+        works = false;
         return "https?://(?:www[.])?eporner[.]com/hd-porn/(?<id>[\\S]+)/[\\S]+/"; 
+        //https://www.eporner.com/hd-porn/lc9EdCuqibl/Busty-black-slut-tit-fucks-and-blows/
+        //https://eporner.com/hd-porn/IF2uT0kcojN/Blonde-Lass-Delicate-Hands/
     }
 }

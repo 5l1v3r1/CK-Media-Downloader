@@ -123,16 +123,12 @@ public class Shesfreaky extends GenericQueryExtractor implements Searchable{
     private static File downloadThumb(String url) throws IOException, SocketTimeoutException, UncheckedIOException, Exception {
         Document page = getPage(url,false);
         verify(page);
-        String thumbLink = configureUrl(page.select("video").attr("poster"));
+        String thumbLink = page.select("video").attr("poster");
         if (thumbLink.isEmpty()) {
-            Elements thumbLinks;
-            try {
-               thumbLinks = page.getElementById("vidSeek").select("div.vidSeekThumb");
-            } catch (NullPointerException e) { //different config
-                thumbLinks = page.select("div.row.vtt-thumbs").select("a");
-            }
+            Elements thumbLinks = page.select("div.vidSeekThumb");
             thumbLink = configureUrl(thumbLinks.get(0).select("a").select("img").attr("src"));
-        }
+        } else 
+            thumbLink = configureUrl(thumbLink);
         if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,SKIP))) //if file not already in cache download it
             CommonUtils.saveFile(thumbLink,CommonUtils.getThumbName(thumbLink,SKIP),MainApp.imageCache);
         return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumbLink,SKIP));
@@ -211,6 +207,7 @@ public class Shesfreaky extends GenericQueryExtractor implements Searchable{
 
     @Override protected String getValidRegex() {
         works = true;
-        return "https?://(?:www[.])?shesfreaky[.]com/video/[\\S]+-(?<id>\\d+)[.]html"; 
+        return "https?://(?:www[.])?shesfreaky[.]com/video/[\\S]+-(?<id>\\d+)[.]html";
+        //https://www.shesfreaky.com/video/latina-webcam-341040.html
     }
 }

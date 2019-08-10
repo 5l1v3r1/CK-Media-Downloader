@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.Vector;
 import org.jsoup.UncheckedIOException;
-import org.jsoup.nodes.Document;
 
 /**
  *
@@ -87,6 +86,7 @@ public class Hoodamateurs extends GenericExtractor {
 
     @Override protected String getValidRegex() {
         works = true;
-        return "https?://(?:www[.])?hoodamateurs[.]com/(?<id>[\\d]+)(?:/[\\S]+)?/?"; 
+        return "https?://(?:www[.])?hoodamateurs[.]com/(?<id>[\\d]+)(?:/[\\S]+)?/?";
+        //http://www.hoodamateurs.com/17101/green-hair-goddess-sucks-huge-black-cock/
     }
 }

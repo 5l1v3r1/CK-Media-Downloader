@@ -56,7 +56,6 @@ public class Pornhd extends GenericExtractor implements Searchable{
             qualities.put(rawData[i], addHost(CommonUtils.eraseChar(rawData[i+2],'\\'),"pornhd.com"));
             i+=3;
 	}
-        //https://www.pornhd.com/videos/154232/latina-ella-knox-massive1-boobs-almost-suffocate-a-bloke-hd-porn-video
         media.addThread(qualities, videoName);
         return media;
     }
@@ -103,6 +102,8 @@ public class Pornhd extends GenericExtractor implements Searchable{
             String link = addHost(searchResults.get(i).select("a.thumb").attr("href"),"pornhd.com");
             if (!CommonUtils.testPage(link)) continue; //test to avoid error 404
             String thumbLink = searchResults.get(i).select("img").attr("src"); //src for pc
+            if (!thumbLink.matches("https://cdn-pics.pornhd.com/\\S+.jpg"))
+                thumbLink = searchResults.get(i).select("img").attr("data-original");
             if (!CommonUtils.checkImageCache(CommonUtils.parseName(thumbLink,".jpg"))) //if file not already in cache download it
                 if (CommonUtils.saveFile(thumbLink, CommonUtils.parseName(thumbLink,".jpg"),MainApp.imageCache) != -2)
                     throw new IOException("Failed to completely download page");
@@ -146,6 +147,7 @@ public class Pornhd extends GenericExtractor implements Searchable{
 
     @Override protected String getValidRegex() {
         works = true;
-        return "https?://(?:www[.])?pornhd[.]com/videos/(?<id>[\\d]+)(/[\\S]+)?/?"; 
+        return "https?://(?:www[.])?pornhd[.]com/videos/(?<id>[\\d]+)(/[\\S]+)?/?";
+        //https://www.pornhd.com/videos/154232/latina-ella-knox-massive1-boobs-almost-suffocate-a-bloke-hd-porn-video
     }
 }

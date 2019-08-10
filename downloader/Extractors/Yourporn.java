@@ -261,5 +261,7 @@ public class Yourporn extends GenericExtractor implements Searchable{
     @Override protected String getValidRegex() {
         works = true;
         return "https?://((?:www[.])?(?:yourporn[.]sexy|sxyprn[.]com)/post/(?<id>[\\S]+)[.]html(?:[?][\\S]*)?)|http://pics[.]vc/watch[?]g=(?<id2>[\\S]+)";
+        //https://sxyprn.com/post/5c23cebe95050.html?sk=Mia-Khalifa&so=0&ss=latest
+        //http://pics.vc/watch?g=f776846a28bbc1a125cf684a77b28d49&sk=mia%20khalifa&so=0
     }
 }

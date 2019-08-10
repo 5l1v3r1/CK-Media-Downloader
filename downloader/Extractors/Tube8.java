@@ -206,6 +206,7 @@ public class Tube8 extends GenericQueryExtractor implements Searchable{
 
     @Override protected String getValidRegex() {
         works = true;
-        return "https?://(?:www[.])?tube8[.]com/[\\S]+/[\\S]+/(?<id>[\\d]+)/"; 
+        return "https?://(?:www[.])?tube8[.]com/[\\S]+/[\\S]+/(?<id>[\\d]+)/";
+        //https://www.tube8.com/teen/titfucking-teen-cum-dump/61046471/
     }
 }

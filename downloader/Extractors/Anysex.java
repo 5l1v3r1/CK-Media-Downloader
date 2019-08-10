@@ -146,5 +146,6 @@ public class Anysex extends GenericExtractor implements Searchable{
     @Override protected String getValidRegex() {
         works = true;
         return "https?://(?:www[.])?anysex[.]com/(?<id>[\\d]+)/";
+        //https://anysex.com/319153/
     }
 }

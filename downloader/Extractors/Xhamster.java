@@ -248,5 +248,6 @@ public class Xhamster extends GenericQueryExtractor implements Searchable{
     @Override protected String getValidRegex() {
         works = true;
         return "https?://(?:[\\S]+?[.])?xhamster[.](?:com|one)/(?:movies/(?<id>[\\d]+)/(?<displayid>[^/]*)[.]html([?]\\S*)?|videos/(?<displayid2>[^/]*)-(?<id2>[\\d]+)|photos/gallery/(?<displayid3>[^/]*)-(?<id3>[\\d]+))"; 
+        //https://xhamster.com/videos/ebony-woman-with-big-tits-3958905
     }
 }

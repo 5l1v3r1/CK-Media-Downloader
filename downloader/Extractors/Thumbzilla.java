@@ -236,6 +236,7 @@ public class Thumbzilla extends GenericQueryExtractor implements Searchable{
 
     @Override protected String getValidRegex() {
         works = true;
-        return "https?://(?:www[.])?thumbzilla[.]com/video/(?<id>[\\S]+)/[\\S]+"; 
+        return "https?://(?:www[.])?thumbzilla[.]com/video/(?<id>[\\S]+)/[\\S]+";
+        //https://www.thumbzilla.com/video/ph5d388c57002d0/missnileyhot-2019-03-02-12-53
     }
 }

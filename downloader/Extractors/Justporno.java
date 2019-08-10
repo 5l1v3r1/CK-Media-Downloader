@@ -73,12 +73,13 @@ public class Justporno extends GenericExtractor implements Searchable{
     //getVideo thumbnail
     private static File downloadThumb(String url) throws IOException, SocketTimeoutException, UncheckedIOException, Exception {
         Document page = getPage(url,false);
-        String thumb;
-        if (!page.select("video").isEmpty()) {
+        //ik this wont be the video thumb ...but its not on page so
+        String thumb = addHost(getMatches(page.toString(),"(?<img>//img.justporno.sex/images/\\S+.jpg)", "img").get(0), "");
+        /*if (!page.select("video").isEmpty()) {
             thumb = configureUrl(page.select("video").attr("poster"));
             if (thumb.isEmpty()) return null;
         } else 
-            thumb = configureUrl(CommonUtils.getLink(page.toString(),page.toString().indexOf("preview_url: '")+14,'\''));
+            thumb = configureUrl(CommonUtils.getLink(page.toString(),page.toString().indexOf("preview_url: '")+14,'\''));*/
         
         if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
             CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache);
@@ -162,6 +163,7 @@ public class Justporno extends GenericExtractor implements Searchable{
 
     @Override protected String getValidRegex() {
         works = true;
-        return "https?://(?:xxx[.])?justporno[.](?:tv|es)?/[\\S]+/(?<id>[\\d]+)/[\\S]+"; 
+        return "https?://(?:xxx[.])?justporno[.](?:tv|es)?/[\\S]+/(?<id>[\\d]+)/[\\S]+";
+        //https://justporno.tv/hd/6876/black_booty
     }
 }

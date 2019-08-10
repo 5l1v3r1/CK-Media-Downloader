@@ -306,6 +306,7 @@ public class Spankbang extends GenericQueryExtractor implements Playlist, Search
 
     @Override  protected String getValidRegex() {
         works = true;
-        return "https?://(?:[^/]+[.])?spankbang[.]com/(?<id>[\\S]+)/(?:video|playlist|embed)/[\\S]+"; 
+        return "https?://(?:[^/]+[.])?spankbang[.]com/(?<id>[\\S]+)/(?:video|playlist|embed)/[\\S]+";
+        //https://spankbang.com/3dd0b/video/missnileyhot+2019+06+22+22+00
     }
 }

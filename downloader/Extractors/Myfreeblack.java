@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.Vector;
 import org.jsoup.UncheckedIOException;
-import org.jsoup.nodes.Document;
 
 /**
  *
@@ -83,5 +82,6 @@ public class Myfreeblack extends GenericExtractor {
     @Override protected String getValidRegex() {
         works = false;
         return "https?://(?:www[.])?myfreeblack[.]com/porn/(?<id>[\\d]+)(?:/[\\S]+)?";
+        //https://www.myfreeblack.com/porn/20645791/eddiedeep-s-cumshot-compilation-11
     }
 }

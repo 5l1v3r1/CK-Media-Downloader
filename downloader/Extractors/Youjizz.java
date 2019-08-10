@@ -139,7 +139,8 @@ public class Youjizz extends GenericExtractor implements Searchable{
     }
     
     private GameTime getDuration(String link) throws IOException, GenericDownloaderException {
-        long secs = getSeconds(getPage(link,false).select("div.video-info").select("div.inline-div").get(2).text());
+        long secs = getSeconds(getPage(link,false).select("span.video-length").text());
+        //getSeconds(getPage(link,false).select("div.video-info").select("div.inline-div").get(2).text());
         GameTime g = new GameTime();
         g.addSec(secs);
         return g;
@@ -165,6 +166,7 @@ public class Youjizz extends GenericExtractor implements Searchable{
 
     @Override protected String getValidRegex() {
         works = true;
-        return "https?://(?:www[.])?youjizz[.]com/videos/(?<id>[\\S]+)[.]html"; 
+        return "https?://(?:www[.])?youjizz[.]com/videos/(?<id>[\\S]+)[.]html";
+        //https://www.youjizz.com/videos/huge-black-cock-fucks-maserati-at-her-house-33743121.html
     }
 }

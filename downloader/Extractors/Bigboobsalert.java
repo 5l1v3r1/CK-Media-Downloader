@@ -18,7 +18,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 import org.jsoup.UncheckedIOException;
-import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
@@ -96,6 +95,7 @@ public class Bigboobsalert extends GenericExtractor{
 
     @Override protected String getValidRegex() {
         works = false;
-        return "(https?://)?(?:www[.])?bigboobsalert[.]com/(?<id>[\\S]+)[.]php"; 
+        return "(?:https?://)?(?:www[.])?bigboobsalert[.]com/(?<id>[\\S]+)[.]php";
+        //https://www.bigboobsalert.com/shanti-big-naturals.php
     }
 }

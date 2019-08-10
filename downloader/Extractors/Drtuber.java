@@ -26,7 +26,6 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.jsoup.Jsoup;
 import org.jsoup.UncheckedIOException;
-import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
 /**
@@ -175,5 +174,6 @@ public class Drtuber extends GenericExtractor implements Searchable{
     @Override protected String getValidRegex() {
         works = true;
         return "https?://(?:(www|m)[.])?drtuber[.]com/video/(?<id>[\\d]+)/[\\S]+"; 
+        //https://www.drtuber.com/video/2073066/lucie-wilde-busty
     }
 }

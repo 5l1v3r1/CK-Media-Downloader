@@ -189,6 +189,7 @@ public class Ruleporn extends GenericQueryExtractor implements Searchable{
 
     @Override protected String getValidRegex() {
         works = true;
-        return "https?://(?:www[.])?ruleporn[.]com/(?<id>[\\S]+)/"; 
+        return "https?://(?:www[.])?ruleporn[.]com/(?<id>[\\S]+)/";
+        //https://ruleporn.com/babe-gives-a-titty-fuck-and-a-handjob/
     }
 }

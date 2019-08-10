@@ -172,6 +172,7 @@ public class Porn extends GenericExtractor implements Searchable{
 
     @Override protected String getValidRegex() {
         works = true;
-        return "https?://(?:www[.])?porn[.]com/videos/([\\S]+[-])+(?<id>[\\d]+)"; 
+        return "https?://(?:www[.])?porn[.]com/videos/([\\S]+[-])+(?<id>[\\d]+)";
+        //https://www.porn.com/videos/chavon-pov-blowjob-and-tit-fuck-89478
     }
 }

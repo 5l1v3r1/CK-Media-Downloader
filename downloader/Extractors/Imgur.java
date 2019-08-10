@@ -153,6 +153,7 @@ public class Imgur extends GenericExtractor {
 
     @Override protected String getValidRegex() {
         works = true;
-        return "https?://(?:www[.])?imgur[.]com/(?:gallery/)?(?<id>[\\S]+)"; 
+        return "https?://(?:www[.])?imgur[.]com/(?:gallery/)?(?<id>[\\S]+)";
+        //https://imgur.com/gallery/cgAF6pq
     }
 }

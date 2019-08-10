@@ -171,6 +171,7 @@ public class Ghettotube extends GenericExtractor implements Searchable{
 
     @Override protected String getValidRegex() {
         works = true;
-        return "https?://(?:www[.])?ghettotube[.]com/video/[\\S]+-(?<id>\\S+)[.]html"; 
+        return "https?://(?:www[.])?ghettotube[.]com/video/[\\S]+-(?<id>\\S+)[.]html";
+        //https://www.ghettotube.com/video/brunette-lady-selena-castro-with-big-bosoms-rubbing-and-banging-shaved-pussy-by-bbc-NzEr159WfhW.html
     }
 }

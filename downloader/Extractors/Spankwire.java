@@ -243,5 +243,6 @@ public class Spankwire extends GenericQueryExtractor implements Searchable{
     
     private static String getRegex() {
         return "https?://(?:www[.])?spankwire[.]com/[\\S]+/video(?<id>[\\d]+)/(?:[\\d]+)?";
+        //https://www.spankwire.com/Havana-Ginger-and-Maserati-fuck-with-a-strapon-dildo/video25708881/
     }
 }

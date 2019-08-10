@@ -36,7 +36,7 @@ public class Vimeo extends GenericExtractor implements Playlist{
     private String playlistUrl = null;
     
     public Vimeo() { //this contructor is used for when you jus want to search
-        //https://vimeo.com/41572389
+        
     }
     
     public Vimeo(String url)throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
@@ -216,5 +216,6 @@ public class Vimeo extends GenericExtractor implements Playlist{
         works = true;
         return "https?://(((((?:www)?vimeo[.]com)|(player[.]vimeo[.]com/video))/(?<id>[\\d]+))|"
                 + "(?:www)?vimeo[.]com/(?<id2>[\\S]+)(?:/videos)?)";
+        //https://vimeo.com/41572389
     }
 }

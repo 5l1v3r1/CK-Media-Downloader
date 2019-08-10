@@ -146,9 +146,10 @@ public class Xtube extends GenericExtractor implements Searchable{
     }
     
     private GameTime getDuration(String link) throws IOException, GenericDownloaderException {
-        GameTime g = new GameTime();
+        return null;
+        /*GameTime g = new GameTime();
         g.addSec(Integer.parseInt(getId(getPage(link,false).toString(),".*duration:(?<id>[\\d]+).*")));
-        return g;
+        return g;*/
     }
     
     @Override public GameTime getDuration() throws IOException, GenericDownloaderException {
@@ -171,5 +172,6 @@ public class Xtube extends GenericExtractor implements Searchable{
     @Override protected String getValidRegex() {
         works = true;
         return "https?://(?:www[.])?xtube[.]com/video-watch/(?<id>[\\S]+)"; 
+        //https://www.xtube.com/video-watch/alexis-silver-titfuck-blowjob-38873051
     }
 }

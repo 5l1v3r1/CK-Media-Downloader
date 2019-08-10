@@ -180,5 +180,6 @@ public class Bigbootytube extends GenericQueryExtractor implements Searchable{
     @Override protected String getValidRegex() {
         works = true;
         return "https?://(?:www[.])?bigbootytube[.]xxx/videos/(?<id>[\\d]+)/[\\S]+/";
+        //https://www.bigbootytube.xxx/videos/61406/baby-cakes-is-a-thick-ebony-goddess/
     }
 }

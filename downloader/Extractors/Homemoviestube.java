@@ -135,5 +135,6 @@ public class Homemoviestube extends GenericExtractor implements Searchable{
     @Override protected String getValidRegex() {
         works = true;
         return "https?://(?:www[.])?homemoviestube[.]com/videos/(?<id>[\\d]+)/[\\S]+[.]html"; 
+        //https://www.homemoviestube.com/videos/339466/busty-girl-eye-contact-orgasm.html
     }
 }

@@ -57,13 +57,10 @@ public class Gotporn extends GenericExtractor{
     }
 
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
-        Document page = getPage(url,false,true);
+        Document page = getPageCookie(url,false,true);
         
-        String video = page.select("video").attr("src");//getDefaultVideo(page); 
-        CommonUtils.log("video: "+video,this);
-        
-        Map<String,String> qualities = new HashMap<>();
-        qualities.put("single",video); MediaDefinition media = new MediaDefinition();
+        Map<String,String> qualities = getDefaultVideo(page);
+        MediaDefinition media = new MediaDefinition();
         media.addThread(qualities,videoName);
         
         return media;
@@ -89,7 +86,8 @@ public class Gotporn extends GenericExtractor{
     }
 
     @Override protected String getValidRegex() {
-        works = false;
-        return "https?://(?:www[.])?gotporn[.]com/[\\S]+/video-(?<id>[\\d]+)"; 
+        works = true;
+        return "https?://(?:www[.])?gotporn[.]com/[\\S]+/video-(?<id>[\\d]+)";
+        //https://www.gotporn.com/busty-ebony-banged-outdoors-after-titfuck/video-7097722
     }
 }

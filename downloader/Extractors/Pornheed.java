@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.Vector;
 import org.jsoup.UncheckedIOException;
-import org.jsoup.nodes.Document;
 
 /**
  *
@@ -83,6 +82,7 @@ public class Pornheed extends GenericExtractor{
 
     @Override protected String getValidRegex() {
         works = true;
-        return "https?://(?:www[.])?pornheed[.]com/video/(?<id>[\\d]+)/[\\S]+"; 
+        return "https?://(?:www[.])?pornheed[.]com/video/(?<id>[\\d]+)/[\\S]+";
+        //http://www.pornheed.com/video/3385161/tattooed-babe-harlow-harrison-fucks-for-more-money
     }
 }

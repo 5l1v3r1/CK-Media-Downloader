@@ -20,8 +20,6 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Vector;
 import org.jsoup.Jsoup;
-
-import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
 /**
@@ -160,6 +158,7 @@ public class Vporn extends GenericExtractor implements Searchable{
 
     @Override protected String getValidRegex() {
         works = true;
-        return "https?://(?:www[.])?vporn[.]com/[\\S]+/[\\S]+/(?<id>[\\d]+)/"; 
+        return "https?://(?:www[.])?vporn[.]com/[\\S]+/[\\S]+/(?<id>[\\d]+)/";
+        //https://www.vporn.com/pov/jasmine-vega/2225944/
     }
 }
