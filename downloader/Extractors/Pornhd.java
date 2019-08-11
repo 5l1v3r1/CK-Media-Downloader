@@ -102,7 +102,7 @@ public class Pornhd extends GenericExtractor implements Searchable{
             String link = addHost(searchResults.get(i).select("a.thumb").attr("href"),"pornhd.com");
             if (!CommonUtils.testPage(link)) continue; //test to avoid error 404
             String thumbLink = searchResults.get(i).select("img").attr("src"); //src for pc
-            if (!thumbLink.matches("https://cdn-pics.pornhd.com/\\S+.jpg"))
+            if (!thumbLink.matches("https?://cdn-pics.pornhd.com/\\S+.jpg"))
                 thumbLink = searchResults.get(i).select("img").attr("data-original");
             if (!CommonUtils.checkImageCache(CommonUtils.parseName(thumbLink,".jpg"))) //if file not already in cache download it
                 if (CommonUtils.saveFile(thumbLink, CommonUtils.parseName(thumbLink,".jpg"),MainApp.imageCache) != -2)
