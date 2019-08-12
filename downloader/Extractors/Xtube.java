@@ -5,7 +5,6 @@
  */
 package downloader.Extractors;
 
-import ChrisPackage.GameTime;
 import downloader.CommonUtils;
 import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
@@ -108,7 +107,7 @@ public class Xtube extends GenericExtractor implements Searchable{
             try {verify(getPage(link,false));} catch (GenericDownloaderException ex) {continue;}
             String title = li.get(i).select("h3").text();
                 
-            try {v = new video(link,title,downloadThumb(link),getSize(link), getDuration(link).toString());}catch(Exception e) {continue;}
+            try {v = new video(link,title,downloadThumb(link),getSize(link), "----");}catch(Exception e) {continue;}
             break;
         }
         return v;
@@ -130,7 +129,7 @@ public class Xtube extends GenericExtractor implements Searchable{
                     throw new IOException("Failed to completely download page");
             String name = li.get(i).select("h3").text();
             if (link.isEmpty() || name.isEmpty()) continue;
-            try { v = new video(link,name,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)),getSize(link), getDuration(link).toString()); } catch(GenericDownloaderException | IOException e)  {}
+            try { v = new video(link,name,new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)),getSize(link), "----"); } catch(GenericDownloaderException | IOException e)  {}
             break;
         }
         
@@ -145,17 +144,6 @@ public class Xtube extends GenericExtractor implements Searchable{
         return getSize(media);
     }
     
-    private GameTime getDuration(String link) throws IOException, GenericDownloaderException {
-        return null;
-        /*GameTime g = new GameTime();
-        g.addSec(Integer.parseInt(getId(getPage(link,false).toString(),".*duration:(?<id>[\\d]+).*")));
-        return g;*/
-    }
-    
-    @Override public GameTime getDuration() throws IOException, GenericDownloaderException {
-        return getDuration(url);
-    }
-    
     @Override public Vector<String> getKeywords() throws IOException, GenericDownloaderException {
         if (url == null) return null;
         Vector<String> words = new Vector<>();
@@ -163,10 +151,6 @@ public class Xtube extends GenericExtractor implements Searchable{
         page.select("div.categories").select("a").forEach(a -> words.add(a.text()));
         page.select("div.tags").select("a").forEach(a -> words.add(a.text()));
         return words;
-    }
-
-    @Override public Vector<String> getStars() throws IOException, GenericDownloaderException {
-        return null;
     }
 
     @Override protected String getValidRegex() {

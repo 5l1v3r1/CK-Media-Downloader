@@ -5,10 +5,8 @@
  */
 package downloader.Extractors;
 
-import ChrisPackage.GameTime;
 import downloader.CommonUtils;
 import downloader.DataStructures.MediaDefinition;
-import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
 import downloaderProject.MainApp;
 import java.io.File;
@@ -16,7 +14,6 @@ import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Vector;
 import org.jsoup.UncheckedIOException;
 import org.jsoup.select.Elements;
 
@@ -65,22 +62,6 @@ public class Pornpics extends GenericExtractor{
         if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,SKIP))) //if file not already in cache download it
             CommonUtils.saveFile(thumbLink,CommonUtils.getThumbName(thumbLink,SKIP),MainApp.imageCache);
         return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumbLink,SKIP));
-    }
-
-    @Override public video similar() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-    
-    @Override public GameTime getDuration() {
-        return null;
-    }
-    
-    @Override public Vector<String> getKeywords() throws IOException, GenericDownloaderException {
-        return null;
-    }
-
-    @Override public Vector<String> getStars() throws IOException, GenericDownloaderException {
-        return null;
     }
 
     @Override protected String getValidRegex() {

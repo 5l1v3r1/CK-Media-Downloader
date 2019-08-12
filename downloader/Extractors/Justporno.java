@@ -5,7 +5,6 @@
  */
 package downloader.Extractors;
 
-import ChrisPackage.GameTime;
 import downloader.CommonUtils;
 import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
@@ -144,10 +143,6 @@ public class Justporno extends GenericExtractor implements Searchable{
         return CommonUtils.getContentSize(q.get(q.keySet().iterator().next()));
     }
     
-    @Override public GameTime getDuration() {
-        return null;
-    }
-    
     @Override public Vector<String> getKeywords() throws IOException, GenericDownloaderException {
         if (url == null) return null;
         Vector<String> words = new Vector<>();
@@ -155,10 +150,6 @@ public class Justporno extends GenericExtractor implements Searchable{
         for(String s : tokens)
             words.add(s.trim());
         return words;
-    }
-
-    @Override public Vector<String> getStars() throws IOException, GenericDownloaderException {
-        return null;
     }
 
     @Override protected String getValidRegex() {

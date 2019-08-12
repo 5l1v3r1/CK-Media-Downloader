@@ -8,7 +8,6 @@ package downloader.Extractors;
 import ChrisPackage.GameTime;
 import downloader.CommonUtils;
 import downloader.DataStructures.MediaDefinition;
-import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
 import downloader.Exceptions.PageNotFoundException;
 import downloader.Exceptions.PageParseException;
@@ -20,7 +19,6 @@ import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Vector;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -123,10 +121,6 @@ public class Dailymotion extends GenericExtractor{
         return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,SKIP));
     }
 
-    @Override public video similar() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
     /*@Override public video search(String str) throws IOException {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     	/*str = str.trim(); str = str.replaceAll(" ", "%20");
@@ -155,14 +149,6 @@ public class Dailymotion extends GenericExtractor{
     
     @Override public GameTime getDuration() throws IOException, GenericDownloaderException {
         return getMetaDuration(getPage(url, false));
-    }
-    
-    @Override public Vector<String> getKeywords() throws IOException, GenericDownloaderException {
-        return null;
-    }
-
-    @Override public Vector<String> getStars() throws IOException, GenericDownloaderException {
-        return null;
     }
 
     @Override protected String getValidRegex() {

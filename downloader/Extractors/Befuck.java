@@ -5,7 +5,6 @@
  */
 package downloader.Extractors;
 
-import ChrisPackage.GameTime;
 import downloader.CommonUtils;
 import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
@@ -63,11 +62,7 @@ public class Befuck extends GenericExtractor implements Searchable{
             CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache);
         return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,SKIP));
     }
-
-    @Override public video similar() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
+    
     @Override public video search(String str) throws IOException, GenericDownloaderException {
     	String searchUrl = "https://befuck.com/search/"+str.trim().replaceAll(" ", "+");
     	
@@ -93,10 +88,6 @@ public class Befuck extends GenericExtractor implements Searchable{
     private long getSize(String link) throws IOException, GenericDownloaderException {
         Map<String,String> q = getDefaultVideo(getPage(link,false,true));
         return CommonUtils.getContentSize(q.get(q.keySet().iterator().next()));
-    }
-    
-    @Override public GameTime getDuration() {
-        return null;
     }
     
     @Override public Vector<String> getKeywords() throws IOException, GenericDownloaderException {

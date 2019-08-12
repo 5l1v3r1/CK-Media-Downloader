@@ -43,15 +43,26 @@ public class Xvideos extends GenericQueryExtractor implements Searchable{
     }
     
     public Xvideos(String url) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
-        this(url,downloadThumb(configureUrl(url)),downloadVideoName(configureUrl(url)));
+        this.url = adjustUrl(url);
+        this.videoThumb = downloadThumb(configureUrl(this.url));
+        this.videoName = downloadVideoName(configureUrl(this.url));
     }
     
     public Xvideos(String url, File thumb) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
-        this(url,thumb,downloadVideoName(configureUrl(url)));
+        this.url = adjustUrl(url);
+        this.videoThumb = thumb;
+        this.videoName = downloadVideoName(configureUrl(this.url));
     }
     
     public Xvideos(String url, File thumb, String videoName){
         super(url,thumb,videoName);
+    }
+    
+    private static String adjustUrl(String link) {
+        if (link.matches("https?://(?:www[.])?myfreeblack[.]com/porn/([\\d]+)(?:/[\\S]+)?"))
+            return "https://www.xvideos.com/video"+getId(link, "myfreeblack[.]com/porn/(?<id>[\\d]+)(?:/[\\S]+)")+"/s";
+        else
+            return link;
     }
     
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
@@ -285,13 +296,11 @@ public class Xvideos extends GenericQueryExtractor implements Searchable{
         return words;
     }
 
-    @Override public Vector<String> getStars() throws IOException, GenericDownloaderException {
-        return null;
-    }
-
     @Override protected String getValidRegex() {
         works = true;
-        return "https?://(?:www[.])?((?:xvideos)|(?:xnxx))[.]com/video-?(?<id>[\\S]+)/[\\S]+"; 
+        return "https?://(?:www[.])?((?:xvideos)|(?:xnxx))[.]com/video-?(?<id>[\\S]+)/[\\S]+|"
+                + "https?://(?:www[.])?myfreeblack[.]com/porn/(?<id2>[\\d]+)(?:/[\\S]+)"; 
         //https://www.xvideos.com/video36203901/she_suck_it_like_she_missed_it_
+        //https://www.myfreeblack.com/porn/39133526/MaseratiXXX-huge-tits-dangling-and-jiggling
     }
 }

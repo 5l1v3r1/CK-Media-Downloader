@@ -8,7 +8,6 @@ package downloader.Extractors;
 import ChrisPackage.GameTime;
 import downloader.CommonUtils;
 import downloader.DataStructures.MediaDefinition;
-import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
 import downloaderProject.MainApp;
 import java.io.File;
@@ -61,10 +60,6 @@ public class Hoodamateurs extends GenericExtractor {
             CommonUtils.saveFile(thumbLink,CommonUtils.getThumbName(thumbLink,SKIP),MainApp.imageCache);
         return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumbLink,SKIP));
     }
-
-    @Override public video similar() throws IOException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
     
     @Override public GameTime getDuration() throws IOException, GenericDownloaderException {
         return getMetaDuration(getPage(url,false));
@@ -78,10 +73,6 @@ public class Hoodamateurs extends GenericExtractor {
                words.add(a.text());
         });
         return words;
-    }
-
-    @Override public Vector<String> getStars() throws IOException, GenericDownloaderException {
-        return null;
     }
 
     @Override protected String getValidRegex() {

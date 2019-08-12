@@ -5,7 +5,6 @@
  */
 package downloader.Extractors;
 
-import ChrisPackage.GameTime;
 import downloader.CommonUtils;
 import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
@@ -18,7 +17,6 @@ import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-import java.util.Vector;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -131,18 +129,6 @@ public class Pornhd extends GenericExtractor implements Searchable{
         media.addThread(qualities, videoName); //video name is not used so doesnt matter
         
         return getSize(media, CommonUtils.StringCookies(cookieJar));
-    }
-    
-    @Override public GameTime getDuration() {
-        return null;
-    }
-    
-    @Override public Vector<String> getKeywords() throws IOException, GenericDownloaderException {
-        return null;
-    }
-
-    @Override public Vector<String> getStars() throws IOException, GenericDownloaderException {
-        return null;
     }
 
     @Override protected String getValidRegex() {

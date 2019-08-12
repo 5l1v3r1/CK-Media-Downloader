@@ -5,7 +5,6 @@
  */
 package downloader.Extractors;
 
-import ChrisPackage.GameTime;
 import downloader.CommonUtils;
 import downloader.DataStructures.GenericQuery;
 import downloader.DataStructures.MediaDefinition;
@@ -110,7 +109,7 @@ public class Thumbzilla extends GenericQueryExtractor implements Searchable{
             thequery.addName(Jsoup.parse(searchResults.get(i).select("span.title").toString()).body().text());
             long size; try {size = getSize(link); } catch (GenericDownloaderException | IOException e) { size = -1;}
             thequery.addSize(size);
-            thequery.addDuration(getDuration(link).toString());
+            thequery.addDuration("----");
 	}
         return thequery;
     }
@@ -162,7 +161,7 @@ public class Thumbzilla extends GenericQueryExtractor implements Searchable{
             String link = addHost(li.get(i).select("a").attr("href"),"www.thumbzilla.com");
             if (!link.matches(getValidRegex())) continue;
             String title = li.get(i).select("span.info").select("span.title").text();
-            try {v = new video(link,title,downloadThumb(link),getSize(link), getDuration(link).toString()); } catch(Exception e) {continue;}
+            try {v = new video(link,title,downloadThumb(link),getSize(link), "----"); } catch(Exception e) {continue;}
             break;
         }
         return v;
@@ -184,7 +183,7 @@ public class Thumbzilla extends GenericQueryExtractor implements Searchable{
             if (!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumbLink,SKIP))) //if file not already in cache download it
                 if (CommonUtils.saveFile(thumbLink, CommonUtils.getThumbName(thumbLink,SKIP),MainApp.imageCache) != -2)
                     throw new IOException("Failed to completely download page");
-            try { v = new video(link,Jsoup.parse(searchResults.get(i).select("span.title").toString()).body().text(),new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)),getSize(link), getDuration(link).toString()); } catch (GenericDownloaderException | IOException e) {}
+            try { v = new video(link,Jsoup.parse(searchResults.get(i).select("span.title").toString()).body().text(),new File(MainApp.imageCache+File.separator+CommonUtils.getThumbName(thumbLink,SKIP)),getSize(link), "----"); } catch (GenericDownloaderException | IOException e) {}
             break; //if u made it this far u already have a vaild video
 	}
         return v;
@@ -207,15 +206,6 @@ public class Thumbzilla extends GenericQueryExtractor implements Searchable{
         MediaDefinition media = new MediaDefinition();
         media.addThread(quality,videoName);
         return getSize(media);
-    }
-    
-    private GameTime getDuration(String link) throws IOException, GenericDownloaderException {
-        //would have to redirect to ph
-        return null;
-    }
-    
-    @Override public GameTime getDuration() throws IOException, GenericDownloaderException {
-        return getDuration(url);
     }
     
     @Override public Vector<String> getKeywords() throws IOException, GenericDownloaderException {

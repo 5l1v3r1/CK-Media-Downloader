@@ -8,7 +8,6 @@ package downloader.Extractors;
 import ChrisPackage.GameTime;
 import downloader.CommonUtils;
 import downloader.DataStructures.MediaDefinition;
-import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
 import downloaderProject.MainApp;
 import java.io.File;
@@ -137,10 +136,6 @@ public class Instagram extends GenericExtractor{
             CommonUtils.saveFile(thumbLink,CommonUtils.parseName(thumbLink,".jpg"),MainApp.imageCache);
         return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.parseName(thumbLink,".jpg"));
     }
-
-    @Override public video similar() {
-        return null;
-    }
     
     @Override public GameTime getDuration() throws IOException, GenericDownloaderException {
         Document page = getPage(url, false);
@@ -155,14 +150,6 @@ public class Instagram extends GenericExtractor{
                 return null;
             }
         } else return null;
-    }
-    
-    @Override public Vector<String> getKeywords() throws IOException, GenericDownloaderException {
-        return null;
-    }
-
-    @Override public Vector<String> getStars() throws IOException, GenericDownloaderException {
-        return null;
     }
 
     @Override protected String getValidRegex() {

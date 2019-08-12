@@ -183,10 +183,6 @@ public class Ruleporn extends GenericQueryExtractor implements Searchable{
         return words;
     }
 
-    @Override public Vector<String> getStars() throws IOException, GenericDownloaderException {
-        return null;
-    }
-
     @Override protected String getValidRegex() {
         works = true;
         return "https?://(?:www[.])?ruleporn[.]com/(?<id>[\\S]+)/";

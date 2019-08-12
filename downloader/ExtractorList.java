@@ -21,7 +21,7 @@ import org.jsoup.UncheckedIOException;
 
 public class ExtractorList {
     static final String[] EXTRACTORS = {"Anysex", "Befuck", "Bigboobsalert", "Bigbootytube", "Cumlouder", "Dailymotion",
-        "Drtuber", "Eporner", "Ghettotube", "Gotporn", "Homemoviestube", "Hoodamateurs", "Imgur", "Instagram", "Justporno", "Myfreeblack",
+        "Drtuber", "Eporner", "Ghettotube", "Gotporn", "Homemoviestube", "Hoodamateurs", "Imgur", "Instagram", "Justporno",
         "Porn", "Pornhd", "Pornheed", "Pornhub", "Pornpics", "Redtube", "Ruleporn", "Shesfreaky", "Spankbang", "Spankwire",
         "Thumbzilla", "Tube8", "Vidoza", "Vimeo", "Vporn", "Xhamster", "Xtube", "Xvideos", "Youjizz",
         "Youporn", "Yourporn"

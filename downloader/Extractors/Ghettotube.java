@@ -165,10 +165,6 @@ public class Ghettotube extends GenericExtractor implements Searchable{
         return words;
     }
 
-    @Override public Vector<String> getStars() throws IOException, GenericDownloaderException {
-        return null;
-    }
-
     @Override protected String getValidRegex() {
         works = true;
         return "https?://(?:www[.])?ghettotube[.]com/video/[\\S]+-(?<id>\\S+)[.]html";

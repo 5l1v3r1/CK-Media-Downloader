@@ -166,10 +166,6 @@ public class Porn extends GenericExtractor implements Searchable{
         return words;
     }
 
-    @Override public Vector<String> getStars() throws IOException, GenericDownloaderException {
-        return null;
-    }
-
     @Override protected String getValidRegex() {
         works = true;
         return "https?://(?:www[.])?porn[.]com/videos/([\\S]+[-])+(?<id>[\\d]+)";

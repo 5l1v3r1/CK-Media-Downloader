@@ -5,7 +5,6 @@
  */
 package downloader.Extractors;
 
-import ChrisPackage.GameTime;
 import downloader.CommonUtils;
 import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.video;
@@ -80,10 +79,6 @@ public class Eporner extends GenericExtractor{
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
-    @Override public GameTime getDuration() {
-        return null;
-    }
-    
     private Vector<String> getList(String regex)throws IOException, GenericDownloaderException {
         if (url == null) return null;
         Vector<String> words = new Vector<>();
@@ -107,7 +102,7 @@ public class Eporner extends GenericExtractor{
     }
 
     @Override protected String getValidRegex() {
-        works = false;
+        works = true;
         return "https?://(?:www[.])?eporner[.]com/hd-porn/(?<id>[\\S]+)/[\\S]+/"; 
         //https://www.eporner.com/hd-porn/lc9EdCuqibl/Busty-black-slut-tit-fucks-and-blows/
         //https://eporner.com/hd-porn/IF2uT0kcojN/Blonde-Lass-Delicate-Hands/

@@ -208,10 +208,6 @@ public class Vimeo extends GenericExtractor implements Playlist{
         return words;
     }
 
-    @Override public Vector<String> getStars() throws IOException, GenericDownloaderException {
-        return null;
-    }
-
     @Override protected String getValidRegex() {
         works = true;
         return "https?://(((((?:www)?vimeo[.]com)|(player[.]vimeo[.]com/video))/(?<id>[\\d]+))|"

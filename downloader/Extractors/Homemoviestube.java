@@ -128,10 +128,6 @@ public class Homemoviestube extends GenericExtractor implements Searchable{
         return words;
     }
 
-    @Override public Vector<String> getStars() throws IOException, GenericDownloaderException {
-        return null;
-    }
-
     @Override protected String getValidRegex() {
         works = true;
         return "https?://(?:www[.])?homemoviestube[.]com/videos/(?<id>[\\d]+)/[\\S]+[.]html"; 

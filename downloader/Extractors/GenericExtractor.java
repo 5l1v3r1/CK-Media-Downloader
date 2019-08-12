@@ -125,22 +125,22 @@ public abstract class GenericExtractor {
         return CommonUtils.StringCookies(cookieJar);
     }
     
-    public boolean cookieEmpty() {
+    final public boolean cookieEmpty() {
         return cookieJar.isEmpty();
     }
     
-    protected void clearCookies() {
+    final protected void clearCookies() {
         cookieJar.clear();
     }
     
-    protected static String getCanonicalLink(Document page) {
+    final protected static String getCanonicalLink(Document page) {
         for(Element link: page.select("link"))
             if(link.attr("rel").equals("canonical"))
                 return link.attr("href");
         return null;
     }
     
-    protected static GameTime getMetaDuration(Document page) {
+    final protected static GameTime getMetaDuration(Document page) {
         Elements metas = page.select("meta");
         long secs = 0;
         for(Element meta :metas) {
@@ -154,11 +154,11 @@ public abstract class GenericExtractor {
         return g;
     }
     
-    protected static String getMetaImage(Document page) {
+    final protected static String getMetaImage(Document page) {
         return getMetaImage(page,false);
     }
      
-    protected static String getMetaImage(Document page, boolean ignore) {
+    final protected static String getMetaImage(Document page, boolean ignore) {
         String thumbLink;
         thumbLink = pullMetaImage(page.select("meta"), ignore, "property");
         thumbLink = thumbLink == null ? pullMetaImage(page.select("meta"), ignore, "name") : thumbLink;
@@ -175,7 +175,7 @@ public abstract class GenericExtractor {
         return thumbLink;
     }
     
-    private static String pullMetaImage(Elements metas, boolean ignore, String attr) {
+    final private static String pullMetaImage(Elements metas, boolean ignore, String attr) {
         for(Element meta :metas) {
             if (meta.attr(attr).equals("og:image"))
                 if (!meta.attr("content").contains("static"))
@@ -186,7 +186,7 @@ public abstract class GenericExtractor {
         return null;
     }
     
-    protected static String getTitle(Document page) {
+    final protected static String getTitle(Document page) {
         String title = null;
         //title = page.select("title").text();
         //if (title.length() < 1)
@@ -200,15 +200,15 @@ public abstract class GenericExtractor {
         return title;
     }
     
-    protected static String getTitleTag(Document page) {
+    final protected static String getTitleTag(Document page) {
         return Jsoup.parse(page.select("title").toString()).text();
     }
     
-    protected static String getH1Title(Document page) {
+    final protected static String getH1Title(Document page) {
         return Jsoup.parse(page.select("h1").toString()).body().text();
     }
     
-    protected Map<String,String> getDefaultVideo(Document page) {
+    final protected Map<String,String> getDefaultVideo(Document page) {
         Map<String,String> q = new HashMap<>();
         if (page.select("video").isEmpty())
             return null;
@@ -237,7 +237,7 @@ public abstract class GenericExtractor {
         return q;
     }
     
-    protected static String getVideoPoster(Document page) {
+    final protected static String getVideoPoster(Document page) {
         try {
             return page.select("video").get(0).attr("poster") != null && !page.select("video").get(0).attr("poster").isEmpty() ? page.select("video").get(0).attr("poster") : null;
         } catch (NullPointerException e) {
@@ -263,11 +263,21 @@ public abstract class GenericExtractor {
     
     //should probably implement a getVideo(url)
     public abstract MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException;
-    public abstract video similar() throws IOException, GenericDownloaderException; //get a video from the related items list
     protected abstract String getValidRegex();
-    public abstract GameTime getDuration() throws IOException, GenericDownloaderException;
-    public abstract Vector<String> getKeywords() throws IOException, GenericDownloaderException; //categories && tags
-    public abstract Vector<String> getStars() throws IOException, GenericDownloaderException;
+    
+    public video similar() throws IOException, GenericDownloaderException { //get a video from the related items list
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+    public GameTime getDuration() throws IOException, GenericDownloaderException {
+        return new GameTime();
+    }
+    public Vector<String> getKeywords() throws IOException, GenericDownloaderException { //categories && tags
+        return null;
+    }
+    public Vector<String> getStars() throws IOException, GenericDownloaderException {
+        return null;
+    }
     
     final static protected long getSize(MediaDefinition media, String cookieString) throws GenericDownloaderException, UncheckedIOException, IOException {
         long size = 0;
@@ -378,7 +388,7 @@ public abstract class GenericExtractor {
         return !m.find() ? "" : m.group(1);
     }
     
-    protected static String configureUrl(String link) {
+    final protected static String configureUrl(String link) {
         if (link.startsWith("//"))
             return  "http:" + link;
         else if (!link.matches("https?://[\\S]+")) return "https://" + link;
