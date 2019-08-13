@@ -7,6 +7,7 @@ package downloader.Extractors;
 
 import downloader.CommonUtils;
 import downloader.DataStructures.MediaDefinition;
+import downloader.DataStructures.MediaQuality;
 import downloader.Exceptions.GenericDownloaderException;
 import downloaderProject.MainApp;
 import java.io.File;
@@ -44,7 +45,8 @@ public class Pornpics extends GenericExtractor{
         Elements a = getPage(url,false,true).select("a.rel-link");
         MediaDefinition media = new MediaDefinition();
         a.forEach((item) -> {
-            Map<String,String> qualities = new HashMap<>(); qualities.put("single",item.attr("href"));
+            Map<String, MediaQuality> qualities = new HashMap<>(); 
+            qualities.put("single", new MediaQuality(item.attr("href"), "jpg"));
             media.addThread(qualities, CommonUtils.getThumbName(item.attr("href"),SKIP));
         });
         media.setAlbumName(videoName);

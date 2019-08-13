@@ -7,6 +7,7 @@ package downloader.Extractors;
 
 import downloader.CommonUtils;
 import downloader.DataStructures.MediaDefinition;
+import downloader.DataStructures.MediaQuality;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
 import downloaderProject.MainApp;
@@ -86,8 +87,8 @@ public class Befuck extends GenericExtractor implements Searchable{
     }
     
     private long getSize(String link) throws IOException, GenericDownloaderException {
-        Map<String,String> q = getDefaultVideo(getPage(link,false,true));
-        return CommonUtils.getContentSize(q.get(q.keySet().iterator().next()));
+        Map<String, MediaQuality> q = getDefaultVideo(getPage(link,false,true));
+        return CommonUtils.getContentSize(q.get(q.keySet().iterator().next()).getUrl());
     }
     
     @Override public Vector<String> getKeywords() throws IOException, GenericDownloaderException {

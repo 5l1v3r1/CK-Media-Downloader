@@ -9,6 +9,7 @@ import ChrisPackage.GameTime;
 import downloader.CommonUtils;
 import downloader.DataStructures.GenericQuery;
 import downloader.DataStructures.MediaDefinition;
+import downloader.DataStructures.MediaQuality;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
 import downloader.Exceptions.PageNotFoundException;
@@ -82,7 +83,7 @@ public class Pornhub extends GenericQueryExtractor implements Playlist, Searchab
         else return s;
     }
     
-    private String getPic(String link) throws MalformedURLException, IOException, GenericDownloaderException {
+    private Map<String, MediaQuality> getPic(String link) throws MalformedURLException, IOException, GenericDownloaderException {
         Document page = getPage(link,false);
         while(page.toString().contains("document.cookie=\"RNKEY=\"")) {
             addCookie("RNKEY",getRNKEY(page.toString()));
@@ -93,25 +94,19 @@ public class Pornhub extends GenericQueryExtractor implements Playlist, Searchab
         Element div = page.getElementById("photoImageSection");
         if (div == null) { div = page.getElementById("gifImageSection"); img = div.select("div.centerImage").attr("data-gif"); }
         else img = div.select("div.centerImage").select("a").select("img").attr("src");
-        return img;
+        
+        Map<String, MediaQuality> q = new HashMap<>();
+        q.put("single", new MediaQuality(img, CommonUtils.getExtension(img)));
+        return q;
     }
     
-    private static Map<String,String> getQualities(String src) throws PageParseException {
-        /*int from = 0, occur = 0;
-        
-        Map<String,String> qualities = new HashMap<>();
-        while((occur = src.indexOf("quality",from)) != -1) {
-            qualities.put(CommonUtils.getLink(src, occur+10, '\"'),CommonUtils.eraseChar(CommonUtils.getUrl(src,occur), '\\'));
-            if (qualities.get(CommonUtils.getLink(src, occur+10, '\"')).length() == 0)
-                qualities.remove(qualities.get(CommonUtils.getLink(src, occur+10, '\"')));
-            from = occur + 1;
-        }*/
-        Map<String, String> links = new HashMap<>();
+    private static Map<String, MediaQuality> getQualities(String src) throws PageParseException {
+        Map<String, MediaQuality> links = new HashMap<>();
         try {
             JSONArray json = (JSONArray)new JSONParser().parse(src);
             for(int i = 0; i < json.size(); i++)
                 if(((String)((JSONObject)json.get(i)).get("format")).equalsIgnoreCase("mp4"))
-                    links.put((String)((JSONObject)json.get(i)).get("quality"), CommonUtils.eraseChar((String)((JSONObject)json.get(i)).get("videoUrl"), '\\'));
+                    links.put((String)((JSONObject)json.get(i)).get("quality"), new MediaQuality(CommonUtils.eraseChar((String)((JSONObject)json.get(i)).get("videoUrl"), '\\')));
         } catch (ParseException e) {
             throw new PageParseException(e.getMessage());
         }
@@ -122,9 +117,7 @@ public class Pornhub extends GenericQueryExtractor implements Playlist, Searchab
         Document page; MediaDefinition media = new MediaDefinition();
         
         if (isPhoto(url)) {
-            Map<String,String> qualities = new HashMap<>();
-            qualities.put("single",getPic(url)); 
-            media.addThread(qualities,CommonUtils.clean(videoName)); return media;
+            media.addThread(getPic(url),CommonUtils.clean(videoName)); return media;
         } else if (isAlbum(url)) {
             page = getPage(url,false,true);
             while(page.toString().contains("document.cookie=\"RNKEY=\"")) {
@@ -135,10 +128,9 @@ public class Pornhub extends GenericQueryExtractor implements Playlist, Searchab
             Elements items = page.select("li.photoAlbumListContainer");
             media.setAlbumName(this.videoName);
             for(int i = 0; i < items.size(); i++) {
-                Map<String,String> qualities = new HashMap<>();
                 String subLink = addHost(items.get(i).select("a").attr("href"),"pornhub.com");
-                qualities.put("single",getPic(subLink));
-                media.addThread(qualities, CommonUtils.getPicName(subLink) + (qualities.get("single").endsWith("gif") ? ".gif" : ".jpg"));
+                Map<String, MediaQuality> q = getPic(subLink);
+                media.addThread(q, CommonUtils.getPicName(subLink) + "." + q.get("single").getType());
             } return media;
         } else { //must be a video
             page = getPage(url,false,true);
@@ -151,7 +143,7 @@ public class Pornhub extends GenericQueryExtractor implements Playlist, Searchab
             //Element video = page.getElementById("videoShow"); video.attr("data-default");
             int start = page.toString().indexOf("mediaDefinitions") + 2;
             String rawQualities = page.toString().substring(page.toString().indexOf(":", start) + 1, page.toString().indexOf("],",start)+1);
-            Map<String,String> quality = getQualities(rawQualities);
+            Map<String, MediaQuality> quality = getQualities(rawQualities);
             
             media.addThread(quality,videoName);
                 
@@ -565,7 +557,7 @@ public class Pornhub extends GenericQueryExtractor implements Playlist, Searchab
             //Element video = page.getElementById("videoShow"); video.attr("data-default");
             int start = page.toString().indexOf("mediaDefinitions") + 2;
             String rawQualities = page.toString().substring(page.toString().indexOf(":", start) + 1, page.toString().indexOf("],",start)+1);
-            Map<String,String> quality = getQualities(rawQualities); MediaDefinition media = new MediaDefinition();
+            Map<String, MediaQuality> quality = getQualities(rawQualities); MediaDefinition media = new MediaDefinition();
             media.addThread(quality,"name");
             return getSize(media);
         }

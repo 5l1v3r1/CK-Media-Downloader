@@ -8,6 +8,7 @@ package downloader.Extractors;
 import ChrisPackage.GameTime;
 import downloader.CommonUtils;
 import downloader.DataStructures.MediaDefinition;
+import downloader.DataStructures.MediaQuality;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
 import downloaderProject.MainApp;
@@ -48,10 +49,10 @@ public class Vporn extends GenericExtractor implements Searchable{
 
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException{
 	Elements rawQualities = getPage(url,false,true).getElementById("vporn-video-player").select("source");
-	Map<String,String> qualities = new HashMap<>();
+	Map<String, MediaQuality> qualities = new HashMap<>();
 		
 	for(byte i = 0; i < rawQualities.size(); i++)
-            qualities.put(rawQualities.get(i).attr("label"),rawQualities.get(i).attr("src"));
+            qualities.put(rawQualities.get(i).attr("label"), new MediaQuality(rawQualities.get(i).attr("src")));
         
         MediaDefinition media = new MediaDefinition();
         media.addThread(qualities,videoName);
@@ -117,10 +118,10 @@ public class Vporn extends GenericExtractor implements Searchable{
     
     private long getSize(String link) throws IOException, GenericDownloaderException {
 	Elements rawQualities = getPage(link,false,true).getElementById("vporn-video-player").select("source");
-	Map<String,String> qualities = new HashMap<>();
+	Map<String, MediaQuality> qualities = new HashMap<>();
 		
 	for(byte i = 0; i < rawQualities.size(); i++)
-            qualities.put(rawQualities.get(i).attr("label"),rawQualities.get(i).attr("src"));
+            qualities.put(rawQualities.get(i).attr("label"), new MediaQuality(rawQualities.get(i).attr("src")));
         
         MediaDefinition media = new MediaDefinition();
         media.addThread(qualities,videoName);

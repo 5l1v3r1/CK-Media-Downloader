@@ -8,6 +8,7 @@ package downloader.Extractors;
 import ChrisPackage.GameTime;
 import downloader.CommonUtils;
 import downloader.DataStructures.MediaDefinition;
+import downloader.DataStructures.MediaQuality;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
 import downloader.Exceptions.PageNotFoundException;
@@ -208,13 +209,13 @@ public abstract class GenericExtractor {
         return Jsoup.parse(page.select("h1").toString()).body().text();
     }
     
-    final protected Map<String,String> getDefaultVideo(Document page) {
-        Map<String,String> q = new HashMap<>();
+    final protected Map<String, MediaQuality> getDefaultVideo(Document page) {
+        Map<String, MediaQuality> q = new HashMap<>();
         if (page.select("video").isEmpty())
             return null;
-        else if (page.select("video").select("source").isEmpty())    
-            q.put("single",configureUrl(page.select("video").attr("src")));
-        else  {
+        else if (page.select("video").select("source").isEmpty()) 
+            q.put("single", new MediaQuality(configureUrl(page.select("video").attr("src"))));
+        else {
             if (page.select("video").select("source").size() > 1) {
                 page.select("video").select("source").forEach((source) -> {
                     String format; int i = 0;
@@ -229,10 +230,17 @@ public abstract class GenericExtractor {
                         format = String.valueOf(i++);
                     String src = source.attr("src");
                     src = (src == null || src.length() < 1) ? page.select("video").attr("id") : src;
-                    q.put(format,configureUrl(src));
+                    String type = page.select("video").select("source").attr("type");
+                    if (type == null || type.isEmpty()) 
+                        q.put(format, new MediaQuality(configureUrl(src)));
+                    else q.put(format, new MediaQuality(configureUrl(src), type));
                 });
-            } else
-                q.put("single",configureUrl(page.select("video").select("source").attr("src")));
+            } else {
+                String type = page.select("video").select("source").attr("type");
+                if (type == null || type.isEmpty()) 
+                    q.put("single", new MediaQuality(configureUrl(page.select("video").select("source").attr("src"))));
+                else q.put("single", new MediaQuality(configureUrl(page.select("video").select("source").attr("src")), type));
+            }
         }
         return q;
     }
@@ -283,20 +291,20 @@ public abstract class GenericExtractor {
         long size = 0;
         if (media != null) {
             if (!media.isSingleThread()) { //if more than one thread
-                Iterator<Map<String,String>> i = media.iterator(); int j = 0;
+                Iterator<Map<String, MediaQuality>> i = media.iterator();
                 while(i.hasNext()) { //get best quality from thread
-                    Map<String,String> temp = i.next();
+                    Map<String, MediaQuality> temp = i.next();
                     String highestQuality = temp.keySet().size() == 1 ? temp.keySet().iterator().next() : CommonUtils.getSortedFormats(temp.keySet()).get(0);
-                    if(temp.get(highestQuality) != null || !temp.get(highestQuality).isEmpty()) {
-                        long s = CommonUtils.getContentSize(temp.get(highestQuality), cookieString);
+                    if(temp.get(highestQuality) != null || !temp.get(highestQuality).getUrl().isEmpty()) {
+                        long s = CommonUtils.getContentSize(temp.get(highestQuality).getUrl(), cookieString);
                         size += s < 0 ? 0 : s;
                     }
                 }
             } else {
-                Map<String,String> m = media.iterator().next();
+                Map<String, MediaQuality> m = media.iterator().next();
                 String highestQuality = m.keySet().size() == 1 ? m.keySet().iterator().next() : CommonUtils.getSortedFormats(m.keySet()).get(0);
-                if(m.get(highestQuality) != null || !m.get(highestQuality).isEmpty()) {
-                    long s = CommonUtils.getContentSize(m.get(highestQuality), cookieString);
+                if(m.get(highestQuality) != null || !m.get(highestQuality).getUrl().isEmpty()) {
+                    long s = CommonUtils.getContentSize(m.get(highestQuality).getUrl(), cookieString);
                     size += s < 0 ? 0 : s;
                 }
             }

@@ -8,6 +8,7 @@ package downloader.Extractors;
 import ChrisPackage.GameTime;
 import downloader.CommonUtils;
 import downloader.DataStructures.MediaDefinition;
+import downloader.DataStructures.MediaQuality;
 import downloader.Exceptions.GenericDownloaderException;
 import downloader.Exceptions.NotSupportedException;
 import downloader.Exceptions.PageNotFoundException;
@@ -47,11 +48,11 @@ public class Default extends GenericExtractor {
         CommonUtils.log("Getting video with default extractor", this);
         MediaDefinition media = new MediaDefinition();
         try {
-            Map<String,String> v = getDefaultVideo(getPage(url,false,true));
+            Map<String, MediaQuality> v = getDefaultVideo(getPage(url,false,true));
             if (v == null || v.isEmpty()) 
                 throw new PageNotFoundException("video not found");
             else if (v.containsKey("single")) {
-                if (v.get("single") == null || v.get("single").matches("https?://"))
+                if (v.get("single") == null || v.get("single").getUrl().matches("https?://"))
                     throw new PageNotFoundException("video not found");
             }
             media.addThread(v,videoName);

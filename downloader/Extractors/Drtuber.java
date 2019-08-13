@@ -8,6 +8,7 @@ package downloader.Extractors;
 import ChrisPackage.GameTime;
 import downloader.CommonUtils;
 import downloader.DataStructures.MediaDefinition;
+import downloader.DataStructures.MediaQuality;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
 import downloader.Exceptions.PageParseException;
@@ -51,17 +52,17 @@ public class Drtuber extends GenericExtractor implements Searchable{
         super(url,thumb,videoName);
     }
     
-    private Map<String,String> getQualities(String link) throws PageParseException, IOException {
+    private Map<String, MediaQuality> getQualities(String link) throws PageParseException, IOException {
         String id = link.split("/")[4];
         String rawJson = Jsoup.connect("http://www.drtuber.com/player_config_json/"+id+"?vid="+id).ignoreContentType(true).execute().body();
         try {
-            Map<String,String> q = new HashMap<>();
+            Map<String, MediaQuality> q = new HashMap<>();
             JSONObject json = (JSONObject)new JSONParser().parse(rawJson);
             JSONObject formats = ((JSONObject)json.get("files"));
             Iterator<String> i = formats.keySet().iterator();
             while(i.hasNext()) {
                 String format = i.next();
-                q.put(format,(String)formats.get(format));
+                q.put(format, new MediaQuality((String)formats.get(format)));
             }
             return q;
         } catch (ParseException e) {

@@ -4,9 +4,9 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Vector;
 
-public class MediaDefinition implements Iterable<Map<String,String>>{
+public class MediaDefinition implements Iterable<Map<String, MediaQuality>>{
     private String albumName;
-    private final Vector<Map<String,String>> threads; //threads of qualities
+    private final Vector<Map<String, MediaQuality>> threads; //threads of qualities
     private final Vector<String> threadName; //each quality will have the same name
     //each thread will have a unique name
     //threads occur from albums
@@ -25,7 +25,7 @@ public class MediaDefinition implements Iterable<Map<String,String>>{
         return albumName;
     }
 	
-    public void addThread(Map<String,String> t, String n) {
+    public void addThread(Map<String,MediaQuality> t, String n) {
         threads.add(t);
         threadName.add(n);
     }
@@ -42,15 +42,15 @@ public class MediaDefinition implements Iterable<Map<String,String>>{
         return albumName != null;
     }
 
-    @Override public Iterator<Map<String,String>> iterator() {
-        Iterator<Map<String,String>> it = new Iterator<Map<String,String>>() {
+    @Override public Iterator<Map<String, MediaQuality>> iterator() {
+        Iterator<Map<String, MediaQuality>> it = new Iterator<Map<String, MediaQuality>>() {
 	    private int currentIndex = 0;
 	
 	    @Override public boolean hasNext() {
 	      	return currentIndex < threads.size() && threads.get(currentIndex) != null;
 	    }
 	
-            @Override public Map<String,String> next() {
+            @Override public Map<String, MediaQuality> next() {
 	      	return threads.get(currentIndex++);
 	    }
 	

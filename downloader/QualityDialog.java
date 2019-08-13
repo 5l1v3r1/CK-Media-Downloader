@@ -5,6 +5,7 @@
  */
 package downloader;
 
+import downloader.DataStructures.MediaQuality;
 import downloaderProject.MainApp;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -52,7 +53,7 @@ public class QualityDialog {
         return s;
     }
     
-    public String display(Map<String,String> qualities, String mediaName, String cookieString) {
+    public String display(Map<String, MediaQuality> qualities, String mediaName, String cookieString) {
         Pane pane;
         this.cookieString = cookieString;
         try {
@@ -77,8 +78,8 @@ public class QualityDialog {
             ((ArrayList)items).ensureCapacity(q.size());
             for(String s: q)
                 if (qualities.get(s) != null)
-                    if (qualities.get(s).length() > 0)
-                        items.add(createItem(s,qualities.get(s)));
+                    if (qualities.get(s).getUrl().length() > 0)
+                        items.add(createItem(s,qualities.get(s).getUrl()));
             qualityList.getItems().addAll(items);
             ok.setOnAction(e -> dialog.close());
             cancel.setOnAction((ActionEvent) -> {

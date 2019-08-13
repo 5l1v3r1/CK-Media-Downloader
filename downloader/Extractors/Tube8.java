@@ -9,6 +9,7 @@ import ChrisPackage.GameTime;
 import downloader.CommonUtils;
 import downloader.DataStructures.GenericQuery;
 import downloader.DataStructures.MediaDefinition;
+import downloader.DataStructures.MediaQuality;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
 import downloader.Exceptions.PageParseException;
@@ -99,14 +100,14 @@ public class Tube8 extends GenericQueryExtractor implements Searchable{
         return thumbs;
     }
     
-    private static Map<String,String> getQualities(String s) throws PageParseException {
-        Map<String,String> q = new HashMap<>();
+    private static Map<String, MediaQuality> getQualities(String s) throws PageParseException {
+        Map<String, MediaQuality> q = new HashMap<>();
         try {
             JSONArray json = (JSONArray)new JSONParser().parse(s.substring(0,s.indexOf("}],")+2));
             Iterator<JSONObject> i = json.iterator();
             while(i.hasNext()) {
                 JSONObject temp = i.next();
-                q.put(String.valueOf(temp.get("quality")), (String)temp.get("videoUrl"));
+                q.put(String.valueOf(temp.get("quality")), new MediaQuality((String)temp.get("videoUrl")));
             }
             return q;
         } catch (ParseException e) {
@@ -116,7 +117,7 @@ public class Tube8 extends GenericQueryExtractor implements Searchable{
 
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
         Document page = getPage(url,false,true);
-        Map<String, String> quality = getQualities(page.toString().substring(page.toString().indexOf("mediaDefinition")+17));
+        Map<String, MediaQuality> quality = getQualities(page.toString().substring(page.toString().indexOf("mediaDefinition")+17));
        
         MediaDefinition media = new MediaDefinition();
         media.addThread(quality,videoName);
@@ -178,7 +179,7 @@ public class Tube8 extends GenericQueryExtractor implements Searchable{
 
     private long getSize(String link) throws IOException, GenericDownloaderException {
         Document page = getPage(link,false,true);
-        Map<String, String> quality = getQualities(page.toString().substring(page.toString().indexOf("mediaDefinition")+17));
+        Map<String, MediaQuality> quality = getQualities(page.toString().substring(page.toString().indexOf("mediaDefinition")+17));
        
         MediaDefinition media = new MediaDefinition();
         media.addThread(quality,videoName);

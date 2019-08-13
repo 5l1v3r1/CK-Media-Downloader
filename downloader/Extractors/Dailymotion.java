@@ -8,6 +8,7 @@ package downloader.Extractors;
 import ChrisPackage.GameTime;
 import downloader.CommonUtils;
 import downloader.DataStructures.MediaDefinition;
+import downloader.DataStructures.MediaQuality;
 import downloader.Exceptions.GenericDownloaderException;
 import downloader.Exceptions.PageNotFoundException;
 import downloader.Exceptions.PageParseException;
@@ -51,8 +52,8 @@ public class Dailymotion extends GenericExtractor{
         super(url,thumb,videoName);
     }
     
-    private Map<String,String> getQualities(String src) throws PageParseException {
-        Map<String, String> links = new HashMap<>();
+    private Map<String, MediaQuality> getQualities(String src) throws PageParseException {
+        Map<String, MediaQuality> links = new HashMap<>();
         
         try {
             JSONObject json = (JSONObject)new JSONParser().parse(src);
@@ -61,7 +62,7 @@ public class Dailymotion extends GenericExtractor{
             while(i.hasNext()) {
                 String q = (String)i.next();
                 if(q.equals("auto")) continue; 
-                links.put(q, (String)((JSONObject)((JSONArray)qualities.get(q)).get(1)).get("url"));
+                links.put(q, new MediaQuality((String)((JSONObject)((JSONArray)qualities.get(q)).get(1)).get("url")));
             }
         } catch (ParseException e) {
             throw new PageParseException(e.getMessage());
@@ -80,10 +81,10 @@ public class Dailymotion extends GenericExtractor{
         if (link == null) throw new PageNotFoundException("Couldnt get video");
         else {
             page = getPage(link,false,true);
-            Map<String, String> qualities = getQualities(page.toString().substring(page.toString().indexOf("var config = {")+13, page.toString().indexOf("};")+1));
+            Map<String, MediaQuality> qualities = getQualities(page.toString().substring(page.toString().indexOf("var config = {")+13, page.toString().indexOf("};")+1));
         
             MediaDefinition media = new MediaDefinition(); //all the qualities will have the same name
-            media.addThread(qualities,videoName);
+            media.addThread(qualities, videoName);
             
             return media;
             //super.downloadVideo(video,videoName,s);

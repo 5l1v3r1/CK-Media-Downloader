@@ -7,6 +7,7 @@ package downloader.Extractors;
 
 import downloader.CommonUtils;
 import downloader.DataStructures.MediaDefinition;
+import downloader.DataStructures.MediaQuality;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
 import downloader.Exceptions.PrivateVideoException;
@@ -47,20 +48,20 @@ public class Xtube extends GenericExtractor implements Searchable{
         super(url,thumb,videoName);
     }
 
-    private static Map<String,String> getQualities(String src) {
+    private static Map<String, MediaQuality> getQualities(String src) {
         String from = !src.contains("\"sources\":") ? "sources:" : "\"sources\":";
         String[] pair = CommonUtils.getBracket(src, src.indexOf(from)).split(",");
         
-        Map<String, String> qualities = new HashMap<>();
+        Map<String, MediaQuality> qualities = new HashMap<>();
         for (String p : pair) {
             String[] temp = p.split(":\"");
-            qualities.put(CommonUtils.getPureDigit(temp[0]), CommonUtils.eraseChar(temp[1], '\\').replace("\"","").replace("}",""));
+            qualities.put(CommonUtils.getPureDigit(temp[0]), new MediaQuality(CommonUtils.eraseChar(temp[1], '\\').replace("\"","").replace("}","")));
         }
         return qualities;
     }
     
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException{        
-	Map<String,String> quality = getQualities(getPage(url,false,true).toString());
+	Map<String, MediaQuality> quality = getQualities(getPage(url,false,true).toString());
         
         MediaDefinition media = new MediaDefinition();
         media.addThread(quality,videoName);
@@ -137,7 +138,7 @@ public class Xtube extends GenericExtractor implements Searchable{
     }
     
     private long getSize(String link) throws IOException, GenericDownloaderException {
-	Map<String,String> quality = getQualities(getPage(link,false,true).toString());
+	Map<String, MediaQuality> quality = getQualities(getPage(link,false,true).toString());
         
         MediaDefinition media = new MediaDefinition();
         media.addThread(quality,videoName);

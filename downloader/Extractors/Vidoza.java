@@ -7,6 +7,7 @@ package downloader.Extractors;
 
 import downloader.CommonUtils;
 import downloader.DataStructures.MediaDefinition;
+import downloader.DataStructures.MediaQuality;
 import downloader.Exceptions.GenericDownloaderException;
 import downloader.Exceptions.PageParseException;
 import downloaderProject.MainApp;
@@ -45,15 +46,15 @@ public class Vidoza extends GenericExtractor {
         super(url,thumb,videoName);
     }
     
-    private Map<String, String> getQualities(String src) throws PageParseException {
-        Map<String, String> links = new HashMap<>();
+    private Map<String, MediaQuality> getQualities(String src) throws PageParseException {
+        Map<String, MediaQuality> links = new HashMap<>();
         
         try {
             CommonUtils.log(src.substring(13,src.indexOf("}],")+2),this);
             String s = src.substring(13,src.indexOf("}],")+2).replace(" src", "\"src\"").replace("type", "\"type\"").replace("label", "\"label\"").replace("res", "\"res\"");
             JSONArray qualities = (JSONArray)new JSONParser().parse(s);
             for(int i = 0; i < qualities.size(); i++)
-                links.put((String)((JSONObject)qualities.get(i)).get("res"), (String)((JSONObject)qualities.get(i)).get("src"));
+                links.put((String)((JSONObject)qualities.get(i)).get("res"), new MediaQuality((String)((JSONObject)qualities.get(i)).get("src")));
         } catch (ParseException e) {
             throw new PageParseException(e.getMessage());
         }

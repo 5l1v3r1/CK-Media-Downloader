@@ -7,6 +7,7 @@ package downloader.Extractors;
 
 import downloader.CommonUtils;
 import downloader.DataStructures.MediaDefinition;
+import downloader.DataStructures.MediaQuality;
 import downloader.Exceptions.GenericDownloaderException;
 import downloaderProject.MainApp;
 import java.io.File;
@@ -48,12 +49,10 @@ public class Bigboobsalert extends GenericExtractor{
         MediaDefinition media = new MediaDefinition();
         for(Element link: links) {
             if (!link.attr("href").matches("pics/[\\S]+[.]jpg")) continue;
-            Map<String,String> qualities = new HashMap<>();
-            qualities.put("single",addHost(link.attr("href"),"www.bigboobsalert.com"));
-            media.addThread(qualities,CommonUtils.getThumbName(link.attr("href")));
+            Map<String, MediaQuality> qualities = new HashMap<>();
+            qualities.put("single", new MediaQuality(addHost(link.attr("href"),"www.bigboobsalert.com"), "jpg"));
+            media.addThread(qualities, CommonUtils.getThumbName(link.attr("href")));
         } media.setAlbumName(videoName);
-        
-        //super.downloadVideo(video.replace("cdn", "cdn3").replace("s12-1", "s12"),title,s);
         return media;
     }
     

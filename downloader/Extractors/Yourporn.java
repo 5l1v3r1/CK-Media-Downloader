@@ -8,6 +8,7 @@ package downloader.Extractors;
 import ChrisPackage.GameTime;
 import downloader.CommonUtils;
 import downloader.DataStructures.MediaDefinition;
+import downloader.DataStructures.MediaQuality;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
 import downloader.Exceptions.PageNotFoundException;
@@ -84,14 +85,14 @@ public class Yourporn extends GenericExtractor implements Searchable{
             media.setAlbumName(this.videoName);
             Vector<String> links = getImages(url);
             for(int i = 0; i < links.size(); i++) {
-                Map<String,String> qualities = new HashMap<>();
-                qualities.put("single",links.get(i));
+                Map<String, MediaQuality> qualities = new HashMap<>();
+                qualities.put("single", new MediaQuality(links.get(i), "jpg"));
                 media.addThread(qualities, CommonUtils.getPicName(links.get(i)));
             }
         } else {
             String video = addHost(CommonUtils.eraseChar(page.select("span.vidsnfo").attr("data-vnfo").split("\"")[3],'\\'),"sxyprn.com");
             //String video = "https://www.yourporn.sexy"+page.select("video.player_el").attr("src");
-            Map<String,String> qualities = new HashMap<>();
+            Map<String, MediaQuality> qualities = new HashMap<>();
             String test = video.replace("cdn", "cdn"+cdn);
             Pattern p = Pattern.compile("(.+/)s(\\d+)-1(/.+)"); //replace things like "s12-1", "s12"
             Matcher m = p.matcher(test);
@@ -102,7 +103,7 @@ public class Yourporn extends GenericExtractor implements Searchable{
                 if (cdn > 20)
                     break;
             }
-            qualities.put("single",test);
+            qualities.put("single",new MediaQuality(test));
             media.addThread(qualities,videoName);
         }
         return media;
@@ -213,13 +214,13 @@ public class Yourporn extends GenericExtractor implements Searchable{
             media.setAlbumName(this.videoName);
             Vector<String> links = getImages(url);
             for(int i = 0; i < links.size(); i++) {
-                Map<String,String> qualities = new HashMap<>();
-                qualities.put("single",links.get(i));
+                Map<String, MediaQuality> qualities = new HashMap<>();
+                qualities.put("single", new MediaQuality(links.get(i), "jpg"));
                 media.addThread(qualities, CommonUtils.getPicName(links.get(i)));
             }
         } else {
             String video = addHost(CommonUtils.eraseChar(page.select("span.vidsnfo").attr("data-vnfo").split("\"")[3],'\\'),"sxyprn.com");
-            Map<String,String> qualities = new HashMap<>();
+            Map<String, MediaQuality> qualities = new HashMap<>();
             String test = video.replace("cdn", "cdn"+cdn);
             Pattern p = Pattern.compile("(.+/)s(\\d+)-1(/.+)");
             Matcher m = p.matcher(test);
@@ -230,7 +231,7 @@ public class Yourporn extends GenericExtractor implements Searchable{
                 if (cdn > 20)
                     break;
             }
-            qualities.put("single",test);
+            qualities.put("single", new MediaQuality(test));
             media.addThread(qualities,videoName);
         }
         return getSize(media);

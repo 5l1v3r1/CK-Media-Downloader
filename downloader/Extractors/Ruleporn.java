@@ -9,6 +9,7 @@ import ChrisPackage.GameTime;
 import downloader.CommonUtils;
 import downloader.DataStructures.GenericQuery;
 import downloader.DataStructures.MediaDefinition;
+import downloader.DataStructures.MediaQuality;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
 import downloader.Exceptions.VideoDeletedException;
@@ -161,8 +162,8 @@ public class Ruleporn extends GenericQueryExtractor implements Searchable{
     private long getSize(String link) throws IOException, GenericDownloaderException{
         Document page = getPage(link,false,true);
         verify(page);
-        Map<String,String> q = getDefaultVideo(page);
-        return CommonUtils.getContentSize(q.get(q.keySet().iterator().next()));
+        Map<String, MediaQuality> q = getDefaultVideo(page);
+        return CommonUtils.getContentSize(q.get(q.keySet().iterator().next()).getUrl());
     }
     
     private GameTime getDuration(String link) throws IOException, GenericDownloaderException {

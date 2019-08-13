@@ -8,6 +8,7 @@ package downloader.Extractors;
 import ChrisPackage.GameTime;
 import downloader.CommonUtils;
 import downloader.DataStructures.MediaDefinition;
+import downloader.DataStructures.MediaQuality;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
 import downloaderProject.MainApp;
@@ -61,7 +62,7 @@ public class Gotporn extends GenericExtractor implements Searchable{
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
         Document page = getPageCookie(url,false,true);
         
-        Map<String,String> qualities = getDefaultVideo(page);
+        Map<String, MediaQuality> qualities = getDefaultVideo(page);
         MediaDefinition media = new MediaDefinition();
         media.addThread(qualities,videoName);
         
@@ -115,7 +116,7 @@ public class Gotporn extends GenericExtractor implements Searchable{
     private long getSize(String link) throws IOException, GenericDownloaderException {
         Document page = getPageCookie(link,false,true);
         
-        Map<String,String> qualities = getDefaultVideo(page);
+        Map<String, MediaQuality> qualities = getDefaultVideo(page);
         MediaDefinition media = new MediaDefinition();
         media.addThread(qualities,videoName);
         

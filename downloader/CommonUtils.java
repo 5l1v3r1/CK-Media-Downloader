@@ -139,12 +139,20 @@ public class CommonUtils {
         return pure.toString();
     }
     
+    public static String getExtension(String name) {
+        return name.substring(name.lastIndexOf(".") + 1, name.length());
+    }
+    
     public static boolean hasExtension(String name, String exe) {
         return name.endsWith(exe);
     }
     
     public static boolean isImage(String name) {
         return (hasExtension(name,"gif") || hasExtension(name,"png") || hasExtension(name,"jpg"));
+    }
+    
+    public static boolean isStreamType(String name) {
+        return name.equals("m3u8");
     }
     
     public static String getPicName(String link) {
@@ -328,6 +336,10 @@ public class CommonUtils {
             }
         }
         return q;
+    }
+    
+    public static Map<String, String> parseM3u8Formats(String playlist) {
+        return null;
     }
     
     public static String addAttr(String attr, String value) {

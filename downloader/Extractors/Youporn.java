@@ -9,6 +9,7 @@ import ChrisPackage.GameTime;
 import downloader.CommonUtils;
 import downloader.DataStructures.GenericQuery;
 import downloader.DataStructures.MediaDefinition;
+import downloader.DataStructures.MediaQuality;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
 import downloader.Exceptions.PageParseException;
@@ -54,14 +55,14 @@ public class Youporn extends GenericQueryExtractor implements Searchable{
         super(url,thumb,videoName);
     }
     
-    private static Map<String,String> getQualities(String s) throws PageParseException {
-        Map<String,String> q = new HashMap<>();
+    private static Map<String, MediaQuality> getQualities(String s) throws PageParseException {
+        Map<String, MediaQuality> q = new HashMap<>();
         try {
             JSONArray json = (JSONArray)new JSONParser().parse(s.substring(0,s.indexOf("}];")+2));
             Iterator<JSONObject> i = json.iterator();
             while(i.hasNext()) {
                 JSONObject quality = i.next();
-                q.put((String)quality.get("quality"), CommonUtils.eraseChar((String)quality.get("videoUrl"),'\\'));
+                q.put((String)quality.get("quality"), new MediaQuality(CommonUtils.eraseChar((String)quality.get("videoUrl"),'\\')));
             }
             return q;
         } catch (ParseException e) {
@@ -73,9 +74,9 @@ public class Youporn extends GenericQueryExtractor implements Searchable{
         Document page = getPage(url,false,true);
         //String video = page.getElementById("player-html5").attr("src");
         
-        Map<String,String> qualities = getQualities(page.toString().substring(page.toString().indexOf("mediaDefinition = [{")+18));
+        Map<String, MediaQuality> qualities = getQualities(page.toString().substring(page.toString().indexOf("mediaDefinition = [{")+18));
         MediaDefinition media = new MediaDefinition();
-        media.addThread(qualities,videoName);
+        media.addThread(qualities, videoName);
         
         return media;
     }
@@ -192,7 +193,7 @@ public class Youporn extends GenericQueryExtractor implements Searchable{
     private long getSize(String link) throws IOException, GenericDownloaderException{
         Document page = getPage(link,false,true);
         
-        Map<String,String> qualities = getQualities(page.toString().substring(page.toString().indexOf("mediaDefinition = [{")+18));
+        Map<String, MediaQuality> qualities = getQualities(page.toString().substring(page.toString().indexOf("mediaDefinition = [{")+18));
         MediaDefinition media = new MediaDefinition();
         media.addThread(qualities,videoName);
         return getSize(media);

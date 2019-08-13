@@ -7,6 +7,7 @@ package downloader.Extractors;
 
 import downloader.CommonUtils;
 import downloader.DataStructures.MediaDefinition;
+import downloader.DataStructures.MediaQuality;
 import downloader.Exceptions.GenericDownloaderException;
 import downloader.Exceptions.PageParseException;
 import downloaderProject.MainApp;
@@ -98,10 +99,11 @@ public class Imgur extends GenericExtractor {
 		JSONArray images = ((JSONArray)((JSONObject)details.get("album_images")).get("images"));
 		String title = (String)details.get("title");
         	for(int i = 0; i < count; i++) {
-                    String name = title.length() < 1 ? ((JSONObject)images.get(i)).get("hash")+" "+String.valueOf(i+1)+((JSONObject)images.get(i)).get("ext") : title + " " + String.valueOf(i+1);
-                    String link = addHost(((JSONObject)images.get(i)).get("hash")+""+((JSONObject)images.get(i)).get("ext"),"i.imgur.com"); 
-                    Map<String,String> qualities = new HashMap<>();
-                    qualities.put("single",link); media.setAlbumName(videoName);
+                    String ext = (String)((JSONObject)images.get(i)).get("ext");
+                    String name = title.length() < 1 ? ((JSONObject)images.get(i)).get("hash")+" "+String.valueOf(i+1) + ext : title + " " + String.valueOf(i+1);
+                    String link = addHost(((JSONObject)images.get(i)).get("hash")+ext,"i.imgur.com"); 
+                    Map<String, MediaQuality> qualities = new HashMap<>();
+                    qualities.put("single", new MediaQuality(link, ext)); media.setAlbumName(videoName);
                     media.addThread(qualities,name);
                 }
                 return media;
@@ -112,12 +114,11 @@ public class Imgur extends GenericExtractor {
     }
 	
     private MediaDefinition getSingle(JSONObject details) throws IOException {
-        String title = (String)details.get("title");
-               
-        String name = title.length() < 1 ? details.get("hash")+""+details.get("ext") : title;
-        String link = addHost(details.get("hash")+""+details.get("ext"),"i.imgur.com"); 
-        Map<String,String> qualities = new HashMap<>(); MediaDefinition media = new MediaDefinition();
-        qualities.put("single",link); media.addThread(qualities,name);
+        String title = (String)details.get("title"), ext = (String)details.get("ext");
+        String name = title.length() < 1 ? details.get("hash")+ ext : title;
+        String link = addHost(details.get("hash")+ ext,"i.imgur.com"); 
+        Map<String, MediaQuality> qualities = new HashMap<>(); MediaDefinition media = new MediaDefinition();
+        qualities.put("single", new MediaQuality(link, ext)); media.addThread(qualities,name);
         return media;
     }
 	
@@ -135,6 +136,6 @@ public class Imgur extends GenericExtractor {
     @Override protected String getValidRegex() {
         works = true;
         return "https?://(?:www[.])?imgur[.]com/(?:gallery/)?(?<id>[\\S]+)";
-        //https://imgur.com/gallery/cgAF6pq
+        //https://imgur.com/gallery/cgAF6pq https://imgur.com/gallery/gThRH
     }
 }

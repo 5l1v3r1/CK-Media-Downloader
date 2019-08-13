@@ -9,6 +9,7 @@ import ChrisPackage.GameTime;
 import downloader.CommonUtils;
 import downloader.DataStructures.GenericQuery;
 import downloader.DataStructures.MediaDefinition;
+import downloader.DataStructures.MediaQuality;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
 import downloader.Exceptions.PageNotFoundException;
@@ -175,8 +176,8 @@ public class Shesfreaky extends GenericQueryExtractor implements Searchable{
     }
     
     private long getSize(String link) throws IOException, GenericDownloaderException {
-        Map<String,String> q = getDefaultVideo(getPage(link,false,true));
-        return CommonUtils.getContentSize(q.get(q.keySet().iterator().next()));
+        Map<String, MediaQuality> q = getDefaultVideo(getPage(link,false,true));
+        return CommonUtils.getContentSize(q.get(q.keySet().iterator().next()).getUrl());
     }
     
     private GameTime getDuration(String link) throws IOException, GenericDownloaderException {

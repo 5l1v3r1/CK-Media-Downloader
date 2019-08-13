@@ -8,6 +8,7 @@ package downloader.Extractors;
 import ChrisPackage.GameTime;
 import downloader.CommonUtils;
 import downloader.DataStructures.MediaDefinition;
+import downloader.DataStructures.MediaQuality;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
 import downloader.Exceptions.PageParseException;
@@ -52,8 +53,8 @@ public class Porn extends GenericExtractor implements Searchable{
         super(url,thumb,videoName);
     }
     
-    private static Map<String,String> getQualities(String src) throws PageParseException{
-        Map<String, String> links = new HashMap<>();
+    private static Map<String, MediaQuality> getQualities(String src) throws PageParseException{
+        Map<String, MediaQuality> links = new HashMap<>();
         
         try {
             src = src.replaceAll("id:\"","\"id\":\"").replaceAll("url","\"url\"").replaceAll("active","\"active\"").replaceAll("false","\"false\"").replaceAll("true","\"true\"").replaceAll("definition", "\"definition\"");
@@ -61,7 +62,7 @@ public class Porn extends GenericExtractor implements Searchable{
             Iterator<JSONObject> i = json.iterator();
             while(i.hasNext()) {
                 JSONObject q = i.next();
-                links.put((String)q.get("id"), (String)q.get("url"));
+                links.put((String)q.get("id"), new MediaQuality((String)q.get("url")));
             }
         } catch (ParseException e) {
             throw new PageParseException(e.getMessage());
@@ -72,7 +73,7 @@ public class Porn extends GenericExtractor implements Searchable{
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
         Document page = getPage(url,false,true);
      
-        Map<String,String> qualities = getQualities(page.toString().substring(page.toString().indexOf("streams:[")+8,page.toString().indexOf("}]",page.toString().indexOf("streams:["))+2));
+        Map<String, MediaQuality> qualities = getQualities(page.toString().substring(page.toString().indexOf("streams:[")+8,page.toString().indexOf("}]",page.toString().indexOf("streams:["))+2));
 
         MediaDefinition media = new MediaDefinition();
         media.addThread(qualities,videoName);
@@ -141,7 +142,7 @@ public class Porn extends GenericExtractor implements Searchable{
     public long getSize(String url) throws IOException, GenericDownloaderException {
         Document page = getPage(url,false,true);
      
-        Map<String,String> qualities = getQualities(page.toString().substring(page.toString().indexOf("streams:[")+8,page.toString().indexOf("}]",page.toString().indexOf("streams:["))+2));
+        Map<String, MediaQuality> qualities = getQualities(page.toString().substring(page.toString().indexOf("streams:[")+8,page.toString().indexOf("}]",page.toString().indexOf("streams:["))+2));
         MediaDefinition media = new MediaDefinition();
         media.addThread(qualities,videoName);
         

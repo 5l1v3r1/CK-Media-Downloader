@@ -8,6 +8,7 @@ package downloader.Extractors;
 import ChrisPackage.GameTime;
 import downloader.CommonUtils;
 import downloader.DataStructures.MediaDefinition;
+import downloader.DataStructures.MediaQuality;
 import downloader.Exceptions.GenericDownloaderException;
 import downloaderProject.MainApp;
 import java.io.File;
@@ -47,7 +48,7 @@ public class Instagram extends GenericExtractor{
     
     private MediaDefinition getMetaImg(Document page, MediaDefinition media) {
         String picLink = getMetaImage(page);
-        Map<String,String> qualities = new HashMap<>(); qualities.put("single",picLink);
+        Map<String, MediaQuality> qualities = new HashMap<>(); qualities.put("single", new MediaQuality(picLink, "jpg"));
         media.addThread(qualities, CommonUtils.parseName(picLink,".jpg"));
         return media;
     }
@@ -61,7 +62,7 @@ public class Instagram extends GenericExtractor{
             for(int i = 0; i < metas.size(); i++)
                 if(metas.get(i).attr("property").equals("og:video"))
                     videoLink = metas.get(i).attr("content");
-            Map<String,String> qualities = new HashMap<>(); qualities.put("single",videoLink);
+            Map<String, MediaQuality> qualities = new HashMap<>(); qualities.put("single", new MediaQuality(videoLink, "mp4"));
             media.addThread(qualities,CommonUtils.parseName(videoLink,".mp4"));
             return media;
         } else if(isProfilePage(page)) //download profile pic
@@ -77,10 +78,14 @@ public class Instagram extends GenericExtractor{
                         link = CommonUtils.getLink(resources.get(i), resources.get(i).indexOf("video_url")+12, '\"');
                     else
                         link = parseBracket(resources.get(i).substring(0,resources.get(i).indexOf("]")));
-                    Map<String,String> qualities = new HashMap<>(); qualities.put("single",link);
-                    if (link.contains(".mp4"))
+                    Map<String, MediaQuality> qualities = new HashMap<>(); 
+                    if (link.contains(".mp4")) {
+                        qualities.put("single", new MediaQuality(link, "mp4"));
                         media.addThread(qualities, CommonUtils.parseName(link,".mp4"));
-                    else media.addThread(qualities, CommonUtils.parseName(link,".jpg"));
+                    } else  {
+                        qualities.put("single", new MediaQuality(link, "jpg"));
+                        media.addThread(qualities, CommonUtils.parseName(link,".jpg"));
+                    }
                 }
                 return media;
             } else

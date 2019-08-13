@@ -7,6 +7,7 @@ package downloader.Extractors;
 
 import downloader.CommonUtils;
 import downloader.DataStructures.MediaDefinition;
+import downloader.DataStructures.MediaQuality;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
 import downloaderProject.MainApp;
@@ -45,12 +46,12 @@ public class Eporner extends GenericExtractor{
 
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
         Elements a = getPageCookie(url, false).getElementById("hd-porn-dload").select("a");
-        Map<String,String> qualities = new HashMap<>();
+        Map<String, MediaQuality> qualities = new HashMap<>();
         
         for(byte i = 0; i < a.size(); i++) {
             String link = a.get(i).attr("href"), regex = "/dload/\\S+/(?<id>\\d+)/\\d+-\\d+p.mp4";
             if (link.matches(regex))
-                qualities.put(getId(link, regex), addHost(link, "www.eporner.com"));
+                qualities.put(getId(link, regex), new MediaQuality(addHost(link, "www.eporner.com")));
         }
         
         MediaDefinition media = new MediaDefinition();

@@ -9,6 +9,7 @@ import ChrisPackage.GameTime;
 import downloader.CommonUtils;
 import downloader.DataStructures.GenericQuery;
 import downloader.DataStructures.MediaDefinition;
+import downloader.DataStructures.MediaQuality;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
 import downloader.Exceptions.PageParseException;
@@ -101,8 +102,8 @@ public class Spankwire extends GenericQueryExtractor implements Searchable{
         return thumbs;
     }
     
-     private static Map<String,String> getQualities(String link) throws IOException, PageParseException {
-        Map<String, String> qualities = new HashMap<>();
+     private static Map<String, MediaQuality> getQualities(String link) throws IOException, PageParseException {
+        Map<String, MediaQuality> qualities = new HashMap<>();
         String rawJson = Jsoup.connect("http://www.spankwire.com/api/video/"+getId(link,getRegex())+".json").ignoreContentType(true).execute().body();
         try {
             JSONObject json = (JSONObject)new JSONParser().parse(rawJson);
@@ -110,7 +111,7 @@ public class Spankwire extends GenericQueryExtractor implements Searchable{
             Iterator<String> i = videos.keySet().iterator();
             while(i.hasNext()) {
                 String qualitiy = i.next();
-                qualities.put(qualitiy.replace("quality_",""), (String)videos.get(qualitiy));
+                qualities.put(qualitiy.replace("quality_",""), new MediaQuality((String)videos.get(qualitiy)));
             }
         } catch (ParseException e) {
                throw new PageParseException(e.getMessage());

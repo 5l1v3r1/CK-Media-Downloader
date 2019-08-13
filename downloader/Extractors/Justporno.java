@@ -7,6 +7,7 @@ package downloader.Extractors;
 
 import downloader.CommonUtils;
 import downloader.DataStructures.MediaDefinition;
+import downloader.DataStructures.MediaQuality;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
 import downloaderProject.MainApp;
@@ -54,8 +55,8 @@ public class Justporno extends GenericExtractor implements Searchable{
             media.addThread(getDefaultVideo(page),videoName);
         else {
             String video = CommonUtils.getLink(page.toString(),page.toString().indexOf("video_url: '")+12,'\'');
-            Map<String,String> qualities = new HashMap<>();
-            qualities.put("single",video); 
+            Map<String, MediaQuality> qualities = new HashMap<>();
+            qualities.put("single", new MediaQuality(video)); 
             media.addThread(qualities,videoName);
         }
         return media;
@@ -131,16 +132,16 @@ public class Justporno extends GenericExtractor implements Searchable{
     
     private long getSize(String link) throws IOException, GenericDownloaderException {
         Document page = getPage(link,false,true);
-        Map<String, String> q;
+        Map<String, MediaQuality> q;
         
         if (!page.select("video").isEmpty())
             q = getDefaultVideo(page);
         else {
             String video = CommonUtils.getLink(page.toString(),page.toString().indexOf("video_url: '")+12,'\'');
             q = new HashMap<>();
-            q.put("single",video); 
+            q.put("single", new MediaQuality(video)); 
         }
-        return CommonUtils.getContentSize(q.get(q.keySet().iterator().next()));
+        return CommonUtils.getContentSize(q.get(q.keySet().iterator().next()).getUrl());
     }
     
     @Override public Vector<String> getKeywords() throws IOException, GenericDownloaderException {

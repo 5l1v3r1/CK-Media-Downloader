@@ -8,6 +8,7 @@ package downloader.Extractors;
 import ChrisPackage.GameTime;
 import downloader.CommonUtils;
 import downloader.DataStructures.MediaDefinition;
+import downloader.DataStructures.MediaQuality;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
 import downloader.Exceptions.PageParseException;
@@ -52,15 +53,15 @@ public class Ghettotube extends GenericExtractor implements Searchable{
         super(url,thumb,videoName);
     }
     
-    private Map<String,String> getQualities(String s) throws PageParseException {
-        Map<String,String> q = new HashMap<>();
+    private Map<String, MediaQuality> getQualities(String s) throws PageParseException {
+        Map<String, MediaQuality> q = new HashMap<>();
         try {
             String src = s.substring(s.indexOf("sources: [{")+9,s.indexOf("}],")+2).replaceAll("file", "\"file\"").replaceAll("label", "\"label\"");
             JSONArray json = (JSONArray)new JSONParser().parse(src);
             Iterator<JSONObject> i = json.iterator();
             while(i.hasNext()) {
                 JSONObject temp = i.next();
-                q.put((String)temp.get("label"), (String)temp.get("file"));
+                q.put((String)temp.get("label"), new MediaQuality((String)temp.get("file")));
             }
             return q;
         } catch (ParseException e) {
@@ -70,7 +71,7 @@ public class Ghettotube extends GenericExtractor implements Searchable{
 
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
         Document page = getPage(url,false,true);
-        Map<String,String> qualities = getQualities(page.toString().substring(page.toString().indexOf("playerInstance.setup({")));
+        Map<String, MediaQuality> qualities = getQualities(page.toString().substring(page.toString().indexOf("playerInstance.setup({")));
         
         MediaDefinition media = new MediaDefinition();
         media.addThread(qualities,videoName);

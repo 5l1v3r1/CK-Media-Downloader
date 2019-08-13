@@ -8,6 +8,7 @@ package downloader.Extractors;
 import downloader.CommonUtils;
 import downloader.DataStructures.GenericQuery;
 import downloader.DataStructures.MediaDefinition;
+import downloader.DataStructures.MediaQuality;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
 import downloader.Exceptions.PageNotFoundException;
@@ -56,15 +57,15 @@ public class Thumbzilla extends GenericQueryExtractor implements Searchable{
         verify(page);
         
 	Elements qualities = page.select("a.qualityButton");
-        Map<String,String> quality = new HashMap<>();
+        Map<String, MediaQuality> quality = new HashMap<>();
         for(int i = 0; i < qualities.size(); i++) {
             String qualityName = Jsoup.parse(qualities.get(i).toString()).body().text();
             String qualityLink = qualities.get(i).attr("data-quality");
-            quality.put(qualityName, qualityLink);
+            quality.put(qualityName, new MediaQuality(qualityLink));
         }
         
         MediaDefinition media = new MediaDefinition();
-        media.addThread(quality,videoName);
+        media.addThread(quality, videoName);
         
         return media;
     }
@@ -196,11 +197,11 @@ public class Thumbzilla extends GenericQueryExtractor implements Searchable{
         verify(page);
         
 	Elements qualities = page.select("a.qualityButton");
-        Map<String,String> quality = new HashMap<>();
+        Map<String, MediaQuality> quality = new HashMap<>();
         for(int i = 0; i < qualities.size(); i++) {
             String qualityName = Jsoup.parse(qualities.get(i).toString()).body().text();
             String qualityLink = qualities.get(i).attr("data-quality");
-            quality.put(qualityName, qualityLink);
+            quality.put(qualityName, new MediaQuality(qualityLink));
         }
         
         MediaDefinition media = new MediaDefinition();

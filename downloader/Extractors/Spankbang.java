@@ -12,6 +12,7 @@ import org.jsoup.select.Elements;
 import downloader.CommonUtils;
 import downloader.DataStructures.GenericQuery;
 import downloader.DataStructures.MediaDefinition;
+import downloader.DataStructures.MediaQuality;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
 import downloader.Exceptions.PageParseException;
@@ -71,8 +72,8 @@ public class Spankbang extends GenericQueryExtractor implements Playlist, Search
         super(url,thumb,videoName);
     }
     
-    private Map<String,String> getQualities(String s) throws PageParseException {
-        Map<String,String> quality = new HashMap<>();
+    private Map<String, MediaQuality> getQualities(String s) throws PageParseException {
+        Map<String, MediaQuality> quality = new HashMap<>();
         try {
             JSONObject json = (JSONObject)new JSONParser().parse(s);
             Iterator<String> i = json.keySet().iterator();
@@ -81,7 +82,7 @@ public class Spankbang extends GenericQueryExtractor implements Playlist, Search
                 if (id.startsWith("stream_url_"))
                     if (!(json.get(id) instanceof String))
                     //if (!((JSONArray)json.get(id)).isEmpty())
-                        quality.put(id.replace("stream_url_", ""),(String)((JSONArray)json.get(id)).get(0));
+                        quality.put(id.replace("stream_url_", ""), new MediaQuality((String)((JSONArray)json.get(id)).get(0)));
             }
         } catch (ParseException e) {
             throw new PageParseException(e.getMessage());

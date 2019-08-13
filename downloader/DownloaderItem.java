@@ -8,6 +8,7 @@ package downloader;
 import ChrisPackage.GameTime;
 import com.jfoenix.controls.JFXButton;
 import downloader.DataStructures.MediaDefinition;
+import downloader.DataStructures.MediaQuality;
 import downloader.DataStructures.downloadedMedia;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
@@ -65,7 +66,8 @@ public class DownloaderItem {
     private GenericExtractor extractor;
     private video v = null;
     private boolean loaded;
-    private Vector<String> downloadLinks, downloadNames;
+    private Vector<String> downloadNames;
+    private Vector<MediaQuality> downloadLinks;
     
     public void release() {
         url = null;
@@ -468,9 +470,9 @@ public class DownloaderItem {
     
     public String getStreamLink() throws GenericDownloaderException, UncheckedIOException, Exception {
         if (extractor == null) extractor = getExtractor();
-        Map<String,String> m = extractor.getVideo().iterator().next();
+        Map<String, MediaQuality> m = extractor.getVideo().iterator().next();
         String highestQuality = m.keySet().size() == 1 ? m.keySet().iterator().next() : CommonUtils.getSortedFormats(m.keySet()).get(0);
-        return m.get(highestQuality);
+        return m.get(highestQuality).getUrl();
     }
     
     private void determineLink() throws GenericDownloaderException, UncheckedIOException, Exception {
@@ -478,30 +480,30 @@ public class DownloaderItem {
         MediaDefinition media = extractor.getVideo();
         downloadLinks = new Vector<>(); downloadNames = new Vector<>();
         if (!media.isSingleThread()) { //if more than one thread
-            Map<String, String> m = new HashMap<>(); //to hold media link + name
-            Iterator<Map<String,String>> i = media.iterator(); int j = 0;
+            Map<MediaQuality, String> m = new HashMap<>(); //to hold media link + name
+            Iterator<Map<String, MediaQuality>> i = media.iterator(); int j = 0;
             while(i.hasNext()) { //get qualities from threads
-                Map<String,String> temp = i.next();
+                Map<String, MediaQuality> temp = i.next();
                 if (temp.keySet().size() > 1) { //if more than one quality avaliable
                    QualityDialog d = new QualityDialog();
                     String quality = d.display(temp, media.getThreadName(0), extractor.getCookies());
                     if (quality != null)
-                        m.put(m.get(quality), media.getThreadName(j++));
+                        m.put(temp.get(quality), media.getThreadName(j++));
                 } else //get the single avaliable quality
                     m.put(temp.get(temp.keySet().iterator().next()), media.getThreadName(j++));
             }
-            Iterator<String> k = m.keySet().iterator();
+            Iterator<MediaQuality> k = m.keySet().iterator();
             downloadLinks.ensureCapacity(m.keySet().size());
             downloadNames.ensureCapacity(m.keySet().size());
             while(k.hasNext()) { //download threads with chosen qualities
-                String tempLink = k.next();
-                downloadLinks.add(tempLink);
-                downloadNames.add(m.get(tempLink));
+                MediaQuality n = k.next();
+                downloadLinks.add(n);
+                downloadNames.add(m.get(n));
                 albumName = media.getAlbumName();
             }
         } else {
-            Map<String,String> m = media.iterator().next();
-            String link = null;
+            Map<String, MediaQuality> m = media.iterator().next();
+            MediaQuality link = null;
             if (m.keySet().size() > 1) { //if more than one quality avaliable
                 QualityDialog d = new QualityDialog();
                 String quality = d.display(m,media.getThreadName(0), extractor.getCookies());
@@ -545,11 +547,17 @@ public class DownloaderItem {
         }
     }
     
-    private void download(String link, String name, OperationStream s, String albumName) throws MalformedURLException {
+    private void download(MediaQuality q, String name, OperationStream s, String albumName) throws MalformedURLException {
         //if albumName == null not an album
-        if (!CommonUtils.isImage(name))
-            if (!CommonUtils.hasExtension(name, "mp4"))
-                name = name + ".mp4"; //assume video
+        if (CommonUtils.isStreamType(q.getType())) 
+            downloadFFmpeg(q, name, s, albumName);
+        else
+            downloadLocal(q, name, s, albumName);
+    }
+    
+    private void downloadLocal(MediaQuality q, String name, OperationStream s, String albumName) throws MalformedURLException {
+        if (!CommonUtils.hasExtension(name, q.getType()))
+            name = name + "." + q.getType();
         name = CommonUtils.addId(name, extractor.getId());
         File folder = CommonUtils.isImage(name) ? MainApp.settings.preferences.getPictureFolder() : MainApp.settings.preferences.getVideoFolder();
         
@@ -558,7 +566,7 @@ public class DownloaderItem {
         do {
             if (retries < 1) break;
             if (s != null) s.addProgress("Trying "+CommonUtils.clean(name));
-            stop = albumName != null ? CommonUtils.saveFile(link,CommonUtils.clean(name),folder+File.separator+albumName,s, extractor.getCookies()) : CommonUtils.saveFile(link,CommonUtils.clean(name),folder,s,  extractor.getCookies());
+            stop = albumName != null ? CommonUtils.saveFile(q.getUrl() ,CommonUtils.clean(name),folder+File.separator+albumName,s, extractor.getCookies()) : CommonUtils.saveFile(q.getUrl(), CommonUtils.clean(name),folder,s,  extractor.getCookies());
             try {
                 Thread.sleep(4000);
             } catch (InterruptedException ex) {
@@ -569,6 +577,15 @@ public class DownloaderItem {
         MainApp.createNotification("Download Success","Finished Downloading "+name);
         File saved = albumName != null ? new File(folder + File.separator + albumName + File.separator + CommonUtils.clean(name)) : new File(folder + File.separator + CommonUtils.clean(name));
         MainApp.downloadHistoryList.add(new downloadedMedia(CommonUtils.clean(name),extractor.getThumb(),saved,extractor.getClass().getSimpleName(), CommonUtils.getCurrentTimeStamp()));
+    }
+    
+    private void downloadFFmpeg(MediaQuality q, String name, OperationStream s, String albumName) throws MalformedURLException {
+        //to download videos/livestreams coming from hls/m3u8 playlists
+        
+        MainApp.createMessageDialog("This format is not supported as yet");
+        
+        
+        //MainApp.createNotification("Download Success","Finished Downloading "+name);
     }
     
     private void setSize(final long size) {

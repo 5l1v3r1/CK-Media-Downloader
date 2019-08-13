@@ -7,6 +7,7 @@ package downloader.Extractors;
 
 import downloader.CommonUtils;
 import downloader.DataStructures.MediaDefinition;
+import downloader.DataStructures.MediaQuality;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
 import downloaderProject.MainApp;
@@ -48,10 +49,10 @@ public class Pornhd extends GenericExtractor implements Searchable{
         Document page = getPageCookie(url,false,true);
 
 	String[] rawData = getId(page.toString(),"sources: \\{(?<id>.+?)\\}").split("\"");
-	Map<String,String> qualities = new HashMap<>(); MediaDefinition media = new MediaDefinition();
+	Map<String, MediaQuality> qualities = new HashMap<>(); MediaDefinition media = new MediaDefinition();
 	for(int i = 0; i < rawData.length; i++) {
             if (i == 0) continue;
-            qualities.put(rawData[i], addHost(CommonUtils.eraseChar(rawData[i+2],'\\'),"pornhd.com"));
+            qualities.put(rawData[i], new MediaQuality(addHost(CommonUtils.eraseChar(rawData[i+2],'\\'),"pornhd.com")));
             i+=3;
 	}
         media.addThread(qualities, videoName);
@@ -120,10 +121,10 @@ public class Pornhd extends GenericExtractor implements Searchable{
         Document page = getPageCookie(link,false,true);
 
 	String[] rawData = getId(page.toString(),"sources: \\{(?<id>.+?)\\}").split("\"");
-	Map<String,String> qualities = new HashMap<>(); MediaDefinition media = new MediaDefinition();
+	Map<String, MediaQuality> qualities = new HashMap<>(); MediaDefinition media = new MediaDefinition();
 	for(int i = 0; i < rawData.length; i++) {
             if (i == 0) continue;
-            qualities.put(rawData[i], addHost(CommonUtils.eraseChar(rawData[i+2],'\\'),"pornhd.com"));
+            qualities.put(rawData[i], new MediaQuality(addHost(CommonUtils.eraseChar(rawData[i+2],'\\'),"pornhd.com")));
             i+=3;
 	}
         media.addThread(qualities, videoName); //video name is not used so doesnt matter

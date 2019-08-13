@@ -9,6 +9,7 @@ import ChrisPackage.GameTime;
 import downloader.CommonUtils;
 import downloader.DataStructures.GenericQuery;
 import downloader.DataStructures.MediaDefinition;
+import downloader.DataStructures.MediaQuality;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
 import downloader.Exceptions.PageParseException;
@@ -53,15 +54,15 @@ public class Redtube extends GenericQueryExtractor implements Searchable{
         super(url,thumb,videoName);
     }
     
-    private Map<String,String> getQualities(String s) throws PageParseException {
-        Map<String,String> q = new HashMap<>();
+    private Map<String, MediaQuality> getQualities(String s) throws PageParseException {
+        Map<String, MediaQuality> q = new HashMap<>();
         try {
             JSONArray json = (JSONArray)new JSONParser().parse(s.substring(0,s.indexOf("}],")+2));
             Iterator<JSONObject> i = json.iterator();
             while(i.hasNext()) {
                 JSONObject temp = i.next();
                 if (!((String)temp.get("videoUrl")).isEmpty())
-                    q.put((String)temp.get("quality"), (String)temp.get("videoUrl"));
+                    q.put((String)temp.get("quality"), new MediaQuality((String)temp.get("videoUrl")));
             }
             return q;
         } catch (ParseException e) {
@@ -73,7 +74,7 @@ public class Redtube extends GenericQueryExtractor implements Searchable{
         Document page = getPage(url,false,true);
         
 	int mediaIndex = page.toString().indexOf("mediaDefinition:");
-        Map<String,String> qualities = getQualities(page.toString().substring(mediaIndex+17));
+        Map<String, MediaQuality> qualities = getQualities(page.toString().substring(mediaIndex+17));
 		
 	//String defaultVideo = CommonUtils.getBracket(page.toString(),mediaIndex);
 	//String videoLink = CommonUtils.eraseChar(CommonUtils.getLink(defaultVideo,defaultVideo.indexOf("videoUrl")+11,'"'),'\\');
@@ -187,7 +188,7 @@ public class Redtube extends GenericQueryExtractor implements Searchable{
         Document page = getPage(link,false,true);
         
 	int mediaIndex = page.toString().indexOf("mediaDefinition:");
-        Map<String,String> qualities = getQualities(page.toString().substring(mediaIndex+17));
+        Map<String, MediaQuality> qualities = getQualities(page.toString().substring(mediaIndex+17));
         
         MediaDefinition media = new MediaDefinition();
         media.addThread(qualities, videoName);

@@ -9,6 +9,7 @@ import ChrisPackage.GameTime;
 import downloader.CommonUtils;
 import downloader.DataStructures.GenericQuery;
 import downloader.DataStructures.MediaDefinition;
+import downloader.DataStructures.MediaQuality;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
 import downloader.Exceptions.PageParseException;
@@ -59,15 +60,15 @@ public class Xhamster extends GenericQueryExtractor implements Searchable{
         super(convertUrl(url),thumb,videoName);
     }
 
-    private static Map<String,String> getQualities(String s) throws PageParseException {
-        Map<String,String> q = new HashMap<>();
+    private static Map<String, MediaQuality> getQualities(String s) throws PageParseException {
+        Map<String, MediaQuality> q = new HashMap<>();
         try {
             JSONArray json = (JSONArray)new JSONParser().parse(s.substring(0,s.indexOf("}]")+2));
             Iterator<JSONObject> i = json.iterator();
             while(i.hasNext()) {
                 JSONObject quality = i.next();
                 if (quality.get("quality").equals("auto")) continue;
-                q.put((String)quality.get("quality"), CommonUtils.eraseChar((String)quality.get("fallback"),'\\'));
+                q.put((String)quality.get("quality"), new MediaQuality(CommonUtils.eraseChar((String)quality.get("fallback"),'\\')));
             }
             return q;
         } catch (ParseException e) {
@@ -80,20 +81,19 @@ public class Xhamster extends GenericQueryExtractor implements Searchable{
         MediaDefinition media = new MediaDefinition();
         
         if (!isAlbum(url)) {
-            Map<String,String> qualities = getQualities(page.toString().substring(page.toString().indexOf("mp4\":[")+5));
+            Map<String, MediaQuality> qualities = getQualities(page.toString().substring(page.toString().indexOf("mp4\":[")+5));
 
             //String video = page.select("a.player-container__no-player.xplayer.xplayer-fallback-image.xh-helper-hidden").attr("href");
             media.addThread(qualities,videoName);
         } else {
-            //https://xhamster.com/photos/gallery/julie-anderson-977633 https://xhamster.com/photos/gallery/12272844/297194743
             final int max = Integer.parseInt(page.select("span.page-title__count").text());
             Elements a = page.getElementById("photo-slider").select("a"); int next = 2;
             while(a.size() < max) //pagination
                 a.addAll(getPage(url+"/"+next++,false,true).getElementById("photo-slider").select("a"));
             for(int i = 0; i < a.size(); i++) {
-                Map<String,String> pic = new HashMap<>();
+                Map<String, MediaQuality> pic = new HashMap<>();
                 String link = a.get(i).attr("href");
-                pic.put("single",link);
+                pic.put("single", new MediaQuality(link, "jpg"));
                 media.addThread(pic, videoName+"-"+link.split("/")[link.split("/").length -1]);
             }
             media.setAlbumName(videoName);
@@ -245,5 +245,6 @@ public class Xhamster extends GenericQueryExtractor implements Searchable{
         works = true;
         return "https?://(?:[\\S]+?[.])?xhamster[.](?:com|one)/(?:movies/(?<id>[\\d]+)/(?<displayid>[^/]*)[.]html([?]\\S*)?|videos/(?<displayid2>[^/]*)-(?<id2>[\\d]+)|photos/gallery/(?<displayid3>[^/]*)-(?<id3>[\\d]+))"; 
         //https://xhamster.com/videos/ebony-woman-with-big-tits-3958905
+        //https://xhamster.com/photos/gallery/julie-anderson-977633 https://xhamster.com/photos/gallery/12272844/297194743
     }
 }

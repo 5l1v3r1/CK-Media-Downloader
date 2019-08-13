@@ -9,6 +9,7 @@ import ChrisPackage.GameTime;
 import downloader.CommonUtils;
 import downloader.DataStructures.GenericQuery;
 import downloader.DataStructures.MediaDefinition;
+import downloader.DataStructures.MediaQuality;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
 import downloader.Exceptions.PageNotFoundException;
@@ -77,10 +78,11 @@ public class Xvideos extends GenericQueryExtractor implements Searchable{
         }
         Vector<String> stats = getStats(page.select("script").get(use).toString());
         
-        Map<String,String> qualities = new HashMap<>();
-        qualities.put("high",stats.get(2)); qualities.put("low",stats.get(1));
+        Map<String, MediaQuality> qualities = new HashMap<>();
+        qualities.put("high",new MediaQuality(stats.get(2))); 
+        qualities.put("low", new MediaQuality(stats.get(1)));
         MediaDefinition media = new MediaDefinition();
-        media.addThread(qualities,videoName);
+        media.addThread(qualities, videoName);
         
         return media;
     }
@@ -271,10 +273,11 @@ public class Xvideos extends GenericQueryExtractor implements Searchable{
         }
         Vector<String> stats = getStats(page.select("script").get(use).toString());
         
-        Map<String,String> qualities = new HashMap<>();
-        qualities.put("high",stats.get(2)); qualities.put("low",stats.get(1));
+        Map<String, MediaQuality> qualities = new HashMap<>();
+        qualities.put("high", new MediaQuality(stats.get(2))); 
+        qualities.put("low", new MediaQuality(stats.get(1)));
         MediaDefinition media = new MediaDefinition();
-        media.addThread(qualities,videoName);
+        media.addThread(qualities, videoName);
         return getSize(media);
     }
     

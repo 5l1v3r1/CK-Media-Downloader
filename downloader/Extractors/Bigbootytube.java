@@ -9,6 +9,7 @@ import ChrisPackage.GameTime;
 import downloader.CommonUtils;
 import downloader.DataStructures.GenericQuery;
 import downloader.DataStructures.MediaDefinition;
+import downloader.DataStructures.MediaQuality;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
 import downloaderProject.MainApp;
@@ -50,11 +51,10 @@ public class Bigbootytube extends GenericQueryExtractor implements Searchable{
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException{
         Document page = getPage(url,false,true);
         String video = addHost(CommonUtils.getLink(page.toString(),page.toString().indexOf("video_url:")+12,'\''), "");
-        Map<String,String> qualities = new HashMap<>(); qualities.put("single",video);
+        Map<String, MediaQuality> qualities = new HashMap<>(); qualities.put("single", new MediaQuality(video));
         MediaDefinition media = new MediaDefinition(); media.addThread(qualities,videoName);
         
         return media;
-        //super.downloadVideo(video,title,s);
     }
     
     int stop;

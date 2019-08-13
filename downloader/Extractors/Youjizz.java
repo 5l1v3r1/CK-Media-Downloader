@@ -8,6 +8,7 @@ package downloader.Extractors;
 import ChrisPackage.GameTime;
 import downloader.CommonUtils;
 import downloader.DataStructures.MediaDefinition;
+import downloader.DataStructures.MediaQuality;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
 import downloaderProject.MainApp;
@@ -48,13 +49,13 @@ public class Youjizz extends GenericExtractor implements Searchable{
         super(url,thumb,videoName);
     }
     
-    private static Map<String, String> getQualities(String src, String s) {
+    private static Map<String, MediaQuality> getQualities(String src, String s) {
         int happen, from = 0;
         
-        Map<String, String> qualities = new HashMap<>();
+        Map<String, MediaQuality> qualities = new HashMap<>();
         while((happen = src.indexOf(s,from)) != -1) {
             if(!qualities.containsKey(CommonUtils.getLink(src,happen+10,'\"')))
-                qualities.put(CommonUtils.getLink(src,happen+10,'\"'), "https:"+CommonUtils.eraseChar(CommonUtils.getLink(src,src.indexOf("filename",happen)+11,'\"'), '\\'));
+                qualities.put(CommonUtils.getLink(src,happen+10,'\"'), new MediaQuality("https:"+CommonUtils.eraseChar(CommonUtils.getLink(src,src.indexOf("filename",happen)+11,'\"'), '\\')));
             from = happen +1;
         }
         return qualities;
@@ -62,10 +63,10 @@ public class Youjizz extends GenericExtractor implements Searchable{
 
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException{
         Document page = getPage(url,false,true);
-        Map<String, String> quality = getQualities(CommonUtils.getSBracket(page.toString(), page.toString().indexOf("var encodings")),"quality");
+        Map<String, MediaQuality> quality = getQualities(CommonUtils.getSBracket(page.toString(), page.toString().indexOf("var encodings")),"quality");
         
         MediaDefinition media = new MediaDefinition();
-        media.addThread(quality,videoName);
+        media.addThread(quality, videoName);
         
         return media;
     }
@@ -131,7 +132,7 @@ public class Youjizz extends GenericExtractor implements Searchable{
 
     public long getSize(String link) throws IOException, GenericDownloaderException {
         Document page = getPage(link,false,true);
-        Map<String, String> quality = getQualities(CommonUtils.getSBracket(page.toString(), page.toString().indexOf("var encodings")),"quality");
+        Map<String, MediaQuality> quality = getQualities(CommonUtils.getSBracket(page.toString(), page.toString().indexOf("var encodings")),"quality");
         
         MediaDefinition media = new MediaDefinition();
         media.addThread(quality,videoName);

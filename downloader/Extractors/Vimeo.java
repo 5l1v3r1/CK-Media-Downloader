@@ -8,6 +8,7 @@ package downloader.Extractors;
 import ChrisPackage.GameTime;
 import downloader.CommonUtils;
 import downloader.DataStructures.MediaDefinition;
+import downloader.DataStructures.MediaQuality;
 import downloader.DataStructures.video;
 import downloader.Exceptions.GenericDownloaderException;
 import downloader.Exceptions.PageNotFoundException;
@@ -63,15 +64,15 @@ public class Vimeo extends GenericExtractor implements Playlist{
         super(url,thumb,videoName);
     }
     
-    private Map<String,String> getQualities(String src) throws PageParseException {
-        Map<String, String> qualities = new HashMap<>();
+    private Map<String, MediaQuality> getQualities(String src) throws PageParseException {
+        Map<String, MediaQuality> qualities = new HashMap<>();
         
         try {
             JSONArray progressiveArray = (JSONArray)new JSONParser().parse(src);
             for(int i = 0; i < progressiveArray.size(); i++) {
                 JSONObject quality = (JSONObject)progressiveArray.get(i);
                 if(!quality.get("mime").equals("video/mp4")) continue;
-                qualities.put((String)quality.get("quality"), (String)quality.get("url"));
+                qualities.put((String)quality.get("quality"), new MediaQuality((String)quality.get("url")));
             }
         } catch (ParseException e) {
             throw new PageParseException(e.getMessage());
@@ -87,7 +88,7 @@ public class Vimeo extends GenericExtractor implements Playlist{
         page = getPage(newUrl,false,true);
         verify(page);
         
-        Map<String, String> qualities = getQualities(CommonUtils.getSBracket(page.toString(), page.toString().indexOf("progressive")));
+        Map<String, MediaQuality> qualities = getQualities(CommonUtils.getSBracket(page.toString(), page.toString().indexOf("progressive")));
         MediaDefinition media = new MediaDefinition();
         media.addThread(qualities,videoName);
         
