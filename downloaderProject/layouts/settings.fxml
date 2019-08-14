@@ -12,11 +12,11 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.text.Font?>
 
-<Pane prefHeight="550.0" prefWidth="694.0" styleClass="background" stylesheets="@darkPane.css" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.60" fx:controller="downloaderProject.mainLayoutController">
+<Pane prefHeight="550.0" prefWidth="694.0" styleClass="background" stylesheets="@darkPane.css" xmlns:fx="http://javafx.com/fxml/1" fx:controller="downloaderProject.mainLayoutController">
    <children>
-                        <ScrollPane id="settingsScroller" fx:id="settingsScroller" layoutY="55.0" prefHeight="495.0" prefWidth="695.0" styleClass="background">
+                        <ScrollPane id="settingsScroller" fx:id="settingsScroller" layoutY="55.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="495.0" prefWidth="695.0" styleClass="background">
                           <content>
-                            <AnchorPane id="searchHistoryPane" minHeight="0.0" minWidth="0.0" prefHeight="640.0" prefWidth="685.0" styleClass="background">
+                            <AnchorPane id="searchHistoryPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="684.0" prefWidth="685.0" styleClass="background">
                                  <children>
                                     <TextField id="videodownloadLoc" fx:id="videodownloadLoc" layoutX="8.0" layoutY="29.0" onAction="#setVideoLocation" prefHeight="28.0" prefWidth="545.0" promptText="Location" />
                                     <Label layoutX="9.0" layoutY="10.0" prefHeight="16.0" prefWidth="173.0" text="Video Download Location" />
@@ -29,13 +29,13 @@
                         </ImageView>
                      </graphic>
                                     <tooltip><Tooltip text="Browse for a new folder" /></tooltip></Button>
-                                    <ScrollPane id="querySites" layoutX="8.0" layoutY="216.0" prefHeight="200.0" prefWidth="244.0" styleClass="lighter">
+                                    <ScrollPane id="querySites" layoutX="8.0" layoutY="276.0" prefHeight="200.0" prefWidth="244.0" styleClass="lighter">
                                       <content>
                                         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="198.0" prefWidth="232.0" styleClass="lighter" />
                                       </content>
                                     </ScrollPane>
-                                    <Label layoutX="8.0" layoutY="192.0" prefHeight="16.0" prefWidth="205.0" text="Sites to search with browser" />
-                                    <Button layoutX="8.0" layoutY="431.0" mnemonicParsing="false" onAction="#clearSavedVideos" prefHeight="26.0" text="Delete saved media">
+                                    <Label layoutX="8.0" layoutY="252.0" prefHeight="16.0" prefWidth="205.0" text="Sites to search with browser" />
+                                    <Button layoutX="8.0" layoutY="491.0" mnemonicParsing="false" onAction="#clearSavedVideos" prefHeight="26.0" text="Delete saved media">
                      <graphic>
                         <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                            <image>
@@ -44,7 +44,7 @@
                         </ImageView>
                      </graphic>
                                     <tooltip><Tooltip text="Delete previously saved media" /></tooltip></Button>
-                                    <Button layoutX="8.0" layoutY="470.0" mnemonicParsing="false" onAction="#clearCache" prefHeight="26.0" prefWidth="150.0" text="Clear Cache">
+                                    <Button layoutX="8.0" layoutY="530.0" mnemonicParsing="false" onAction="#clearCache" prefHeight="26.0" prefWidth="150.0" text="Clear Cache">
                      <graphic>
                         <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                            <image>
@@ -53,9 +53,9 @@
                         </ImageView>
                      </graphic>
                                     <tooltip><Tooltip text="Clear cache created from searches" /></tooltip></Button>
-                                    <Label id="cacheSize" layoutX="221.0" layoutY="476.0" prefHeight="24.0" prefWidth="170.0" text="Label" />
-                                    <Label id="videoCount" layoutX="221.0" layoutY="436.0" prefHeight="24.0" prefWidth="136.0" text="Label" />
-                  <TextField id="picdownloadLoc" fx:id="picdownloadLoc" layoutX="8.0" layoutY="86.0" onAction="#setVideoLocation" prefHeight="28.0" prefWidth="545.0" promptText="Location" />
+                                    <Label id="cacheSize" layoutX="221.0" layoutY="536.0" prefHeight="24.0" prefWidth="170.0" text="Label" />
+                                    <Label id="videoCount" layoutX="221.0" layoutY="496.0" prefHeight="24.0" prefWidth="136.0" text="Label" />
+                  <TextField id="picdownloadLoc" layoutX="8.0" layoutY="86.0" onAction="#setVideoLocation" prefHeight="28.0" prefWidth="545.0" promptText="Location" />
                   <Button layoutX="567.0" layoutY="84.0" mnemonicParsing="false" onAction="#setPictureLocation" prefHeight="26.0" prefWidth="95.0" text="Browse">
                      <graphic>
                         <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
@@ -67,7 +67,7 @@
                      <tooltip><Tooltip text="Browse for a new folder" /></tooltip>
                   </Button>
                   <Label layoutX="8.0" layoutY="65.0" prefHeight="16.0" prefWidth="188.0" text="Picture Download Location" />
-                  <Button layoutX="8.0" layoutY="509.0" mnemonicParsing="false" onAction="#clearDevices" prefHeight="30.0" prefWidth="176.0" text="Delete all Devices">
+                  <Button layoutX="8.0" layoutY="569.0" mnemonicParsing="false" onAction="#clearDevices" prefHeight="30.0" prefWidth="176.0" text="Delete all Devices">
                       <graphic>
                         <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                            <image>
@@ -77,9 +77,9 @@
                      </graphic>
                      <tooltip><Tooltip text="Clear records of all added devices" /></tooltip>
                   </Button>
-                  <Label id="deviceCount" layoutX="221.0" layoutY="515.0" prefHeight="22.0" prefWidth="100.0" text="Label" />
+                  <Label id="deviceCount" layoutX="221.0" layoutY="575.0" prefHeight="22.0" prefWidth="100.0" text="Label" />
                   <Label layoutX="8.0" layoutY="124.0" prefHeight="16.0" prefWidth="188.0" text="Shared Media Location" />
-                  <TextField id="sharedMediaLoc" fx:id="picdownloadLoc1" layoutX="8.0" layoutY="143.0" onAction="#setVideoLocation" prefHeight="28.0" prefWidth="545.0" promptText="Location" />
+                  <TextField id="sharedMediaLoc" layoutX="8.0" layoutY="143.0" onAction="#setVideoLocation" prefHeight="28.0" prefWidth="545.0" promptText="Location" />
                   <Button layoutX="567.0" layoutY="142.0" mnemonicParsing="false" onAction="#setPictureLocation" prefHeight="26.0" prefWidth="95.0" text="Browse">
                      <graphic>
                         <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
@@ -90,9 +90,9 @@
                      </graphic>
                      <tooltip><Tooltip text="Browse for a new folder" /></tooltip>
                   </Button>
-                  <ListView id="searches" layoutX="272.0" layoutY="216.0" prefHeight="200.0" prefWidth="390.0" styleClass="lighter" />
-                  <Label layoutX="273.0" layoutY="192.0" prefHeight="16.0" prefWidth="106.0" text="Search History" />
-                  <Button layoutX="9.0" layoutY="547.0" mnemonicParsing="false" onAction="#clearHistory" prefHeight="30.0" prefWidth="196.0" text="Clear Search History">
+                  <ListView id="searches" layoutX="272.0" layoutY="276.0" prefHeight="200.0" prefWidth="390.0" styleClass="lighter" />
+                  <Label layoutX="273.0" layoutY="252.0" prefHeight="16.0" prefWidth="106.0" text="Search History" />
+                  <Button layoutX="9.0" layoutY="607.0" mnemonicParsing="false" onAction="#clearHistory" prefHeight="30.0" prefWidth="196.0" text="Clear Search History">
                      <graphic>
                         <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                            <image>
@@ -102,8 +102,8 @@
                      </graphic>
                      <tooltip><Tooltip text="Clear items in search history" /></tooltip>
                   </Button>
-                  <Label id="searchLabel" layoutX="221.0" layoutY="554.0" prefHeight="23.0" prefWidth="215.0" text="Label" />
-                  <Button layoutX="9.0" layoutY="586.0" mnemonicParsing="false" onAction="#clearDownloadHistory" prefHeight="30.0" prefWidth="200.0" text="Clear Download History">
+                  <Label id="searchLabel" layoutX="221.0" layoutY="614.0" prefHeight="23.0" prefWidth="215.0" text="Label" />
+                  <Button layoutX="9.0" layoutY="646.0" mnemonicParsing="false" onAction="#clearDownloadHistory" prefHeight="30.0" prefWidth="200.0" text="Clear Download History">
                      <graphic>
                         <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
                            <image>
@@ -113,8 +113,22 @@
                      </graphic>
                      <tooltip><Tooltip text="Clear downloaded items history" /></tooltip>
                   </Button>
-                  <Label id="downloadLabel" layoutX="221.0" layoutY="593.0" prefHeight="23.0" prefWidth="212.0" text="Label" />
-                  <Label id="toogleThemeLabel" layoutX="471.0" layoutY="478.0" prefHeight="16.0" prefWidth="195.0" text="Enable Dark Theme" />
+                  <Label id="downloadLabel" layoutX="221.0" layoutY="653.0" prefHeight="23.0" prefWidth="212.0" text="Label" />
+                  <Label id="toogleThemeLabel" layoutX="471.0" layoutY="538.0" prefHeight="16.0" prefWidth="195.0" text="Enable Dark Theme" />
+                  <Label layoutX="8.0" layoutY="190.0" prefHeight="16.0" prefWidth="188.0" text="FFmpeg location" />
+                  <TextField id="FFmpegLoc" layoutX="8.0" layoutY="208.0" onAction="#setVideoLocation" prefHeight="28.0" prefWidth="545.0" promptText="Location" />
+                  <Button layoutX="567.0" layoutY="205.0" mnemonicParsing="false" onAction="#setFFmpegLocation" prefHeight="26.0" prefWidth="95.0" text="Browse">
+                     <graphic>
+                        <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@../../icons/icons8-software-40.png" />
+                           </image>
+                        </ImageView>
+                     </graphic>
+                     <tooltip>
+                        <Tooltip text="Browse for a new folder" />
+                     </tooltip>
+                  </Button>
                                  </children>
                               </AnchorPane>
 </content>

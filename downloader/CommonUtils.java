@@ -31,12 +31,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Formatter;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javax.imageio.ImageIO;
@@ -297,6 +300,14 @@ public class CommonUtils {
         return new SimpleDateFormat("HH:mm:ss").format(now)+" "+new SimpleDateFormat("yyyy/MM/dd").format(now);
     }
     
+    public static long getSeconds(String sexagesimal) {
+        String[] units = sexagesimal.split(":");
+        byte pw = 2; long secs = 0;
+        for(int i = 0; i < units.length; i++, pw--)
+            secs += Integer.parseInt(units[i]) * Math.pow(60, pw);
+        return secs;
+    }
+    
     public static int getFormatWeight(String format) {
         StringBuilder s = new StringBuilder();
         if (format.equalsIgnoreCase("8k"))
@@ -338,8 +349,17 @@ public class CommonUtils {
         return q;
     }
     
-    public static Map<String, String> parseM3u8Formats(String playlist) {
-        return null;
+    public static Map<String, String> parseM3u8Formats(String url) throws IOException {
+        Map<String, String> qualities = new HashMap<>();
+        String[] m3u8 = downloadFile(url).split("\n");
+
+        Pattern pattern = Pattern.compile("^#EXT-X-STREAM-INF:.*BANDWIDTH=\\d+.*RESOLUTION=(?<res>[\\dx]+).*");
+        for(int i = 0; i < m3u8.length; i++) {
+            Matcher m = pattern.matcher(m3u8[i]);
+            if (m.find())
+                qualities.put(m.group("res").split("x")[1], m3u8[i+1].matches("^https?://") ? m3u8[i+1] : url.substring(0, url.lastIndexOf("/")) + "/" + m3u8[i+1]);
+        }
+        return qualities;
     }
     
     public static String addAttr(String attr, String value) {
@@ -520,6 +540,19 @@ public class CommonUtils {
         in.close();
         
         return re.toString();
+    }
+    
+    public static String downloadFile(String loc) throws IOException{
+        BufferedReader in = new BufferedReader(new InputStreamReader((new URL(loc).openStream())));
+        String line;
+        StringBuilder s = new StringBuilder();
+        while ((line = in.readLine()) != null) {
+            if (!line.endsWith("\n"))
+                s.append(line+"\n");
+            else s.append(line);
+        }
+        in.close();
+        return s.toString();
     }
     
     public static String StringCookies(Map<String, String> cookies) {

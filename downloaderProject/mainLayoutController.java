@@ -80,7 +80,7 @@ public class mainLayoutController implements Initializable, Reactable{
     
     public void setVideoLocation() {
         DirectoryChooser choose = new DirectoryChooser();
-        choose.setTitle("Choose a download location");
+        choose.setTitle("Choose a location to save videos");
         if((MainApp.settings.preferences.getVideoFolder() != null) && (MainApp.settings.preferences.videoFolderValid()))
             choose.setInitialDirectory(MainApp.settings.preferences.getVideoFolder());
         File selected = choose.showDialog(null);
@@ -93,7 +93,7 @@ public class mainLayoutController implements Initializable, Reactable{
     
     public void setPictureLocation() {
        DirectoryChooser choose = new DirectoryChooser();
-        choose.setTitle("Choose a download location");
+        choose.setTitle("Choose a location to save images");
         if((MainApp.settings.preferences.getPictureFolder() != null) && (MainApp.settings.preferences.pictureFolderValid()))
             choose.setInitialDirectory(MainApp.settings.preferences.getPictureFolder());
         File selected = choose.showDialog(null);
@@ -106,13 +106,26 @@ public class mainLayoutController implements Initializable, Reactable{
     
     public void setSharedLocation() {
        DirectoryChooser choose = new DirectoryChooser();
-        choose.setTitle("Choose a download location");
+        choose.setTitle("Choose a location to save shared media");
         if((MainApp.settings.preferences.getSharedFolder() != null) && (MainApp.settings.preferences.sharedFolderValid()))
             choose.setInitialDirectory(MainApp.settings.preferences.getSharedFolder());
         File selected = choose.showDialog(null);
         if (selected != null) {
             MainApp.settings.setSharedText(selected.getAbsolutePath());
             MainApp.settings.preferences.setSharedFolder(selected);
+            MainApp.settings.saveSettings();
+        } 
+    }
+    
+    public void setFFmpegLocation() {
+       DirectoryChooser choose = new DirectoryChooser();
+        choose.setTitle("Set location of ffmpeg");
+        if((MainApp.settings.preferences.getFFmpegFolder() != null) && (MainApp.settings.preferences.FFmpegFolderValid()))
+            choose.setInitialDirectory(MainApp.settings.preferences.getFFmpegFolder());
+        File selected = choose.showDialog(null);
+        if (selected != null) {
+            MainApp.settings.setFFmpegText(selected.getAbsolutePath());
+            MainApp.settings.preferences.setFFmpegFolder(selected);
             MainApp.settings.saveSettings();
         } 
     }

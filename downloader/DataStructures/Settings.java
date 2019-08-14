@@ -22,14 +22,29 @@ import java.util.Vector;
  * @author christopher
  */
 public class Settings implements Externalizable{
-    private static final long serialVersionUID = 3L, version = 4L;
-    private File videoFolder, pictureFolder, importFolder, sharedFolder, profileFolder;
+    private static final long serialVersionUID = 3L, version = 5L;
+    private File videoFolder, pictureFolder, importFolder, sharedFolder, FFmpegFolder;
     private Map<String,Boolean> supportedSite;
     private boolean darkTheme;
     
     public Settings() {
         supportedSite = new HashMap<>();
-        videoFolder = pictureFolder = importFolder = null;
+        videoFolder = pictureFolder = importFolder = FFmpegFolder = null;
+    }
+    
+    //set folder where ffmpeg is located with String
+    public void setFFmpegFolder(String folder) {
+        setFFmpegFolder(new File(folder));
+    }
+    
+    //set folder where ffmpeg is located with File
+    public void setFFmpegFolder(File folder) {
+        FFmpegFolder = folder;
+    }
+    
+    //return shared folder 
+    public File getFFmpegFolder() {
+        return FFmpegFolder;
     }
     
     //set folder to download to with String (for shared media)
@@ -50,15 +65,6 @@ public class Settings implements Externalizable{
     //set where the open dialog will initial display when choosing import file
     public void setImportFolder(File folder) {
         importFolder = folder;
-    }
-    
-    //set where to save profile pics of stars
-    public void setProfileFolder(File folder) {
-        profileFolder = folder;
-    }
-    
-    public File getProfileFolder() {
-        return profileFolder;
     }
     
     //get folder for initial display for imports
@@ -112,6 +118,11 @@ public class Settings implements Externalizable{
     //make sure even tho file is not null that it exists
     public boolean sharedFolderValid() {
         return sharedFolder.exists();
+    }
+    
+    //make sure even tho file is not null that it exists
+    public boolean FFmpegFolderValid() {
+        return FFmpegFolder.exists();
     }
     
     //set sites in list with a hashmap
@@ -183,6 +194,7 @@ public class Settings implements Externalizable{
                 setImportFolder(new File(home));
                 setSharedFolder(new File(home+File.separator+"Shared"));
         }
+        setFFmpegFolder(new File("."));
     }
     
     @Override public void writeExternal(ObjectOutput out) throws IOException {
@@ -190,20 +202,19 @@ public class Settings implements Externalizable{
         out.writeObject(videoFolder); out.writeObject(pictureFolder);
         out.writeObject(importFolder); out.writeObject(sharedFolder);
         out.writeObject(supportedSite); out.writeObject(darkTheme);
-        out.writeObject(profileFolder);
+        out.writeObject(FFmpegFolder);
     }
 
     @Override public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-        long version = (long)in.readObject();
-        if (version == 3L) {
+        long v = (long)in.readObject();
+        if (v == 3L) {
             videoFolder = (File)in.readObject(); pictureFolder = (File)in.readObject();
             importFolder = (File)in.readObject(); sharedFolder = (File)in.readObject();
             supportedSite = (Map<String,Boolean>)in.readObject(); darkTheme = (boolean)in.readObject();
-        } else if (version == 4L) {
-            videoFolder = (File)in.readObject(); pictureFolder = (File)in.readObject();
-            importFolder = (File)in.readObject(); sharedFolder = (File)in.readObject();
-            supportedSite = (Map<String,Boolean>)in.readObject(); darkTheme = (boolean)in.readObject();
-            profileFolder = (File)in.readObject();
+            FFmpegFolder = new File(".");
+        } else if (v == 4L || v == 5L) {
+            loadV4(in);
+            FFmpegFolder = FFmpegFolder == null || FFmpegFolder.getAbsolutePath().contains("Stars") ? new File(".") : FFmpegFolder;
         } else {
             initDownloadFolder(MainApp.OS);
             darkTheme = false;
@@ -216,6 +227,13 @@ public class Settings implements Externalizable{
         l.forEach((s) -> {
             supportedSite.remove(s);
         });
+    }
+    
+    private void loadV4(ObjectInput in) throws IOException, ClassNotFoundException {
+        videoFolder = (File)in.readObject(); pictureFolder = (File)in.readObject();
+        importFolder = (File)in.readObject(); sharedFolder = (File)in.readObject();
+        supportedSite = (Map<String,Boolean>)in.readObject(); darkTheme = (boolean)in.readObject();
+        FFmpegFolder = (File)in.readObject();
     }
     
     private boolean isAllLower(String str) {

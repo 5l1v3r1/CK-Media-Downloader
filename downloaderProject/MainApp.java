@@ -151,23 +151,6 @@ public class MainApp extends Application {
         }
     }
     
-    private void setProfileFolder() {
-        if (null == OS) { //assume unix system
-            settings.preferences.setProfileFolder(new File(MainApp.saveDir.getAbsolutePath()+"/Stars"));
-            if (!settings.preferences.getProfileFolder().exists()) settings.preferences.getProfileFolder().mkdirs();
-        } else switch (OS) {
-            case Windows:                
-                settings.preferences.setProfileFolder(new File(MainApp.saveDir.getAbsolutePath()+"\\Stars"));
-                if (!settings.preferences.getProfileFolder().exists()) settings.preferences.getProfileFolder().mkdirs();
-                break;
-            case Linux:
-            case Apple:
-            default:
-                settings.preferences.setProfileFolder(new File(MainApp.saveDir.getAbsolutePath()+"/Stars"));
-                if (!settings.preferences.getProfileFolder().exists()) settings.preferences.getProfileFolder().mkdirs();
-        }       
-    }
-    
     public static void displayPane(int tab) {
         actionPaneHolder.getChildren().clear();
         actionPaneHolder.getChildren().add(actionPanes[tab]);
@@ -396,7 +379,6 @@ public class MainApp extends Application {
         dm.setDownloadList((ListView<Pane>) actionPanes[DOWNLOADPANE].lookup("#downloadList"));
        
         settings = new ManageSettings(actionPanes[SETTINGSPANE],DataIO.loadSettings());
-        setProfileFolder();
         setDarkTheme(settings.preferences.dark());
 
         Pane topPane = (Pane)scene.lookup("#topPane");

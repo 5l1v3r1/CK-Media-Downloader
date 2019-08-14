@@ -30,7 +30,7 @@ import javafx.scene.layout.Pane;
  */
 public class ManageSettings {
     private final Pane root;
-    private TextField videoFolderText = null, pictureFolderText, sharedFolderText;
+    private TextField videoFolderText = null, pictureFolderText, sharedFolderText, FFmpegFolderText;
     private AnchorPane querySitePane;
     private Label cacheAmount, savedVideos, deviceCount, searchCount, downloadHistory, toogleThemeText;
     private ListView<Pane> searchHistory;
@@ -48,6 +48,7 @@ public class ManageSettings {
        videoFolderText.setEditable(false); videoFolderText.setText(preferences.getVideoFolder().getAbsolutePath());
        pictureFolderText.setEditable(false); pictureFolderText.setText(preferences.getPictureFolder().getAbsolutePath());
        sharedFolderText.setEditable(false); sharedFolderText.setText(preferences.getSharedFolder().getAbsolutePath());  
+       FFmpegFolderText.setEditable(false); sharedFolderText.setText(preferences.getFFmpegFolder().getAbsolutePath());  
        
        cacheUpdate();
        videoUpdate();
@@ -78,6 +79,10 @@ public class ManageSettings {
     
     public void setSharedText(String text) {
         sharedFolderText.setText(text);
+    }
+    
+    public void setFFmpegText(String text) {
+        FFmpegFolderText.setText(text);
     }
     
      public void cacheUpdate() {
@@ -246,6 +251,7 @@ public class ManageSettings {
        videoFolderText = (TextField)a.lookup("#videodownloadLoc");
        pictureFolderText = (TextField)a.lookup("#picdownloadLoc");
        sharedFolderText = (TextField) a.lookup("#sharedMediaLoc");
+       FFmpegFolderText = (TextField) a.lookup("#FFmpegLoc");
        querySitePane = (AnchorPane)((ScrollPane)a.lookup("#querySites")).getContent();
        savedVideos = (Label)a.lookup("#videoCount");
        cacheAmount = (Label)a.lookup("#cacheSize");
