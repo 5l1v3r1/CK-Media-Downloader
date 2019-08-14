@@ -155,7 +155,7 @@ public class CommonUtils {
     }
     
     public static boolean isStreamType(String name) {
-        return name.equals("m3u8");
+        return name.equals("m3u8") || name.equals("hls");
     }
     
     public static String getPicName(String link) {
@@ -317,7 +317,7 @@ public class CommonUtils {
         else if (format.equalsIgnoreCase("3k"))
             return 1620;
         else if(format.equals("high"))
-            return 2;
+            return 4321; //ik this would not necessary be true 
         else if(format.equals("low") || format.equals("single"))
             return 1;
         else  {

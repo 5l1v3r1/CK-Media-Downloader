@@ -37,7 +37,11 @@ import org.jsoup.select.Elements;
  * @author christopher
  */
 public class Xvideos extends GenericQueryExtractor implements Searchable{
-    private static final byte SKIP = 2, SCRIPT = 5;
+    private static final byte SKIP = 2;
+    private static String urlRegex = "html5player.setVideo\\S+\\('(?<url>https?://\\S+?)'\\);",
+            thumbRegex = "html5player.setThumbUrl169\\('(?<id>https?://\\S+?)'\\);",
+            titleRegex = "html5player.setVideoTitle\\('(?<id>.+?)'\\);",
+            slideRegex = "html5player.setThumbSlide\\('(?<id>https?://\\S+?)'\\);";
     
     public Xvideos() { //this contructor is used for when you jus want to query
         
@@ -70,17 +74,14 @@ public class Xvideos extends GenericQueryExtractor implements Searchable{
         Document page = getPage(url,false,true);
         verify(page);
         
-        int use = SCRIPT;
-        for(byte i = 0; i < page.select("script").size(); i++) {
-            if (page.select("script").get(i).toString().contains("var html5player = new HTML5Player('html5video',")) {
-                use = i; break;
-            }
-        }
-        Vector<String> stats = getStats(page.select("script").get(use).toString());
-        
+        String p = page.toString();
+        Vector<String> urls = getMatches(p.substring(p.indexOf("new HTML5Player")), urlRegex, "url");
         Map<String, MediaQuality> qualities = new HashMap<>();
-        qualities.put("high",new MediaQuality(stats.get(2))); 
-        qualities.put("low", new MediaQuality(stats.get(1)));
+        qualities.put("low", new MediaQuality(urls.get(0)));
+        qualities.put("high", new MediaQuality(urls.get(1)));
+        Map<String, String> q = CommonUtils.parseM3u8Formats(urls.get(2));
+        q.keySet().iterator().forEachRemaining(item ->
+            qualities.put(item, new MediaQuality(q.get(item), "hls")));
         MediaDefinition media = new MediaDefinition();
         media.addThread(qualities, videoName);
         
@@ -119,58 +120,20 @@ public class Xvideos extends GenericQueryExtractor implements Searchable{
     }
     
     @Override protected Vector<File> parse(String url) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
-       Document page = getPage(url,false);
-        int use = SCRIPT;
-        for(byte i = 0; i < page.select("script").size(); i++) {
-            if (page.select("script").get(i).toString().contains("var html5player = new HTML5Player('html5video',")) {
-                use = i; break;
-            }
-        }
-        Vector<String> stats = getStats(page.select("script").get(use).toString());
-        if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(stats.get(SCRIPT),SKIP))) //if file not already in cache download it
-            CommonUtils.saveFile(stats.get(SCRIPT), CommonUtils.getThumbName(stats.get(SCRIPT),SKIP),MainApp.imageCache);
+        Document page = getPage(url,false);
+        String link = getId(page.toString(), slideRegex);
+        if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(link,SKIP))) //if file not already in cache download it
+            CommonUtils.saveFile(link, CommonUtils.getThumbName(link,SKIP),MainApp.imageCache);
         
-        File grid = new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(stats.get(SCRIPT),SKIP));
+        File grid = new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(link,SKIP));
         return CommonUtils.splitImage(grid, 5, 6, 25, 50);
-    }
-    
-    private static String grab(String s, int fromWhere) {
-	StringBuilder pure = new StringBuilder();
-            for(int i = fromWhere; i < s.length(); i++) {
-		if (s.charAt(i) == '\'')
-                    break;
-            pure.append(s.charAt(i));
-	}
-	return pure.toString();
-    }
-    
-    private static Vector<String> getStats(String raw) {
-        Vector<String> stats = new Vector<>();
-        
-        stats.add(grab(raw,raw.indexOf("setVideoTitle")+15));
-	stats.add(grab(raw,raw.indexOf("setVideoUrlLow")+16));
-	stats.add(grab(raw,raw.indexOf("setVideoUrlHigh")+17));
-	stats.add(grab(raw,raw.indexOf("setThumbUrl")+13));
-	stats.add(grab(raw,raw.indexOf("setThumbUrl169")+16));
-	stats.add(grab(raw,raw.indexOf("setThumbSlide")+15));
-	stats.add(grab(raw,raw.indexOf("setThumbSlideBig")+18));
-        
-	return stats;
     }
     
     private static String downloadVideoName(String url) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
         Document page = getPage(url,false);
         verify(page);
         
-        int use = SCRIPT;
-        for(int i = 0; i < page.select("script").size(); i++) {
-            if (page.select("script").get(i).toString().contains("var html5player = new HTML5Player('html5video',")) {
-                use = i; break;
-            }
-        }
-        Vector<String> stats = getStats(page.select("script").get(use).toString());
-
-	return stats.get(0);
+        return getId(page.toString(), titleRegex);
     } 
 
     //getVideo thumbnail
@@ -192,17 +155,12 @@ public class Xvideos extends GenericQueryExtractor implements Searchable{
         } //if not found in cache download it
         
         verify(page);
-	int use = SCRIPT;
-        for(byte i = 0; i < page.select("script").size(); i++) {
-            if (page.select("script").get(i).toString().contains("var html5player = new HTML5Player('html5video',")) {
-                use = i; break;
-            }
-        }
-        Vector<String> stats = getStats(page.select("script").get(use).toString());
+	String thumb = getId(page.toString(), thumbRegex);
+        CommonUtils.log(thumb, "thumb");
         
-        if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(stats.get(4),SKIP))) //if file not already in cache download it
-            CommonUtils.saveFile(stats.get(4),CommonUtils.getThumbName(stats.get(4),SKIP),MainApp.imageCache);
-        return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(stats.get(4),SKIP));
+        if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
+            CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache);
+        return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,SKIP));
     }
 
     @Override public video similar() throws IOException, GenericDownloaderException{
@@ -265,19 +223,17 @@ public class Xvideos extends GenericQueryExtractor implements Searchable{
         Document page = getPage(link,false,true);
         verify(page);
         
-        int use = SCRIPT;
-        for(byte i = 0; i < page.select("script").size(); i++) {
-            if (page.select("script").get(i).toString().contains("var html5player = new HTML5Player('html5video',")) {
-                use = i; break;
-            }
-        }
-        Vector<String> stats = getStats(page.select("script").get(use).toString());
-        
+        String p = page.toString();
+        Vector<String> urls = getMatches(p.substring(p.indexOf("new HTML5Player")), urlRegex, "url");
         Map<String, MediaQuality> qualities = new HashMap<>();
-        qualities.put("high", new MediaQuality(stats.get(2))); 
-        qualities.put("low", new MediaQuality(stats.get(1)));
+        qualities.put("low", new MediaQuality(urls.get(0)));
+        qualities.put("high", new MediaQuality(urls.get(1)));
+        Map<String, String> q = CommonUtils.parseM3u8Formats(urls.get(2));
+        q.keySet().iterator().forEachRemaining(item ->
+            qualities.put(item, new MediaQuality(q.get(item), "hls")));
         MediaDefinition media = new MediaDefinition();
         media.addThread(qualities, videoName);
+        
         return getSize(media);
     }
     

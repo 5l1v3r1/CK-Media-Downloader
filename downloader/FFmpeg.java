@@ -64,8 +64,9 @@ public class FFmpeg {
             m = pattern.matcher(line);
             if (m.find()) {
                 current = CommonUtils.getSeconds(m.group("time"));
-                s.addProgress(String.format("%.0f",(float)(current/total) * 100)+"% Complete");
+                s.addProgress(String.format("%.0f",(float)current/total * 100)+"% Complete");
             }
+            //CommonUtils.log(line, this);
         }
     }
 
@@ -81,8 +82,7 @@ public class FFmpeg {
     }
     
     public int run(OperationStream backComm) throws IOException, InterruptedException {
-        pBuilder.command(ffmpegPath, "-y", "-i", input, output);
-        if (backComm != null) backComm.startTiming();
+        pBuilder.command(ffmpegPath, "-y", "-i", input, "-c", "copy", output);
         Process p = pBuilder.start();
         status = new BufferedReader(new InputStreamReader(p.getErrorStream()));
         comm = new BufferedOutputStream(p.getOutputStream());

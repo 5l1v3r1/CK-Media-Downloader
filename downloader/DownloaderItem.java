@@ -549,16 +549,16 @@ public class DownloaderItem {
     
     private void download(MediaQuality q, String name, OperationStream s, String albumName) throws MalformedURLException {
         //if albumName == null not an album
-        if (CommonUtils.isStreamType(q.getType())) 
-            downloadFFmpeg(q, name, s, albumName);
-        else
-            downloadLocal(q, name, s, albumName);
+        File saved = (CommonUtils.isStreamType(q.getType()) || q.isLive()) ? 
+                downloadFFmpeg(q, name, s, albumName) : downloadLocal(q, name, s, albumName);
+        if (saved != null)
+            MainApp.downloadHistoryList.add(new downloadedMedia(CommonUtils.clean(name),extractor.getThumb(),saved,extractor.getClass().getSimpleName(), CommonUtils.getCurrentTimeStamp()));
     }
     
-    private void downloadLocal(MediaQuality q, String name, OperationStream s, String albumName) throws MalformedURLException {
+    private File downloadLocal(MediaQuality q, String name, OperationStream s, String albumName) throws MalformedURLException {
         if (!CommonUtils.hasExtension(name, q.getType()))
             name = name + "." + q.getType();
-        name = CommonUtils.addId(name, extractor.getId());
+        name = CommonUtils.clean(CommonUtils.addId(name, extractor.getId()));
         File folder = CommonUtils.isImage(name) ? MainApp.settings.preferences.getPictureFolder() : MainApp.settings.preferences.getVideoFolder();
         
         long stop;
@@ -566,26 +566,43 @@ public class DownloaderItem {
         do {
             if (retries < 1) break;
             if (s != null) s.addProgress("Trying "+CommonUtils.clean(name));
-            stop = albumName != null ? CommonUtils.saveFile(q.getUrl() ,CommonUtils.clean(name),folder+File.separator+albumName,s, extractor.getCookies()) : CommonUtils.saveFile(q.getUrl(), CommonUtils.clean(name),folder,s,  extractor.getCookies());
+            stop = albumName != null ? CommonUtils.saveFile(q.getUrl(), name,folder+File.separator+albumName,s, extractor.getCookies()) : CommonUtils.saveFile(q.getUrl(), name, folder,s,  extractor.getCookies());
             try {
                 Thread.sleep(4000);
             } catch (InterruptedException ex) {
-                CommonUtils.log("Failed to pause",this);
+                CommonUtils.log("Failed to pause: "+ex.getMessage(),this);
             }
             retries--;
         }while(stop != -2); //retry download if failed
         MainApp.createNotification("Download Success","Finished Downloading "+name);
-        File saved = albumName != null ? new File(folder + File.separator + albumName + File.separator + CommonUtils.clean(name)) : new File(folder + File.separator + CommonUtils.clean(name));
-        MainApp.downloadHistoryList.add(new downloadedMedia(CommonUtils.clean(name),extractor.getThumb(),saved,extractor.getClass().getSimpleName(), CommonUtils.getCurrentTimeStamp()));
+        return new File(folder + File.separator + (albumName != null ? albumName + File.separator : "") + name);
     }
     
-    private void downloadFFmpeg(MediaQuality q, String name, OperationStream s, String albumName) throws MalformedURLException {
+    private File downloadFFmpeg(MediaQuality q, String name, OperationStream s, String albumName) throws MalformedURLException {
         //to download videos/livestreams coming from hls/m3u8 playlists
+        File out = new File(MainApp.settings.preferences.getVideoFolder().getAbsolutePath() + (albumName != null ? File.separator + albumName : ""));
         
-        MainApp.createMessageDialog("This format is not supported as yet");
+        FFmpeg ffmpeg = new FFmpeg();
+        ffmpeg.setOutDir(out);
+        ffmpeg.setOutput(CommonUtils.addId(CommonUtils.clean(name) + ".mp4", extractor.getId()));
+        ffmpeg.setInput(q.getUrl());
         
-        
-        //MainApp.createNotification("Download Success","Finished Downloading "+name);
+        try {
+            int code = 1;
+            if (q.isLive()) {
+                MainApp.createMessageDialog("Live Streams not supported as yet");
+                return null;
+                //code = ffmpeg.run(null);
+            } else
+                code = ffmpeg.run(s);
+            if (code == 0)
+                MainApp.createNotification("Download Success","Finished Downloading "+name);
+            else CommonUtils.log(name+" Finished with "+code+" as code", this);
+            return new File(out + File.separator + name + ".mp4");
+        } catch (IOException | InterruptedException e) {
+            CommonUtils.log(e.getMessage(), this);
+            return null;
+        }
     }
     
     private void setSize(final long size) {
