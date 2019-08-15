@@ -273,6 +273,10 @@ public abstract class GenericExtractor {
     public abstract MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException;
     protected abstract String getValidRegex();
     
+    public boolean isLive() {
+        return false;
+    }
+    
     public video similar() throws IOException, GenericDownloaderException { //get a video from the related items list
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }

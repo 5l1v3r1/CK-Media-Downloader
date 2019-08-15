@@ -213,8 +213,13 @@ public class DownloaderItem {
     
     private void setButton() {
         Button downloadBtn = (Button)root.lookup("#downloadBtn");
-        downloadBtn.setOnAction(event -> {downloadThis();});
+        downloadBtn.setOnAction(e -> downloadThis());
         downloadBtn.setDisable(false);
+        //if is live stream change button icon and text to record
+        if ((v == null) && (extractor.isLive())) { //by this point if one null the other cant be
+            downloadBtn.setGraphic(CommonUtils.getIcon("/icons/icons8-record-48.png", 25, 25));
+            downloadBtn.setText("Record");
+        }
     }
     
     private void setCloseBtn() {
@@ -230,29 +235,34 @@ public class DownloaderItem {
         btn.setOnAction(event -> {
             try {
                 long size;
-                try {
-                    if (v == null)
-                        extractor = extractor == null ? getExtractor() : extractor;   
-                    size = v == null ? extractor.getSize() : v.getSize();
-                } catch(Exception e){size= -1;}
+                if (v == null)
+                    extractor = extractor == null ? getExtractor() : extractor;
                 
-                String name = v == null ? extractor.getVideoName() : v.getName();
-                File thumb = v == null ? extractor.getThumb() : v.getThumbnail();
-                String duration;
-                if (v == null) {
-                    GameTime g = extractor.getDuration();
-                    duration = g == null ? "----" : g.toString();
-                } else {
-                    if (v.getDuration() == null)
-                        duration = "----";
-                    else duration = v.getDuration().equals("00") ? "----" : v.getDuration();
+                if ((extractor != null) && (extractor.isLive()))
+                    MainApp.createMessageDialog("Cant save a live stream for later");
+                else { 
+                    size = v == null ? extractor.getSize() : v.getSize();
+                    String name = v == null ? extractor.getVideoName() : v.getName();
+                    File thumb = v == null ? extractor.getThumb() : v.getThumbnail();
+                    String duration;
+                    if (v == null) {
+                        GameTime g = extractor.getDuration();
+                        duration = g == null ? "----" : g.toString();
+                    } else {
+                        if (v.getDuration() == null)
+                            duration = "----";
+                        else duration = v.getDuration().equals("00") ? "----" : v.getDuration();
+                    }
+                    DataIO.saveVideo(new video(url, name, thumb, size, duration));
+                    MainApp.createMessageDialog("Media saved");
+                    MainApp.settings.videoUpdate();
                 }
-                DataIO.saveVideo(new video(url, name, thumb, size, duration));
-                MainApp.createMessageDialog("Media saved");
-                MainApp.settings.videoUpdate();
             } catch (IOException | GenericDownloaderException e) {
                 MainApp.createMessageDialog("Failed to save video for later");
-            } 
+            } catch (Exception e) {
+                MainApp.createMessageDialog("Failed to save video for later");
+                CommonUtils.log("Failed to save video for later: "+e.getMessage(), this);
+            }
         });
     }
     
@@ -283,6 +293,7 @@ public class DownloaderItem {
        
         if (!getThumbnail()) {release(); return false;} //either link not supported or network error
        
+        done = false;
         setButton();
         setSaveBtn();
         setName();
@@ -314,13 +325,25 @@ public class DownloaderItem {
     }
     
     private void disableButton() {
-        if (root != null)
-            ((Button)root.lookup("#downloadBtn")).setDisable(true);
+        disableButton(false);
+    }
+    
+    private void disableButton(boolean b) {
+        if (root != null) {
+            Button downloadBtn = (Button)root.lookup("#downloadBtn");
+            if (extractor != null && extractor.isLive() && b)
+                downloadBtn.setText("Stop");    
+            else downloadBtn.setDisable(true);
+        }
     }
     
     private void enableButton() {
-        if (root != null)
-            ((Button)root.lookup("#downloadBtn")).setDisable(false);
+        if (root != null) {
+            Button downloadBtn = (Button)root.lookup("#downloadBtn");
+            if (extractor != null && extractor.isLive()) 
+                downloadBtn.setText("Record");
+            downloadBtn.setDisable(false);
+        }
     }
     
     private ContextMenu initContextMenu() {
@@ -438,14 +461,20 @@ public class DownloaderItem {
     }
     
     public void setDone() {
+        setDone(false);
+    }
+    
+    public void setDone(boolean live) {
         done = true;
         updateSpeed(0);
-        updateEta("00:00:00:00");
+        if (!live)
+            updateEta("00:00:00:00");
     }
     
     public void start() {
-        disableButton();
-        displayStatus("Downloading");
+        disableButton(true);
+        boolean live = extractor.isLive();
+        displayStatus(!live ? "Downloading" : "Recording");
         done = false;
         OperationStream stream = new OperationStream();
         ExecutorService app = Executors.newSingleThreadExecutor();
@@ -458,11 +487,11 @@ public class DownloaderItem {
                 else if (text.startsWith("^^"))
                     updateSpeed(Double.parseDouble(text.substring(2)));
                 else if (text.startsWith("**"))
-                    updateEta(text.substring(2));
+                    updateEta(text.substring(2), live);
                 else displayStatus(text);
             }
         }
-        try { app.awaitTermination(2, TimeUnit.SECONDS); } catch(InterruptedException e) {}
+        try { app.awaitTermination(2, TimeUnit.SECONDS); } catch(InterruptedException e) { CommonUtils.log(e.getMessage(), this);}
         app.shutdownNow();
         //displayStatus("Finished Downloading");
         enableButton();
@@ -543,7 +572,7 @@ public class DownloaderItem {
             } finally { 
                 CommonUtils.log("done",this);
             }
-            setDone();
+            setDone(downloadLinks.get(0).isLive());
         }
     }
     
@@ -586,15 +615,18 @@ public class DownloaderItem {
         ffmpeg.setOutDir(out);
         ffmpeg.setOutput(CommonUtils.addId(CommonUtils.clean(name) + ".mp4", extractor.getId()));
         ffmpeg.setInput(q.getUrl());
+        //ffmpeg.copy(q.getType().equals("mp4") || CommonUtils.isStreamType(q.getType()));
         
         try {
-            int code = 1;
+            int code; 
             if (q.isLive()) {
-                MainApp.createMessageDialog("Live Streams not supported as yet");
-                return null;
-                //code = ffmpeg.run(null);
-            } else
-                code = ffmpeg.run(s);
+                Button d = (Button)root.lookup("#downloadBtn");
+                d.setOnAction(e -> ffmpeg.stop());
+                setIndeteminate(true);
+                code = ffmpeg.run(s, true); //wait till finished or stop signal sent
+                d.setOnAction(e -> downloadThis());
+                setIndeteminate(false);
+            } else code = ffmpeg.run(s); //wait till finished
             if (code == 0)
                 MainApp.createNotification("Download Success","Finished Downloading "+name);
             else CommonUtils.log(name+" Finished with "+code+" as code", this);
@@ -661,7 +693,7 @@ public class DownloaderItem {
     }
     
     boolean set = false;
-    private void updateEta(String s) {
+    private void updateEta(String s, boolean live) {
         Platform.runLater(() -> {
             if (root != null) {
                 if (!set) {
@@ -669,10 +701,17 @@ public class DownloaderItem {
                     ((ImageView)root.lookup("#timeIcon")).setImage(image);
                     set = true;
                 }
-                if (root.lookup("#duration") != null)
-                    ((Label)root.lookup("#duration")).setText("ETA "+s);
+                if (root.lookup("#duration") != null) {
+                    if (!live)
+                        ((Label)root.lookup("#duration")).setText("ETA "+s);
+                    else ((Label)root.lookup("#duration")).setText("Recorded "+s);
+                }
             }
         });
+    }
+    
+    private void updateEta(String s) {
+        updateEta(s, false);
     }
     
     private void updateProgressBar(final float progress) {

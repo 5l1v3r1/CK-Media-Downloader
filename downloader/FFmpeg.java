@@ -22,10 +22,12 @@ public class FFmpeg {
     private BufferedReader status;
     private BufferedOutputStream comm;
     private static String ffmpegPath;
+    private boolean copy;
 
     public FFmpeg() {
         pBuilder = new ProcessBuilder();
         ffmpegPath = MainApp.OS == MainApp.OsType.Windows ? "ffmpeg.exe" : "ffmpeg";
+        copy = true;
     }
 
     public void setOutDir(String dir) {
@@ -42,6 +44,10 @@ public class FFmpeg {
 
     public void setOutput(String out) {
         this.output = out;
+    }
+    
+    public void copy(boolean c) {
+        this.copy = c;
     }
     
     public static void setFFmpegPath(String s) {
@@ -69,25 +75,42 @@ public class FFmpeg {
             //CommonUtils.log(line, this);
         }
     }
-
-    public void stop() throws IOException {
-        comm.write('q');
-        comm.flush();
-        status.close();
-        comm.close();
+    
+    private void monitor(OperationStream s) throws IOException {
+        Pattern pattern = Pattern.compile("time=(?<time>\\d{2}:\\d{2}:\\d{2})[.]\\d+");
+        String line; Matcher m;
+        while ((line = status.readLine()) != null) {
+            m = pattern.matcher(line);
+            if (m.find())
+                s.addProgress("**"+m.group("time"));
+        }
     }
 
-    public int run() throws IOException, InterruptedException{
-        return run(null);
+    public void stop() {
+        try {
+            comm.write('q');
+            comm.flush();
+            status.close();
+            comm.close();
+        } catch (IOException e) {
+            CommonUtils.log(e.getMessage(), this);
+        }
+    }
+
+    public int run(OperationStream backComm) throws IOException, InterruptedException{
+        return run(backComm, false);
     }
     
-    public int run(OperationStream backComm) throws IOException, InterruptedException {
-        pBuilder.command(ffmpegPath, "-y", "-i", input, "-c", "copy", output);
+    public int run(OperationStream backComm, boolean live) throws IOException, InterruptedException {
+        if (copy)
+            pBuilder.command(ffmpegPath, "-y", "-i", input, "-c", "copy", output);
+        else pBuilder.command(ffmpegPath, "-y", "-i", input, output);
         Process p = pBuilder.start();
         status = new BufferedReader(new InputStreamReader(p.getErrorStream()));
         comm = new BufferedOutputStream(p.getOutputStream());
-        if (backComm != null)
+        if (!live)
             getProgress(backComm);
+        else monitor(backComm);
         return p.waitFor();
     }
 }
