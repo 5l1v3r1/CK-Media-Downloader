@@ -91,6 +91,19 @@ public class mainLayoutController implements Initializable, Reactable{
         }
     }
     
+    public void setStreamLocation() {
+        DirectoryChooser choose = new DirectoryChooser();
+        choose.setTitle("Choose a location to save live streams");
+        if((MainApp.settings.preferences.getStreamFolder() != null) && (MainApp.settings.preferences.streamFolderValid()))
+            choose.setInitialDirectory(MainApp.settings.preferences.getStreamFolder());
+        File selected = choose.showDialog(null);
+        if (selected != null) {
+            MainApp.settings.setStreamText(selected.getAbsolutePath());
+            MainApp.settings.preferences.setStreamFolder(selected);
+            MainApp.settings.saveSettings();
+        }
+    }
+    
     public void setPictureLocation() {
        DirectoryChooser choose = new DirectoryChooser();
         choose.setTitle("Choose a location to save images");

@@ -18,7 +18,9 @@ import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
+import org.jsoup.Jsoup;
 import org.jsoup.UncheckedIOException;
+import org.jsoup.select.Elements;
 
 /**
  *
@@ -43,14 +45,15 @@ public class Chaturbate extends GenericExtractor {
     }
     
     private static String getStarName(String url) {
-        return getId(url, "https?://(?:www.)?chaturbate.com/(?<id>[^/?#]+)/?");
+        return getId(url, "https?://(?:www|m[.])?chaturbate[.]com/(?<id>[^/?#]+)/?");
     } 
 	
     //getVideo thumbnail
     private static File downloadThumb(String url) throws IOException, SocketTimeoutException, UncheckedIOException, Exception{
         String thumb = "https://roomimg.stream.highwebmedia.com/ri/"+getStarName(url)+".jpg";
-        String name = CommonUtils.getThumbName(thumb);
+        String name = CommonUtils.addId(CommonUtils.getThumbName(thumb), CommonUtils.getCurrentTimeStamp().replaceAll("[:/]", "-"));
         
+        verify(getPage(url, false, true).toString(), getStarName(url));
         if (CommonUtils.checkImageCache(name))
            new File(MainApp.imageCache.getAbsolutePath() + File.separator + name).delete();
         CommonUtils.saveFile(thumb, name, MainApp.imageCache);
@@ -59,7 +62,7 @@ public class Chaturbate extends GenericExtractor {
 
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
         String page = getPage(url, false, true).toString();
-        Map<String, String> q = CommonUtils.parseM3u8Formats(verify(page).get(0));
+        Map<String, String> q = CommonUtils.parseM3u8Formats(verify(page, videoName).get(0));
         MediaDefinition media = new MediaDefinition();
         Map<String, MediaQuality> qualities = new HashMap<>();
         q.keySet().iterator().forEachRemaining(a -> 
@@ -68,12 +71,16 @@ public class Chaturbate extends GenericExtractor {
         return media;
     }
     
-    private Vector<String> verify(String page) throws GenericDownloaderException {
+    private static Vector<String> verify(String page, String star) throws GenericDownloaderException {
         if (page.contains("Room is currently offline"))
-            throw new OfflineException(videoName);
+            throw new OfflineException(star);
         Vector<String> m3u8Links = getMatches(page, "(?<m3u8>https?://\\S+/playlist[.]m3u8)", "m3u8");
-        if (m3u8Links.isEmpty())
-            throw new PrivateVideoException(videoName+" is possibly in private mode");
+        if (m3u8Links.isEmpty()) {
+            Elements span = Jsoup.parse(page).select("span.desc_span");
+            if (!span.isEmpty() && !span.get(0).text().isEmpty())
+                throw new PrivateVideoException(span.get(0).text());
+            else throw new PrivateVideoException(star+" is possibly in private mode");
+        }
         else return m3u8Links;
     }
     
@@ -87,7 +94,7 @@ public class Chaturbate extends GenericExtractor {
 
     @Override protected String getValidRegex() {
         works = true;
-        return "https?://(?:www.)?chaturbate.com/(?<id>[^/?#]+)/?"; 
+        return "https?://(?:www|m[.])?chaturbate[.]com/(?<id>[^/?#]+)/?"; 
         //https://chaturbate.com/lilly_pink
     }
 }

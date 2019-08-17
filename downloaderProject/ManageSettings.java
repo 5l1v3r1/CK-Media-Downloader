@@ -30,7 +30,7 @@ import javafx.scene.layout.Pane;
  */
 public class ManageSettings {
     private final Pane root;
-    private TextField videoFolderText = null, pictureFolderText, sharedFolderText, FFmpegFolderText;
+    private TextField videoFolderText = null, pictureFolderText, sharedFolderText, FFmpegFolderText, streamFolderText;
     private AnchorPane querySitePane;
     private Label cacheAmount, savedVideos, deviceCount, searchCount, downloadHistory, toogleThemeText;
     private ListView<Pane> searchHistory;
@@ -48,7 +48,8 @@ public class ManageSettings {
        videoFolderText.setEditable(false); videoFolderText.setText(preferences.getVideoFolder().getAbsolutePath());
        pictureFolderText.setEditable(false); pictureFolderText.setText(preferences.getPictureFolder().getAbsolutePath());
        sharedFolderText.setEditable(false); sharedFolderText.setText(preferences.getSharedFolder().getAbsolutePath());  
-       FFmpegFolderText.setEditable(false); sharedFolderText.setText(preferences.getFFmpegFolder().getAbsolutePath());  
+       FFmpegFolderText.setEditable(false); FFmpegFolderText.setText(preferences.getFFmpegFolder().getAbsolutePath());  
+       streamFolderText.setEditable(false); streamFolderText.setText(preferences.getStreamFolder().getAbsolutePath());  
        
        cacheUpdate();
        videoUpdate();
@@ -71,6 +72,10 @@ public class ManageSettings {
     
     public void setVideoText(String text) {
         videoFolderText.setText(text);
+    }
+    
+    public void setStreamText(String text) {
+        streamFolderText.setText(text);
     }
     
     public void setPictureText(String text) {
@@ -198,8 +203,8 @@ public class ManageSettings {
             toogleThemeText.setText("Enable Dark Theme");
         else toogleThemeText.setText("Disable Dark Theme");
         toggleButton toggle = new toggleButton(preferences.dark());
-        toggle.setLayoutX(420);
-        toggle.setLayoutY(480);
+        toggle.setLayoutX(435);
+        toggle.setLayoutY(620);
         toggle.setOnMouseClicked(event -> {
             boolean value = toggle.switchedOnProperty();
             toggle.setBoolValue(!value);
@@ -252,6 +257,7 @@ public class ManageSettings {
        pictureFolderText = (TextField)a.lookup("#picdownloadLoc");
        sharedFolderText = (TextField) a.lookup("#sharedMediaLoc");
        FFmpegFolderText = (TextField) a.lookup("#FFmpegLoc");
+       streamFolderText = (TextField) a.lookup("#streamdownloadLoc");
        querySitePane = (AnchorPane)((ScrollPane)a.lookup("#querySites")).getContent();
        savedVideos = (Label)a.lookup("#videoCount");
        cacheAmount = (Label)a.lookup("#cacheSize");

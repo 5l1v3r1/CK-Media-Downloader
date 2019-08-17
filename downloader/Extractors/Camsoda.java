@@ -49,7 +49,7 @@ public class Camsoda extends GenericExtractor {
     }
     
     private static String getStarName(String url) {
-        return getId(url, "https?://(?:www.)?camsoda.com/(?<id>[^/?#]+)");
+        return getId(url, "https?://(?:www[.])?camsoda[.]com/(?<id>[^/?#]+)");
     } 
 	
     //getVideo thumbnail
@@ -59,10 +59,11 @@ public class Camsoda extends GenericExtractor {
         verify(rawJson);
         String thumb = addHost(CommonUtils.eraseChar(CommonUtils.getLink(rawJson, rawJson.indexOf("\"profile_picture\":\"") + 19, '\"'), '\\'), "");
         
-        if (CommonUtils.checkImageCache(name))
-            new File(MainApp.imageCache.getAbsolutePath() + File.separator + name).delete();
-        CommonUtils.saveFile(thumb, name, MainApp.imageCache);
-        return new File(MainApp.imageCache.getAbsolutePath() + File.separator + name);
+        String thumbName = CommonUtils.addId(CommonUtils.getThumbName(thumb), CommonUtils.getCurrentTimeStamp().replaceAll("[:/]", "-"));
+        if (CommonUtils.checkImageCache(thumbName))
+            new File(MainApp.imageCache.getAbsolutePath() + File.separator + thumbName).delete();
+        CommonUtils.saveFile(thumb, thumbName, MainApp.imageCache);
+        return new File(MainApp.imageCache.getAbsolutePath() + File.separator + thumbName);
     }
 
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
@@ -118,7 +119,7 @@ public class Camsoda extends GenericExtractor {
 
     @Override protected String getValidRegex() {
         works = true;
-        return "https?://(?:www.)?camsoda.com/(?<id>[^/?#]+)"; 
+        return "https?://(?:www[.])?camsoda[.]com/(?<id>[^/?#]+)"; 
         //https://www.camsoda.com/valeryromero
     }
 }

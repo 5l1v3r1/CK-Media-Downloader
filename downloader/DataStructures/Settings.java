@@ -22,14 +22,29 @@ import java.util.Vector;
  * @author christopher
  */
 public class Settings implements Externalizable{
-    private static final long serialVersionUID = 3L, version = 5L;
-    private File videoFolder, pictureFolder, importFolder, sharedFolder, FFmpegFolder;
+    private static final long serialVersionUID = 3L, version = 6L;
+    private File videoFolder, pictureFolder, importFolder, sharedFolder, FFmpegFolder, streamFolder;
     private Map<String,Boolean> supportedSite;
     private boolean darkTheme;
     
     public Settings() {
         supportedSite = new HashMap<>();
         videoFolder = pictureFolder = importFolder = FFmpegFolder = null;
+    }
+    
+    //set folder to download to with String
+    public void setStreamFolder(String folder) {
+        setStreamFolder(new File(folder));
+    }
+    
+    //set folder to download to with File
+    public void setStreamFolder(File folder) {
+        streamFolder = folder;
+    }
+    
+    //return stream folder 
+    public File getStreamFolder() {
+        return streamFolder;
     }
     
     //set folder where ffmpeg is located with String
@@ -42,7 +57,7 @@ public class Settings implements Externalizable{
         FFmpegFolder = folder;
     }
     
-    //return shared folder 
+    //return ffmpeg folder 
     public File getFFmpegFolder() {
         return FFmpegFolder;
     }
@@ -125,6 +140,11 @@ public class Settings implements Externalizable{
         return FFmpegFolder.exists();
     }
     
+    //make sure even tho file is not null that it exists
+    public boolean streamFolderValid() {
+        return streamFolder.exists();
+    }
+    
     //set sites in list with a hashmap
     public void setSites(HashMap<String,Boolean> map) {
         supportedSite = map;
@@ -195,6 +215,7 @@ public class Settings implements Externalizable{
                 setSharedFolder(new File(home+File.separator+"Shared"));
         }
         setFFmpegFolder(new File("."));
+        setStreamFolder(new File(videoFolder.getAbsolutePath()));
     }
     
     @Override public void writeExternal(ObjectOutput out) throws IOException {
@@ -202,7 +223,7 @@ public class Settings implements Externalizable{
         out.writeObject(videoFolder); out.writeObject(pictureFolder);
         out.writeObject(importFolder); out.writeObject(sharedFolder);
         out.writeObject(supportedSite); out.writeObject(darkTheme);
-        out.writeObject(FFmpegFolder);
+        out.writeObject(FFmpegFolder); out.writeObject(streamFolder);
     }
 
     @Override public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
@@ -212,9 +233,17 @@ public class Settings implements Externalizable{
             importFolder = (File)in.readObject(); sharedFolder = (File)in.readObject();
             supportedSite = (Map<String,Boolean>)in.readObject(); darkTheme = (boolean)in.readObject();
             FFmpegFolder = new File(".");
+            setStreamFolder(new File(videoFolder.getAbsolutePath()));
         } else if (v == 4L || v == 5L) {
             loadV4(in);
             FFmpegFolder = FFmpegFolder == null || FFmpegFolder.getAbsolutePath().contains("Stars") ? new File(".") : FFmpegFolder;
+            setStreamFolder(new File(videoFolder.getAbsolutePath())); 
+        } else if (v == 6L) {
+            loadV4(in);
+            FFmpegFolder = FFmpegFolder == null || FFmpegFolder.getAbsolutePath().contains("Stars") ? new File(".") : FFmpegFolder;
+            streamFolder = (File)in.readObject();
+            if (streamFolder == null)
+                setStreamFolder(new File(videoFolder.getAbsolutePath()));
         } else {
             initDownloadFolder(MainApp.OS);
             darkTheme = false;

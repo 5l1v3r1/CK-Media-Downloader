@@ -606,7 +606,7 @@ public class DownloaderItem {
     
     private File downloadFFmpeg(MediaQuality q, String name, OperationStream s, String albumName) throws MalformedURLException {
         //to download videos/livestreams coming from hls/m3u8 playlists
-        File out = new File(MainApp.settings.preferences.getVideoFolder().getAbsolutePath() + (albumName != null ? File.separator + albumName : ""));
+        File out = new File((q.isLive() ? MainApp.settings.preferences.getStreamFolder().getAbsolutePath() : MainApp.settings.preferences.getVideoFolder().getAbsolutePath()) + (albumName != null ? File.separator + albumName : ""));
         name = (q.isLive() ? CommonUtils.clean(name) + " " + CommonUtils.getCurrentTimeStamp().replaceAll("[:/]", "-") : CommonUtils.clean(name) + "-" + extractor.getId()) + ".mp4";
         
         FFmpeg ffmpeg = new FFmpeg();
@@ -626,7 +626,7 @@ public class DownloaderItem {
                 setIndeteminate(false);
             } else code = ffmpeg.run(s); //wait till finished
             if (code == 0)
-                MainApp.createNotification("Download Success", "Finished "+ (q.isLive() ? "Recording" : "Downloading ") + name);
+                MainApp.createNotification("Download Success", "Finished "+ (q.isLive() ? "Recording " : "Downloading ") + name);
             else CommonUtils.log(name+" Finished with "+code+" as code", this);
             return new File(out + File.separator + name);
         } catch (IOException | InterruptedException e) {

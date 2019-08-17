@@ -334,9 +334,11 @@ public class CommonUtils {
             return 2160;
         else if (format.equalsIgnoreCase("3k"))
             return 1620;
-        else if(format.equals("high"))
+        else if(format.equalsIgnoreCase("high"))
+            return 4322; //ik this would not necessary be true 
+        else if(format.equalsIgnoreCase("medium"))
             return 4321; //ik this would not necessary be true 
-        else if(format.equals("low") || format.equals("single"))
+        else if(format.equalsIgnoreCase("low") || format.equals("single"))
             return 1;
         else  {
             boolean started = false;
@@ -377,6 +379,16 @@ public class CommonUtils {
             if (m.find())
                 qualities.put(m.group("res").split("x")[1], m3u8[i+1].matches("^https?://") ? m3u8[i+1] : url.substring(0, url.lastIndexOf("/")) + "/" + m3u8[i+1]);
         }
+        
+        if (qualities.isEmpty()) {
+            pattern = Pattern.compile("^#EXT-X-STREAM-INF:.*BANDWIDTH=\\d+.*NAME=\"?(?<name>\\S+)\"?.*");
+            for(int i = 0; i < m3u8.length; i++) {
+                Matcher m = pattern.matcher(m3u8[i]);
+                if (m.find())
+                    qualities.put(m.group("name").split("\"")[0], m3u8[i+1].matches("^https?://") ? m3u8[i+1] : url.substring(0, url.lastIndexOf("/")) + "/" + m3u8[i+1]);
+            }
+        }
+        
         return qualities;
     }
     
