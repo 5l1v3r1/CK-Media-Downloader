@@ -69,12 +69,11 @@ public class MainApp extends Application {
     private static QueryManager query;
     private static Scene scene;
     private static boolean dontLoad;
-    private static final String VERSION = "build 36", TITLE = "Video Downloader "+VERSION;
+    private static final String VERSION = "build 37", TITLE = "Video Downloader "+VERSION;
     
     private static final int WIDTH = 895, HEIGHT = 550, XS = 100, PANES = 7;
     public static Pane[] actionPanes = new Pane[PANES];
     public static final byte DOWNLOADPANE = 0, BROWSERPANE = 1, SETTINGSPANE = 2, SHAREPANE = 3, DOWNLOADHISTORYPANE = 4, ACCOUNTPANE = 5, STREAMPANE = 6;
-    public static int BYTE;
     
     public static ManageSettings settings;
     private ClipboardListener clippy;
@@ -104,7 +103,6 @@ public class MainApp extends Application {
         else if (Os.contains("Linux"))
             OS = OsType.Linux;
         else OS = OsType.Apple;
-        BYTE = OS == OsType.Windows ? 1024 : 1000;
     }
     
     private static void setCacheDir() {
@@ -271,20 +269,6 @@ public class MainApp extends Application {
             moveFile(new File(home+"/laterVideos.dat"),saveDir);
             moveFile(new File(home+"/devices.dat"),saveDir);
         }
-    }
-    
-    public static String getSizeText(long size) {
-        //ik 1024 is the right unit rather than 1000
-        //but dividing by 1000 gave a more accurate result on linux
-        if (size < 0) 
-            return "----";
-        else if (size < BYTE)
-            return size + " b";
-        else if((size >= BYTE) && (size < BYTE * BYTE)) //1024b * 1024b = ?kb you do the math
-            return String.format("%.2f",(double)size / BYTE) + " kb"; 
-        else if ((size >= BYTE * BYTE) && (size < BYTE * BYTE * BYTE)) //1024kb * 1024kb = ?mb you do the math
-            return String.format("%.2f",(double)size / BYTE / BYTE) + " mb";
-        else return String.format("%.2f",(double)size / BYTE / BYTE / BYTE) + " gb"; //1024mb * 1024mb = ?gb you do the math
     }
     
     private String getlocalDeviceName() {

@@ -22,8 +22,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.Vector;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -34,8 +32,6 @@ import org.jsoup.select.Elements;
  */
 public class Yourporn extends GenericExtractor implements Searchable{
     private static final byte SKIP = 2;
-    private byte cdn = 3;
-    private static final int mb = 5242880;
     
     public Yourporn() { //this contructor is used for when you jus want to search
         
@@ -90,20 +86,12 @@ public class Yourporn extends GenericExtractor implements Searchable{
                 media.addThread(qualities, CommonUtils.getPicName(links.get(i)));
             }
         } else {
-            String video = addHost(CommonUtils.eraseChar(page.select("span.vidsnfo").attr("data-vnfo").split("\"")[3],'\\'),"sxyprn.com");
+            String[] subs = CommonUtils.eraseChar(page.select("span.vidsnfo").attr("data-vnfo").split("\"")[3],'\\').split("/");
             //String video = "https://www.yourporn.sexy"+page.select("video.player_el").attr("src");
             Map<String, MediaQuality> qualities = new HashMap<>();
-            String test = video.replace("cdn", "cdn"+cdn);
-            Pattern p = Pattern.compile("(.+/)s(\\d+)-1(/.+)"); //replace things like "s12-1", "s12"
-            Matcher m = p.matcher(test);
-            test = m.replaceAll("$1s$2$3");
-            while(CommonUtils.getContentSize(test) < mb) {
-                test = test.replace("cdn"+cdn, "cdn"+(cdn+1));
-                cdn++;
-                if (cdn > 20)
-                    break;
-            }
-            qualities.put("single",new MediaQuality(test));
+            String aid = getId(page.toString(), "data-aid=['\"](?<id>[\\S]+)[\"']");
+            String video = "http://" + subs[2] + ".trafficdeposit.com/video/" + subs[3] + "/" + subs[4] + "/" + subs[5] + "/" + aid + "/" + getId() + ".mp4";
+            qualities.put("single",new MediaQuality(video));
             media.addThread(qualities,videoName);
         }
         return media;
@@ -219,19 +207,11 @@ public class Yourporn extends GenericExtractor implements Searchable{
                 media.addThread(qualities, CommonUtils.getPicName(links.get(i)));
             }
         } else {
-            String video = addHost(CommonUtils.eraseChar(page.select("span.vidsnfo").attr("data-vnfo").split("\"")[3],'\\'),"sxyprn.com");
+            String subs[] = CommonUtils.eraseChar(page.select("span.vidsnfo").attr("data-vnfo").split("\"")[3],'\\').split("/");
+            String aid = getId(page.toString(), "data-aid=['\"](?<id>[\\S]+)[\"']");
+            String video = "http://" + subs[2] + ".trafficdeposit.com/video/" + subs[3] + "/" + subs[4] + "/" + subs[5] + "/" + aid + "/" + getId(link) + ".mp4";
             Map<String, MediaQuality> qualities = new HashMap<>();
-            String test = video.replace("cdn", "cdn"+cdn);
-            Pattern p = Pattern.compile("(.+/)s(\\d+)-1(/.+)");
-            Matcher m = p.matcher(test);
-            test = m.replaceAll("$1s$2$3");
-            while(CommonUtils.getContentSize(test) < mb) {
-                test = test.replace("cdn"+cdn, "cdn"+(cdn+1));
-                cdn++;
-                if (cdn > 20)
-                    break;
-            }
-            qualities.put("single", new MediaQuality(test));
+            qualities.put("single",new MediaQuality(video));
             media.addThread(qualities,videoName);
         }
         return getSize(media);

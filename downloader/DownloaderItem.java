@@ -63,6 +63,7 @@ import javax.imageio.ImageIO;
 public class DownloaderItem {
     private String url, albumName;
     private Pane root;
+    private Button downloadBtn;
     private GenericExtractor extractor;
     private video v = null;
     private boolean loaded;
@@ -152,7 +153,7 @@ public class DownloaderItem {
                 view.preserveRatioProperty().setValue(true);
             if (thumbFile == null) return true; //no thumb //this really shouldnt be allowed but....
             //if more than 10mb (probably a large gif) image stream will run out of memory
-            if (thumbFile.length() < MainApp.BYTE * MainApp.BYTE * 10) { 
+            if (thumbFile.length() < CommonUtils.BYTE * CommonUtils.BYTE * 10) { 
                 FileInputStream fis = new FileInputStream(thumbFile);
                 Image image = new Image(fis);
                 view.setImage(image);
@@ -212,14 +213,15 @@ public class DownloaderItem {
     }
     
     private void setButton() {
-        Button downloadBtn = (Button)root.lookup("#downloadBtn");
         downloadBtn.setOnAction(e -> downloadThis());
         downloadBtn.setDisable(false);
         //if is live stream change button icon and text to record
-        if ((v == null) && (extractor.isLive())) { //by this point if one null the other cant be
-            downloadBtn.setGraphic(CommonUtils.getIcon("/icons/icons8-record-48.png", 25, 25));
-            downloadBtn.setText("Record");
-        }
+        Platform.runLater(() -> {
+            if ((v == null) && (extractor.isLive())) { //by this point if one null the other cant be
+                downloadBtn.setGraphic(CommonUtils.getIcon("/icons/icons8-record-48.png", 25, 25));
+                downloadBtn.setText("Record");
+            }
+        });
     }
     
     private void setCloseBtn() {
@@ -303,6 +305,7 @@ public class DownloaderItem {
        
         CommonUtils.log("Found",this);
         setIndeteminate(false);
+        enableButton();
         return true; //if u made it this far process must be successful
     }
     
@@ -329,21 +332,19 @@ public class DownloaderItem {
     }
     
     private void disableButton(boolean b) {
-        if (root != null) {
-            Button downloadBtn = (Button)root.lookup("#downloadBtn");
+        Platform.runLater(() -> {
             if (extractor != null && extractor.isLive() && b)
                 downloadBtn.setText("Stop");    
             else downloadBtn.setDisable(true);
-        }
+        });
     }
     
     private void enableButton() {
-        if (root != null) {
-            Button downloadBtn = (Button)root.lookup("#downloadBtn");
+        Platform.runLater(() -> {
             if (extractor != null && extractor.isLive()) 
                 downloadBtn.setText("Record");
             downloadBtn.setDisable(false);
-        }
+        });
     }
     
     private ContextMenu initContextMenu() {
@@ -359,13 +360,13 @@ public class DownloaderItem {
         item[5] = new MenuItem("export links to file");
         
        
-        item[0].setGraphic(CommonUtils.getIcon("/icons/icons8-copy-link-48.png", iconSize, iconSize));
-        item[0].setOnAction((ActionEvent) -> {
+        item[0].setGraphic(CommonUtils.getIcon("/icons/icons8-copy-link-48.png", iconSize));
+        item[0].setOnAction(ev -> {
             Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
             clipboard.setContents(new StringSelection(url), new StringSelection(MainApp.username));
         });
-        item[1].setGraphic(CommonUtils.getIcon("/icons/icons8-copy-link-48.png", iconSize, iconSize));
-        item[1].setOnAction((ActionEvent) -> {
+        item[1].setGraphic(CommonUtils.getIcon("/icons/icons8-copy-link-48.png", iconSize));
+        item[1].setOnAction(ev-> {
             Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
             try {
                 clipboard.setContents(new StringSelection(getStreamLink()), new StringSelection(MainApp.username));
@@ -373,32 +374,32 @@ public class DownloaderItem {
                 MainApp.createMessageDialog(e.getMessage());
             }
         });
-        item[2].setGraphic(CommonUtils.getIcon("/icons/icons8-open-in-browser-40.png", iconSize, iconSize));
-        item[2].setOnAction((ActionEvent) -> {
+        item[2].setGraphic(CommonUtils.getIcon("/icons/icons8-open-in-browser-40.png", iconSize));
+        item[2].setOnAction(ev -> {
             if (Desktop.isDesktopSupported()) {
                 new Thread(() -> {
                     try {
                         Desktop desktop = Desktop.getDesktop();
                         desktop.browse(new URI(url));
-                    } catch (URISyntaxException ex) {
+                    } catch (URISyntaxException e) {
                         CommonUtils.log("Bad Uri",this);
-                    } catch (IOException ex) {
+                    } catch (IOException e) {
                         MainApp.createMessageDialog("Failed to load");
                     }
                 }).start();    
             } else
                 MainApp.createMessageDialog("Not supported");
         });
-        item[3].setGraphic(CommonUtils.getIcon("/icons/icons8-cancel-40.png", iconSize, iconSize));
-        item[3].setOnAction((ActionEvent) -> {
+        item[3].setGraphic(CommonUtils.getIcon("/icons/icons8-cancel-40.png", iconSize));
+        item[3].setOnAction(ev -> {
             clearThis();
         });
-        item[4].setGraphic(CommonUtils.getIcon("/icons/icons8-cancel-40.png", iconSize, iconSize));
-        item[4].setOnAction((ActionEvent) -> {
+        item[4].setGraphic(CommonUtils.getIcon("/icons/icons8-cancel-40.png", iconSize));
+        item[4].setOnAction(ev -> {
             MainApp.dm.removeAll();
         });
-        item[5].setGraphic(CommonUtils.getIcon("/icons/icons8-export-40.png", iconSize, iconSize));
-        item[5].setOnAction((ActionEvent) -> {
+        item[5].setGraphic(CommonUtils.getIcon("/icons/icons8-export-40.png", iconSize));
+        item[5].setOnAction(ev -> {
             MainApp.dm.exportAll();
         });
        
@@ -411,6 +412,7 @@ public class DownloaderItem {
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(DownloaderItem.class.getResource("downloaderListItem.fxml"));
         root = loader.load();
+        downloadBtn = (Button)root.lookup("#downloadBtn");
         disableButton();
         root.setPadding(new Insets(3,3,3,3));
         final ContextMenu contextMenu = initContextMenu();
@@ -447,14 +449,6 @@ public class DownloaderItem {
         release();
     }
     
-    private boolean isPureDigit(String s) {
-        if (s.length() < 1) return false;
-        for(int i = 0; i < s.length(); i++)
-            if (!Character.isDigit(s.charAt(i)))
-                return false;
-        return true;
-    }
-    
     boolean done;
     private boolean isFinished() {
         return done;
@@ -482,7 +476,9 @@ public class DownloaderItem {
         while (!isFinished()) {
             String text = stream.getProgress();
             if (text != null) {
-                if (isPureDigit(text))
+                if (text.equals("**stop**"))
+                    break;
+                if (text.matches("\\d+"))
                     updateProgressBar((float)Integer.parseInt(text)/100);
                 else if (text.startsWith("^^"))
                     updateSpeed(Double.parseDouble(text.substring(2)));
@@ -572,7 +568,8 @@ public class DownloaderItem {
             } finally { 
                 CommonUtils.log("done",this);
             }
-            setDone(downloadLinks.get(0).isLive());
+            setDone(downloadLinks.isEmpty() ? false : downloadLinks.get(0).isLive());
+            stream.addProgress("**stop**");
         }
     }
     
@@ -610,10 +607,11 @@ public class DownloaderItem {
     private File downloadFFmpeg(MediaQuality q, String name, OperationStream s, String albumName) throws MalformedURLException {
         //to download videos/livestreams coming from hls/m3u8 playlists
         File out = new File(MainApp.settings.preferences.getVideoFolder().getAbsolutePath() + (albumName != null ? File.separator + albumName : ""));
+        name = (q.isLive() ? CommonUtils.clean(name) + " " + CommonUtils.getCurrentTimeStamp().replaceAll("[:/]", "-") : CommonUtils.clean(name) + "-" + extractor.getId()) + ".mp4";
         
         FFmpeg ffmpeg = new FFmpeg();
-        ffmpeg.setOutDir(out);
-        ffmpeg.setOutput(CommonUtils.addId(CommonUtils.clean(name) + ".mp4", extractor.getId()));
+        ffmpeg.setOutDir(out); 
+        ffmpeg.setOutput(name);
         ffmpeg.setInput(q.getUrl());
         //ffmpeg.copy(q.getType().equals("mp4") || CommonUtils.isStreamType(q.getType()));
         
@@ -628,9 +626,9 @@ public class DownloaderItem {
                 setIndeteminate(false);
             } else code = ffmpeg.run(s); //wait till finished
             if (code == 0)
-                MainApp.createNotification("Download Success","Finished Downloading "+name);
+                MainApp.createNotification("Download Success", "Finished "+ (q.isLive() ? "Recording" : "Downloading ") + name);
             else CommonUtils.log(name+" Finished with "+code+" as code", this);
-            return new File(out + File.separator + name + ".mp4");
+            return new File(out + File.separator + name);
         } catch (IOException | InterruptedException e) {
             CommonUtils.log(e.getMessage(), this);
             return null;
@@ -639,7 +637,7 @@ public class DownloaderItem {
     
     private void setSize(final long size) {
         Platform.runLater(() -> {
-            ((Label)root.lookup("#size")).setText(MainApp.getSizeText(size));
+            ((Label)root.lookup("#size")).setText(CommonUtils.getSizeText(size));
         });
     }
     
@@ -648,7 +646,7 @@ public class DownloaderItem {
         try {size = v == null ? extractor.getSize() : v.getSize(); }catch(IOException | GenericDownloaderException e) {size = -1;}
         final long s = size;
         Platform.runLater(() -> {
-            ((Label)root.lookup("#size")).setText(MainApp.getSizeText(s));
+            ((Label)root.lookup("#size")).setText(CommonUtils.getSizeText(s));
         });
     }
     
@@ -684,8 +682,8 @@ public class DownloaderItem {
         Platform.runLater(() -> {
             if (root != null) {
                 if (root.lookup("#speed") != null) {
-                    if (speed > MainApp.BYTE)
-                        ((Label)root.lookup("#speed")).setText(String.format("%.0f",speed/MainApp.BYTE)+" mb/s");
+                    if (speed > CommonUtils.BYTE)
+                        ((Label)root.lookup("#speed")).setText(String.format("%.0f",speed/CommonUtils.BYTE)+" mb/s");
                     else ((Label)root.lookup("#speed")).setText(String.format("%.0f",speed)+" kb/s");
                 }
             }

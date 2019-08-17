@@ -320,7 +320,7 @@ public abstract class GenericExtractor {
         return getSize(media, null);
     }
     
-    final public long getSize() throws GenericDownloaderException, UncheckedIOException, IOException {
+    public long getSize() throws GenericDownloaderException, UncheckedIOException, IOException {
         return getSize(getVideo(), CommonUtils.StringCookies(cookieJar));
     }
     

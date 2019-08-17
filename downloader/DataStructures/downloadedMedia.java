@@ -5,7 +5,7 @@
  */
 package downloader.DataStructures;
 
-import downloaderProject.MainApp;
+import downloader.CommonUtils;
 import java.io.Externalizable;
 import java.io.File;
 import java.io.IOException;
@@ -66,7 +66,7 @@ public class downloadedMedia implements Externalizable{
                     bytes += f.length();
         } else bytes = media.length();
         
-        return MainApp.getSizeText(bytes);
+        return CommonUtils.getSizeText(bytes);
     }
     
     public String getDownloaded() {

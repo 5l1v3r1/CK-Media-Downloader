@@ -77,8 +77,8 @@ public class Download {
         
         private void receiveMedia() throws IOException, ClassNotFoundException {
             long freeMemory = Runtime.getRuntime().freeMemory();
-            if(freeMemory > 25 * MainApp.BYTE * MainApp.BYTE)
-                freeMemory = 25 * MainApp.BYTE * MainApp.BYTE; //25mb
+            if(freeMemory > 25 * CommonUtils.BYTE * CommonUtils.BYTE)
+                freeMemory = 25 * CommonUtils.BYTE * CommonUtils.BYTE; //25mb
             out.writeObject(freeMemory); out.flush();
             int transmissionMode = (int)in.readObject();
             if (transmissionMode == 1) 

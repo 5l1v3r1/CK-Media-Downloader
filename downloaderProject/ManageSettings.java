@@ -88,7 +88,7 @@ public class ManageSettings {
      public void cacheUpdate() {
         Platform.runLater(() -> {
             long size = DataIO.getCacheSize();
-            String text = MainApp.getSizeText(size);
+            String text = CommonUtils.getSizeText(size);
             cacheAmount.setText(text+" in cache");
         }); //ensure you are posting results with the UI thread
     }

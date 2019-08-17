@@ -23,11 +23,13 @@ public class FFmpeg {
     private BufferedOutputStream comm;
     private static String ffmpegPath;
     private boolean copy;
+    private final Pattern timeRegex;
 
     public FFmpeg() {
         pBuilder = new ProcessBuilder();
         ffmpegPath = MainApp.OS == MainApp.OsType.Windows ? "ffmpeg.exe" : "ffmpeg";
         copy = true;
+        timeRegex = Pattern.compile("time=(?<time>\\d{2}:\\d{2}:\\d{2})[.]\\d+");
     }
 
     public void setOutDir(String dir) {
@@ -65,9 +67,8 @@ public class FFmpeg {
         m.find();
         total = CommonUtils.getSeconds(m.group("dur"));
 
-        pattern = Pattern.compile("time=(?<time>\\d{2}:\\d{2}:\\d{2})[.]\\d+");
         while ((line = status.readLine()) != null) {
-            m = pattern.matcher(line);
+            m = timeRegex.matcher(line);
             if (m.find()) {
                 current = CommonUtils.getSeconds(m.group("time"));
                 s.addProgress(String.format("%.0f",(float)current/total * 100)+"% Complete");
@@ -77,21 +78,24 @@ public class FFmpeg {
     }
     
     private void monitor(OperationStream s) throws IOException {
-        Pattern pattern = Pattern.compile("time=(?<time>\\d{2}:\\d{2}:\\d{2})[.]\\d+");
         String line; Matcher m;
         while ((line = status.readLine()) != null) {
-            m = pattern.matcher(line);
+            m = timeRegex.matcher(line);
             if (m.find())
                 s.addProgress("**"+m.group("time"));
+            //CommonUtils.log(line, this);
         }
+    }
+    
+    private void closeStreams() throws IOException {
+        status.close();
+        comm.close();
     }
 
     public void stop() {
         try {
             comm.write('q');
             comm.flush();
-            status.close();
-            comm.close();
         } catch (IOException e) {
             CommonUtils.log(e.getMessage(), this);
         }
@@ -111,6 +115,7 @@ public class FFmpeg {
         if (!live)
             getProgress(backComm);
         else monitor(backComm);
+        closeStreams();
         return p.waitFor();
     }
 }

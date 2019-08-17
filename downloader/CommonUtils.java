@@ -55,7 +55,7 @@ public class CommonUtils {
     TIMEREGEX3 = "(?:(?:(?:(?<days>[0-9]+):)?(?<hrs>[0-9]+):)?(?<mins>[0-9]+):)?(?<secs>[0-9]+)",
     TIMEREGEX1 = "(?:(?:(?:(?<days>[0-9]+)\\s*days?\\s*)?(?<hrs>[0-9]+)\\s*hrs?\\s*)?(?<mins>[0-9]+)\\s*mins?\\s*)?(?<secs>[0-9]+)\\s*secs?\\s*",
     TIMEREGEX2 = ".*(?<mins>\\d+) minutes and (?<secs>\\d+) seconds.*";
-    private static final int BYTE = isWindows() ? 1024 : 1000, BUFFSIZE = BYTE * 600; //1 x 600kb
+    public static final int BYTE = isWindows() ? 1024 : 1000, BUFFSIZE = BYTE * 600; //1 x 600kb
     
     private static boolean isWindows() {
         String Os = System.getProperty("os.name");
@@ -85,6 +85,10 @@ public class CommonUtils {
             log("Error splitting","CommonUtils");
         }
         return splits;
+    }
+    
+    public static ImageView getIcon(String path, int height) {
+        return getIcon(path, height, height);
     }
     
     public static ImageView getIcon(String path, int height, int width) {
@@ -293,6 +297,20 @@ public class CommonUtils {
         pure.append(index);
         pure.append(".jpg");
         return pure.toString();
+    }
+    
+    public static String getSizeText(long size) {
+        //ik 1024 is the right unit rather than 1000
+        //but dividing by 1000 gave a more accurate result on linux
+        if (size < 0) 
+            return "----";
+        else if (size < BYTE)
+            return size + " b";
+        else if((size >= BYTE) && (size < BYTE * BYTE)) //1024b * 1024b = ?kb you do the math
+            return String.format("%.2f",(double)size / BYTE) + " kb"; 
+        else if ((size >= BYTE * BYTE) && (size < BYTE * BYTE * BYTE)) //1024kb * 1024kb = ?mb you do the math
+            return String.format("%.2f",(double)size / BYTE / BYTE) + " mb";
+        else return String.format("%.2f",(double)size / BYTE / BYTE / BYTE) + " gb"; //1024mb * 1024mb = ?gb you do the math
     }
     
     public static String getCurrentTimeStamp() {

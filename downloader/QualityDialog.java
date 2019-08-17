@@ -110,7 +110,7 @@ public class QualityDialog {
         RadioButton b = (RadioButton)p.lookup("#button");
         b.setId(quality); b.setToggleGroup(group);
         ((Label)p.lookup("#qualityName")).setText(quality);
-        ((Label)p.lookup("#size")).setText(MainApp.getSizeText(CommonUtils.getContentSize(link, cookieString)));
+        ((Label)p.lookup("#size")).setText(CommonUtils.getSizeText(CommonUtils.getContentSize(link, cookieString)));
         return p;
     }
 }
