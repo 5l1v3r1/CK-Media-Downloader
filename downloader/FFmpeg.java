@@ -10,6 +10,8 @@ package downloader;
  * @author christopher
  */
 
+import ChrisPackage.GameTime;
+import ChrisPackage.stopWatch;
 import downloaderProject.MainApp;
 import downloaderProject.OperationStream;
 import java.io.*;
@@ -66,12 +68,20 @@ public class FFmpeg {
         Matcher m = pattern.matcher(line);
         m.find();
         total = CommonUtils.getSeconds(m.group("dur"));
-
+            
+        stopWatch timer = new stopWatch(); timer.start();
         while ((line = status.readLine()) != null) {
             m = timeRegex.matcher(line);
             if (m.find()) {
                 current = CommonUtils.getSeconds(m.group("time"));
                 s.addProgress(String.format("%.0f",(float)current/total * 100)+"% Complete");
+                timer.stop();
+                double secs = timer.getTime().convertToSecs();
+                double speed = current / secs; //how many secs it took to complete x secs
+                GameTime g = new GameTime(); g.addSec((long)((total - current) / speed)); 
+                int use = g.getLength() < 3 ? 3 : g.getLength();
+                s.addProgress(String.format("%s","**"+g.getTimeFormat(use)));
+                
             }
             //CommonUtils.log(line, this);
         }

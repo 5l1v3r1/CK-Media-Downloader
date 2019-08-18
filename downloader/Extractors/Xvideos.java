@@ -156,7 +156,6 @@ public class Xvideos extends GenericQueryExtractor implements Searchable{
         
         verify(page);
 	String thumb = getId(page.toString(), thumbRegex);
-        CommonUtils.log(thumb, "thumb");
         
         if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
             CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache);

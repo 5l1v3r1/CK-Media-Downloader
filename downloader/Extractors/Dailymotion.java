@@ -52,7 +52,7 @@ public class Dailymotion extends GenericExtractor{
         super(url,thumb,videoName);
     }
     
-    private Map<String, MediaQuality> getQualities(String src) throws PageParseException {
+    private Map<String, MediaQuality> getQualities(String src) throws PageParseException, IOException {
         Map<String, MediaQuality> links = new HashMap<>();
         
         try {
@@ -61,8 +61,13 @@ public class Dailymotion extends GenericExtractor{
             Iterator i = qualities.keySet().iterator();
             while(i.hasNext()) {
                 String q = (String)i.next();
-                if(q.equals("auto")) continue; 
-                links.put(q, new MediaQuality((String)((JSONObject)((JSONArray)qualities.get(q)).get(1)).get("url")));
+                if(q.equals("auto")) {
+                    Map<String, String> f = CommonUtils.parseM3u8Formats((String)((JSONObject)((JSONArray)qualities.get(q)).get(0)).get("url"));
+                    f.keySet().iterator().forEachRemaining(a -> {
+                        links.put("hls-"+a, new MediaQuality(f.get(a), "m3u8"));
+                    });
+                } else
+                    links.put(q, new MediaQuality((String)((JSONObject)((JSONArray)qualities.get(q)).get(1)).get("url")));
             }
         } catch (ParseException e) {
             throw new PageParseException(e.getMessage());
@@ -71,24 +76,28 @@ public class Dailymotion extends GenericExtractor{
     }
     
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException{
-        Document page = getPage(url,false,true);
+        Document page = getPageCookie(url,false,true);
         verify(page); String link = null;
         for(Element i:page.select("meta")) {
             if (i.attr("property").equals("og:video:url")) {
                 link = i.attr("content"); break;
             }
         }
-        if (link == null) throw new PageNotFoundException("Couldnt get video");
-        else {
-            page = getPage(link,false,true);
+        MediaDefinition media = new MediaDefinition(); //all the qualities will have the same name
+        if (link == null) {
+            String metaData = getId(page.toString(), "buildPlayer\\(?<id>(\\{.+?\\})\\);\n|playerV5\\s*=\\s*dmp[.]create\\([^,]+?,\\s*(?<id2>\\{.+?\\})\\);buildPlayer\\(?<id>(\\{.+?\\})\\);");
+            if (metaData.isEmpty())
+                metaData = getId(page.toString(), "var\\s+config\\s*=\\s*(?<id>\\{.+?\\});");
+            if (metaData.isEmpty())
+                throw new PageNotFoundException("Could not find a video");
+            else getQualities(metaData);
+        } else {
+            page = getPageCookie(link,false,true);
             Map<String, MediaQuality> qualities = getQualities(page.toString().substring(page.toString().indexOf("var config = {")+13, page.toString().indexOf("};")+1));
         
-            MediaDefinition media = new MediaDefinition(); //all the qualities will have the same name
             media.addThread(qualities, videoName);
-            
-            return media;
-            //super.downloadVideo(video,videoName,s);
         }
+        return media;
     }
     
     private static void verify(Document page) throws GenericDownloaderException {
@@ -103,6 +112,9 @@ public class Dailymotion extends GenericExtractor{
     private static String downloadVideoName(String url) throws IOException , SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
         Document page = getPage(url,false);
         verify(page);
+        String canonical = getCanonicalLink(page);
+        if (canonical != null && !canonical.isEmpty() && !canonical.equals(url))
+            page = getPage(canonical, false, true);
         String title = getTitle(page);
         if (title != null) {
             if (title.toLowerCase().contains("- video dailymotion"))
@@ -116,6 +128,8 @@ public class Dailymotion extends GenericExtractor{
         Document page = getPage(url,false);
         verify(page);
         String thumb = getMetaImage(page);
+        if (thumb == null || thumb.isEmpty())
+            thumb = CommonUtils.eraseChar(getId(page.toString(), "\"poster_url\":\"(?<id>.+?)\""), '\\');
         
         if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
             CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache);
@@ -153,9 +167,10 @@ public class Dailymotion extends GenericExtractor{
     }
 
     @Override protected String getValidRegex() {
-        works = false;
-        return "https?://(?:www[.])?dailymotion[.]com/video/(?<id>[\\S]+)";
+        works = true;
+        return "https?://(?:www[.])?dailymotion[.]com/(?:embed/)?video/(?<id>[\\S]+)";
         //https://www.dailymotion.com/video/x6i9g6t https://www.dailymotion.com/video/x4o6bv3
+        //https://www.dailymotion.com/embed/video/x6i9g6t
         //-Dcom.sun.jndi.ldap.object.disableEndpointIdentification=true
     }
 }

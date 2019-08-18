@@ -100,6 +100,14 @@ public class CommonUtils {
         return icon;
     }
     
+    public static void log(int msg, Object context) {
+        log(String.valueOf(msg), context);
+    }
+    
+    public static void log(int msg, String context) {
+        log(String.valueOf(msg), context);
+    }
+    
     public static void log(String msg, String context) {
         System.out.println("["+context+"] "+msg);
     }

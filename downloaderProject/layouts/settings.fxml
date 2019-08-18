@@ -18,7 +18,7 @@
                           <content>
                             <AnchorPane id="searchHistoryPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="770.0" prefWidth="685.0" styleClass="background">
                                  <children>
-                                    <TextField id="videodownloadLoc" fx:id="videodownloadLoc" layoutX="8.0" layoutY="29.0" onAction="#setVideoLocation" prefHeight="28.0" prefWidth="545.0" promptText="Location" />
+                                    <TextField id="videodownloadLoc" layoutX="8.0" layoutY="29.0" onAction="#setVideoLocation" prefHeight="28.0" prefWidth="545.0" promptText="Location" />
                                     <Label layoutX="9.0" layoutY="10.0" prefHeight="16.0" prefWidth="173.0" text="Video Download Location" />
                                     <Button layoutX="567.0" layoutY="27.0" maxHeight="26.0" mnemonicParsing="false" onAction="#setVideoLocation" prefHeight="26.0" prefWidth="95.0" text="Browse">
                      <graphic>
@@ -129,7 +129,7 @@
                         <Tooltip text="Browse for a new folder" />
                      </tooltip>
                   </Button>
-                  <TextField id="streamdownloadLoc" fx:id="videodownloadLoc1" layoutX="8.0" layoutY="86.0" onAction="#setVideoLocation" prefHeight="28.0" prefWidth="545.0" promptText="Location" />
+                  <TextField id="streamdownloadLoc" layoutX="8.0" layoutY="86.0" onAction="#setVideoLocation" prefHeight="28.0" prefWidth="545.0" promptText="Location" />
                   <Label layoutX="10.0" layoutY="67.0" prefHeight="16.0" prefWidth="239.0" text="Live Stream Download Location" />
                   <Button layoutX="567.0" layoutY="83.0" maxHeight="26.0" mnemonicParsing="false" onAction="#setStreamLocation" prefHeight="26.0" prefWidth="95.0" text="Browse">
                      <graphic>
