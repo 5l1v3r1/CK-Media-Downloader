@@ -484,6 +484,8 @@ public class DownloaderItem {
                     updateSpeed(Double.parseDouble(text.substring(2)));
                 else if (text.startsWith("**"))
                     updateEta(text.substring(2), live);
+                else if (text.startsWith("##"))
+                    setSize(Long.parseLong(text.substring(2)));
                 else displayStatus(text);
             }
         }

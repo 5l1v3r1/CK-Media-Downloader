@@ -89,10 +89,14 @@ public class FFmpeg {
     
     private void monitor(OperationStream s) throws IOException {
         String line; Matcher m;
+        Pattern p = Pattern.compile("L?size=\\s*(?<size>\\d+)kB");
         while ((line = status.readLine()) != null) {
             m = timeRegex.matcher(line);
             if (m.find())
                 s.addProgress("**"+m.group("time"));
+            m = p.matcher(line);
+            if (m.find()) //dont matter if linux ... ffmpeg will output it as /1024
+                s.addProgress("##"+String.valueOf(Long.parseLong(m.group("size"))*1024)); 
             //CommonUtils.log(line, this);
         }
     }

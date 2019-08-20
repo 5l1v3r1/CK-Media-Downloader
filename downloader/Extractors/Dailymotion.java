@@ -63,9 +63,7 @@ public class Dailymotion extends GenericExtractor{
                 String q = (String)i.next();
                 if(q.equals("auto")) {
                     Map<String, String> f = CommonUtils.parseM3u8Formats((String)((JSONObject)((JSONArray)qualities.get(q)).get(0)).get("url"));
-                    f.keySet().iterator().forEachRemaining(a -> {
-                        links.put("hls-"+a, new MediaQuality(f.get(a), "m3u8"));
-                    });
+                    f.keySet().iterator().forEachRemaining(a -> links.put("hls-"+a, new MediaQuality(f.get(a), "m3u8")));
                 } else
                     links.put(q, new MediaQuality((String)((JSONObject)((JSONArray)qualities.get(q)).get(1)).get("url")));
             }

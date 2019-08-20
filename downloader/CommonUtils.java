@@ -380,12 +380,19 @@ public class CommonUtils {
     public static Map<String, String> parseM3u8Formats(String url) throws IOException {
         Map<String, String> qualities = new HashMap<>();
         String[] m3u8 = downloadFile(url).split("\n");
-
+        
         Pattern pattern = Pattern.compile("^#EXT-X-STREAM-INF:.*BANDWIDTH=\\d+.*RESOLUTION=(?<res>[\\dx]+).*");
         for(int i = 0; i < m3u8.length; i++) {
             Matcher m = pattern.matcher(m3u8[i]);
-            if (m.find())
-                qualities.put(m.group("res").split("x")[1], m3u8[i+1].matches("^https?://") ? m3u8[i+1] : url.substring(0, url.lastIndexOf("/")) + "/" + m3u8[i+1]);
+            if (m.find()) {
+                String link = m3u8[i+1].matches("^https?://") ? m3u8[i+1] : url.substring(0, url.lastIndexOf("/")) + "/" + m3u8[i+1];
+                String format = m.group("res").split("x")[1];
+                Pattern p = Pattern.compile("NAME=\"FPS:(?<frame>\\d+(?:[.]\\d*)?)\"");
+                Matcher m2 = p.matcher(m3u8[i]);
+                if (m2.find())
+                    qualities.put(format+" ("+m2.group("frame")+")", link);
+                else qualities.put(format, link);
+            }
         }
         
         if (qualities.isEmpty()) {
