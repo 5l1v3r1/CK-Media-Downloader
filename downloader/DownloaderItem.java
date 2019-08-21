@@ -163,9 +163,7 @@ public class DownloaderItem {
             }
             return true;
         } catch (FileNotFoundException e) {
-            MainApp.createMessageDialog("(2)Couldnt get thumb from link: \n"+url);
             CommonUtils.log("Failed to load thumbnail code: 2",this);
-            e.printStackTrace();
             return false;
         } catch (UncheckedIOException e) {
             e.printStackTrace();

@@ -5,6 +5,7 @@
  */
 package downloader.Extractors;
 
+import ChrisPackage.GameTime;
 import downloader.CommonUtils;
 import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.MediaQuality;
@@ -18,6 +19,7 @@ import java.util.Map;
 import java.util.Vector;
 import org.jsoup.UncheckedIOException;
 import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 
 /**
  *
@@ -83,6 +85,38 @@ public class Porntrex extends GenericExtractor {
 
     @Override public boolean allowNoThumb() { 
         return true;
+    }
+    
+    @Override public GameTime getDuration() throws IOException, GenericDownloaderException {
+        Elements em = getPage(url, false).select("div.info-block").select("div.item").select("span").get(2).select("em.badge");
+        GameTime g = new GameTime();
+        g.addSec(getSeconds(em.text()));
+        return g;
+    }
+    
+    @Override public Vector<String> getKeywords() throws IOException, GenericDownloaderException { //categories && tags
+        Elements div = getPage(url, false).select("div.block-details").select("div.info").select("div.item");
+        Vector<String> words = new Vector<>();
+        div.get(0).select("a").forEach(a -> {
+            if (!a.attr("href").equals("#"))
+                words.add(a.text());
+        });
+        return words;
+        
+    }
+    
+    @Override public Vector<String> getStars() throws IOException, GenericDownloaderException {
+        Elements div = getPage(url, false).select("div.block-details").select("div.info").select("div.item");
+        Vector<String> words = new Vector<>();
+        div.get(1).select("a").forEach(a -> {
+            if (!a.attr("href").equals("#"))
+                words.add(a.text());
+        });
+        div.get(2).select("a").forEach(a -> {
+            if (!a.attr("href").equals("#"))
+                words.add(a.text());
+        });
+        return words;
     }
     
     @Override protected String getValidRegex() {

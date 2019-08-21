@@ -69,7 +69,7 @@ public class MainApp extends Application {
     private static QueryManager query;
     private static Scene scene;
     private static boolean dontLoad;
-    private static final String VERSION = "build 37.2.2", TITLE = "Video Downloader "+VERSION;
+    private static final String VERSION = "build 37.2.3", TITLE = "Video Downloader "+VERSION;
     
     private static final int WIDTH = 895, HEIGHT = 550, XS = 100, PANES = 7;
     public static Pane[] actionPanes = new Pane[PANES];
