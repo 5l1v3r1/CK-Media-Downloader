@@ -273,6 +273,10 @@ public abstract class GenericExtractor {
     public abstract MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException;
     protected abstract String getValidRegex();
     
+    public boolean allowNoThumb() {
+        return false;
+    }
+    
     public boolean isLive() {
         return false;
     }

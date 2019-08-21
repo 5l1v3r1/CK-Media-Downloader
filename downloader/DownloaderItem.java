@@ -293,7 +293,7 @@ public class DownloaderItem {
                 ((Playlist)extractor).getItems().forEach((s) -> MainApp.dm.addDownload(s));
         }
        
-        if (!getThumbnail()) {release(); return false;} //either link not supported or network error
+        if (!getThumbnail() && !extractor.allowNoThumb()) {release(); return false;} //either link not supported or network error
        
         done = false;
         setButton();

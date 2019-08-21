@@ -626,6 +626,10 @@ public class CommonUtils {
         return saveFile(link,saveName,path.getAbsolutePath(), null);
     }
     
+    public static long saveFile(String link, String saveName, File path, String cookies) throws MalformedURLException{
+        return saveFile(link,saveName,path.getAbsolutePath(), null, cookies);
+    }
+    
     public static long saveFile(String link, String saveName, String path, OperationStream s) throws MalformedURLException{
         return saveFile(link,saveName,path, s, null);
     }
