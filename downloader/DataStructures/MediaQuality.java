@@ -11,7 +11,7 @@ package downloader.DataStructures;
  */
 public class MediaQuality {
     private String url, type;
-    boolean live;
+    private boolean live;
     
     public MediaQuality(String url) {
         this(url, "mp4", false);

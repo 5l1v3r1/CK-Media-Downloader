@@ -40,7 +40,7 @@ import org.json.simple.parser.ParseException;
  */
 
 public class Spankbang extends GenericQueryExtractor implements Playlist, Searchable{
-    private static final byte SKIP = 3;
+    private static final byte SKIP = 2;
     private String playlistUrl = null;
     private final String JSONURL = "https://spankbang.com/api/videos/stream";
     
@@ -178,11 +178,18 @@ public class Spankbang extends GenericQueryExtractor implements Playlist, Search
 	
     //getVideo thumbnail
     private static File downloadThumb(String url) throws IOException, SocketTimeoutException, UncheckedIOException, Exception {
-        Document page = getPage(url,false);
-        
+        Document page = getPage(url, false);
         verify(page);
+        //https://cth.spankbang.com/cdn-cgi/image/width=250,fit=contain,quality=80/5/6/5662235-t1-enh.jpg
+        //cdnthumb1.spankbang.com/250/5/6/5662235-t1.jpg
+        
         String thumb = getMetaImage(page).startsWith("http") ? getMetaImage(page) : "https:" + getMetaImage(page);
-
+        if (thumb.matches("https?://cth.spankbang.com/cdn-cgi/image/width=\\d+,fit=contain,quality=\\d+.*\\d+-t\\d+(?:-enh)?[.]jpg")) {
+            String width = getId(thumb, "width=(?<id>\\d+),");
+            String imgId = getId(thumb, "(?<id>/[/0-9]+-t\\d+(?:-enh)?[.]jpg)");
+            thumb = "http://cdnthumb1.spankbang.com/" + width + "/" + imgId.replace("-enh","");
+        }
+        
         if(!CommonUtils.checkImageCache(CommonUtils.getThumbName(thumb,SKIP))) //if file not already in cache download it
             CommonUtils.saveFile(thumb,CommonUtils.getThumbName(thumb,SKIP),MainApp.imageCache);
         return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(thumb,SKIP));
@@ -309,5 +316,6 @@ public class Spankbang extends GenericQueryExtractor implements Playlist, Search
         works = true;
         return "https?://(?:[^/]+[.])?spankbang[.]com/(?<id>[\\S]+)/(?:video|playlist|embed)/[\\S]+";
         //https://spankbang.com/3dd0b/video/missnileyhot+2019+06+22+22+00
+        //https://spankbang.com/2iiu6/playlist/missnileyhot
     }
 }

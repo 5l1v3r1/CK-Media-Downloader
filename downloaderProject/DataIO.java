@@ -291,11 +291,13 @@ public class DataIO {
     }
     
     public synchronized static void saveCollectedData(DataCollection dc) throws FileNotFoundException, IOException{
-        ObjectOutputStream out;
+        if (dc != null) {
+            ObjectOutputStream out;
         
-        out = new ObjectOutputStream(new FileOutputStream(new File(MainApp.saveDir+File.separator+"habits.dat")));
-        out.writeObject(dc);
-        out.flush(); out.close();
+            out = new ObjectOutputStream(new FileOutputStream(new File(MainApp.saveDir+File.separator+"habits.dat")));
+            out.writeObject(dc);
+            out.flush(); out.close();
+        }
     }
     
     private static File[] getExempt() {

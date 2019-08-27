@@ -56,7 +56,7 @@ public class DownloadManager {
             streamer = null;
             CommonUtils.log("Attempted to release download Manager",this);
         } catch (InterruptedException ex) {
-            CommonUtils.log("Failed to stop download threads",this);
+            CommonUtils.log("Failed to stop download threads: "+ex.getMessage(),this);
         }
     }
     
@@ -143,6 +143,7 @@ public class DownloadManager {
             if (downloadItems != null) {
                 int i = downloadItems.indexOf(which);
                 if (i != -1) {
+                    downloadItems.get(i).done = true;
                     downloadItems.remove(i);
                     downloadsView.getItems().remove(i);
                 }

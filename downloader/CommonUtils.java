@@ -82,7 +82,7 @@ public class CommonUtils {
                 x+=eHeight;
             }
         } catch (IOException e) {
-            log("Error splitting","CommonUtils");
+            log("Error splitting "+e.getMessage(),"CommonUtils");
         }
         return splits;
     }
@@ -100,11 +100,11 @@ public class CommonUtils {
         return icon;
     }
     
-    public static void log(int msg, Object context) {
+    public static void log(long msg, Object context) {
         log(String.valueOf(msg), context);
     }
     
-    public static void log(int msg, String context) {
+    public static void log(long msg, String context) {
         log(String.valueOf(msg), context);
     }
     
