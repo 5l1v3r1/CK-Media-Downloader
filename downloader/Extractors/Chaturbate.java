@@ -95,6 +95,6 @@ public class Chaturbate extends GenericExtractor {
     @Override protected String getValidRegex() {
         works = true;
         return "https?://(?:www|m[.])?chaturbate[.]com/(?<id>[^/?#]+)/?"; 
-        //https://chaturbate.com/lilly_pink
+        //https://chaturbate.com/lilly_pink https://chaturbate.com/caylin
     }
 }

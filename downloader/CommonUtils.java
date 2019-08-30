@@ -350,6 +350,12 @@ public class CommonUtils {
             return 1;
         else  {
             boolean started = false;
+            if (format.matches("\\d+p?\\s*\\(\\d+([.]\\d+)?\\)\\s*")) {
+                Pattern pattern = Pattern.compile("(?<res>\\d+)p?\\s*\\((?<fps>\\d+)([.]\\d+)?\\)\\s*");
+                Matcher m = pattern.matcher(format);
+                if (m.find()) 
+                    return Integer.parseInt(m.group("res")) + Integer.parseInt(m.group("fps"));
+            }
             for(int i = 0; i < format.length(); i++) 
                 if (Character.isDigit(format.charAt(i))) {
                     s.append(format.charAt(i)); started = true;
