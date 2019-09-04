@@ -518,6 +518,27 @@ public class CommonUtils {
         }
     }
     
+    public static String getContentType(String url) {
+        return getContentType(url, null);
+    }
+    
+    public static String getContentType(String url, String cookieString) {
+        if (url == null) return "None";
+        try {
+            URLConnection connection = new URL(url).openConnection();
+            connection.setRequestProperty("User-Agent", PCCLIENT);
+            if (cookieString != null && !cookieString.isEmpty())
+                connection.setRequestProperty("Cookie", cookieString);
+            return connection.getContentType();
+        } catch (IOException e) {
+            log(e.getMessage(), "CommonUtils:getContentType");
+            return "IOException";
+        } catch (Exception e) {
+            log(e.getMessage(), "CommonUtils:getContentType");
+            return e.getClass().getName();
+        }
+    }
+    
     public static boolean testPage(String url) throws IOException, SocketTimeoutException, UncheckedIOException { //test to avoid error 404
         try {
             Jsoup.connect(url).get().html();

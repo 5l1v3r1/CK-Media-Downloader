@@ -91,6 +91,8 @@ public class Yourporn extends GenericExtractor implements Searchable{
             Map<String, MediaQuality> qualities = new HashMap<>();
             String aid = getId(page.toString(), "data-aid=['\"](?<id>[\\S]+)[\"']");
             String video = "http://" + subs[2] + ".trafficdeposit.com/video/" + subs[3] + "/" + subs[4] + "/" + subs[5] + "/" + aid + "/" + getId() + ".mp4";
+            if (!CommonUtils.getContentType(video).contains("video"))
+                throw new PageNotFoundException("Video not found");
             qualities.put("single",new MediaQuality(video));
             media.addThread(qualities,videoName);
         }

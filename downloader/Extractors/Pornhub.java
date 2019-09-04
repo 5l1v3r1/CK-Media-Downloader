@@ -94,6 +94,8 @@ public class Pornhub extends GenericQueryExtractor implements Playlist, Searchab
         Element div = page.getElementById("photoImageSection");
         if (div == null) { div = page.getElementById("gifImageSection"); img = div.select("div.centerImage").attr("data-gif"); }
         else img = div.select("div.centerImage").select("a").select("img").attr("src");
+        if (img == null || img.isEmpty())
+            img = div.select("video.centerImageVid").select("source").attr("src");
         
         Map<String, MediaQuality> q = new HashMap<>();
         q.put("single", new MediaQuality(img, CommonUtils.getExtension(img)));
@@ -611,6 +613,6 @@ public class Pornhub extends GenericQueryExtractor implements Playlist, Searchab
 
     @Override protected String getValidRegex() {
         works = true;
-        return "https?://(?:www[.])?pornhub[.]com/((?:view_video[.]php[?]viewkey=)(?<id2>[\\S]+)|((?:photo|album|gif|playlist)/(?<id>[\\d]+)(?:[?]page=[\\d]+)?))"; 
+        return "https?://(?:www[.])?pornhub[.]com/((?:view_video[.]php[?]viewkey=)(?<id2>[\\da-z]+)(?:&pkey=\\d+)?|((?:photo|album|gif|playlist)/(?<id>[\\d]+)(?:[?]page=[\\d]+)?))"; 
     }
 }

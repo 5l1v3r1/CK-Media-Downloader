@@ -41,6 +41,26 @@ public class MediaDefinition implements Iterable<Map<String, MediaQuality>>{
     public boolean isAlbum() {
         return albumName != null;
     }
+    
+    public String toJson() {
+        StringBuilder json = new StringBuilder();
+        json.append("{\"albumName\": \""+albumName+"\", \"threads\": [");
+        for(int i = 0; i < threadName.size(); i++) {
+            json.append("{\"Thread Name\": \""+threadName.get(i)+"\", ");
+            Iterator<String> j = threads.get(i).keySet().iterator();
+            while(j.hasNext()) {
+                String q = j.next();
+                json.append("\""+q+"\": "+threads.get(i).get(q).toJson());
+                if (j.hasNext())
+                    json.append(",");    
+            }
+            json.append("}");
+            if (i < threadName.size() -1)
+                json.append(",");
+        }
+        json.append("]}");
+        return json.toString();
+    }
 
     @Override public Iterator<Map<String, MediaQuality>> iterator() {
         Iterator<Map<String, MediaQuality>> it = new Iterator<Map<String, MediaQuality>>() {

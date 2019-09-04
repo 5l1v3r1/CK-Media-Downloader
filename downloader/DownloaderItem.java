@@ -349,15 +349,16 @@ public class DownloaderItem {
         ContextMenu menu = new ContextMenu();
         menu.getStyleClass().add("background");
         final int iconSize = 20;
-        final MenuItem[] item = new MenuItem[6];
+        final MenuItem[] item = new MenuItem[7];
         item[0] = new MenuItem("copy page url");
         item[1] = new MenuItem("copy video url");
         item[2] = new MenuItem("open in browser");
-        item[3] = new MenuItem("remove");
-        item[4] = new MenuItem("remove all");
-        item[5] = new MenuItem("export links to file");
+        item[3] = new MenuItem("get media info");
+        item[4] = new MenuItem("remove");
+        item[5] = new MenuItem("remove all");
+        item[6] = new MenuItem("export links to file");
         
-       
+        
         item[0].setGraphic(CommonUtils.getIcon("/icons/icons8-copy-link-48.png", iconSize));
         item[0].setOnAction(ev -> {
             Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
@@ -388,16 +389,27 @@ public class DownloaderItem {
             } else
                 MainApp.createMessageDialog("Not supported");
         });
-        item[3].setGraphic(CommonUtils.getIcon("/icons/icons8-cancel-40.png", iconSize));
+        item[3].setGraphic(CommonUtils.getIcon("/icons/icons8-info-16.png", iconSize));
         item[3].setOnAction(ev -> {
-            clearThis();
+            try {
+                if (extractor == null)
+                    getExtractor();
+                Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+                clipboard.setContents(new StringSelection(extractor.getVideo().toJson()), new StringSelection(MainApp.username));
+            } catch (Exception e) {
+                MainApp.createMessageDialog(e.getMessage());
+            }
         });
         item[4].setGraphic(CommonUtils.getIcon("/icons/icons8-cancel-40.png", iconSize));
         item[4].setOnAction(ev -> {
+            clearThis();
+        });
+        item[5].setGraphic(CommonUtils.getIcon("/icons/icons8-cancel-40.png", iconSize));
+        item[5].setOnAction(ev -> {
             MainApp.dm.removeAll();
         });
-        item[5].setGraphic(CommonUtils.getIcon("/icons/icons8-export-40.png", iconSize));
-        item[5].setOnAction(ev -> {
+        item[6].setGraphic(CommonUtils.getIcon("/icons/icons8-export-40.png", iconSize));
+        item[6].setOnAction(ev -> {
             MainApp.dm.exportAll();
         });
        

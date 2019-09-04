@@ -39,6 +39,10 @@ public class MediaQuality {
         return live;
     }
     
+    public String toJson() {
+        return "{\"url\": \""+url+"\", \"type\": \""+type+"\",  \"live\": \""+live+"\"}";
+    }
+    
     @Override public String toString() {
         return url;
     }
