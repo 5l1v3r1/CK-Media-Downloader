@@ -313,7 +313,7 @@ public class Pornhub extends GenericQueryExtractor implements Playlist, Searchab
             return CommonUtils.getPicName(img);
         } else {
             while(page.toString().contains("document.cookie=\"RNKEY=\""))
-                Jsoup.parse(Jsoup.connect(url).cookie("RNKEY", getRNKEY(page.toString())).userAgent(CommonUtils.MOBILECLIENT).get().html());
+                Jsoup.parse(Jsoup.connect(url).cookie("RNKEY", getRNKEY(page.toString())).userAgent(CommonUtils.MOBILECLIENT).ignoreHttpErrors(true).get().html());
             page = Jsoup.parse(page.toString());
             CommonUtils.savePage(page.toString(), url, true);
             verify(page);
@@ -353,7 +353,7 @@ public class Pornhub extends GenericQueryExtractor implements Playlist, Searchab
             return new File(MainApp.imageCache.getAbsolutePath()+File.separator+CommonUtils.getThumbName(img,SKIP));
         } else {
             while(page.toString().contains("document.cookie=\"RNKEY=\""))
-                page = Jsoup.parse(Jsoup.connect(url).cookie("RNKEY", getRNKEY(page.toString())).userAgent(CommonUtils.MOBILECLIENT).get().html());
+                page = Jsoup.parse(Jsoup.connect(url).cookie("RNKEY", getRNKEY(page.toString())).userAgent(CommonUtils.MOBILECLIENT).ignoreHttpErrors(true).get().html());
             CommonUtils.savePage(page.toString(), url, true);
             verify(page);
             String thumb = getMetaImage(page);

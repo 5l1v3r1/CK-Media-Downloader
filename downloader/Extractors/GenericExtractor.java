@@ -54,16 +54,20 @@ public abstract class GenericExtractor {
     }
     
     protected static Document getPage(String url, boolean mobile) throws IOException, GenericDownloaderException {
-        return getPage(url,mobile,false);
+        return getPage(url,mobile,false, false);
     }
     
-    protected static Document getPage(String url, boolean mobile, boolean force) throws FileNotFoundException, IOException, GenericDownloaderException {
+    protected static Document getPage(String url, boolean mobile, boolean force) throws IOException, GenericDownloaderException {
+        return getPage(url,mobile,force, false);
+    }
+    
+    protected static Document getPage(String url, boolean mobile, boolean force, boolean ignore) throws FileNotFoundException, IOException, GenericDownloaderException {
         Document page;
         if (!force && CommonUtils.checkPageCache(CommonUtils.getCacheName(url,mobile))) //check to see if page was downloaded previous 
             page = Jsoup.parse(CommonUtils.loadPage(MainApp.pageCache.getAbsolutePath()+File.separator+CommonUtils.getCacheName(url,mobile))); //load if not force redownload
         else { String html;
             try {
-               html = mobile ? Jsoup.connect(url).userAgent(CommonUtils.MOBILECLIENT).get().html() : Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).get().html();
+               html = mobile ? Jsoup.connect(url).userAgent(CommonUtils.MOBILECLIENT).ignoreHttpErrors(ignore).get().html() : Jsoup.connect(url).userAgent(CommonUtils.PCCLIENT).ignoreHttpErrors(ignore).get().html();
                page = Jsoup.parse(html);
                CommonUtils.savePage(html, url, mobile);
             } catch (HttpStatusException e) {
@@ -74,16 +78,20 @@ public abstract class GenericExtractor {
     }
     
     protected Document getPageCookie(String url, boolean mobile) throws IOException, FileNotFoundException, GenericDownloaderException {
-        return getPage(url,mobile,false);
+        return getPage(url,mobile,false, false);
     }
     
-    protected Document getPageCookie(String url, boolean mobile, boolean force) throws FileNotFoundException, IOException, GenericDownloaderException {
+    protected Document getPageCookie(String url, boolean mobile, boolean force) throws IOException, FileNotFoundException, GenericDownloaderException {
+        return getPage(url,mobile,force, false);
+    }
+    
+    protected Document getPageCookie(String url, boolean mobile, boolean force, boolean ignore) throws FileNotFoundException, IOException, GenericDownloaderException {
         Document page;
         if (CommonUtils.checkPageCache(CommonUtils.getCacheName(url,mobile)) && !force) //check to see if page was downloaded previous 
             page = Jsoup.parse(CommonUtils.loadPage(MainApp.pageCache.getAbsolutePath()+File.separator+CommonUtils.getCacheName(url,mobile))); //load if not force redownload
         else {
             try {
-               Response r = mobile ? addCookies(Jsoup.connect(url)).followRedirects(true).userAgent(CommonUtils.MOBILECLIENT).execute() : addCookies(Jsoup.connect(url)).followRedirects(true).userAgent(CommonUtils.PCCLIENT).execute();
+               Response r = mobile ? addCookies(Jsoup.connect(url)).followRedirects(true).userAgent(CommonUtils.MOBILECLIENT).ignoreHttpErrors(ignore).execute() : addCookies(Jsoup.connect(url)).followRedirects(true).userAgent(CommonUtils.PCCLIENT).ignoreHttpErrors(ignore).execute();
                cookieJar.putAll(r.cookies());
                page = r.parse();
                CommonUtils.savePage(page.toString(), url, mobile);
@@ -176,7 +184,7 @@ public abstract class GenericExtractor {
         return thumbLink;
     }
     
-    final private static String pullMetaImage(Elements metas, boolean ignore, String attr) {
+    private static String pullMetaImage(Elements metas, boolean ignore, String attr) {
         for(Element meta :metas) {
             if (meta.attr(attr).equals("og:image"))
                 if (!meta.attr("content").contains("static"))

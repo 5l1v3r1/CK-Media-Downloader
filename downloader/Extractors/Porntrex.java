@@ -10,6 +10,7 @@ import downloader.CommonUtils;
 import downloader.DataStructures.MediaDefinition;
 import downloader.DataStructures.MediaQuality;
 import downloader.Exceptions.GenericDownloaderException;
+import downloader.Exceptions.VideoDeletedException;
 import downloaderProject.MainApp;
 import java.io.File;
 import java.io.IOException;
@@ -46,12 +47,15 @@ public class Porntrex extends GenericExtractor {
     }
     
     private static String downloadVideoName(String url) throws IOException , SocketTimeoutException, UncheckedIOException, GenericDownloaderException,Exception{
-        return getPage(url,false).select("p.title-video").text();
+        Document page = getPage(url,false, false, true);
+        verify(page);
+        return page.select("p.title-video").text();
     } 
 	
     //getVideo thumbnail
     private File downloadThumb(String url) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
-        Document page = getPageCookie(url, false);
+        Document page = getPageCookie(url,false, false, true);
+        verify(page);
         String thumbLink = getMetaImage(page);
         if (thumbLink == null || thumbLink.isEmpty())
             thumbLink = "http:" + getId(page.toString(), "preview_url: '(?<id>//\\S+[.]jpg)'");
@@ -62,8 +66,10 @@ public class Porntrex extends GenericExtractor {
 
     @Override public MediaDefinition getVideo() throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException {
         MediaDefinition media = new MediaDefinition();
+        Document page = getPage(url,false,true); 
+        verify(page);
         
-        String vars = getId(getPage(url,false,true).toString(), "var flashvars = \\{(?<id>[^;]+?)\\};");
+        String vars = getId(page.toString(), "var flashvars = \\{(?<id>[^;]+?)\\};");
         Vector<String> values = getMatches(vars, "\\S+:\\s*'(?<value>[^']+?)'", "value");
         Vector<String> keys = getMatches(vars, "(?<keys>\\S+):\\s*'[^']+?'", "keys");
         
@@ -81,6 +87,11 @@ public class Porntrex extends GenericExtractor {
         media.addThread(q,videoName);
 
         return media;
+    }
+    
+    private static void verify(Document page) throws GenericDownloaderException {
+        if (!page.select("div.page-error").isEmpty())
+            throw new VideoDeletedException(page.select("div.page-error").get(0).text());
     }
 
     @Override public boolean allowNoThumb() { 

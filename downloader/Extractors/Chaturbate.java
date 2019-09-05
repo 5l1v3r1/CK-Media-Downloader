@@ -33,15 +33,19 @@ public class Chaturbate extends GenericExtractor {
     }
 
     public Chaturbate(String url) throws IOException, SocketTimeoutException, UncheckedIOException, GenericDownloaderException, Exception{
-        this(url,downloadThumb(configureUrl(url)),getStarName(configureUrl(url)));
+        this(changeUrl(url),downloadThumb(configureUrl(changeUrl(url))),getStarName(configureUrl(changeUrl(url))));
     }
     
     public Chaturbate(String url, File thumb) throws IOException, SocketTimeoutException, UncheckedIOException,GenericDownloaderException, Exception{
-        this(url,thumb,getStarName(configureUrl(url)));
+        this(changeUrl(url),thumb,getStarName(configureUrl(changeUrl(url))));
     }
     
     public Chaturbate(String url, File thumb, String videoName){
-        super(url,thumb,videoName);
+        super(changeUrl(url),thumb,videoName);
+    }
+    
+    private static String changeUrl(String link) {
+        return link.matches("https://(?:www|m[.])?chaturbate[.]com/fullvideo/[?]b=[^/?#]+") ? addHost(getId(link, "https://(?:www|m[.])?chaturbate[.]com/fullvideo/[?]b=(?<id>[^/?#]+)"), "chaturbate.com") : link;
     }
     
     private static String getStarName(String url) {
@@ -94,7 +98,7 @@ public class Chaturbate extends GenericExtractor {
 
     @Override protected String getValidRegex() {
         works = true;
-        return "https?://(?:www|m[.])?chaturbate[.]com/(?<id>[^/?#]+)/?"; 
-        //https://chaturbate.com/lilly_pink https://chaturbate.com/caylin
+        return "https?://(?:www|m[.])?chaturbate[.]com/((?<id>[^/?#]+)/?|fullvideo/[?]b=(?<id2>[^/?#]+))"; 
+        //https://chaturbate.com/lilly_pink https://chaturbate.com/caylin https://chaturbate.com/fullvideo/?b=teddyfleece
     }
 }
